@@ -77,4 +77,10 @@ public class GameService extends Service {
     public static class LocalBinder extends Binder {
         public boolean isActive;
     }
+
+    @Override
+    public void onTimeout(int startId, int fgsType) {
+        stopForeground(STOP_FOREGROUND_REMOVE);
+        stopSelf();
+    }
 }

@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
+import coil.compose.rememberAsyncImagePainter
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.screens.settings.layouts.CardPosition
 import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsCard
@@ -112,10 +113,20 @@ fun DeveloperSettingsScreen(
 
                     SettingsCard(position = position, useSurface = true) {
                         val description = plugin.getMetaData().getString(LibraryPlugin.METADATA_FCL_DESCRIPTION)
+                        val pluginIcon = remember(plugin.appId) {
+                            try {
+                                context.packageManager.getApplicationIcon(plugin.appId)
+                            } catch (_: Exception) {
+                                null
+                            }
+                        }
+
                         SettingsActionItem(
                             title = plugin.appId,
                             summary = translatedText(description ?: "No description provided."),
-                            icon = Icons.Default.Extension,
+                            icon = if (pluginIcon == null) Icons.Default.Extension else null,
+                            iconPainter = if (pluginIcon != null) rememberAsyncImagePainter(pluginIcon) else null,
+                            tintIcon = pluginIcon == null,
                             onClick = {}
                         )
                     }

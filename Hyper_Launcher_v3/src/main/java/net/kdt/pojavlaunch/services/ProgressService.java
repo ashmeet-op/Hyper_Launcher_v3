@@ -1,5 +1,6 @@
 package net.kdt.pojavlaunch.services;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -13,6 +14,7 @@ import android.os.Process;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresPermission;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
@@ -33,8 +35,12 @@ public class ProgressService extends Service implements TaskCountListener {
 
     /** Simple wrapper to start the service */
     public static void startService(Context context){
-        Intent intent = new Intent(context, ProgressService.class);
-        ContextCompat.startForegroundService(context, intent);
+        try {
+            Intent intent = new Intent(context, ProgressService.class);
+            ContextCompat.startForegroundService(context, intent);
+        } catch (Throwable e) {
+            Log.e("ProgressService", "Foreground service start not allowed or failed", e);
+        }
     }
 
     private NotificationCompat.Builder mNotificationBuilder;
@@ -89,6 +95,7 @@ public class ProgressService extends Service implements TaskCountListener {
         ProgressKeeper.removeTaskCountListener(this);
     }
 
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     @Override
     public boolean onUpdateTaskCount(int taskCount) {
         Tools.MAIN_HANDLER.post(()->{
@@ -105,7 +112,7 @@ public class ProgressService extends Service implements TaskCountListener {
     @Override
     public void onTimeout(int startId, int fgsType) {
         super.onTimeout(startId, fgsType);
-        stopForeground(true);
+        stopForeground(STOP_FOREGROUND_REMOVE);
         stopSelf();
     }
 }

@@ -430,11 +430,23 @@ public final class Tools {
                         }
                     })
                     .setCancelable(!exitIfOk);
-            builder.show();
+            try {
+                if (ctx instanceof Activity && (((Activity) ctx).isFinishing() || ((Activity) ctx).isDestroyed())) {
+                    showErrorRemote(rolledMessage, e);
+                } else {
+                    builder.show();
+                }
+            } catch (Throwable t) {
+                showErrorRemote(rolledMessage, e);
+            }
         };
 
         if (ctx instanceof Activity) {
-            ((Activity) ctx).runOnUiThread(runnable);
+            if (!((Activity) ctx).isFinishing() && !((Activity) ctx).isDestroyed()) {
+                ((Activity) ctx).runOnUiThread(runnable);
+            } else {
+                showErrorRemote(rolledMessage, e);
+            }
         } else {
             runnable.run();
         }

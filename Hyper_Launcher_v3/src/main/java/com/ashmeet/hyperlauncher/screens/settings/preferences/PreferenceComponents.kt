@@ -31,6 +31,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
@@ -158,6 +159,7 @@ fun SettingsActionItem(
     iconPainter: Painter? = null,
     enabled: Boolean = true,
     warningTooltip: String? = null,
+    tintIcon: Boolean = true,
     onClick: () -> Unit
 ) {
     Row(
@@ -174,14 +176,14 @@ fun SettingsActionItem(
                     imageVector = icon,
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = if (tintIcon) MaterialTheme.colorScheme.onSurface else Color.Unspecified
                 )
             } else {
                 Icon(
                     painter = iconPainter!!,
                     contentDescription = null,
                     modifier = Modifier.size(28.dp),
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = if (tintIcon) MaterialTheme.colorScheme.onSurface else Color.Unspecified
                 )
             }
             Spacer(modifier = Modifier.width(20.dp))
