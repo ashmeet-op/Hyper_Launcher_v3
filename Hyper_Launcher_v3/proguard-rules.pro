@@ -10,6 +10,14 @@
 # General optimization settings
 -allowaccessmodification
 
+# The "Reverse" Approach: Keep everything outside com.ashmeet.hyperlauncher intact
+# This allows R8 to shrink, optimize, and obfuscate only com.ashmeet.hyperlauncher
+-keep class net.kdt.pojavlaunch.** { *; }
+-keep class git.artdeell.** { *; }
+-keep class git.mojo.** { *; }
+-keep class com.kdt.mcgui.** { *; }
+
+
 # We use Reflection on the builder to avoid creating too many objects
  -keep class net.objecthunter.exp4j.ExpressionBuilder**
  -keepclassmembers class net.objecthunter.exp4j.ExpressionBuilder** {
@@ -62,6 +70,7 @@
 -dontwarn coil.**
 
 # Ktor
+#noinspection ExpensiveKeepRuleInspection
 -keep class io.ktor.** { *; }
 -dontwarn io.ktor.**
 
