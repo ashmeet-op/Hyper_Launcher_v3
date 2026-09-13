@@ -2,7 +2,6 @@ package com.ashmeet.hyperlauncher.components.text
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,6 +25,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.ashmeet.hyperlauncher.R
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 
 import androidx.compose.ui.platform.ComposeView
 
@@ -44,23 +45,6 @@ object LegacyMigratedComponentsBridge {
                 isExpanded = isExpanded.value,
                 onExpandClick = { isExpanded.value = !isExpanded.value },
                 tasks = tasks
-            )
-        }
-    }
-
-    @JvmStatic
-    fun setInstanceAdapterContent(
-        view: ComposeView,
-        text: String,
-        icon: Any?,
-        isSelected: Boolean
-    ) {
-        view.setContent {
-            VersionProfileItem(
-                text = text,
-                icon = icon,
-                onClick = {},
-                modifier = if (isSelected) Modifier.background(Color(0x3CFFFFFF)) else Modifier
             )
         }
     }
@@ -190,7 +174,7 @@ fun ViewProgress(
                     .size(dimensionResource(R.dimen.padding_extra_large))
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.spinner_arrow),
+                    imageVector = Icons.Default.ArrowDropDown,
                     contentDescription = null,
                     modifier = Modifier.rotate(if (isExpanded) 180f else 0f),
                     tint = Color.White

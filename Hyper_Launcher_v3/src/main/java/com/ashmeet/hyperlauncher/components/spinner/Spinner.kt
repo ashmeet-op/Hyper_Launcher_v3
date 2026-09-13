@@ -20,6 +20,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -253,7 +255,7 @@ fun <T> HyperSpinner(
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Icon(
-                    painter = painterResource(id = R.drawable.spinner_arrow),
+                    imageVector = Icons.Default.ArrowDropDown,
                     contentDescription = null,
                     tint = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
                     modifier = Modifier.size(16.dp)
@@ -330,7 +332,7 @@ fun AccountSpinnerUI(
                         )
                     } else {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_add),
+                            imageVector = Icons.Default.Add,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.size(24.dp)
@@ -370,7 +372,7 @@ fun AccountSpinnerUI(
                 text = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_add),
+                            imageVector = Icons.Default.Add,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.size(24.dp)

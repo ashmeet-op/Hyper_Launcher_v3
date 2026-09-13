@@ -25,6 +25,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ContentCopy
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -150,7 +152,7 @@ fun ExitScreen(
                         )
                     ) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_px_file),
+                            imageVector = Icons.Default.Description,
                             contentDescription = null,
                             modifier = Modifier.size(18.dp),
                             tint = MaterialTheme.colorScheme.error
@@ -177,7 +179,7 @@ fun ExitScreen(
                     )
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_px_sharelog),
+                        imageVector = Icons.Default.Share,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )

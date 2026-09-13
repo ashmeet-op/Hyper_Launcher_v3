@@ -68,7 +68,7 @@ public class LauncherActivity extends BaseActivity implements PreferenceFragment
         public void onFragmentResumed(@NonNull FragmentManager fm, @NonNull Fragment f) {
             boolean isMain = f instanceof MainMenuFragment;
             LauncherComposeHelper.setSettingsIcon(isMain
-                    ? R.drawable.ic_sharp_settings_24 : R.drawable.ic_px_home);
+                    ? com.ashmeet.hyperlauncher.utils.drawable.MaterialIconUtil.ICON_SETTINGS : com.ashmeet.hyperlauncher.utils.drawable.MaterialIconUtil.ICON_HOME);
             LauncherComposeHelper.setFileManagerVisible(isMain);
         }
     };

@@ -33,6 +33,7 @@ import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Share
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -359,7 +360,7 @@ fun MainMenuFragmentCompose(
                                             )
                                         } else {
                                             Icon(
-                                                painter = painterResource(id = R.drawable.ic_px_home),
+                                                imageVector = Icons.Default.Home,
                                                 contentDescription = null,
                                                 modifier = Modifier.size(20.dp),
                                                 tint = MaterialTheme.colorScheme.primary

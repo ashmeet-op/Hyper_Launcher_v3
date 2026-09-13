@@ -17,6 +17,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ashmeet.hyperlauncher.components.button.MineButton
 
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.SportsEsports
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.ashmeet.hyperlauncher.R
 
@@ -57,7 +60,7 @@ fun SelectAuthMethodScreen(
             MineButton(
                 text = translatedText(stringResource(R.string.auth_select_local)),
                 onClick = onLocalClick,
-                icon = painterResource(R.drawable.ic_px_gamepad),
+                icon = rememberVectorPainter(Icons.Default.SportsEsports),
                 modifier = Modifier.fillMaxWidth(),
                 tintIcon = true
             )

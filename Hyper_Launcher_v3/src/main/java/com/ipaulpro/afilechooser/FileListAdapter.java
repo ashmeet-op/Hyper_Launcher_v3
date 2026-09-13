@@ -17,13 +17,13 @@
 package com.ipaulpro.afilechooser;
 
 import android.content.*;
+import android.graphics.drawable.Drawable;
 import android.view.*;
 import android.widget.*;
 import java.io.*;
 import java.util.*;
-import net.kdt.pojavlaunch.*;
 
-import net.ashmeet.hyperlauncher.R;
+import com.ashmeet.hyperlauncher.utils.drawable.MaterialIconUtil;
 
 /**
  * List adapter for Files.
@@ -35,9 +35,6 @@ import net.ashmeet.hyperlauncher.R;
  * @addToMyProject khanhduy032
  */
 public class FileListAdapter extends BaseAdapter {
-
-    private final static int ICON_FOLDER = R.drawable.ic_px_folder;
-    private final static int ICON_FILE = R.drawable.ic_px_file;
 
     private final LayoutInflater mInflater;
 
@@ -82,21 +79,6 @@ public class FileListAdapter extends BaseAdapter {
         return mData.size();
     }
 
-    public List<File> getListItems() {
-        return mData;
-    }
-
-    /**
-     * Set the list items without notifying on the clear. This prevents loss of
-     * scroll position.
-     *
-     * @param data
-     */
-    public void setListItems(List<File> data) {
-        mData = data;
-        notifyDataSetChanged();
-    }
-
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View row = convertView;
@@ -113,8 +95,8 @@ public class FileListAdapter extends BaseAdapter {
         view.setText(file.getName());
 
         // If the item is not a directory, use the file icon
-        int icon = file.isDirectory() ? ICON_FOLDER : ICON_FILE;
-        view.setCompoundDrawablesWithIntrinsicBounds(icon, 0, 0, 0);
+        Drawable icon = file.isDirectory() ? MaterialIconUtil.getFolderDrawable(view.getContext()) : MaterialIconUtil.getFileDrawable(view.getContext());
+        view.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
         view.setCompoundDrawablePadding(20);
         return row;
     }

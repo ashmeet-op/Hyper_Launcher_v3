@@ -27,7 +27,7 @@ public class ControlHandleView extends View {
         init();
     }
 
-    private final Drawable mDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_view_handle, getContext().getTheme());
+    private final Drawable mDrawable = com.ashmeet.hyperlauncher.utils.drawable.MaterialIconUtil.getHandleDrawable(getContext());
     private ControlInterface mView;
     private float mXOffset, mYOffset;
     private final ViewTreeObserver.OnPreDrawListener mPositionListener = new ViewTreeObserver.OnPreDrawListener() {

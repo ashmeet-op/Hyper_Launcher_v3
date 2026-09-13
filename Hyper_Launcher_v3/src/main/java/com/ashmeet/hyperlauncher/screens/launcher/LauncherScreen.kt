@@ -40,6 +40,7 @@ import com.ashmeet.hyperlauncher.components.spinner.AccountSpinnerCompose
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
+import com.ashmeet.hyperlauncher.utils.drawable.MaterialIconUtil
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.progresskeeper.ProgressKeeper
 import net.kdt.pojavlaunch.progresskeeper.TaskCountListener
@@ -148,7 +149,7 @@ fun PojavLauncherScreen(
                             modifier = Modifier.size(56.dp)
                         ) {
                             Icon(
-                                painter = painterResource(id = settingsIconRes),
+                                imageVector = MaterialIconUtil.getIconVector(settingsIconRes),
                                 contentDescription = translatedText("Settings"),
                                 tint = MaterialTheme.colorScheme.onSurface
                             )
@@ -192,7 +193,7 @@ fun PojavLauncherScreen(
 fun PojavLauncherScreenPreview() {
     PojavTheme {
         PojavLauncherScreen(
-            settingsIconRes = R.drawable.ic_sharp_settings_24,
+            settingsIconRes = MaterialIconUtil.ICON_SETTINGS,
             isFileManagerVisible = true,
             onSettingsClick = {},
             onContentInstallerClick = {},
@@ -207,7 +208,7 @@ fun PojavLauncherScreenPreview() {
 fun PojavLauncherScreenHiddenPreview() {
     PojavTheme {
         PojavLauncherScreen(
-            settingsIconRes = R.drawable.ic_sharp_settings_24,
+            settingsIconRes = MaterialIconUtil.ICON_SETTINGS,
             isFileManagerVisible = false,
             onSettingsClick = {},
             onContentInstallerClick = {},

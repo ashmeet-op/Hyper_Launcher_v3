@@ -8,10 +8,10 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.FragmentActivity
 import com.ashmeet.hyperlauncher.screens.launcher.PojavLauncherScreen
 import com.ashmeet.hyperlauncher.theme.PojavTheme
-import net.ashmeet.hyperlauncher.R
+import com.ashmeet.hyperlauncher.utils.drawable.MaterialIconUtil
 
 object LauncherMainComposeHelper {
-    private var settingsIconRes: Int by mutableIntStateOf(R.drawable.ic_px_sliders)
+    private var settingsIconRes: Int by mutableIntStateOf(MaterialIconUtil.ICON_SLIDERS)
     private var mIsFileManagerVisible: Boolean by mutableStateOf(true)
 
     @JvmStatic

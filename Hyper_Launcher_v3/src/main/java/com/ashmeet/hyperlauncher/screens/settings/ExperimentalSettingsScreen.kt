@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Speed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -91,7 +92,7 @@ fun ExperimentalSettingsScreen(
                 SettingsSwitchItem(
                     title = translatedText(stringResource(R.string.preference_alsoft_opensl_title)),
                     summary = translatedText(stringResource(R.string.preference_alsoft_opensl_summary)),
-                    icon = ImageVector.vectorResource(R.drawable.ic_px_dynamic),
+                    icon = Icons.Default.Speed,
                     checked = alsoftForceOpenSL,
                     onCheckedChange = {
                         alsoftForceOpenSL = it
