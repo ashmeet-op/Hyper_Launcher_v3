@@ -14,9 +14,9 @@ import com.kdt.mcgui.ProgressLayout;
 
 import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperlauncher.utils.Architecture;
-import net.kdt.pojavlaunch.JAssetInfo;
-import net.kdt.pojavlaunch.JAssets;
-import net.kdt.pojavlaunch.JVersionList;
+import net.kdt.pojavlaunch.Jassets.JAssetInfo;
+import net.kdt.pojavlaunch.Jassets.JAssets;
+import net.kdt.pojavlaunch.Jassets.JVersionList;
 import net.kdt.pojavlaunch.NewJREUtil;
 import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.downloader.Downloader;

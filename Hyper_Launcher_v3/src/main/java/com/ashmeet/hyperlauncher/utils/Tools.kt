@@ -46,7 +46,7 @@ import com.google.gson.GsonBuilder
 import net.ashmeet.hyperlauncher.BuildConfig
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.InsetBackground
-import net.kdt.pojavlaunch.JVersionList
+import net.kdt.pojavlaunch.Jassets.JVersionList
 import net.kdt.pojavlaunch.Logger
 import com.ashmeet.hyperlauncher.activity.MissingStorageActivity
 import net.kdt.pojavlaunch.PojavApplication.sExecutorService

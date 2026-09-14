@@ -2,7 +2,7 @@ package net.kdt.pojavlaunch.utils;
 
 import android.util.Log;
 
-import net.kdt.pojavlaunch.JVersionList;
+import net.kdt.pojavlaunch.Jassets.JVersionList;
 import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.extra.ExtraConstants;
 import net.kdt.pojavlaunch.extra.ExtraCore;

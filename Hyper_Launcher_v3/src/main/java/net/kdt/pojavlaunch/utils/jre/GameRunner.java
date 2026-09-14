@@ -14,7 +14,7 @@ import com.ashmeet.hyperlauncher.skin.SkinManagerKt;
 
 import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperlauncher.utils.Architecture;
-import net.kdt.pojavlaunch.JVersionList;
+import net.kdt.pojavlaunch.Jassets.JVersionList;
 import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.authenticator.AuthType;
 import net.kdt.pojavlaunch.authenticator.accounts.Account;

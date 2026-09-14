@@ -1,6 +1,6 @@
 package net.kdt.pojavlaunch.modloaders;
 
-import net.kdt.pojavlaunch.JVersionList;
+import net.kdt.pojavlaunch.Jassets.JVersionList;
 import net.kdt.pojavlaunch.tasks.MoJsonExtras;
 import net.kdt.pojavlaunch.tasks.MoJsonDownloader;
 

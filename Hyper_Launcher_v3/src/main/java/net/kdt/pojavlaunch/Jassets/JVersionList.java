@@ -1,4 +1,4 @@
-package net.kdt.pojavlaunch;
+package net.kdt.pojavlaunch.Jassets;
 
 import androidx.annotation.Keep;
 import java.util.*;

@@ -30,6 +30,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 
 import androidx.compose.ui.platform.ComposeView
+import com.ashmeet.hyperlauncher.theme.PojavTheme
 
 
 object LegacyMigratedComponentsBridge {
@@ -41,12 +42,14 @@ object LegacyMigratedComponentsBridge {
         tasks: List<ProgressTaskState>
     ) {
         view.setContent {
-            ProgressLayoutContent(
-                progressText = progressText.value,
-                isExpanded = isExpanded.value,
-                onExpandClick = { isExpanded.value = !isExpanded.value },
-                tasks = tasks
-            )
+            PojavTheme {
+                ProgressLayoutContent(
+                    progressText = progressText.value,
+                    isExpanded = isExpanded.value,
+                    onExpandClick = { isExpanded.value = !isExpanded.value },
+                    tasks = tasks
+                )
+            }
         }
     }
 
@@ -58,39 +61,42 @@ object LegacyMigratedComponentsBridge {
         onItemClick: (Int, Int) -> Unit
     ) {
         view.setContent {
-            ExpandableVersionList(
-                groups = groups,
-                getItems = { group -> groupData[groups.indexOf(group)] },
-                groupContent = { group, isExpanded, onToggle ->
-                    val rotation by animateFloatAsState(targetValue = if (isExpanded) 180f else 0f, label = "rotation")
-                    SimpleListItem1(
-                        text = group,
-                        onClick = onToggle,
-                        trailingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.ArrowDropDown,
-                                contentDescription = null,
-                                modifier = Modifier.rotate(rotation)
-                            )
-                        }
-                    )
-                },
-                itemContent = { item ->
+            PojavTheme {
+                ExpandableVersionList(
+                    groups = groups,
+                    getItems = { group -> groupData[groups.indexOf(group)] },
+                    groupContent = { group, isExpanded, onToggle ->
+                        val rotation by animateFloatAsState(targetValue = if (isExpanded) 180f else 0f, label = "rotation")
+                        SimpleListItem1(
+                            text = group,
+                            onClick = onToggle,
+                            trailingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.ArrowDropDown,
+                                    contentDescription = null,
+                                    modifier = Modifier.rotate(rotation),
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        )
+                    },
+                    itemContent = { item ->
 
-                    var groupIdx = -1
-                    var itemIdx = -1
-                    for (i in groupData.indices) {
-                        if (groupData[i].contains(item)) {
-                            groupIdx = i
-                            itemIdx = groupData[i].indexOf(item)
-                            break
+                        var groupIdx = -1
+                        var itemIdx = -1
+                        for (i in groupData.indices) {
+                            if (groupData[i].contains(item)) {
+                                groupIdx = i
+                                itemIdx = groupData[i].indexOf(item)
+                                break
+                            }
                         }
+                        SimpleListItem1(text = item, onClick = {
+                            onItemClick(groupIdx, itemIdx)
+                        })
                     }
-                    SimpleListItem1(text = item, onClick = {
-                        onItemClick(groupIdx, itemIdx)
-                    })
-                }
-            )
+                )
+            }
         }
     }
 }
@@ -173,7 +179,7 @@ fun ViewProgress(
                     .padding(end = dimensionResource(R.dimen._40sdp)),
                 textAlign = TextAlign.Center,
                 fontSize = with(LocalDensity.current) { dimensionResource(R.dimen._12ssp).toSp() },
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -189,7 +195,7 @@ fun ViewProgress(
                     imageVector = Icons.Default.ArrowDropDown,
                     contentDescription = null,
                     modifier = Modifier.rotate(if (isExpanded) 180f else 0f),
-                    tint = Color.White
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -225,7 +231,8 @@ fun SimpleListItem1(
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.bodyLarge,
                 fontSize = with(LocalDensity.current) { dimensionResource(R.dimen._13ssp).toSp() },
-                textAlign = TextAlign.Start
+                textAlign = TextAlign.Start,
+                color = MaterialTheme.colorScheme.onSurface
             )
             trailingIcon?.invoke()
         }
@@ -244,6 +251,7 @@ fun CenteredTextView(
             .fillMaxWidth()
             .wrapContentHeight(),
         textAlign = TextAlign.Center,
+        color = MaterialTheme.colorScheme.onSurface,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         style = MaterialTheme.typography.bodyMedium
@@ -265,6 +273,7 @@ fun CenteredTextViewLarge(
         Text(
             text = text,
             textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.bodyLarge
@@ -307,6 +316,7 @@ fun VersionProfileItem(
         Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -336,7 +346,7 @@ fun TextProgressBar(
         Text(
             text = text,
             modifier = Modifier.padding(start = dimensionResource(R.dimen._6sdp)),
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.labelMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis

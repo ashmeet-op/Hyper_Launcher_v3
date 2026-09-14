@@ -65,7 +65,7 @@
             android:screenOrientation="sensorLandscape"
             android:windowSoftInputMode="adjustResize"/>
         <activity
-            android:name="net.kdt.pojavlaunch.ImportControlActivity"
+            android:name="com.ashmeet.hyperlauncher.activity.ImportControlActivity"
             android:configChanges="keyboard|keyboardHidden"
             android:exported="true"
             android:screenOrientation="sensorLandscape"
@@ -95,7 +95,7 @@
             android:theme="@style/Theme.Material3.DayNight.Dialog"
             android:screenOrientation="sensorLandscape" />
         <activity
-            android:name="net.kdt.pojavlaunch.ExitActivity"
+            android:name="com.ashmeet.hyperlauncher.activity.ExitActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|keyboard|navigation"
             android:theme="@style/AppTheme"
             android:screenOrientation="sensorLandscape" />

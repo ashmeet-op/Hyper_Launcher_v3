@@ -56,8 +56,9 @@ android {
         minSdkVersion 24
         targetSdkVersion 37
         versionCode localProperties.getProperty('VERSION_CODE')?.toInteger() ?: (project.findProperty('VERSION_CODE')?.toInteger() ?: (localProperties.getProperty('hyperversioncode')?.toInteger() ?: 5))
-        def hyperVersionName = localProperties.getProperty('VERSION_NAME') ?: (project.findProperty('VERSION_NAME') ?: (localProperties.getProperty('hyperversion') ?: "4.0.0"))
-        versionName hyperVersionName
+        def hyperVersionNumber = localProperties.getProperty('VERSION_NUMBER') ?: (project.findProperty('VERSION_NUMBER') ?: "4.1.3")
+        def hyperVersionSuffix = localProperties.getProperty('VERSION_NAME') ?: (project.findProperty('VERSION_NAME') ?: "mercury")
+        versionName "${hyperVersionNumber}-${hyperVersionSuffix}"
         multiDexEnabled false //important
         resValue 'string', 'curseforge_api_key', getCFApiKey()
         resValue 'string', 'group_id', 'git.artdeell'
@@ -172,7 +173,7 @@ android {
         }
 
         tasks.matching { it.name.startsWith("bundle") }.configureEach { task ->
-            task.setProperty("archiveFileName", "hyper_launcher-${VERSION_NAME}.aab")
+            task.setProperty("archiveFileName", "hyper_launcher-${VERSION_NUMBER}-${VERSION_NAME}.aab")
         }
     }
 }
