@@ -1,5 +1,5 @@
 package com.ashmeet.hyperlauncher.profiles
 
-interface VersionSelectorListener {
+fun interface VersionSelectorListener {
     fun onVersionSelected(versionId: String, isSnapshot: Boolean)
 }
