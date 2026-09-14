@@ -5,7 +5,7 @@ import android.util.Log
 import com.ashmeet.hyperlauncher.utils.Architecture.archAsString
 import com.kdt.mcgui.ProgressLayout
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.Jassets.JVersionList
+import net.kdt.pojavlaunch.JVersionList
 import net.kdt.pojavlaunch.instances.Instances
 import net.kdt.pojavlaunch.multirt.MultiRTUtils
 import net.kdt.pojavlaunch.multirt.Runtime

@@ -1,6 +1,6 @@
 package net.kdt.pojavlaunch.modloaders;
 
-import net.kdt.pojavlaunch.Jassets.JVersionList;
+import net.kdt.pojavlaunch.JVersionList;
 import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.tasks.MoJsonDownloader;
 import net.kdt.pojavlaunch.utils.FileUtils;

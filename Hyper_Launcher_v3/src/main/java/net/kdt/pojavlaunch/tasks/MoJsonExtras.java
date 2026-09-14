@@ -1,6 +1,6 @@
 package net.kdt.pojavlaunch.tasks;
 
-import net.kdt.pojavlaunch.Jassets.JVersionList;
+import net.kdt.pojavlaunch.JVersionList;
 import net.kdt.pojavlaunch.extra.ExtraConstants;
 import net.kdt.pojavlaunch.extra.ExtraCore;
 import net.kdt.pojavlaunch.instances.Instance;

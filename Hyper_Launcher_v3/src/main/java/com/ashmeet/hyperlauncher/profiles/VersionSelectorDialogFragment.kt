@@ -7,7 +7,7 @@ import androidx.fragment.app.DialogFragment
 import com.ashmeet.hyperlauncher.components.text.LegacyMigratedComponentsBridge
 import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import net.kdt.pojavlaunch.Jassets.JVersionList
+import net.kdt.pojavlaunch.JVersionList
 import net.kdt.pojavlaunch.extra.ExtraConstants
 import net.kdt.pojavlaunch.extra.ExtraCore
 

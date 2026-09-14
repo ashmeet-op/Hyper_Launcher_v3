@@ -8,7 +8,7 @@ import android.widget.BaseExpandableListAdapter
 import android.widget.TextView
 import com.ashmeet.hyperlauncher.utils.Tools
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.Jassets.JVersionList
+import net.kdt.pojavlaunch.JVersionList
 import net.kdt.pojavlaunch.utils.FilteredSubList
 import java.io.File
 

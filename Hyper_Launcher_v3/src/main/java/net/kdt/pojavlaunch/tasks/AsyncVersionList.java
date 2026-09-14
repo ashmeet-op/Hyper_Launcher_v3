@@ -4,7 +4,7 @@ import static com.ashmeet.hyperlauncher.activity.PojavApplication.sExecutorServi
 
 import androidx.annotation.Nullable;
 
-import net.kdt.pojavlaunch.Jassets.JVersionList;
+import net.kdt.pojavlaunch.JVersionList;
 import com.ashmeet.hyperlauncher.utils.Tools;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 import net.kdt.pojavlaunch.utils.DownloadUtils;
