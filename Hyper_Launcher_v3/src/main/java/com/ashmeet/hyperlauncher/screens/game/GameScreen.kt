@@ -1,5 +1,6 @@
 package com.ashmeet.hyperlauncher.screens.game
 
+import android.view.View
 import android.widget.FrameLayout
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -14,8 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,6 +26,7 @@ import androidx.compose.ui.zIndex
 import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
 import kotlinx.coroutines.launch
 import net.kdt.pojavlaunch.customcontrols.handleview.DrawerPullButton
+import net.kdt.pojavlaunch.customcontrols.handleview.FPSDisplayView
 
 @Composable
 fun GameBasemainScreen(
@@ -34,6 +35,7 @@ fun GameBasemainScreen(
     content: @Composable BoxScope.() -> Unit
 ) {
     val scope = rememberCoroutineScope()
+    val showFps = LauncherComposeHelper.showFps
 
     Box(modifier = Modifier.fillMaxSize()) {
         content()
@@ -54,7 +56,21 @@ fun GameBasemainScreen(
                             }
                         }
                         addView(button)
+
+                        val fpsView = FPSDisplayView(ctx).apply {
+                            val density = ctx.resources.displayMetrics.density
+                            val p = (4 * density).toInt()
+                            setPadding(p, p, p, p)
+                            elevation = 10 * density
+                            visibility = if (showFps) View.VISIBLE else View.GONE
+                        }
+                        addView(fpsView)
+                        tag = fpsView
                     }
+                },
+                update = { view ->
+                    val fpsView = view.tag as? FPSDisplayView
+                    fpsView?.visibility = if (showFps) View.VISIBLE else View.GONE
                 },
                 modifier = Modifier
                     .fillMaxSize()

@@ -541,6 +541,12 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
                 }
 
                 @Override
+                public void onShowFpsChanged() {
+                    // The preference is updated in the dialog, 
+                    // and GameScreen.kt listens for changes.
+                }
+
+                @Override
                 public void onForceClose() {
                     dialogForceClose(GameActivity.this);
                 }

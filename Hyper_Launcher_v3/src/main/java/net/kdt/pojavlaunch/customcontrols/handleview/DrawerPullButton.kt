@@ -27,22 +27,22 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreference
 import java.io.File
 import kotlin.math.abs
 
-class DrawerPullButton @JvmOverloads constructor(
+open class DrawerPullButton @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : FrameLayout(context, attrs) {
 
-    private val composeView = ComposeView(context)
+    protected val composeView = ComposeView(context)
     private var mInitialX = 0f
     private var mInitialY = 0f
     private var mInitialTouchX = 0f
     private var mInitialTouchY = 0f
     private var mHasMoved = false
 
-    private var pullSizePerc by mutableFloatStateOf(LauncherPreferences.PREF_DRAWER_PULL_SIZE_PERC)
-    private var bgOpacity by mutableIntStateOf(LauncherPreferences.PREF_DRAWER_PULL_BG_OPACITY)
-    private var iconOpacity by mutableIntStateOf(LauncherPreferences.PREF_DRAWER_PULL_ICON_OPACITY)
-    private var showBackground by mutableStateOf(LauncherPreferences.PREF_DRAWER_PULL_BACKGROUND)
-    private var iconPath by mutableStateOf(LauncherPreferences.PREF_DRAWER_PULL_ICON_PATH)
+    protected var pullSizePerc by mutableFloatStateOf(LauncherPreferences.PREF_DRAWER_PULL_SIZE_PERC)
+    protected var bgOpacity by mutableIntStateOf(LauncherPreferences.PREF_DRAWER_PULL_BG_OPACITY)
+    protected var iconOpacity by mutableIntStateOf(LauncherPreferences.PREF_DRAWER_PULL_ICON_OPACITY)
+    protected var showBackground by mutableStateOf(LauncherPreferences.PREF_DRAWER_PULL_BACKGROUND)
+    protected var iconPath by mutableStateOf(LauncherPreferences.PREF_DRAWER_PULL_ICON_PATH)
 
     private val prefListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         when (key) {
@@ -92,7 +92,7 @@ class DrawerPullButton @JvmOverloads constructor(
         super.onDetachedFromWindow()
     }
 
-    fun updateAppearance() {
+    open fun updateAppearance() {
         pullSizePerc = LauncherPreferences.PREF_DRAWER_PULL_SIZE_PERC
         bgOpacity = LauncherPreferences.PREF_DRAWER_PULL_BG_OPACITY
         iconOpacity = LauncherPreferences.PREF_DRAWER_PULL_ICON_OPACITY
@@ -216,7 +216,7 @@ class DrawerPullButton @JvmOverloads constructor(
         return super.onTouchEvent(event)
     }
 
-    private fun savePosition() {
+    open fun savePosition() {
         LauncherPreferences.PREF_DRAWER_PULL_POS_X = x
         LauncherPreferences.PREF_DRAWER_PULL_POS_Y = y
         

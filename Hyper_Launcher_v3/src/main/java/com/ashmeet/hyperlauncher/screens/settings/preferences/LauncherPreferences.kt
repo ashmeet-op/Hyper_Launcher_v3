@@ -320,6 +320,15 @@ object LauncherPreferences {
     var PREF_VOLUME_DOWN_KEYBIND = 25
 
     @JvmField
+    var PREF_SHOW_FPS = false
+
+    @JvmField
+    var PREF_FPS_POS_X = -1f
+
+    @JvmField
+    var PREF_FPS_POS_Y = -1f
+
+    @JvmField
     var PREF_RECENT_LAUNCHER_BACKGROUNDS: MutableList<String> = mutableListOf()
 
     @JvmStatic
@@ -452,6 +461,10 @@ object LauncherPreferences {
         PREF_VOLUME_KEYS_CONTROL_ENABLED = pref.getBoolean("volume_keys_control_enabled", false)
         PREF_VOLUME_UP_KEYBIND = pref.getInt("volume_up_keybind", 24)
         PREF_VOLUME_DOWN_KEYBIND = pref.getInt("volume_down_keybind", 25)
+        PREF_SHOW_FPS = pref.getBoolean("show_fps", false)
+        com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper.showFps = PREF_SHOW_FPS
+        PREF_FPS_POS_X = pref.getFloat("fps_pos_x", -1f)
+        PREF_FPS_POS_Y = pref.getFloat("fps_pos_y", -1f)
 
         val recentBgs = pref.getString("recent_launcher_backgrounds", "") ?: ""
         PREF_RECENT_LAUNCHER_BACKGROUNDS = if (recentBgs.isEmpty()) mutableListOf() else recentBgs.split(";").toMutableList()

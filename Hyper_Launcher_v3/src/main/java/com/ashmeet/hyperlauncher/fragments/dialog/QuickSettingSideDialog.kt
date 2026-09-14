@@ -3,7 +3,6 @@ package com.ashmeet.hyperlauncher.fragments.dialog
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 
 import android.content.SharedPreferences
-import android.view.KeyEvent
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -50,6 +49,8 @@ abstract class QuickSettingSideDialog : SideDialogView() {
     private var mOriginalGestureDelay = 0
     private var mOriginalButtonTransparency = 0f
 
+    private var mOriginalShowFps = false
+
     private var mOriginalVolumeEnabled = false
     private var mOriginalVolumeUp = 24
     private var mOriginalVolumeDown = 25
@@ -78,6 +79,7 @@ abstract class QuickSettingSideDialog : SideDialogView() {
         mOriginalGestureDelay = LauncherPreferences.PREF_LONGPRESS_TRIGGER
         mOriginalResolution = LauncherPreferences.PREF_SCALE_FACTOR
         mOriginalButtonTransparency = LauncherPreferences.PREF_BUTTON_TRANSPARENCY
+        mOriginalShowFps = LauncherPreferences.PREF_SHOW_FPS
 
         mOriginalVolumeEnabled = LauncherPreferences.PREF_VOLUME_KEYS_CONTROL_ENABLED
         mOriginalVolumeUp = LauncherPreferences.PREF_VOLUME_UP_KEYBIND
@@ -138,6 +140,7 @@ abstract class QuickSettingSideDialog : SideDialogView() {
                 onForceClose = { onForceClose() },
                 onViewOutput = { onViewOutput() },
                 onCustomKey = { onCustomKey() },
+                onShowFpsChanged = { onShowFpsChanged() },
                 onClose = { disappear(true) }
             ) { key, value ->
                 when (value) {
@@ -161,12 +164,15 @@ abstract class QuickSettingSideDialog : SideDialogView() {
             LauncherPreferences.PREF_LONGPRESS_TRIGGER = mOriginalGestureDelay
             LauncherPreferences.PREF_SCALE_FACTOR = mOriginalResolution
             LauncherPreferences.PREF_BUTTON_TRANSPARENCY = mOriginalButtonTransparency
+            LauncherPreferences.PREF_SHOW_FPS = mOriginalShowFps
+            com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper.showFps = mOriginalShowFps
             LauncherPreferences.PREF_VOLUME_KEYS_CONTROL_ENABLED = mOriginalVolumeEnabled
             LauncherPreferences.PREF_VOLUME_UP_KEYBIND = mOriginalVolumeUp
             LauncherPreferences.PREF_VOLUME_DOWN_KEYBIND = mOriginalVolumeDown
             onGyroStateChanged()
             onResolutionChanged()
             onButtonTransparencyChanged()
+            onShowFpsChanged()
         }
         disappear(true)
     }
@@ -179,6 +185,9 @@ abstract class QuickSettingSideDialog : SideDialogView() {
 
 
     open fun onButtonTransparencyChanged() {}
+
+
+    abstract fun onShowFpsChanged()
 
 
     abstract fun onForceClose()
@@ -199,6 +208,7 @@ private fun QuickSettingContent(
     onForceClose: () -> Unit,
     onViewOutput: () -> Unit,
     onCustomKey: () -> Unit,
+    onShowFpsChanged: () -> Unit,
     onClose: () -> Unit,
     onPreferenceChanged: (String, Any) -> Unit
 ) {
@@ -215,22 +225,13 @@ private fun QuickSettingContent(
 
     var resolutionScaler by remember { mutableFloatStateOf(LauncherPreferences.PREF_SCALE_FACTOR * 100f) }
     var buttonTransparency by remember { mutableFloatStateOf(LauncherPreferences.PREF_BUTTON_TRANSPARENCY) }
+    var showFps by remember { mutableStateOf(LauncherPreferences.PREF_SHOW_FPS) }
 
     var volumeKeysControlEnabled by remember { mutableStateOf(LauncherPreferences.PREF_VOLUME_KEYS_CONTROL_ENABLED) }
     var volumeUpKeybind by remember { mutableIntStateOf(LauncherPreferences.PREF_VOLUME_UP_KEYBIND) }
     var volumeDownKeybind by remember { mutableIntStateOf(LauncherPreferences.PREF_VOLUME_DOWN_KEYBIND) }
 
     var showKeyPickerFor by remember { mutableStateOf<String?>(null) }
-
-    val keyNames = remember { KeycodeUtils.generateKeyName() }
-    fun getKeyName(keycode: Int): String {
-        val index = KeycodeUtils.getIndexByValue(keycode)
-        return if (index >= 0 && index < keyNames.size && (KeycodeUtils.getValueByIndex(index) == keycode)) {
-            keyNames[index]
-        } else {
-            KeyEvent.keyCodeToString(keycode).replace("KEYCODE_", "")
-        }
-    }
 
     val isGyroAvailable = remember { Tools.deviceSupportsGyro(context) }
 
@@ -262,7 +263,7 @@ private fun QuickSettingContent(
             ) {
                 when (targetTab) {
                     0 -> {
-                        DialogCard(useSurface = true, delayIndex = cardIndex++) {
+                        DialogCard(position = CardPosition.TOP, useSurface = true, delayIndex = cardIndex++) {
                             DialogSliderItem(
                                 title = translatedText(stringResource(R.string.mcl_setting_title_resolution_scaler)),
                                 value = resolutionScaler,
@@ -277,7 +278,21 @@ private fun QuickSettingContent(
                             )
                         }
 
-                        DialogCard(useSurface = true, delayIndex = cardIndex++) {
+                        DialogCard(position = CardPosition.BOTTOM, useSurface = true, delayIndex = cardIndex++) {
+                            DialogSwitchItem(
+                                title = translatedText("Show FPS Display"),
+                                checked = showFps,
+                                onCheckedChange = {
+                                    showFps = it
+                                    LauncherPreferences.PREF_SHOW_FPS = it
+                                    com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper.showFps = it
+                                    onPreferenceChanged("show_fps", it)
+                                    onShowFpsChanged()
+                                }
+                            )
+                        }
+
+                        DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
                             DialogSliderItem(
                                 title = translatedText(stringResource(R.string.mcl_setting_title_buttonopacity)),
                                 value = buttonTransparency,
@@ -293,7 +308,7 @@ private fun QuickSettingContent(
                         }
                     }
                     1 -> {
-                        DialogCard(useSurface = true, delayIndex = cardIndex++) {
+                        DialogCard(position = CardPosition.TOP, useSurface = true, delayIndex = cardIndex++) {
                             DialogSliderItem(
                                 title = translatedText(stringResource(R.string.mcl_setting_title_mousespeed)),
                                 value = mouseSpeed,
@@ -308,7 +323,7 @@ private fun QuickSettingContent(
                         }
 
                         DialogCard(
-                            position = CardPosition.SINGLE,
+                            position = if (!disableGestures) CardPosition.MIDDLE else CardPosition.BOTTOM,
                             useSurface = true,
                             delayIndex = cardIndex++
                         ) {
@@ -324,7 +339,7 @@ private fun QuickSettingContent(
                         }
 
                         if (!disableGestures) {
-                            DialogCard(useSurface = true, delayIndex = cardIndex++) {
+                            DialogCard(position = CardPosition.BOTTOM, useSurface = true, delayIndex = cardIndex++) {
                                 DialogSliderItem(
                                     title = translatedText(stringResource(R.string.mcl_setting_title_longpresstrigger)),
                                     value = gestureDelay,
@@ -342,7 +357,7 @@ private fun QuickSettingContent(
                     2 -> {
                         if (isGyroAvailable) {
                             DialogCard(
-                                position = CardPosition.SINGLE,
+                                position = if (enableGyro) CardPosition.TOP else CardPosition.SINGLE,
                                 useSurface = true,
                                 delayIndex = cardIndex++
                             ) {
@@ -360,7 +375,7 @@ private fun QuickSettingContent(
 
                             if (enableGyro) {
                                 DialogCard(
-                                    position = CardPosition.SINGLE,
+                                    position = CardPosition.MIDDLE,
                                     useSurface = true,
                                     delayIndex = cardIndex++
                                 ) {
@@ -376,7 +391,7 @@ private fun QuickSettingContent(
                                     )
                                 }
                                 DialogCard(
-                                    position = CardPosition.SINGLE,
+                                    position = CardPosition.MIDDLE,
                                     useSurface = true,
                                     delayIndex = cardIndex++
                                 ) {
@@ -391,7 +406,7 @@ private fun QuickSettingContent(
                                         }
                                     )
                                 }
-                                DialogCard(useSurface = true, delayIndex = cardIndex++) {
+                                DialogCard(position = CardPosition.BOTTOM, useSurface = true, delayIndex = cardIndex++) {
                                     DialogSliderItem(
                                         title = translatedText(stringResource(R.string.preference_gyro_sensitivity_title)),
                                         value = gyroSensitivity,
@@ -409,7 +424,7 @@ private fun QuickSettingContent(
                         }
                     }
                     3 -> {
-                        DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
+                        DialogCard(position = CardPosition.TOP, useSurface = true, delayIndex = cardIndex++) {
                             DialogSwitchItem(
                                 title = translatedText("Enable Volume Key Controls"),
                                 icon = Icons.AutoMirrored.Rounded.VolumeUp,
@@ -422,27 +437,27 @@ private fun QuickSettingContent(
                             )
                         }
 
-                        DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
+                        DialogCard(position = CardPosition.MIDDLE, useSurface = true, delayIndex = cardIndex++) {
                             DialogActionItem(
                                 title = translatedText("Volume Up Keybind"),
-                                summary = translatedText("Current Key: ${getKeyName(volumeUpKeybind)} ($volumeUpKeybind)"),
                                 icon = Icons.AutoMirrored.Rounded.VolumeUp,
                                 enabled = volumeKeysControlEnabled,
                                 onClick = { showKeyPickerFor = "up" }
                             )
                         }
 
-                        DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
+                        DialogCard(position = CardPosition.BOTTOM, useSurface = true, delayIndex = cardIndex++) {
                             DialogActionItem(
                                 title = translatedText("Volume Down Keybind"),
-                                summary = translatedText("Current Key: ${getKeyName(volumeDownKeybind)} ($volumeDownKeybind)"),
                                 icon = Icons.AutoMirrored.Rounded.VolumeUp,
                                 enabled = volumeKeysControlEnabled,
                                 onClick = { showKeyPickerFor = "down" }
                             )
                         }
 
-                        DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        DialogCard(position = CardPosition.TOP, useSurface = true, delayIndex = cardIndex++) {
                             DialogActionItem(
                                 title = translatedText(stringResource(R.string.control_forceclose)),
                                 icon = Icons.Rounded.Close,
@@ -450,7 +465,7 @@ private fun QuickSettingContent(
                             )
                         }
 
-                        DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
+                        DialogCard(position = CardPosition.MIDDLE, useSurface = true, delayIndex = cardIndex++) {
                             DialogActionItem(
                                 title = translatedText(stringResource(R.string.control_viewout)),
                                 icon = Icons.Rounded.Description,
@@ -458,7 +473,7 @@ private fun QuickSettingContent(
                             )
                         }
 
-                        DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
+                        DialogCard(position = CardPosition.BOTTOM, useSurface = true, delayIndex = cardIndex++) {
                             DialogActionItem(
                                 title = translatedText(stringResource(R.string.control_customkey)),
                                 icon = Icons.Rounded.Keyboard,
