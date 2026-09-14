@@ -1,3 +1,4 @@
+//package name is changed cuz of some JNI issues, DONT TOUCH IT!
 package net.kdt.pojavlaunch
 
 import android.annotation.SuppressLint

@@ -4,9 +4,6 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.view.View
 import android.widget.FrameLayout
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.FragmentActivity
@@ -19,8 +16,6 @@ import net.kdt.pojavlaunch.customcontrols.ControlLayout
 import net.kdt.pojavlaunch.game.GameView
 
 object LauncherComposeHelper {
-    var showFps by mutableStateOf(false)
-
     val isLoading get() = LoadingComposeHelper.isLoading
     val loadingText get() = LoadingComposeHelper.loadingText
     val loadingWarning get() = LoadingComposeHelper.loadingWarning

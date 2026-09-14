@@ -165,7 +165,6 @@ abstract class QuickSettingSideDialog : SideDialogView() {
             LauncherPreferences.PREF_SCALE_FACTOR = mOriginalResolution
             LauncherPreferences.PREF_BUTTON_TRANSPARENCY = mOriginalButtonTransparency
             LauncherPreferences.PREF_SHOW_FPS = mOriginalShowFps
-            com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper.showFps = mOriginalShowFps
             LauncherPreferences.PREF_VOLUME_KEYS_CONTROL_ENABLED = mOriginalVolumeEnabled
             LauncherPreferences.PREF_VOLUME_UP_KEYBIND = mOriginalVolumeUp
             LauncherPreferences.PREF_VOLUME_DOWN_KEYBIND = mOriginalVolumeDown
@@ -285,7 +284,6 @@ private fun QuickSettingContent(
                                 onCheckedChange = {
                                     showFps = it
                                     LauncherPreferences.PREF_SHOW_FPS = it
-                                    com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper.showFps = it
                                     onPreferenceChanged("show_fps", it)
                                     onShowFpsChanged()
                                 }
