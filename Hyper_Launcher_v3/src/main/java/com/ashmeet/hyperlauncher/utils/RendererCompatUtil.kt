@@ -1,5 +1,6 @@
 package com.ashmeet.hyperlauncher.utils
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
@@ -105,6 +106,7 @@ object RendererCompatUtil {
         System.gc()
     }
 
+    @SuppressLint("UnsafeDynamicallyLoadedCode")
     @JvmStatic
     fun loadGraphicsLibrary(renderer: String): String? {
         val renderLibrary: String
@@ -119,7 +121,7 @@ object RendererCompatUtil {
                 val providerPath = findNativeLibraryPath(parts[2])
                 if (providerPath != null) {
                     try {
-                        System.loadLibrary(providerPath)
+                        System.load(providerPath)
                     } catch (e: Throwable) {
                         Log.e("RENDER_LIBRARY", "Failed to System.load provider: $providerPath", e)
                     }

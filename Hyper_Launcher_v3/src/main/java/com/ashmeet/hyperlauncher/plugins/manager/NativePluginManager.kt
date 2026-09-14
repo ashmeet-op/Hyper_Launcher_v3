@@ -1,6 +1,7 @@
 package com.ashmeet.hyperlauncher.plugins.manager
 
 import android.content.Context
+import android.os.Bundle
 import android.util.Log
 import com.ashmeet.hyperlauncher.plugins.interfaces.NativePlugin
 import com.ashmeet.hyperlauncher.plugins.natives.LibraryPlugin
@@ -54,14 +55,14 @@ object NativePluginManager {
             val metaData = plugin.getMetaData()
             if (!metaData.containsKey(LibraryPlugin.METADATA_POJAV_PLUGIN_TYPE)) continue
 
-            val type = metaData.getString(LibraryPlugin.METADATA_POJAV_PLUGIN_TYPE)
+            val type = getMetadataString(metaData, LibraryPlugin.METADATA_POJAV_PLUGIN_TYPE)
             if (type != "native-bundle") continue
 
             val libDir = plugin.libraryPath
             val appLabel = try {
                 val info = pm.getApplicationInfo(plugin.appId, 0)
                 pm.getApplicationLabel(info).toString()
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 null
             }
 
@@ -83,18 +84,18 @@ object NativePluginManager {
             if (!metaData.containsKey(LibraryPlugin.METADATA_FCL_PLUGIN) && !metaData.containsKey(LibraryPlugin.METADATA_FCL_PLUGIN_ALT)) continue
 
             val libDir = plugin.libraryPath
-            val envString = metaData.getString(LibraryPlugin.METADATA_FCL_ENVIRONMENT)
-            val boatEnv = metaData.getString(LibraryPlugin.METADATA_FCL_BOAT_ENV)
-            val pojavEnv = metaData.getString(LibraryPlugin.METADATA_FCL_POJAV_ENV)
-            val vzh = metaData.getString(LibraryPlugin.METADATA_FCL_DESCRIPTION)
-            val rendererNameMetadata = metaData.getString(LibraryPlugin.METADATA_FCL_RENDERER)
-            val minVerStr = metaData.getString(LibraryPlugin.METADATA_FCL_MIN_MC_VER)
-            val maxVerStr = metaData.getString(LibraryPlugin.METADATA_FCL_MAX_MC_VER)
+            val envString = getMetadataString(metaData, LibraryPlugin.METADATA_FCL_ENVIRONMENT)
+            val boatEnv = getMetadataString(metaData, LibraryPlugin.METADATA_FCL_BOAT_ENV)
+            val pojavEnv = getMetadataString(metaData, LibraryPlugin.METADATA_FCL_POJAV_ENV)
+            val vzh = getMetadataString(metaData, LibraryPlugin.METADATA_FCL_DESCRIPTION)
+            val rendererNameMetadata = getMetadataString(metaData, LibraryPlugin.METADATA_FCL_RENDERER)
+            val minVerStr = getMetadataString(metaData, LibraryPlugin.METADATA_FCL_MIN_MC_VER)
+            val maxVerStr = getMetadataString(metaData, LibraryPlugin.METADATA_FCL_MAX_MC_VER)
 
             val appLabel = try {
                 val info = pm.getApplicationInfo(plugin.appId, 0)
                 pm.getApplicationLabel(info).toString()
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 null
             }
 
@@ -201,7 +202,6 @@ object NativePluginManager {
         }
         return sb.toString()
     }
-
     @JvmStatic
     fun getRuntimeJVMEnv(): Map<String, String> = getRuntimeJVMEnv(null)
 
@@ -217,5 +217,10 @@ object NativePluginManager {
             env.putAll(plugin.getJVMEnv())
         }
         return env
+    }
+
+    @Suppress("DEPRECATION")
+    private fun getMetadataString(bundle: Bundle, key: String): String? {
+        return bundle.get(key)?.toString()
     }
 }
