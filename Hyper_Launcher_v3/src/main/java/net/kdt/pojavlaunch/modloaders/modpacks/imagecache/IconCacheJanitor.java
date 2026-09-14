@@ -2,7 +2,7 @@ package net.kdt.pojavlaunch.modloaders.modpacks.imagecache;
 
 import android.util.Log;
 
-import net.kdt.pojavlaunch.PojavApplication;
+import com.ashmeet.hyperlauncher.activity.PojavApplication;
 
 import java.io.File;
 import java.util.ArrayList;

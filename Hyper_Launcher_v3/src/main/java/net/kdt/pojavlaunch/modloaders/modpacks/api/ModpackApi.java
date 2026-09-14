@@ -5,7 +5,7 @@ import android.content.Context;
 
 import com.kdt.mcgui.ProgressLayout;
 
-import net.kdt.pojavlaunch.PojavApplication;
+import com.ashmeet.hyperlauncher.activity.PojavApplication;
 import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.modloaders.modpacks.api.modloader.LoaderInstaller;

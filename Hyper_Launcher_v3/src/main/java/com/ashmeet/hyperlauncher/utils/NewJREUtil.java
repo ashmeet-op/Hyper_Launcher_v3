@@ -1,11 +1,10 @@
-package net.kdt.pojavlaunch;
+package com.ashmeet.hyperlauncher.utils;
 
 import static com.ashmeet.hyperlauncher.utils.Architecture.archAsString;
 
 import android.content.res.AssetManager;
 import android.util.Log;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
 import com.kdt.mcgui.ProgressLayout;
 
 import net.ashmeet.hyperlauncher.R;

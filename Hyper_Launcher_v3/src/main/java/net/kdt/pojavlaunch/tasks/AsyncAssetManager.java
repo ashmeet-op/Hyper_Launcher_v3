@@ -4,7 +4,7 @@ package net.kdt.pojavlaunch.tasks;
 import static com.ashmeet.hyperlauncher.utils.Architecture.archAsString;
 import static com.ashmeet.hyperlauncher.utils.Architecture.archAsStringAndroid;
 import static com.ashmeet.hyperlauncher.utils.Architecture.getDeviceArchitecture;
-import static net.kdt.pojavlaunch.PojavApplication.sExecutorService;
+import static com.ashmeet.hyperlauncher.activity.PojavApplication.sExecutorService;
 
 import android.content.Context;
 import android.content.res.AssetManager;

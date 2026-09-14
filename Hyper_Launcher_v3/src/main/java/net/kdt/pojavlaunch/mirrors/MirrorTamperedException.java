@@ -5,7 +5,7 @@ import android.content.Context;
 import android.text.Html;
 
 import net.ashmeet.hyperlauncher.R;
-import net.kdt.pojavlaunch.ShowErrorActivity;
+import com.ashmeet.hyperlauncher.activity.ShowErrorActivity;
 import net.kdt.pojavlaunch.lifecycle.ContextExecutorTask;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;

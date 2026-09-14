@@ -1,4 +1,4 @@
-package net.kdt.pojavlaunch;
+package com.ashmeet.hyperlauncher.activity;
 
 import android.app.Activity;
 import android.content.Context;

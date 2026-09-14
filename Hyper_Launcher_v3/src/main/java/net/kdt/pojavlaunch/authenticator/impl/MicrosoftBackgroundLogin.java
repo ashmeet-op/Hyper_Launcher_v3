@@ -1,6 +1,6 @@
 package net.kdt.pojavlaunch.authenticator.impl;
 
-import static net.kdt.pojavlaunch.PojavApplication.sExecutorService;
+import static com.ashmeet.hyperlauncher.activity.PojavApplication.sExecutorService;
 
 import android.util.ArrayMap;
 import android.util.Log;

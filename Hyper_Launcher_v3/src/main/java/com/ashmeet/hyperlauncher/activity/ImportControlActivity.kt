@@ -9,7 +9,6 @@ import androidx.compose.ui.platform.ComposeView
 import com.ashmeet.hyperlauncher.utils.Tools
 import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.BaseActivity
 import net.kdt.pojavlaunch.customcontrols.LayoutBitmaps
 import net.kdt.pojavlaunch.utils.FileUtils
 import org.apache.commons.io.IOUtils

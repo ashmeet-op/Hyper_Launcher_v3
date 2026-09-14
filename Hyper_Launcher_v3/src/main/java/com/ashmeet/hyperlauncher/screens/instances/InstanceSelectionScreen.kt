@@ -47,7 +47,7 @@ import com.ashmeet.hyperlauncher.components.list.InstanceListItem
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import com.google.gson.Gson
-import net.kdt.pojavlaunch.PojavApplication
+import com.ashmeet.hyperlauncher.activity.PojavApplication
 import net.kdt.pojavlaunch.instances.DisplayInstance
 import net.kdt.pojavlaunch.instances.Instances
 import java.io.File

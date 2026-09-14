@@ -1,6 +1,6 @@
 package net.kdt.pojavlaunch.tasks;
 
-import static net.kdt.pojavlaunch.PojavApplication.sExecutorService;
+import static com.ashmeet.hyperlauncher.activity.PojavApplication.sExecutorService;
 
 import android.content.res.AssetManager;
 import android.util.Log;
@@ -17,7 +17,7 @@ import com.ashmeet.hyperlauncher.utils.Architecture;
 import net.kdt.pojavlaunch.Jassets.JAssetInfo;
 import net.kdt.pojavlaunch.Jassets.JAssets;
 import net.kdt.pojavlaunch.Jassets.JVersionList;
-import net.kdt.pojavlaunch.NewJREUtil;
+import com.ashmeet.hyperlauncher.utils.NewJREUtil;
 import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.downloader.Downloader;
 import net.kdt.pojavlaunch.downloader.TaskMetadata;

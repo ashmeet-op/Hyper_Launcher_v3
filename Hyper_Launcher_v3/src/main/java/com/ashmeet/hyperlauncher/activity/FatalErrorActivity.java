@@ -1,4 +1,4 @@
-package net.kdt.pojavlaunch;
+package com.ashmeet.hyperlauncher.activity;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -10,7 +10,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.compose.ui.platform.ComposeView;
 
-import com.ashmeet.hyperlauncher.activity.LauncherActivity;
 import com.ashmeet.hyperlauncher.utils.Tools;
 import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper;
 import net.ashmeet.hyperlauncher.R;

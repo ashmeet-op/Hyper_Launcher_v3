@@ -9,7 +9,7 @@ import android.widget.Toast
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
-import net.kdt.pojavlaunch.TestStorageActivity
+import com.ashmeet.hyperlauncher.activity.TestStorageActivity
 import net.kdt.pojavlaunch.instances.DisplayInstance
 import net.kdt.pojavlaunch.instances.InstanceIconProvider
 

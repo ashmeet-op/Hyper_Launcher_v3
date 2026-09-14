@@ -23,6 +23,7 @@ import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
+import com.ashmeet.hyperlauncher.activity.BaseActivity
 import com.ashmeet.hyperlauncher.screens.settings.layouts.CardPosition
 import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsCard
 import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsScreenWrapper
@@ -148,7 +149,7 @@ fun VideoSettingsScreen(
                         dynamicOrientation = it
                         LauncherPreferences.prefs.edit { putBoolean("dynamic_orientation", it) }
                         LauncherPreferences.loadPreferences(context)
-                        (context as? net.kdt.pojavlaunch.BaseActivity)?.updateOrientation()
+                        (context as? BaseActivity)?.updateOrientation()
                         git.mojo.sdl.SDLActivity.setDynamicOrientationEnabled(it)
                     }
                 )

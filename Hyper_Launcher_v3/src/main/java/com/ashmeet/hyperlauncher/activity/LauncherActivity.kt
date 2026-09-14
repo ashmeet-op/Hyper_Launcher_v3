@@ -32,8 +32,6 @@ import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import net.ashmeet.hyperlauncher.BuildConfig
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.BaseActivity
-import net.kdt.pojavlaunch.PojavApplication
 import net.kdt.pojavlaunch.authenticator.accounts.Accounts
 import net.kdt.pojavlaunch.extra.ExtraConstants
 import net.kdt.pojavlaunch.extra.ExtraCore

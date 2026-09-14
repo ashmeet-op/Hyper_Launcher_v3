@@ -14,7 +14,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import fr.spse.gamepad_remapper.Remapper
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.CustomControlsActivity
+import com.ashmeet.hyperlauncher.activity.CustomControlsActivity
 import com.ashmeet.hyperlauncher.utils.Tools
 import com.ashmeet.hyperlauncher.fragments.controls.GamepadMapperFragment
 import com.ashmeet.hyperlauncher.screens.settings.ControlSettingsScreen

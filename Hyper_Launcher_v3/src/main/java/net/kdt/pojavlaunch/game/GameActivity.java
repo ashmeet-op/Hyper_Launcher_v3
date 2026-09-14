@@ -50,7 +50,7 @@ import com.ashmeet.hyperlauncher.utils.SideDialogUtils;
 import com.ashmeet.hyperlauncher.screens.game.LoggerView;
 
 import net.ashmeet.hyperlauncher.R;
-import net.kdt.pojavlaunch.BaseActivity;
+import com.ashmeet.hyperlauncher.activity.BaseActivity;
 import net.kdt.pojavlaunch.CallbackBridge;
 import net.kdt.pojavlaunch.utils.KeycodeUtils;
 import net.kdt.pojavlaunch.Logger;

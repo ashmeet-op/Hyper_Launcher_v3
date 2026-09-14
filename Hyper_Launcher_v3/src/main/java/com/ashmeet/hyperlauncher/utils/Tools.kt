@@ -49,8 +49,8 @@ import com.ashmeet.hyperlauncher.utils.drawable.InsetBackground
 import net.kdt.pojavlaunch.Jassets.JVersionList
 import net.kdt.pojavlaunch.Logger
 import com.ashmeet.hyperlauncher.activity.MissingStorageActivity
-import net.kdt.pojavlaunch.PojavApplication.sExecutorService
-import net.kdt.pojavlaunch.ShowErrorActivity
+import com.ashmeet.hyperlauncher.activity.PojavApplication.sExecutorService
+import com.ashmeet.hyperlauncher.activity.ShowErrorActivity
 import net.kdt.pojavlaunch.awt.AWTActivity
 import net.kdt.pojavlaunch.game.GameActivity
 import net.kdt.pojavlaunch.instances.Instance

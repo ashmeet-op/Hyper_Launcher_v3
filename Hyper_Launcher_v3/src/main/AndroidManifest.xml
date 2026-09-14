@@ -25,7 +25,7 @@
         tools:ignore="PackageVisibilityPolicy,QueryAllPackagesPermission" />
 
     <application
-        android:name="net.kdt.pojavlaunch.PojavApplication"
+        android:name="com.ashmeet.hyperlauncher.activity.PojavApplication"
         android:allowBackup="true"
         android:allowNativeHeapPointerTagging="false"
         android:appCategory="game"
@@ -50,7 +50,7 @@
             android:value="ratio_float" />
 
         <activity
-            android:name="net.kdt.pojavlaunch.TestStorageActivity"
+            android:name="com.ashmeet.hyperlauncher.activity.TestStorageActivity"
             android:exported="true"
             android:screenOrientation="sensorLandscape"
             android:launchMode="singleTop">
@@ -86,11 +86,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="net.kdt.pojavlaunch.FatalErrorActivity"
+            android:name="com.ashmeet.hyperlauncher.activity.FatalErrorActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|keyboard|navigation"
             android:theme="@style/AppTheme"
             android:screenOrientation="sensorLandscape" />
-        <activity android:name="net.kdt.pojavlaunch.ShowErrorActivity"
+        <activity android:name="com.ashmeet.hyperlauncher.activity.ShowErrorActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|keyboard|navigation"
             android:theme="@style/Theme.Material3.DayNight.Dialog"
             android:screenOrientation="sensorLandscape" />
@@ -105,7 +105,7 @@
             android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation|uiMode"
             android:screenOrientation="sensorLandscape" />
         <activity
-            android:name="net.kdt.pojavlaunch.CustomControlsActivity"
+            android:name="com.ashmeet.hyperlauncher.activity.CustomControlsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|keyboard|navigation"
             android:exported="false"
             android:screenOrientation="sensorLandscape">

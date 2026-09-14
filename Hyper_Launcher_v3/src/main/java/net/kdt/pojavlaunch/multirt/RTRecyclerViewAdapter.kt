@@ -8,7 +8,7 @@ import com.ashmeet.hyperlauncher.components.list.MultiRTRuntimeItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.utils.Architecture
-import net.kdt.pojavlaunch.PojavApplication
+import com.ashmeet.hyperlauncher.activity.PojavApplication
 import com.ashmeet.hyperlauncher.utils.Tools
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.IOException
@@ -22,10 +22,6 @@ class RTRecyclerViewAdapter : RecyclerView.Adapter<RTRecyclerViewAdapter.RTViewH
 
     private var mListener: OnRuntimeSelectedListener? = null
     private var mIsDeleting = false
-
-    fun setOnRuntimeSelectedListener(listener: OnRuntimeSelectedListener?) {
-        mListener = listener
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RTViewHolder {
         return RTViewHolder(ComposeView(parent.context))
@@ -46,14 +42,6 @@ class RTRecyclerViewAdapter : RecyclerView.Adapter<RTRecyclerViewAdapter.RTViewH
         LauncherPreferences.DEFAULT_PREF?.edit()?.putString("defaultRuntime", LauncherPreferences.PREF_DEFAULT_RUNTIME)?.apply()
         notifyDataSetChanged()
     }
-
-    @SuppressLint("NotifyDataSetChanged")
-    fun setIsEditing(isEditing: Boolean) {
-        mIsDeleting = isEditing
-        notifyDataSetChanged()
-    }
-
-    fun getIsEditing(): Boolean = mIsDeleting
 
     inner class RTViewHolder(val composeView: ComposeView) : RecyclerView.ViewHolder(composeView) {
         fun bindRuntime(runtime: Runtime, pos: Int) {
@@ -89,6 +77,7 @@ class RTRecyclerViewAdapter : RecyclerView.Adapter<RTRecyclerViewAdapter.RTViewH
             }
         }
 
+        @SuppressLint("NotifyDataSetChanged")
         private fun deleteRuntime(runtime: Runtime) {
             if (MultiRTUtils.getRuntimes().size < 2) {
                 MaterialAlertDialogBuilder(composeView.context)

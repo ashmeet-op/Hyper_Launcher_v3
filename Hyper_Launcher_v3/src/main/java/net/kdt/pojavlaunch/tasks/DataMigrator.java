@@ -1,6 +1,6 @@
 package net.kdt.pojavlaunch.tasks;
 
-import static net.kdt.pojavlaunch.PojavApplication.sExecutorService;
+import static com.ashmeet.hyperlauncher.activity.PojavApplication.sExecutorService;
 
 import android.app.Activity;
 import android.content.ContentResolver;

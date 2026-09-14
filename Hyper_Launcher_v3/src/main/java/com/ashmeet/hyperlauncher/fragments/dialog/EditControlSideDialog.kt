@@ -32,7 +32,7 @@ import com.ashmeet.hyperlauncher.components.dialog.DialogSliderItem
 import com.ashmeet.hyperlauncher.components.dialog.DialogSwitchItem
 import com.ashmeet.hyperlauncher.components.dialog.DialogTextInput
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.CustomControlsActivity
+import com.ashmeet.hyperlauncher.activity.CustomControlsActivity
 import com.ashmeet.hyperlauncher.utils.Tools
 import net.kdt.pojavlaunch.customcontrols.ControlData
 import net.kdt.pojavlaunch.customcontrols.ControlJoystickData

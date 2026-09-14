@@ -10,7 +10,7 @@ import android.graphics.RectF;
 import android.os.Handler;
 import android.os.Looper;
 
-import net.kdt.pojavlaunch.PojavApplication;
+import com.ashmeet.hyperlauncher.activity.PojavApplication;
 import net.kdt.pojavlaunch.modloaders.modpacks.SelfReferencingFuture;
 import net.kdt.pojavlaunch.utils.MatrixUtils;
 

@@ -1,4 +1,4 @@
-package net.kdt.pojavlaunch;
+package com.ashmeet.hyperlauncher.activity;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 

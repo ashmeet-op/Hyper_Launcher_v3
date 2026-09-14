@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import com.ashmeet.hyperlauncher.activity.BaseActivity
+import com.ashmeet.hyperlauncher.activity.PojavApplication
 import com.ashmeet.hyperlauncher.screens.activity.JavaGuiLauncherScreen
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.utils.Tools
@@ -28,6 +30,7 @@ import net.kdt.pojavlaunch.multirt.MultiRTUtils
 import net.kdt.pojavlaunch.multirt.Runtime
 import net.kdt.pojavlaunch.utils.JREUtils
 import net.kdt.pojavlaunch.utils.MathUtils
+import net.kdt.pojavlaunch.utils.SingleTapConfirm
 import net.kdt.pojavlaunch.utils.jre.JavaRunner
 import org.apache.commons.io.IOUtils
 import java.io.File
