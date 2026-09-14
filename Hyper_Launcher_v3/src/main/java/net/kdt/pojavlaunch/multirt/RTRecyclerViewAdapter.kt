@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ashmeet.hyperlauncher.components.list.MultiRTRuntimeItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.Architecture
+import com.ashmeet.hyperlauncher.utils.Architecture
 import net.kdt.pojavlaunch.PojavApplication
 import com.ashmeet.hyperlauncher.utils.Tools
 import com.google.android.material.dialog.MaterialAlertDialogBuilder

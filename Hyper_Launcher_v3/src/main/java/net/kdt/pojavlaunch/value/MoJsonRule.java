@@ -1,6 +1,6 @@
 package net.kdt.pojavlaunch.value;
 
-import net.kdt.pojavlaunch.Architecture;
+import com.ashmeet.hyperlauncher.utils.Architecture;
 
 public class MoJsonRule {
     public String action;

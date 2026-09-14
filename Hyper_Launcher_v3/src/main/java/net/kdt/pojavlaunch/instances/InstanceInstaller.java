@@ -10,7 +10,7 @@ import com.kdt.mcgui.ProgressLayout;
 
 import net.ashmeet.hyperlauncher.R;
 import net.kdt.pojavlaunch.awt.AWTActivity;
-import net.kdt.pojavlaunch.LauncherActivity;
+import com.ashmeet.hyperlauncher.activity.LauncherActivity;
 import net.kdt.pojavlaunch.PojavApplication;
 import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.extra.ExtraConstants;

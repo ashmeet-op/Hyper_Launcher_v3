@@ -24,6 +24,7 @@ import net.kdt.pojavlaunch.tasks.MoJsonDownloader;
 import net.kdt.pojavlaunch.utils.FileUtils;
 import net.kdt.pojavlaunch.utils.LocaleUtils;
 
+import com.ashmeet.hyperlauncher.utils.Architecture;
 import com.ashmeet.hyperlauncher.utils.Tools;
 import com.ashmeet.hyperlauncher.utils.translation.Translator;
 import com.ashmeet.hyperlauncher.utils.LoggerProxy;

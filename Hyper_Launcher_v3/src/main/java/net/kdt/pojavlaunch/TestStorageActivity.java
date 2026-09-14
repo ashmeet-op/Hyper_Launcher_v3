@@ -13,6 +13,8 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.ashmeet.hyperlauncher.activity.LauncherActivity;
+import com.ashmeet.hyperlauncher.activity.MissingStorageActivity;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 import com.ashmeet.hyperlauncher.utils.Tools;
 

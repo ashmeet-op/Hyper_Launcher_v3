@@ -48,6 +48,7 @@ public class ExitActivity extends AppCompatActivity {
         }
 
         ComposeView composeView = new ComposeView(this);
+        LauncherComposeHelper.ensureViewTreeOwners(composeView);
         String finalLogs = logs;
         LauncherComposeHelper.setExitContent(
                 composeView,

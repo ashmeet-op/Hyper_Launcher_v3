@@ -142,7 +142,7 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
     }
 
     private fun openVersionSelector() {
-        VersionSelectorDialog.open(requireContext(), false) { id, _ ->
+        VersionSelectorDialog.open(requireActivity(), false) { id, _ ->
             mVersionId = id
         }
     }

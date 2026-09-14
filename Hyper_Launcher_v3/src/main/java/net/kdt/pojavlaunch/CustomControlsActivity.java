@@ -42,6 +42,7 @@ public class CustomControlsActivity extends BaseActivity implements EditorExitab
 		mCropperLauncher = CropperUtils.registerCropper(this, this);
 
 		ComposeView composeView = new ComposeView(this);
+		LauncherComposeHelper.ensureViewTreeOwners(composeView);
 		setContentView(composeView);
 
 		mControlLayout = new ControlLayout(this);

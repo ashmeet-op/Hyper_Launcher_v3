@@ -42,7 +42,7 @@
         android:enableOnBackInvokedCallback="false"
         tools:ignore="UnusedAttribute,DiscouragedApi">
         <activity
-            android:name="net.kdt.pojavlaunch.MissingStorageActivity"
+            android:name="com.ashmeet.hyperlauncher.activity.MissingStorageActivity"
             android:exported="false" />
 
         <meta-data
@@ -61,7 +61,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="net.kdt.pojavlaunch.LauncherActivity"
+            android:name="com.ashmeet.hyperlauncher.activity.LauncherActivity"
             android:screenOrientation="sensorLandscape"
             android:windowSoftInputMode="adjustResize"/>
         <activity

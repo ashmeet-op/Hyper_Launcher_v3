@@ -13,7 +13,7 @@ import com.google.gson.JsonParseException;
 import com.kdt.mcgui.ProgressLayout;
 
 import net.ashmeet.hyperlauncher.R;
-import net.kdt.pojavlaunch.Architecture;
+import com.ashmeet.hyperlauncher.utils.Architecture;
 import net.kdt.pojavlaunch.JAssetInfo;
 import net.kdt.pojavlaunch.JAssets;
 import net.kdt.pojavlaunch.JVersionList;

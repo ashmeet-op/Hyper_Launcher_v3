@@ -12,8 +12,8 @@ import androidx.compose.runtime.MutableState;
 import androidx.compose.runtime.SnapshotStateKt;
 import androidx.compose.runtime.snapshots.SnapshotStateList;
 import androidx.compose.ui.platform.ComposeView;
-import androidx.compose.ui.platform.ViewCompositionStrategy;
 
+import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper;
 import com.ashmeet.hyperlauncher.components.text.LegacyMigratedComponentsBridge;
 import com.ashmeet.hyperlauncher.components.text.ProgressTaskState;
 
@@ -70,7 +70,7 @@ public class ProgressLayout extends ConstraintLayout implements TaskCountListene
 
     private void init(){
         ComposeView composeView = new ComposeView(getContext());
-        composeView.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed.INSTANCE);
+        LauncherComposeHelper.ensureViewTreeOwners(composeView);
         LegacyMigratedComponentsBridge.setProgressLayoutContent(
                 composeView,
                 mProgressText,

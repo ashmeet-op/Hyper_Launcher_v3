@@ -1,10 +1,13 @@
 package com.ashmeet.hyperlauncher.utils.helper
 
+import android.content.Context
+import android.content.ContextWrapper
+import android.view.View
 import android.widget.FrameLayout
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
@@ -44,16 +47,27 @@ object LauncherComposeHelper {
     }
 
     @JvmStatic
-    fun ensureViewTreeOwners(view: ComposeView) {
-        if (view.findViewTreeLifecycleOwner() == null) {
-            val activity = view.context as? FragmentActivity
-            if (activity != null) {
-                view.setViewTreeLifecycleOwner(activity)
-                view.setViewTreeViewModelStoreOwner(activity)
-                view.setViewTreeSavedStateRegistryOwner(activity)
-            }
+    fun ensureViewTreeOwners(view: View) {
+        val activity = findActivity(view.context)
+        if (activity != null) {
+            view.setViewTreeLifecycleOwner(activity)
+            view.setViewTreeViewModelStoreOwner(activity)
+            view.setViewTreeSavedStateRegistryOwner(activity)
         }
-        view.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+        if (view is ComposeView) {
+            view.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
+        }
+    }
+
+    private fun findActivity(context: Context): FragmentActivity? {
+        var currentContext = context
+        while (currentContext is ContextWrapper) {
+            if (currentContext is FragmentActivity) {
+                return currentContext
+            }
+            currentContext = currentContext.baseContext
+        }
+        return null
     }
 
     @JvmStatic

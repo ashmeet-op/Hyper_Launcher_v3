@@ -43,7 +43,7 @@ import com.ashmeet.hyperlauncher.utils.drawable.rememberDrawablePainter
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.BuildConfig
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.Architecture
+import com.ashmeet.hyperlauncher.utils.Architecture
 import net.kdt.pojavlaunch.Logger
 import com.ashmeet.hyperlauncher.utils.Tools
 

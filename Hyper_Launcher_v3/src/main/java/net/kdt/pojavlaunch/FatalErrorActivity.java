@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.compose.ui.platform.ComposeView;
 
+import com.ashmeet.hyperlauncher.activity.LauncherActivity;
 import com.ashmeet.hyperlauncher.utils.Tools;
 import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper;
 import net.ashmeet.hyperlauncher.R;
@@ -38,6 +39,7 @@ public class FatalErrorActivity extends AppCompatActivity {
 		String finalLogs = errHeader + "\n\n" + stackTrace;
 
 		ComposeView composeView = new ComposeView(this);
+		LauncherComposeHelper.ensureViewTreeOwners(composeView);
 		LauncherComposeHelper.setExitContent(
 				composeView,
 				getString(R.string.error_fatal),

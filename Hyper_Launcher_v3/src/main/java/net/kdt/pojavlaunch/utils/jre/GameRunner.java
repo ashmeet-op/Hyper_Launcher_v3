@@ -13,7 +13,7 @@ import com.ashmeet.hyperlauncher.skin.SkinManager;
 import com.ashmeet.hyperlauncher.skin.SkinManagerKt;
 
 import net.ashmeet.hyperlauncher.R;
-import net.kdt.pojavlaunch.Architecture;
+import com.ashmeet.hyperlauncher.utils.Architecture;
 import net.kdt.pojavlaunch.JVersionList;
 import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.authenticator.AuthType;

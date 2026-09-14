@@ -1,11 +1,11 @@
 package com.ashmeet.hyperlauncher.components.text
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.*
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -60,8 +60,19 @@ object LegacyMigratedComponentsBridge {
             ExpandableVersionList(
                 groups = groups,
                 getItems = { group -> groupData[groups.indexOf(group)] },
-                groupContent = { group, _ ->
-                    SimpleListItem1(text = group, onClick = {})
+                groupContent = { group, isExpanded, onToggle ->
+                    val rotation by animateFloatAsState(targetValue = if (isExpanded) 180f else 0f, label = "rotation")
+                    SimpleListItem1(
+                        text = group,
+                        onClick = onToggle,
+                        trailingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.ArrowDropDown,
+                                contentDescription = null,
+                                modifier = Modifier.rotate(rotation)
+                            )
+                        }
+                    )
                 },
                 itemContent = { item ->
 
@@ -189,7 +200,8 @@ fun ViewProgress(
 fun SimpleListItem1(
     text: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    trailingIcon: @Composable (() -> Unit)? = null
 ) {
     Surface(
         modifier = modifier
@@ -197,8 +209,7 @@ fun SimpleListItem1(
             .clickable(onClick = onClick),
         color = Color.Transparent
     ) {
-        Text(
-            text = text,
+        Row(
             modifier = Modifier
                 .padding(
                     start = 16.dp,
@@ -206,10 +217,17 @@ fun SimpleListItem1(
                     top = dimensionResource(R.dimen.padding_input_top),
                     bottom = dimensionResource(R.dimen.padding_input_bottom)
                 ),
-            style = MaterialTheme.typography.bodyLarge,
-            fontSize = with(LocalDensity.current) { dimensionResource(R.dimen._13ssp).toSp() },
-            textAlign = TextAlign.Start
-        )
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = text,
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.bodyLarge,
+                fontSize = with(LocalDensity.current) { dimensionResource(R.dimen._13ssp).toSp() },
+                textAlign = TextAlign.Start
+            )
+            trailingIcon?.invoke()
+        }
     }
 }
 
@@ -330,7 +348,7 @@ fun TextProgressBar(
 fun <G, I> ExpandableVersionList(
     groups: List<G>,
     getItems: (G) -> List<I>,
-    groupContent: @Composable (G, Boolean) -> Unit,
+    groupContent: @Composable (G, Boolean, () -> Unit) -> Unit,
     itemContent: @Composable (I) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -339,21 +357,28 @@ fun <G, I> ExpandableVersionList(
     LazyColumn(
         modifier = modifier
             .fillMaxWidth()
-            .height(dimensionResource(R.dimen._200sdp))
+            .heightIn(max = dimensionResource(R.dimen._400sdp))
     ) {
         groups.forEachIndexed { index, group ->
             item(key = "group_$index") {
                 val isExpanded = expandedStates[index] ?: false
-                Box(modifier = Modifier.clickable {
+                groupContent(group, isExpanded) {
                     expandedStates[index] = !isExpanded
-                }) {
-                    groupContent(group, isExpanded)
                 }
             }
 
-            if (expandedStates[index] == true) {
-                items(getItems(group)) { item ->
-                    itemContent(item)
+            item(key = "group_content_$index") {
+                val isExpanded = expandedStates[index] ?: false
+                AnimatedVisibility(
+                    visible = isExpanded,
+                    enter = expandVertically() + fadeIn(),
+                    exit = shrinkVertically() + fadeOut()
+                ) {
+                    Column {
+                        getItems(group).forEach { item ->
+                            itemContent(item)
+                        }
+                    }
                 }
             }
         }

@@ -216,6 +216,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
         weakCursor = new WeakReference<>(launcherGLView.mCursorView);
 
         mMainComposeView = new ComposeView(this);
+        LauncherComposeHelper.ensureViewTreeOwners(mMainComposeView);
         mMainComposeView.setClipChildren(false);
         mMainComposeView.setClipToPadding(false);
         setContentView(mMainComposeView);

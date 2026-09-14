@@ -52,6 +52,7 @@ public class ImportControlActivity extends BaseActivity {
         }
 
         mComposeView = new ComposeView(this);
+        LauncherComposeHelper.ensureViewTreeOwners(mComposeView);
         setContentView(mComposeView);
         updateComposeContent();
     }

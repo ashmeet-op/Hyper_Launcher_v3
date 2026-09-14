@@ -45,11 +45,10 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import net.ashmeet.hyperlauncher.BuildConfig
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.Architecture
 import net.kdt.pojavlaunch.InsetBackground
 import net.kdt.pojavlaunch.JVersionList
 import net.kdt.pojavlaunch.Logger
-import net.kdt.pojavlaunch.MissingStorageActivity
+import com.ashmeet.hyperlauncher.activity.MissingStorageActivity
 import net.kdt.pojavlaunch.PojavApplication.sExecutorService
 import net.kdt.pojavlaunch.ShowErrorActivity
 import net.kdt.pojavlaunch.awt.AWTActivity
@@ -993,7 +992,7 @@ object Tools {
 
     @JvmStatic
     fun restartLauncherActivity(context: Context) {
-        val intent = Intent(context, net.kdt.pojavlaunch.LauncherActivity::class.java)
+        val intent = Intent(context, com.ashmeet.hyperlauncher.activity.LauncherActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         context.applicationContext.startActivity(intent)
     }

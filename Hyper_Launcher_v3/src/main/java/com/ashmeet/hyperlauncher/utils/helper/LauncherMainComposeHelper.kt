@@ -33,6 +33,7 @@ object LauncherMainComposeHelper {
         onFragmentViewCreated: LauncherComposeHelper.OnFragmentViewCreatedListener
     ) {
         val composeView = ComposeView(activity).apply {
+            LauncherComposeHelper.ensureViewTreeOwners(this)
             setContent {
                 PojavTheme {
                     PojavLauncherScreen(

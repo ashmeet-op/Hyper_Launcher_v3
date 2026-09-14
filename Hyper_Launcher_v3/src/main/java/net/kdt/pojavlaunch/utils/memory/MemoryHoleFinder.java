@@ -1,6 +1,6 @@
 package net.kdt.pojavlaunch.utils.memory;
 
-import net.kdt.pojavlaunch.Architecture;
+import com.ashmeet.hyperlauncher.utils.Architecture;
 
 public class MemoryHoleFinder implements SelfMapsParser.Callback {
     private long mPreviousEnd = 0;

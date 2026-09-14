@@ -18,7 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.Architecture
+import com.ashmeet.hyperlauncher.utils.Architecture
 import com.ashmeet.hyperlauncher.utils.Tools
 import net.kdt.pojavlaunch.contracts.OpenDocumentWithExtension
 import net.kdt.pojavlaunch.multirt.MultiRTUtils

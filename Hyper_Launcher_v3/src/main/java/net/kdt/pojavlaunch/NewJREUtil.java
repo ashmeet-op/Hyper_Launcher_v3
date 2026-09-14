@@ -1,6 +1,6 @@
 package net.kdt.pojavlaunch;
 
-import static net.kdt.pojavlaunch.Architecture.archAsString;
+import static com.ashmeet.hyperlauncher.utils.Architecture.archAsString;
 
 import android.content.res.AssetManager;
 import android.util.Log;
