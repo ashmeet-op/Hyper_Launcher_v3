@@ -16,7 +16,7 @@ import com.ashmeet.hyperlauncher.screens.home.MainMenuFragmentCompose
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.CustomControlsActivity
-import net.kdt.pojavlaunch.Tools
+import com.ashmeet.hyperlauncher.utils.Tools
 import net.kdt.pojavlaunch.contracts.OpenDocumentWithExtension
 import net.kdt.pojavlaunch.extra.ExtraConstants
 import net.kdt.pojavlaunch.extra.ExtraCore

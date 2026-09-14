@@ -7,7 +7,7 @@ import com.kdt.mcgui.ProgressLayout;
 
 import net.kdt.pojavlaunch.PojavApplication;
 import net.ashmeet.hyperlauncher.R;
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.modloaders.modpacks.api.modloader.LoaderInstaller;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.ModDetail;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.ModItem;

@@ -1,6 +1,6 @@
 package net.kdt.pojavlaunch.modloaders;
 
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.instances.InstanceInstaller;
 import net.kdt.pojavlaunch.utils.DownloadUtils;
 

@@ -9,7 +9,7 @@ import android.content.Intent;
 
 import net.kdt.pojavlaunch.game.GameActivity;
 import net.ashmeet.hyperlauncher.R;
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.progresskeeper.ProgressKeeper;
 import net.kdt.pojavlaunch.tasks.MoJsonExtras;
 import net.kdt.pojavlaunch.utils.NotificationUtils;

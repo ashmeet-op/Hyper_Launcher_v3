@@ -15,7 +15,7 @@ import androidx.core.app.NotificationCompat;
 
 import net.kdt.pojavlaunch.game.GameActivity;
 import net.ashmeet.hyperlauncher.R;
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.utils.NotificationUtils;
 
 import java.lang.ref.WeakReference;

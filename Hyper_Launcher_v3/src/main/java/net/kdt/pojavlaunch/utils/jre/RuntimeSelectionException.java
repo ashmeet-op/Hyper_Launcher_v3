@@ -1,13 +1,12 @@
 package net.kdt.pojavlaunch.utils.jre;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import net.kdt.pojavlaunch.ShowErrorActivity;
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.lifecycle.ContextExecutorTask;
 
 import net.ashmeet.hyperlauncher.R;

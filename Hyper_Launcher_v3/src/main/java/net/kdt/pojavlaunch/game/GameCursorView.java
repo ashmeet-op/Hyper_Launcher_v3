@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import net.ashmeet.hyperlauncher.R;
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.game.platform.Platform;
 import net.kdt.pojavlaunch.game.platform.cursor.PlatformCursor;
 import net.kdt.pojavlaunch.game.platform.cursor.PlatformCursorImplementor;

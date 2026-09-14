@@ -9,7 +9,7 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreference
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.Architecture
 import net.kdt.pojavlaunch.PojavApplication
-import net.kdt.pojavlaunch.Tools
+import com.ashmeet.hyperlauncher.utils.Tools
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.IOException
 

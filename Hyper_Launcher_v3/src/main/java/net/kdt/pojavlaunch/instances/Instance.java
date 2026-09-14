@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.util.Log;
 
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 import net.kdt.pojavlaunch.utils.JSONUtils;
 

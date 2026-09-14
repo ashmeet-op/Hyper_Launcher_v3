@@ -10,7 +10,7 @@ import androidx.annotation.RequiresApi;
 
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 
 import net.kdt.pojavlaunch.CallbackBridge;
 import net.kdt.pojavlaunch.game.platform.Platform;

@@ -9,6 +9,8 @@ import android.view.KeyEvent;
 
 import androidx.annotation.Keep;
 
+import com.ashmeet.hyperlauncher.utils.Tools;
+
 import net.kdt.pojavlaunch.lifecycle.ContextExecutor;
 import net.kdt.pojavlaunch.game.platform.Platform;
 

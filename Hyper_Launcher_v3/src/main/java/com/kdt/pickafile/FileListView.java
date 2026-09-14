@@ -11,7 +11,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.ipaulpro.afilechooser.FileListAdapter;
 
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 
 import java.io.File;
 import java.util.Arrays;

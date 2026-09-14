@@ -4,7 +4,7 @@ import android.util.Log;
 
 import com.google.gson.JsonParseException;
 
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.utils.FileUtils;
 
 import java.io.File;

@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import com.kdt.mcgui.ProgressLayout;
 
 import net.ashmeet.hyperlauncher.R;
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.downloader.Downloader;
 import net.kdt.pojavlaunch.downloader.TaskMetadata;
 import net.kdt.pojavlaunch.mirrors.DownloadMirror;

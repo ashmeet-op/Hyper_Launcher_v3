@@ -45,7 +45,7 @@ import net.ashmeet.hyperlauncher.BuildConfig
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.Architecture
 import net.kdt.pojavlaunch.Logger
-import net.kdt.pojavlaunch.Tools
+import com.ashmeet.hyperlauncher.utils.Tools
 
 @Composable
 fun AboutScreen(

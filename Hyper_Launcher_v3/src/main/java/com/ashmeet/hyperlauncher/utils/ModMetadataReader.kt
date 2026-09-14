@@ -7,7 +7,6 @@ import com.google.gson.JsonParser
 import java.io.File
 import java.io.InputStreamReader
 import java.util.zip.ZipFile
-import net.kdt.pojavlaunch.Tools
 
 object ModMetadataReader {
     class ModMetadata {

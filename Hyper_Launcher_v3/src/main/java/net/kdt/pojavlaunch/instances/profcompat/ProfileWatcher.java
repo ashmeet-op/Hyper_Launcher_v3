@@ -2,13 +2,11 @@ package net.kdt.pojavlaunch.instances.profcompat;
 
 import android.content.res.AssetManager;
 
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.Map;
 
 public class ProfileWatcher {

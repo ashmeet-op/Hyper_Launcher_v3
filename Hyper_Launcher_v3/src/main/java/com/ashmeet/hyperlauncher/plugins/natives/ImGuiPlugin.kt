@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.ashmeet.hyperlauncher.plugins.interfaces.HyperPlugin
 import com.ashmeet.hyperlauncher.plugins.manager.HyperPluginManager
-import net.kdt.pojavlaunch.Tools
+import com.ashmeet.hyperlauncher.utils.Tools
 import org.apache.commons.io.FileUtils
 import java.io.File
 

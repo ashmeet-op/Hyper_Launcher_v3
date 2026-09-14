@@ -7,7 +7,7 @@ import androidx.annotation.Keep;
 import com.google.gson.JsonParseException;
 import com.google.gson.annotations.SerializedName;
 
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.utils.DownloadUtils;
 
 import java.io.IOException;

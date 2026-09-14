@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.Architecture
-import net.kdt.pojavlaunch.Tools
+import com.ashmeet.hyperlauncher.utils.Tools
 import net.kdt.pojavlaunch.contracts.OpenDocumentWithExtension
 import net.kdt.pojavlaunch.multirt.MultiRTUtils
 import net.kdt.pojavlaunch.multirt.Runtime
@@ -29,8 +29,7 @@ class LauncherPreferenceJavaFragment : Fragment(), SharedPreferences.OnSharedPre
     private val mVmInstallLauncher: ActivityResultLauncher<Any?> =
         registerForActivityResult(OpenDocumentWithExtension("xz")) { data ->
             if (data != null) {
-                Tools.installRuntimeFromUri(context, data)
-
+                context?.let { Tools.installRuntimeFromUri(it, data) }
             }
         }
 
@@ -85,7 +84,7 @@ class LauncherPreferenceJavaFragment : Fragment(), SharedPreferences.OnSharedPre
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Tools.showError(context, e)
+                    context?.let { Tools.showError(it, e) }
                 }
             }
         }

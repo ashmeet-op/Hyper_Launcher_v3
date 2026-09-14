@@ -9,6 +9,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.compose.ui.platform.ComposeView;
 
+import com.ashmeet.hyperlauncher.utils.Tools;
 import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper;
 
 import net.ashmeet.hyperlauncher.R;

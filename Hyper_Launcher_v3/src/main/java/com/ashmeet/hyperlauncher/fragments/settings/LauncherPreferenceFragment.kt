@@ -13,7 +13,7 @@ import com.ashmeet.hyperlauncher.fragments.home.about.AboutFragment
 import com.ashmeet.hyperlauncher.screens.settings.MainSettingsScreen
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.kdt.pojavlaunch.LauncherActivity
-import net.kdt.pojavlaunch.Tools
+import com.ashmeet.hyperlauncher.utils.Tools
 
 open class LauncherPreferenceFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener {
 

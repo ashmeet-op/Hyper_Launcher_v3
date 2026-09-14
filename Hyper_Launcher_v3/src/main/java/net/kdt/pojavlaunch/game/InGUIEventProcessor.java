@@ -5,7 +5,7 @@ import android.view.View;
 
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.customcontrols.mouse.LeftClickGesture;
 import net.kdt.pojavlaunch.customcontrols.mouse.PointerTracker;
 import net.kdt.pojavlaunch.customcontrols.mouse.Scroller;

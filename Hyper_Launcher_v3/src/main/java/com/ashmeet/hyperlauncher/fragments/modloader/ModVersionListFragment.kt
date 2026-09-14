@@ -13,7 +13,7 @@ import com.ashmeet.hyperlauncher.screens.modloader.ModloaderInstallScreen
 import com.ashmeet.hyperlauncher.screens.modloader.ModloaderVersionGroup
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.Tools
+import com.ashmeet.hyperlauncher.utils.Tools
 import net.kdt.pojavlaunch.extra.ExtraCore
 import net.kdt.pojavlaunch.modloaders.ModloaderDownloadListener
 import net.kdt.pojavlaunch.modloaders.ModloaderListenerProxy

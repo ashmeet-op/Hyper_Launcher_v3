@@ -3,7 +3,7 @@ package net.kdt.pojavlaunch.modloaders.modpacks.imagecache;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 
 import java.io.File;
 

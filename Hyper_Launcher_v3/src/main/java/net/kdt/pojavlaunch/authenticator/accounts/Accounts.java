@@ -2,7 +2,7 @@ package net.kdt.pojavlaunch.authenticator.accounts;
 
 import android.util.Log;
 
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.authenticator.AuthType;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 import net.kdt.pojavlaunch.utils.FileUtils;

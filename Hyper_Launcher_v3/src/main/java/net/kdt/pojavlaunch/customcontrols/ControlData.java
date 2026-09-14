@@ -7,7 +7,7 @@ import androidx.annotation.Keep;
 
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.customcontrols.buttons.ControlInterface;
 
 import net.kdt.pojavlaunch.utils.JSONUtils;

@@ -22,7 +22,7 @@ import androidx.fragment.app.Fragment;
 
 import net.kdt.pojavlaunch.PojavApplication;
 import net.ashmeet.hyperlauncher.R;
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.imgcropper.BitmapCropBehaviour;
 import net.kdt.pojavlaunch.imgcropper.CropperBehaviour;
 import net.kdt.pojavlaunch.imgcropper.CropperView;

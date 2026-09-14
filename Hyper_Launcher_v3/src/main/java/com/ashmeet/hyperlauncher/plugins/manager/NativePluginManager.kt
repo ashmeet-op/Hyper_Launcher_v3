@@ -5,7 +5,7 @@ import android.util.Log
 import com.ashmeet.hyperlauncher.plugins.interfaces.NativePlugin
 import com.ashmeet.hyperlauncher.plugins.natives.LibraryPlugin
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
-import net.kdt.pojavlaunch.Tools
+import com.ashmeet.hyperlauncher.utils.Tools
 import net.kdt.pojavlaunch.modloaders.ComparableVersionString
 import java.io.File
 import java.util.HashMap

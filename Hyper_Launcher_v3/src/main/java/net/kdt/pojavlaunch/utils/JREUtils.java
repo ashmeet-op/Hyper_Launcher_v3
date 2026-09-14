@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 import com.ashmeet.hyperlauncher.plugins.natives.LibraryPlugin;
 import com.ashmeet.hyperlauncher.plugins.manager.NativePluginManager;
+import com.ashmeet.hyperlauncher.utils.Tools;
 
 import java.io.*;
 import java.util.*;

@@ -6,7 +6,7 @@ import android.view.KeyEvent;
 import com.google.gson.JsonSyntaxException;
 
 import net.kdt.pojavlaunch.LwjglGlfwKeycode;
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 
 import org.json.JSONArray;
 import org.json.JSONException;

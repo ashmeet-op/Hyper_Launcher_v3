@@ -27,7 +27,7 @@ import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.kdt.pickafile.FileListView
 import com.kdt.pickafile.FileSelectedListener
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.Tools
+import com.ashmeet.hyperlauncher.utils.Tools
 import net.kdt.pojavlaunch.extra.ExtraConstants
 import net.kdt.pojavlaunch.extra.ExtraCore
 import java.io.File
@@ -44,9 +44,9 @@ class FileSelectorFragment : Fragment() {
     private var selectFolder = true
     private var showFiles = true
     private var showFolders = true
-    private var rootPath = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+    private var rootPath: String = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
         Tools.DIR_GAME_NEW
-    else Environment.getExternalStorageDirectory().absolutePath
+    else Environment.getExternalStorageDirectory().absolutePath) ?: Tools.DIR_GAME_HOME
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,14 +54,14 @@ class FileSelectorFragment : Fragment() {
             selectFolder = bundle.getBoolean(BUNDLE_SELECT_FOLDER, selectFolder)
             showFiles = bundle.getBoolean(BUNDLE_SHOW_FILE, showFiles)
             showFolders = bundle.getBoolean(BUNDLE_SHOW_FOLDER, showFolders)
-            rootPath = bundle.getString(BUNDLE_ROOT_PATH, rootPath)
+            rootPath = bundle.getString(BUNDLE_ROOT_PATH) ?: rootPath
         }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
@@ -74,12 +74,11 @@ class FileSelectorFragment : Fragment() {
                         onFileSelected = { _, path ->
                             ExtraCore.setValue(ExtraConstants.FILE_SELECTOR, removeLockPath(path))
                             Tools.removeCurrentFragment(requireActivity())
-                        },
-                        onFolderSelected = { path ->
-                            ExtraCore.setValue(ExtraConstants.FILE_SELECTOR, removeLockPath(path))
-                            Tools.removeCurrentFragment(requireActivity())
                         }
-                    )
+                    ) { path ->
+                        ExtraCore.setValue(ExtraConstants.FILE_SELECTOR, removeLockPath(path))
+                        Tools.removeCurrentFragment(requireActivity())
+                    }
                 }
             }
         }
@@ -128,11 +127,13 @@ fun FileSelectorContent(
                         setDialogTitleListener { title ->
                             currentPath = title.replace(rootPath, ".")
                         }
-                        setFileSelectedListener(object : FileSelectedListener() {
-                            override fun onFileSelected(file: File, path: String) {
-                                onFileSelected(file, path)
+                        setFileSelectedListener(
+                            object : FileSelectedListener() {
+                                override fun onFileSelected(file: File, path: String) {
+                                    onFileSelected(file, path)
+                                }
                             }
-                        })
+                        )
                         refreshPath()
                         fileListViewRef = this
                     }

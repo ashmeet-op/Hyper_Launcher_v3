@@ -14,6 +14,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
+import com.ashmeet.hyperlauncher.utils.Tools;
 
 import net.ashmeet.hyperlauncher.R;
 import net.kdt.pojavlaunch.tasks.AsyncAssetManager;

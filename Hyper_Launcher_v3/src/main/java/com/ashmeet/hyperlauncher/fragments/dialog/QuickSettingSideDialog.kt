@@ -31,7 +31,7 @@ import com.ashmeet.hyperlauncher.components.dialog.DialogSliderItem
 import com.ashmeet.hyperlauncher.components.dialog.DialogSwitchItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.Tools
+import com.ashmeet.hyperlauncher.utils.Tools
 import net.kdt.pojavlaunch.utils.KeycodeUtils
 
 

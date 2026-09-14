@@ -9,6 +9,7 @@ import android.provider.DocumentsContract;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.compose.ui.platform.ComposeView;
 
+import com.ashmeet.hyperlauncher.utils.Tools;
 import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 import com.google.gson.JsonSyntaxException;

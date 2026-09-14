@@ -15,7 +15,7 @@ import androidx.fragment.app.Fragment
 import com.ashmeet.hyperlauncher.fragments.dialog.DeleteConfirmDialogFragment
 import com.ashmeet.hyperlauncher.fragments.selection.FileSelectorFragment
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.Tools
+import com.ashmeet.hyperlauncher.utils.Tools
 import net.kdt.pojavlaunch.extra.ExtraConstants
 import net.kdt.pojavlaunch.extra.ExtraCore
 import net.kdt.pojavlaunch.instances.Instance

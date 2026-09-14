@@ -7,7 +7,6 @@ import android.util.Log
 import com.ashmeet.hyperlauncher.plugins.manager.NativePluginManager
 import git.artdeell.mojoexec.MojoExec
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.Tools
 import net.kdt.pojavlaunch.extra.ExtraConstants
 import net.kdt.pojavlaunch.extra.ExtraCore
 import net.kdt.pojavlaunch.utils.GLInfoUtils

@@ -1,7 +1,7 @@
 package net.kdt.pojavlaunch.tasks;
 
 import net.kdt.pojavlaunch.Architecture;
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.utils.FileUtils;
 import net.kdt.pojavlaunch.value.ExtractSettings;
 

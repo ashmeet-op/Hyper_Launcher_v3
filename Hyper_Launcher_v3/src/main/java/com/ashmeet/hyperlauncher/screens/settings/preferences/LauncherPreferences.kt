@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.Architecture
-import net.kdt.pojavlaunch.Tools
+import com.ashmeet.hyperlauncher.utils.Tools
 import net.kdt.pojavlaunch.multirt.MultiRTUtils
 import net.kdt.pojavlaunch.utils.JREUtils
 import java.io.IOException
@@ -338,7 +338,7 @@ object LauncherPreferences {
         PREF_LONGPRESS_TRIGGER = pref.getInt("timeLongPressTrigger", 300)
         PREF_DEFAULTCTRL_PATH = pref.getString("defaultCtrl", "") ?: ""
         if (PREF_DEFAULTCTRL_PATH.isEmpty()) {
-            PREF_DEFAULTCTRL_PATH = Tools.CTRLDEF_FILE
+            PREF_DEFAULTCTRL_PATH = Tools.CTRLDEF_FILE ?: ""
         }
         PREF_FORCE_ENGLISH = pref.getBoolean("force_english", false)
         PREF_DISABLE_GESTURES = pref.getBoolean("disableGestures", false)

@@ -10,7 +10,7 @@ import androidx.annotation.Keep;
 import com.ashmeet.hyperlauncher.skin.model.SkinModelType;
 import com.google.gson.JsonParseException;
 
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.authenticator.AuthType;
 import net.kdt.pojavlaunch.utils.FileUtils;
 import net.kdt.pojavlaunch.utils.JSONUtils;

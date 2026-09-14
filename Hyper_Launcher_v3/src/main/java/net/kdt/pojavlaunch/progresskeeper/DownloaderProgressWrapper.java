@@ -1,8 +1,8 @@
 package net.kdt.pojavlaunch.progresskeeper;
 
-import static net.kdt.pojavlaunch.Tools.BYTE_TO_MB;
+import static com.ashmeet.hyperlauncher.utils.Tools.BYTE_TO_MB;
 
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 
 public class DownloaderProgressWrapper implements Tools.DownloaderFeedback {
 

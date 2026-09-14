@@ -11,7 +11,7 @@ import android.view.View;
 import net.kdt.pojavlaunch.awt.AWTBridge;
 import net.kdt.pojavlaunch.game.GameView;
 import net.kdt.pojavlaunch.game.GameActivity;
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.customcontrols.gamepad.DefaultDataProvider;
 import net.kdt.pojavlaunch.customcontrols.gamepad.Gamepad;
 import net.kdt.pojavlaunch.game.platform.backend.AWTBackend;

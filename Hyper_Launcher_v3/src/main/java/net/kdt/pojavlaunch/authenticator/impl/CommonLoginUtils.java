@@ -2,7 +2,7 @@ package net.kdt.pojavlaunch.authenticator.impl;
 
 import android.util.Log;
 
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.authenticator.model.OAuthTokenResponse;
 
 import java.io.IOException;

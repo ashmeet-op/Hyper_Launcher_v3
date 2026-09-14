@@ -20,7 +20,7 @@ import androidx.annotation.Nullable;
 
 import net.ashmeet.hyperlauncher.BuildConfig;
 import net.ashmeet.hyperlauncher.R;
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 
 import org.apache.commons.io.FileUtils;
 
@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * A document provider for the Storage Access Framework which exposes the files in the

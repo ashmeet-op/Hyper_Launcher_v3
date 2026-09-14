@@ -12,7 +12,7 @@ import android.util.Log;
 
 import com.kdt.mcgui.ProgressLayout;
 
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.multirt.MultiRTUtils;
 
 import org.apache.commons.io.FileUtils;

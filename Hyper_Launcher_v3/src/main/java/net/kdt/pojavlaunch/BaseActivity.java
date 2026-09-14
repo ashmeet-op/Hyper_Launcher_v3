@@ -17,6 +17,8 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
+import com.ashmeet.hyperlauncher.utils.Tools;
+
 import net.kdt.pojavlaunch.utils.LocaleUtils;
 
 public abstract class BaseActivity extends AppCompatActivity {

@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import net.kdt.pojavlaunch.JVersionList;
 import net.ashmeet.hyperlauncher.R;
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.utils.FilteredSubList;
 
 import java.io.File;

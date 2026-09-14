@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import com.ashmeet.hyperlauncher.screens.activity.JavaGuiLauncherScreen
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.utils.Tools
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.*
 import net.kdt.pojavlaunch.customcontrols.keyboard.TouchCharInput

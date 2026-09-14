@@ -64,7 +64,7 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.cursorInfos
 import com.ashmeet.hyperlauncher.utils.translation.Translator
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.Tools
+import com.ashmeet.hyperlauncher.utils.Tools
 import java.io.File
 import java.io.FileOutputStream
 

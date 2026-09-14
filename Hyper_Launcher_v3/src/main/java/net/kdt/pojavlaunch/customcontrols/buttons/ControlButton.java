@@ -20,7 +20,7 @@ import net.ashmeet.hyperlauncher.R;
 import net.kdt.pojavlaunch.game.GameActivity;
 
 
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.customcontrols.ControlData;
 import net.kdt.pojavlaunch.customcontrols.ControlLayout;
 import com.ashmeet.hyperlauncher.fragments.dialog.EditControlSideDialog;

@@ -5,7 +5,7 @@ import static com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPre
 import static com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_SUSTAINED_PERFORMANCE;
 import static com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_USE_ALTERNATE_SURFACE;
 import static com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_VIRTUAL_MOUSE_START;
-import static net.kdt.pojavlaunch.Tools.dialogForceClose;
+import static com.ashmeet.hyperlauncher.utils.Tools.dialogForceClose;
 import static net.kdt.pojavlaunch.game.platform.Platform.PLATFORM;
 
 
@@ -54,7 +54,7 @@ import net.kdt.pojavlaunch.BaseActivity;
 import net.kdt.pojavlaunch.CallbackBridge;
 import net.kdt.pojavlaunch.utils.KeycodeUtils;
 import net.kdt.pojavlaunch.Logger;
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.authenticator.accounts.Accounts;
 import net.kdt.pojavlaunch.customcontrols.ControlButtonMenuListener;
 import net.kdt.pojavlaunch.customcontrols.ControlData;

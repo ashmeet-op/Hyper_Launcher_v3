@@ -1,6 +1,6 @@
 package net.kdt.pojavlaunch.utils;
 
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 
 import java.io.File;
 import java.io.FileInputStream;

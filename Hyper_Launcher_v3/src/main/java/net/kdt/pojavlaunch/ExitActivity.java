@@ -1,6 +1,6 @@
 package net.kdt.pojavlaunch;
 
-import static net.kdt.pojavlaunch.Tools.shareLog;
+import static com.ashmeet.hyperlauncher.utils.Tools.shareLog;
 
 import android.annotation.SuppressLint;
 import android.content.ClipData;
@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.compose.ui.platform.ComposeView;
 
+import com.ashmeet.hyperlauncher.utils.Tools;
 import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper;
 import net.ashmeet.hyperlauncher.R;
 

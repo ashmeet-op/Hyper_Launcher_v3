@@ -1,6 +1,6 @@
 package net.kdt.pojavlaunch.multirt;
 
-import static net.kdt.pojavlaunch.Tools.NATIVE_LIB_DIR;
+import static com.ashmeet.hyperlauncher.utils.Tools.NATIVE_LIB_DIR;
 import static org.apache.commons.io.FileUtils.listFiles;
 import static org.apache.commons.io.FileUtils.write;
 
@@ -10,7 +10,7 @@ import android.util.Log;
 import com.kdt.mcgui.ProgressLayout;
 
 import net.ashmeet.hyperlauncher.R;
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.utils.MathUtils;
 import net.kdt.pojavlaunch.utils.jre.JavaRunner;
 

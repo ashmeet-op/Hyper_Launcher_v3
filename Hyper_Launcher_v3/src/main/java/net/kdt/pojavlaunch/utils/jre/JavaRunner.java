@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 
 import net.kdt.pojavlaunch.Architecture;
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.awt.AWTView;
 import net.kdt.pojavlaunch.multirt.MultiRTUtils;
 import net.kdt.pojavlaunch.multirt.Runtime;

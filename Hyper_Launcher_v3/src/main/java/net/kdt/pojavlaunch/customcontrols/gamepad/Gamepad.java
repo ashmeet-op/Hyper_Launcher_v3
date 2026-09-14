@@ -24,7 +24,7 @@ import net.kdt.pojavlaunch.CallbackBridge;
 import net.kdt.pojavlaunch.game.platform.input.PlatformGrabListener;
 import net.kdt.pojavlaunch.game.platform.Platform;
 
-import static net.kdt.pojavlaunch.Tools.currentDisplayMetrics;
+import static com.ashmeet.hyperlauncher.utils.Tools.currentDisplayMetrics;
 import static net.kdt.pojavlaunch.customcontrols.gamepad.GamepadJoystick.DIRECTION_EAST;
 import static net.kdt.pojavlaunch.customcontrols.gamepad.GamepadJoystick.DIRECTION_NONE;
 import static net.kdt.pojavlaunch.customcontrols.gamepad.GamepadJoystick.DIRECTION_NORTH;

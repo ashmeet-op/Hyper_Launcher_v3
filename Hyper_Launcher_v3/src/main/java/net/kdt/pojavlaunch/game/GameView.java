@@ -24,7 +24,7 @@ import androidx.annotation.RequiresApi;
 
 import net.ashmeet.hyperlauncher.R;
 import net.kdt.pojavlaunch.CallbackBridge;
-import net.kdt.pojavlaunch.Tools;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.customcontrols.ControlLayout;
 import net.kdt.pojavlaunch.customcontrols.gamepad.Gamepad;
 import net.kdt.pojavlaunch.customcontrols.mouse.AndroidPointerCapture;
