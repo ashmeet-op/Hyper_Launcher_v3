@@ -1,85 +1,86 @@
-package com.ashmeet.hyperlauncher.activity;
+package com.ashmeet.hyperlauncher.activity
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import android.widget.Toast;
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
+import android.os.Bundle
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.platform.ComposeView
+import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
+import net.ashmeet.hyperlauncher.R
+import java.io.File
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.compose.ui.platform.ComposeView;
+class FatalErrorActivity : AppCompatActivity() {
 
-import com.ashmeet.hyperlauncher.utils.Tools;
-import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper;
-import net.ashmeet.hyperlauncher.R;
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        
+        val extras = intent.extras
+        if (extras == null) {
+            finish()
+            return
+        }
+        val storageAllow = extras.getBoolean("storageAllow", false)
+        val throwable = extras.getSerializable("throwable") as? Throwable
+        val stackTrace = if (throwable != null) Tools.printToString(throwable) else "<null>"
+        val strSavePath = extras.getString("savePath")
+        val errHeader = if (storageAllow) {
+            "Crash stack trace saved to $strSavePath."
+        } else {
+            "Storage permission is required to save crash stack trace!"
+        }
 
-import java.io.File;
+        val finalLogs = "$errHeader\n\n$stackTrace"
 
-public class FatalErrorActivity extends AppCompatActivity {
+        val composeView = ComposeView(this)
+        LauncherComposeHelper.ensureViewTreeOwners(composeView)
+        LauncherComposeHelper.setExitContent(
+            composeView,
+            getString(R.string.error_fatal),
+            finalLogs,
+            {
+                // Sharing stack trace instead of log file here
+                val intent = Intent(Intent.ACTION_SEND)
+                intent.type = "text/plain"
+                intent.putExtra(Intent.EXTRA_TEXT, finalLogs)
+                startActivity(Intent.createChooser(intent, getString(R.string.main_share_logs)))
+                Unit
+            },
+            {
+                val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clip = ClipData.newPlainText("error", finalLogs)
+                clipboard.setPrimaryClip(clip)
+                Toast.makeText(this, "Error copied to clipboard", Toast.LENGTH_SHORT).show()
+                Unit
+            },
+            {
+                startActivity(Intent(this, LauncherActivity::class.java))
+                finish()
+                Unit
+            },
+            {
+                if (strSavePath != null) {
+                    Tools.openPath(this, File(strSavePath), false)
+                }
+                Unit
+            }
+        )
+        setContentView(composeView)
+    }
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		
-		Bundle extras = getIntent().getExtras();
-		if(extras == null) {
-			finish();
-			return;
-		}
-		boolean storageAllow = extras.getBoolean("storageAllow", false);
-		Throwable throwable = (Throwable) extras.getSerializable("throwable");
-		final String stackTrace = throwable != null ? Tools.printToString(throwable) : "<null>";
-		String strSavePath = extras.getString("savePath");
-		String errHeader = storageAllow ?
-			"Crash stack trace saved to " + strSavePath + "." :
-			"Storage permission is required to save crash stack trace!";
-
-		String finalLogs = errHeader + "\n\n" + stackTrace;
-
-		ComposeView composeView = new ComposeView(this);
-		LauncherComposeHelper.ensureViewTreeOwners(composeView);
-		LauncherComposeHelper.setExitContent(
-				composeView,
-				getString(R.string.error_fatal),
-				finalLogs,
-				() -> {
-					// Sharing stack trace instead of log file here
-					Intent intent = new Intent(Intent.ACTION_SEND);
-					intent.setType("text/plain");
-					intent.putExtra(Intent.EXTRA_TEXT, finalLogs);
-					startActivity(Intent.createChooser(intent, getString(R.string.main_share_logs)));
-					return kotlin.Unit.INSTANCE;
-				},
-				() -> {
-					ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-					ClipData clip = ClipData.newPlainText("error", finalLogs);
-					clipboard.setPrimaryClip(clip);
-					Toast.makeText(this, "Error copied to clipboard", Toast.LENGTH_SHORT).show();
-					return kotlin.Unit.INSTANCE;
-				},
-				() -> {
-					startActivity(new Intent(FatalErrorActivity.this, LauncherActivity.class));
-					finish();
-					return kotlin.Unit.INSTANCE;
-				},
-				(path) -> {
-					if (strSavePath != null) {
-						Tools.openPath(this, new File(strSavePath), false);
-					}
-					return kotlin.Unit.INSTANCE;
-				}
-		);
-		setContentView(composeView);
-	}
-
-	public static void showError(Context ctx, String savePath, boolean storageAllow, Throwable th) {
-		Intent fatalErrorIntent = new Intent(ctx, FatalErrorActivity.class);
-		fatalErrorIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		fatalErrorIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		fatalErrorIntent.putExtra("throwable", th);
-		fatalErrorIntent.putExtra("savePath", savePath);
-		fatalErrorIntent.putExtra("storageAllow", storageAllow);
-		ctx.startActivity(fatalErrorIntent);
-	}
+    companion object {
+        @JvmStatic
+        fun showError(ctx: Context, savePath: String?, storageAllow: Boolean, th: Throwable?) {
+            val fatalErrorIntent = Intent(ctx, FatalErrorActivity::class.java)
+            fatalErrorIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            fatalErrorIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            fatalErrorIntent.putExtra("throwable", th)
+            fatalErrorIntent.putExtra("savePath", savePath)
+            fatalErrorIntent.putExtra("storageAllow", storageAllow)
+            ctx.startActivity(fatalErrorIntent)
+        }
+    }
 }
