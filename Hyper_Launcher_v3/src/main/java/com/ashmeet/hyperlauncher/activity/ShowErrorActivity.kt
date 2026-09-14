@@ -32,7 +32,7 @@ class ShowErrorActivity : BaseActivity() {
         remoteErrorTask.executeWithActivity(this)
     }
 
-    class RemoteErrorTask(private val mThrowable: Throwable, private val mRolledMsg: String) : ContextExecutorTask,
+    class RemoteErrorTask(private val mThrowable: Throwable, private val mRolledMsg: String?) : ContextExecutorTask,
         Serializable {
 
         override fun executeWithActivity(activity: Activity) {
