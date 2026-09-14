@@ -1,4 +1,4 @@
-package com.ashmeet.hyperlauncher.activity
+package net.kdt.pojavlaunch
 
 import android.annotation.SuppressLint
 import android.content.ClipData

@@ -168,6 +168,7 @@ private fun EditControlContent(
 
 
     var name by remember(properties) { mutableStateOf(properties.name) }
+    var keycodes by remember(properties) { mutableStateOf(properties.keycodes.copyOf()) }
     var widthText by remember(properties) { mutableStateOf(if (properties.width % 1f == 0f) properties.width.toInt().toString() else properties.width.toString()) }
     var heightText by remember(properties) { mutableStateOf(if (properties.height % 1f == 0f) properties.height.toInt().toString() else properties.height.toString()) }
     var opacity by remember(properties) { mutableFloatStateOf(properties.opacity * 100f) }
@@ -323,7 +324,7 @@ private fun EditControlContent(
                             val keyNames = remember { KeycodeUtils.generateKeyName() }
                             val allKeyNames = remember { specialArray + keyNames }
 
-                            properties.keycodes.forEachIndexed { index, keycode ->
+                            keycodes.forEachIndexed { index, keycode ->
                                 var expanded by remember { mutableStateOf(false) }
                                 val selectedIndex = if (keycode < 0) {
                                     keycode + specialArray.size
@@ -352,6 +353,7 @@ private fun EditControlContent(
                                                                 KeycodeUtils.getValueByIndex(i - specialArray.size)
                                                             }
                                                         properties.keycodes[index] = newKeycode
+                                                        keycodes = properties.keycodes.copyOf()
                                                         button.updateProperties()
                                                         expanded = false
                                                     }
@@ -376,6 +378,7 @@ private fun EditControlContent(
                                     onCheckedChange = {
                                         isToggle = it
                                         properties.isToggle = it
+                                        button.updateProperties()
                                     }
                                 )
                             }
@@ -390,6 +393,7 @@ private fun EditControlContent(
                                     onCheckedChange = {
                                         passThruEnabled = it
                                         properties.passThruEnabled = it
+                                        button.updateProperties()
                                     }
                                 )
                             }
@@ -404,6 +408,7 @@ private fun EditControlContent(
                                     onCheckedChange = {
                                         isSwipeable = it
                                         properties.isSwipeable = it
+                                        button.updateProperties()
                                     }
                                 )
                             }
@@ -424,6 +429,7 @@ private fun EditControlContent(
                                     onCheckedChange = {
                                         forwardLock = it
                                         properties.forwardLock = it
+                                        button.updateProperties()
                                     }
                                 )
                             }
@@ -438,6 +444,7 @@ private fun EditControlContent(
                                     onCheckedChange = {
                                         absolute = it
                                         properties.absolute = it
+                                        button.updateProperties()
                                     }
                                 )
                             }
@@ -558,6 +565,7 @@ private fun EditControlContent(
                                     onCheckedChange = {
                                         displayInGame = it
                                         properties.displayInGame = it
+                                        button.updateProperties()
                                     }
                                 )
                             }
@@ -572,6 +580,7 @@ private fun EditControlContent(
                                     onCheckedChange = {
                                         displayInMenu = it
                                         properties.displayInMenu = it
+                                        button.updateProperties()
                                     }
                                 )
                             }

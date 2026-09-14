@@ -45,9 +45,9 @@ abstract class BaseActivity : AppCompatActivity() {
      */
     open fun updateOrientation() {
         requestedOrientation = if (PREF_DYNAMIC_ORIENTATION) {
-            ActivityInfo.SCREEN_ORIENTATION_SENSOR
+            ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
         } else {
-            ActivityInfo.SCREEN_ORIENTATION_USER
+            ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
         }
     }
 
