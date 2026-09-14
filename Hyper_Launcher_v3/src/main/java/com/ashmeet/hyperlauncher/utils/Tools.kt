@@ -49,7 +49,7 @@ import com.ashmeet.hyperlauncher.utils.drawable.InsetBackground
 import net.kdt.pojavlaunch.Jassets.JVersionList
 import net.kdt.pojavlaunch.Logger
 import com.ashmeet.hyperlauncher.activity.MissingStorageActivity
-import com.ashmeet.hyperlauncher.activity.PojavApplication.sExecutorService
+import com.ashmeet.hyperlauncher.activity.PojavApplication
 import com.ashmeet.hyperlauncher.activity.ShowErrorActivity
 import net.kdt.pojavlaunch.awt.AWTActivity
 import net.kdt.pojavlaunch.game.GameActivity
@@ -859,7 +859,7 @@ object Tools {
 
     @JvmStatic
     fun installRuntimeFromUri(context: Context, uri: Uri) {
-        sExecutorService.execute {
+        PojavApplication.sExecutorService.execute {
             try {
                 val name = getFileName(context, uri)
                 MultiRTUtils.installRuntimeNamed(
