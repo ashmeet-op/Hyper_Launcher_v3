@@ -1,4 +1,4 @@
-package net.kdt.pojavlaunch.profiles
+package com.ashmeet.hyperlauncher.profiles
 
 import android.app.Dialog
 import android.os.Bundle

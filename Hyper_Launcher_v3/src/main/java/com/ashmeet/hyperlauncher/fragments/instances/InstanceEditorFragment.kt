@@ -23,7 +23,7 @@ import net.kdt.pojavlaunch.instances.InstanceIconProvider
 import net.kdt.pojavlaunch.instances.Instances
 import net.kdt.pojavlaunch.multirt.MultiRTUtils
 import net.kdt.pojavlaunch.multirt.Runtime
-import net.kdt.pojavlaunch.profiles.VersionSelectorDialog
+import com.ashmeet.hyperlauncher.profiles.VersionSelectorDialog
 import com.ashmeet.hyperlauncher.screens.instances.InstanceEditorScreen
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.kdt.pojavlaunch.utils.CropperUtils
