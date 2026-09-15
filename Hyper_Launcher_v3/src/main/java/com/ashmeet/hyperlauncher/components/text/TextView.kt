@@ -8,9 +8,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
-import com.ashmeet.hyperlauncher.components.layout.ExperimentalMaterial3ExpressiveApi
-import com.ashmeet.hyperlauncher.components.layout.LoadingIndicator
-import com.ashmeet.hyperlauncher.components.layout.LinearWavyProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier

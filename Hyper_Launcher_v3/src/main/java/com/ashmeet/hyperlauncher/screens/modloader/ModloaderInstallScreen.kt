@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import net.ashmeet.hyperlauncher.R
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <T> ModloaderInstallScreen(
     title: String,

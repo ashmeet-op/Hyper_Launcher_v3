@@ -12,6 +12,7 @@ import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSliderState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -35,8 +36,20 @@ fun IndicatorSlider(
     onValueChangeFinished: (() -> Unit)? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     steps: Int = 0,
-    colors: SliderColors = SliderDefaults.colors()
+    colors: SliderColors = SliderDefaults.colors(),
 ) {
+    val state = rememberSliderState(
+        value = value,
+        trackRange = valueRange,
+        steps = steps,
+    )
+
+    LaunchedEffect(value) {
+        if (state.value != value) {
+            state.value = value
+        }
+    }
+
     val density = LocalDensity.current
     val sliderTopCut = with(density) { 8.dp.toPx().toInt() }
     val sliderBottomCut = with(density) { 6.dp.toPx().toInt() }
@@ -44,24 +57,22 @@ fun IndicatorSlider(
         modifier = modifier,
         content = {
             Slider(
-                value = value,
+                state = state,
                 onValueChange = onValueChange,
-                valueRange = valueRange,
                 enabled = enabled,
                 onValueChangeFinished = onValueChangeFinished,
                 interactionSource = interactionSource,
-                steps = steps,
                 colors = colors,
                 thumb = {
                     SliderDefaults.Thumb(
                         interactionSource = interactionSource,
                         colors = colors,
                         enabled = enabled,
-                        thumbSize = DpSize(6.0.dp, 20.0.dp)
+                        thumbSize = DpSize(6.0.dp, 20.0.dp),
                     )
-                }
+                },
             )
-        }
+        },
     ) { measurables, constraints ->
         val placeable = measurables.first().measure(constraints)
         val newHeight = (placeable.height - sliderTopCut - sliderBottomCut).coerceAtLeast(0)
@@ -71,6 +82,7 @@ fun IndicatorSlider(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SimpleTextSlider(
     modifier: Modifier = Modifier,
@@ -85,8 +97,7 @@ fun SimpleTextSlider(
     onValueChangeFinished: (() -> Unit)? = null,
     onTextClick: (() -> Unit)? = null,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
-    fineTuningStep: Float = 0.5f,
-    appendContent: @Composable () -> Unit = {}
+    appendContent: @Composable () -> Unit = {},
 ) {
     val formatter = DecimalFormat(decimalFormat)
     fun getTextString(v: Float) = if (toInt) v.toInt().toString() else formatter.format(v)
@@ -99,7 +110,19 @@ fun SimpleTextSlider(
     LaunchedEffect(Unit) {
         if (value !in valueRange) {
             val newValue = value.coerceIn(valueRange)
-            changeValue(newValue, true)
+            changeValue(newValue, finished = true)
+        }
+    }
+
+    val state = rememberSliderState(
+        value = value,
+        trackRange = valueRange,
+        steps = steps,
+    )
+
+    LaunchedEffect(value) {
+        if (state.value != value) {
+            state.value = value
         }
     }
 
@@ -117,23 +140,21 @@ fun SimpleTextSlider(
             IndicatorSlider(
                 value = value,
                 enabled = enabled,
-                onValueChange = { changeValue(it, false) },
+                onValueChange = { changeValue(it, finished = false) },
                 onValueChangeFinished = onValueChangeFinished,
                 valueRange = valueRange,
                 steps = steps,
                 modifier = Modifier.weight(1f),
-                colors = sliderColors
+                colors = sliderColors,
             )
         } else {
             Slider(
-                value = value,
+                state = state,
+                onValueChange = { changeValue(it, finished = false) },
                 enabled = enabled,
-                onValueChange = { changeValue(it, false) },
                 onValueChangeFinished = onValueChangeFinished,
-                valueRange = valueRange,
-                steps = steps,
                 modifier = Modifier.weight(1f),
-                colors = sliderColors
+                colors = sliderColors,
             )
         }
         Surface(

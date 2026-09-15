@@ -332,6 +332,7 @@ androidExtension.applicationVariants.configureEach {
 }
 
 dependencies {
+    implementation("androidx.compose.material3:material3:1.4.0")
     implementation("org.ow2.asm:asm:9.10.1")
     //noinspection GradleDependency
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.4.0")
@@ -345,6 +346,7 @@ dependencies {
     implementation("androidx.viewpager2:viewpager2:1.1.0")
     implementation("androidx.annotation:annotation:1.10.0")
     implementation("androidx.constraintlayout:constraintlayout:2.2.2")
+    implementation("androidx.compose.material3:material3:1.5.0-alpha28")
 
     implementation("com.github.duanhong169:checkerboarddrawable:1.0.2")
     implementation("com.github.PojavLauncherTeam:portrait-sdp:ed33e89cbc")

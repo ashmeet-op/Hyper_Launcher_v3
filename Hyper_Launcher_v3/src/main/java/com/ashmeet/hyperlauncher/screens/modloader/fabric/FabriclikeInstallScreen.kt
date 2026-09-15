@@ -24,9 +24,10 @@ import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.modloaders.FabricVersion
 
 import com.ashmeet.hyperlauncher.utils.installer.ModrinthVersion
+import com.google.android.material.loadingindicator.LoadingIndicator
 import net.kdt.pojavlaunch.modloaders.modpacks.api.ModrinthService
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FabriclikeInstallScreen(
     loaderName: String,

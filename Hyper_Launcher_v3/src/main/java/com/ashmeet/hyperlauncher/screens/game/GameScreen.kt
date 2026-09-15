@@ -11,9 +11,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import com.ashmeet.hyperlauncher.components.layout.ExperimentalMaterial3ExpressiveApi
-import com.ashmeet.hyperlauncher.components.layout.LoadingIndicator
 import androidx.compose.material3.DrawerState
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
