@@ -46,7 +46,11 @@ val hyperVersionSuffix = localProperties.getProperty("VERSION_NAME")
 configure<com.android.build.api.dsl.ApplicationExtension> {
     namespace = "net.ashmeet.hyperlauncher"
 
-    compileSdk = 37
+    compileSdk {
+        version = release(37) {
+            minorApiLevel = 1
+        }
+    }
 
     lint {
         abortOnError = false
