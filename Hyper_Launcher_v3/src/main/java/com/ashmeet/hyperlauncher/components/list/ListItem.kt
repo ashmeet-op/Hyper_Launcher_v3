@@ -31,7 +31,8 @@ import androidx.compose.material.icons.rounded.FolderOpen
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Update
 import androidx.compose.material.icons.rounded.Warning
-import androidx.compose.material3.CircularProgressIndicator
+import com.ashmeet.hyperlauncher.components.layout.ExperimentalMaterial3ExpressiveApi
+import com.ashmeet.hyperlauncher.components.layout.LoadingIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -93,7 +94,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun FileListItem(
     modifier: Modifier = Modifier,
@@ -298,7 +299,7 @@ fun FileListItem(
                         modifier = Modifier.padding(end = 4.dp)
                     ) {
                         if (isUpdating) {
-                            CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                            LoadingIndicator(modifier = Modifier.size(20.dp))
                         } else {
                             Icon(
                                 imageVector = Icons.Rounded.Update,
@@ -721,6 +722,7 @@ fun ProjectItemView(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ProjectIcon(project: ModrinthProject, size: Dp = 56.dp) {
     Box(
@@ -739,9 +741,8 @@ fun ProjectIcon(project: ModrinthProject, size: Dp = 56.dp) {
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop,
             loading = {
-                CircularProgressIndicator(
+                LoadingIndicator(
                     modifier = Modifier.size(size * 0.5f),
-                    strokeWidth = 2.dp,
                     color = MaterialTheme.colorScheme.primary
                 )
             },

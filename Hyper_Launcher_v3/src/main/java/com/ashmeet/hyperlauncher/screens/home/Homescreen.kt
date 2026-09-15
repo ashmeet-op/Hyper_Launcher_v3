@@ -34,7 +34,8 @@ import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material3.CircularProgressIndicator
+import com.ashmeet.hyperlauncher.components.layout.ExperimentalMaterial3ExpressiveApi
+import com.ashmeet.hyperlauncher.components.layout.LoadingIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -82,6 +83,7 @@ import net.kdt.pojavlaunch.instances.DisplayInstance
 import net.kdt.pojavlaunch.instances.InstanceIconProvider
 import net.kdt.pojavlaunch.instances.Instances
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MainMenuFragmentCompose(
     onAboutClick: () -> Unit,
@@ -307,9 +309,8 @@ fun MainMenuFragmentCompose(
                                             filterQuality = FilterQuality.None
                                         )
                                     } else {
-                                        CircularProgressIndicator(
+                                        LoadingIndicator(
                                             modifier = Modifier.size(28.dp),
-                                            strokeWidth = 3.dp,
                                             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
                                         )
                                     }

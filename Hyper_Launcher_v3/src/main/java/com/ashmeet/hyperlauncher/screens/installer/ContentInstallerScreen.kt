@@ -33,7 +33,8 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
+import com.ashmeet.hyperlauncher.components.layout.ExperimentalMaterial3ExpressiveApi
+import com.ashmeet.hyperlauncher.components.layout.LoadingIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -71,6 +72,7 @@ import com.ashmeet.hyperlauncher.utils.installer.ModrinthProject
 import com.ashmeet.hyperlauncher.utils.installer.ModrinthVersion
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ContentInstallerScreen(
     onBack: () -> Unit,
@@ -285,7 +287,7 @@ fun ContentInstallerScreen(
         ) { (loading, project) ->
             if (loading && projects.isEmpty() && project == null) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                    LoadingIndicator()
                 }
             } else if (project != null) {
                 VersionList(

@@ -9,7 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.CircularProgressIndicator
+import com.ashmeet.hyperlauncher.components.layout.ExperimentalMaterial3ExpressiveApi
+import com.ashmeet.hyperlauncher.components.layout.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +26,7 @@ import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun VersionList(
     projectVersions: List<ModrinthVersion>,
@@ -40,7 +42,7 @@ fun VersionList(
     Column(modifier = Modifier.fillMaxSize()) {
         if (isLoading && projectVersions.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
+                LoadingIndicator()
             }
         } else if (selectedProjectMCVersion == null) {
             Text(

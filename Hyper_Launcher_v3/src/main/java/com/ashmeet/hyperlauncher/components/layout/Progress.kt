@@ -186,6 +186,7 @@ fun TaskItem(task: TaskProgressState) {
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun TaskProgressIndicator(task: TaskProgressState) {
     val isIndeterminate by remember { derivedStateOf { task.progress < 0 } }
@@ -196,20 +197,20 @@ fun TaskProgressIndicator(task: TaskProgressState) {
     )
 
     if (!isIndeterminate) {
-        LinearProgressIndicator(
+        LinearWavyProgressIndicator(
             progress = { animatedProgress },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(2.dp)
+                .height(16.dp)
                 .clip(CircleShape),
             color = MaterialTheme.colorScheme.primary,
             trackColor = MaterialTheme.colorScheme.surfaceVariant,
         )
     } else {
-        LinearProgressIndicator(
+        LinearWavyProgressIndicator(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(2.dp)
+                .height(16.dp)
                 .clip(CircleShape),
             color = MaterialTheme.colorScheme.primary,
             trackColor = MaterialTheme.colorScheme.surfaceVariant,

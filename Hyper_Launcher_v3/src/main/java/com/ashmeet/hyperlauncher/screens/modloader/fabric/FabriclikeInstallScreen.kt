@@ -11,6 +11,9 @@ import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.*
+import com.ashmeet.hyperlauncher.components.layout.ExperimentalMaterial3ExpressiveApi
+import com.ashmeet.hyperlauncher.components.layout.LoadingIndicator
+import com.ashmeet.hyperlauncher.components.layout.LinearWavyProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,6 +29,7 @@ import net.kdt.pojavlaunch.modloaders.FabricVersion
 import com.ashmeet.hyperlauncher.utils.installer.ModrinthVersion
 import net.kdt.pojavlaunch.modloaders.modpacks.api.ModrinthService
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun FabriclikeInstallScreen(
     loaderName: String,
@@ -188,7 +192,7 @@ fun FabriclikeInstallScreen(
                                 )
                             }
                             if (isHyperClientLoading) {
-                                CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                                LoadingIndicator(modifier = Modifier.size(20.dp))
                             } else {
                                 DefaultSwitch(
                                     checked = isHyperClientEnabled && isAvailable,
@@ -215,10 +219,9 @@ fun FabriclikeInstallScreen(
                             .height(56.dp)
                     ) {
                         if (isInstalling) {
-                            CircularProgressIndicator(
+                            LoadingIndicator(
                                 modifier = Modifier.size(24.dp),
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                strokeWidth = 2.dp
+                                color = MaterialTheme.colorScheme.onPrimary
                             )
                         } else {
                             Text(translatedText(stringResource(R.string.global_save)))
@@ -228,7 +231,7 @@ fun FabriclikeInstallScreen(
             }
 
             if (isLoading) {
-                LinearProgressIndicator(
+                LinearWavyProgressIndicator(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 16.dp)

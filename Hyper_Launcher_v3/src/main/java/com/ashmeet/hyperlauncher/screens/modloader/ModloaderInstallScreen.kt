@@ -13,6 +13,9 @@ import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.*
+import com.ashmeet.hyperlauncher.components.layout.ExperimentalMaterial3ExpressiveApi
+import com.ashmeet.hyperlauncher.components.layout.LoadingIndicator
+import com.ashmeet.hyperlauncher.components.layout.LinearWavyProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import net.ashmeet.hyperlauncher.R
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun <T> ModloaderInstallScreen(
     title: String,
@@ -92,7 +96,7 @@ fun <T> ModloaderInstallScreen(
                 contentAlignment = Alignment.Center
             ) {
                 if (isLoading && versionGroups.isEmpty()) {
-                    CircularProgressIndicator()
+                    LoadingIndicator()
                 } else if (loadError != null && versionGroups.isEmpty()) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -124,7 +128,7 @@ fun <T> ModloaderInstallScreen(
             }
 
             if (isDownloading || isLoading) {
-                LinearProgressIndicator(
+                LinearWavyProgressIndicator(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)

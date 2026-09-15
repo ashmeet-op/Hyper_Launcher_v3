@@ -14,7 +14,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CircularProgressIndicator
+import com.ashmeet.hyperlauncher.components.layout.ExperimentalMaterial3ExpressiveApi
+import com.ashmeet.hyperlauncher.components.layout.LoadingIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -68,6 +69,7 @@ import java.util.zip.ZipFile
 
 class ContentInstallerFragment : Fragment() {
 
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @SuppressLint("LocalContextGetResourceValueCall")
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -462,7 +464,7 @@ class ContentInstallerFragment : Fragment() {
                                     modifier = Modifier.fillMaxWidth(),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    CircularProgressIndicator()
+                                    LoadingIndicator()
                                 }
                             }
                         )

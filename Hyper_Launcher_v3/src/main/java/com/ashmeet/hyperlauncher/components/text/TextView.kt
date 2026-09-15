@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
+import com.ashmeet.hyperlauncher.components.layout.ExperimentalMaterial3ExpressiveApi
+import com.ashmeet.hyperlauncher.components.layout.LoadingIndicator
+import com.ashmeet.hyperlauncher.components.layout.LinearWavyProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -131,6 +134,7 @@ fun ProgressLayoutContent(
 }
 
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ViewProgress(
     progressText: String,
@@ -159,7 +163,7 @@ fun ViewProgress(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            CircularProgressIndicator(
+            LoadingIndicator(
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .size(
@@ -167,7 +171,6 @@ fun ViewProgress(
                         height = dimensionResource(R.dimen._30sdp)
                     )
                     .padding(dimensionResource(R.dimen.padding_small)),
-                strokeWidth = 2.dp,
                 color = MaterialTheme.colorScheme.primary
             )
 
@@ -324,6 +327,7 @@ fun VersionProfileItem(
 }
 
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun TextProgressBar(
     progress: Int,
@@ -336,12 +340,11 @@ fun TextProgressBar(
             .height(dimensionResource(R.dimen._20sdp)),
         contentAlignment = Alignment.CenterStart
     ) {
-        LinearProgressIndicator(
+        LinearWavyProgressIndicator(
             progress = { progress / 100f },
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.primary,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant,
-            strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
+            trackColor = MaterialTheme.colorScheme.surfaceVariant
         )
         Text(
             text = text,
