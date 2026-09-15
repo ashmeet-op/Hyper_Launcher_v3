@@ -10,9 +10,14 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Icon
@@ -177,20 +182,16 @@ open class DrawerPullButton @JvmOverloads constructor(
                 Box(
                     modifier = Modifier
                         .fillMaxSize(0.85f)
-                        .clip(RoundedCornerShape(topStartPercent = 50, bottomStartPercent = 50, topEndPercent = 10, bottomEndPercent = 10))
+                        .clip(CircleShape)
                         .background(Color.Black.copy(alpha = bgOpacity / 100f))
                 )
             }
 
-            if (showFps) {
-                Text(
-                    text = fpsValue.toString(),
-                    color = Color.White,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.alpha(iconOpacity / 100f)
-                )
-            } else {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxSize(0.85f)
+            ) {
                 val customBitmap = remember(iconPath) {
                     iconPath?.let { path ->
                         if (File(path).exists()) {
@@ -210,7 +211,7 @@ open class DrawerPullButton @JvmOverloads constructor(
                         bitmap = customBitmap.asImageBitmap(),
                         contentDescription = null,
                         modifier = Modifier
-                            .fillMaxSize(0.55f)
+                            .size(if (showFps) 18.dp else 22.dp)
                             .alpha(iconOpacity / 100f)
                     )
                 } else {
@@ -218,9 +219,20 @@ open class DrawerPullButton @JvmOverloads constructor(
                         imageVector = Icons.Rounded.Settings,
                         contentDescription = null,
                         modifier = Modifier
-                            .fillMaxSize(0.55f)
+                            .size(if (showFps) 18.dp else 22.dp)
                             .alpha(iconOpacity / 100f),
                         tint = Color.White
+                    )
+                }
+
+                if (showFps) {
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = fpsValue.toString(),
+                        color = Color.White,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.alpha(iconOpacity / 100f)
                     )
                 }
             }

@@ -381,7 +381,16 @@ fun <G, I> ExpandableVersionList(
             if (expandedStates[index] == true) {
                 items(getItems(group)) { item ->
                     itemContent(item)
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                    )
                 }
+            }
+            
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }

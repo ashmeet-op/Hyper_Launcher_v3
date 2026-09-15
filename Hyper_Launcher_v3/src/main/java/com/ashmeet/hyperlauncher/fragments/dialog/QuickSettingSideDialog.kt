@@ -17,7 +17,9 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -232,6 +234,7 @@ private fun QuickSettingContent(
 
     var showKeyPickerFor by remember { mutableStateOf<String?>(null) }
 
+    val scope = rememberCoroutineScope()
     val isGyroAvailable = remember { Tools.deviceSupportsGyro(context) }
 
     Column(
@@ -255,7 +258,8 @@ private fun QuickSettingContent(
                 } else {
                     slideInHorizontally { -it } + fadeIn() togetherWith slideOutHorizontally { it } + fadeOut()
                 }
-            }
+            },
+            label = "TabContent"
         ) { targetTab ->
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -272,7 +276,7 @@ private fun QuickSettingContent(
                                     resolutionScaler = it
                                     LauncherPreferences.PREF_SCALE_FACTOR = it / 100f
                                     onPreferenceChanged("resolutionRatio", it.toInt())
-                                    onResolutionChanged()
+                                    scope.launch { onResolutionChanged() }
                                 }
                             )
                         }
@@ -285,7 +289,7 @@ private fun QuickSettingContent(
                                     showFps = it
                                     LauncherPreferences.PREF_SHOW_FPS = it
                                     onPreferenceChanged("show_fps", it)
-                                    onShowFpsChanged()
+                                    scope.launch { onShowFpsChanged() }
                                 }
                             )
                         }
@@ -300,7 +304,7 @@ private fun QuickSettingContent(
                                     buttonTransparency = it
                                     LauncherPreferences.PREF_BUTTON_TRANSPARENCY = it
                                     onPreferenceChanged("buttonTransparency", it.toInt())
-                                    onButtonTransparencyChanged()
+                                    scope.launch { onButtonTransparencyChanged() }
                                 }
                             )
                         }
@@ -366,7 +370,7 @@ private fun QuickSettingContent(
                                         enableGyro = it
                                         LauncherPreferences.PREF_ENABLE_GYRO = it
                                         onPreferenceChanged("enableGyro", it)
-                                        onGyroStateChanged()
+                                        scope.launch { onGyroStateChanged() }
                                     }
                                 )
                             }
@@ -384,7 +388,7 @@ private fun QuickSettingContent(
                                             gyroInvertX = it
                                             LauncherPreferences.PREF_GYRO_INVERT_X = it
                                             onPreferenceChanged("gyroInvertX", it)
-                                            onGyroStateChanged()
+                                            scope.launch { onGyroStateChanged() }
                                         }
                                     )
                                 }
@@ -400,7 +404,7 @@ private fun QuickSettingContent(
                                             gyroInvertY = it
                                             LauncherPreferences.PREF_GYRO_INVERT_Y = it
                                             onPreferenceChanged("gyroInvertY", it)
-                                            onGyroStateChanged()
+                                            scope.launch { onGyroStateChanged() }
                                         }
                                     )
                                 }
@@ -414,7 +418,7 @@ private fun QuickSettingContent(
                                             gyroSensitivity = it
                                             LauncherPreferences.PREF_GYRO_SENSITIVITY = it / 100f
                                             onPreferenceChanged("gyroSensitivity", it.toInt())
-                                            onGyroStateChanged()
+                                            scope.launch { onGyroStateChanged() }
                                         }
                                     )
                                 }
