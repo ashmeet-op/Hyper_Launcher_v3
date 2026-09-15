@@ -1,6 +1,5 @@
 @file:Suppress("AvoidApplyPluginMethod")
 
-import com.android.build.api.variant.VariantOutput
 import de.undercouch.gradle.tasks.download.Download
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
@@ -44,8 +43,6 @@ val hyperVersionNumber = localProperties.getProperty("VERSION_NUMBER")
 val hyperVersionSuffix = localProperties.getProperty("VERSION_NAME")
     ?: (project.findProperty("VERSION_NAME")?.toString() ?: "mercury")
 
-
-// Modern AGP 9.0+ DSL
 configure<com.android.build.api.dsl.ApplicationExtension> {
     namespace = "net.ashmeet.hyperlauncher"
 
@@ -186,7 +183,7 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
 
 kotlin {
     compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_17)
+        jvmTarget.set(JvmTarget.JVM_1_8)
         optIn.addAll(
             "androidx.compose.material3.ExperimentalMaterial3Api",
             "androidx.compose.material3.ExperimentalMaterial3ExpressiveApi"
@@ -195,6 +192,7 @@ kotlin {
 }
 
 class AssetTaskRegistrar(private val project: Project) {
+    private lateinit var preBuildTask: TaskProvider<Task>
     private lateinit var targetAssetsDir: File
     private lateinit var variantName: String
     private val targetDownloadDir: File = File(project.projectDir, "build/intermediates/download_deps")
@@ -205,25 +203,16 @@ class AssetTaskRegistrar(private val project: Project) {
         createDirectories(projectJarDir)
     }
 
-    fun setVariant(variant: com.android.build.api.variant.Variant) {
+    @Suppress("DEPRECATION")
+    fun setVariant(variant: com.android.build.gradle.api.BaseVariant) {
         variantName = variant.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+        preBuildTask = variant.preBuildProvider
 
         targetAssetsDir = File(project.projectDir, "build/intermediates/remote_asset_set/${variantName.lowercase()}/")
         createDirectories(targetAssetsDir)
 
-        val assetDirProperty = project.objects.directoryProperty().apply {
-            set(targetAssetsDir)
-        }
-
-        val dummyTask = project.tasks.register("createAssetDir$variantName") {
-            doLast { createDirectories(targetAssetsDir) }
-        }
-
-        // AGP 9.0+ API: Register custom directory directly into AGP source set
-        variant.sources.assets?.addGeneratedSourceDirectory(
-            dummyTask,
-            { assetDirProperty }
-        )
+        val androidExtension = project.extensions.getByType(com.android.build.api.dsl.ApplicationExtension::class.java)
+        androidExtension.sourceSets.getByName(variant.name).assets.srcDirs(targetAssetsDir.absolutePath)
     }
 
     private fun createDirectories(location: File) {
@@ -238,13 +227,6 @@ class AssetTaskRegistrar(private val project: Project) {
 
     private fun assetDestination(relativePath: String): File {
         return File(targetAssetsDir, relativePath)
-    }
-
-    private fun attachToMergeAssets(taskProvider: TaskProvider<*>) {
-        val targetTaskName = "merge${variantName}Assets"
-        project.tasks.matching { it.name.equals(targetTaskName, ignoreCase = true) }.configureEach {
-            dependsOn(taskProvider)
-        }
     }
 
     private fun onlineUnzipTask(downloadUrl: String, name: String, targetExtractionDir: File): TaskProvider<Copy> {
@@ -268,7 +250,9 @@ class AssetTaskRegistrar(private val project: Project) {
 
     fun onlineZipDependency(downloadUrl: String, name: String, relativePath: String) {
         val unzipTask = onlineUnzipTask(downloadUrl, name, assetDestination(relativePath))
-        attachToMergeAssets(unzipTask)
+        preBuildTask.configure {
+            dependsOn(unzipTask)
+        }
     }
 
     fun projectJarDependency(targetProject: Project, relativePath: String) {
@@ -284,7 +268,9 @@ class AssetTaskRegistrar(private val project: Project) {
             dependsOn(":${targetProject.name}:jar")
         }
 
-        attachToMergeAssets(copyTask)
+        preBuildTask.configure {
+            dependsOn(copyTask)
+        }
 
         targetProject.tasks.withType<org.gradle.jvm.tasks.Jar>().configureEach {
             destinationDirectory.set(jarTargetDir)
@@ -308,7 +294,9 @@ class AssetTaskRegistrar(private val project: Project) {
                 writeVersion(targetDir)
             }
         }
-        attachToMergeAssets(downloadTask)
+        preBuildTask.configure {
+            dependsOn(downloadTask)
+        }
     }
 
     fun jreRuntimeDependency(version: Int, relPath: String) {
@@ -317,69 +305,41 @@ class AssetTaskRegistrar(private val project: Project) {
     }
 }
 
-// Modern AGP Variant API configuration
-androidComponents {
-    onVariants { variant ->
-        val registrar = AssetTaskRegistrar(project)
-        registrar.setVariant(variant)
+val registrar = AssetTaskRegistrar(project)
+val androidExtension = project.extensions.getByType(com.android.build.gradle.AppExtension::class.java)
 
-        registrar.projectJarDependency(project(":forge_installer"), "components/forge_installer")
-        registrar.projectJarDependency(project(":MioLibPatcher"), "components/MioLibPatcher")
+androidExtension.applicationVariants.configureEach {
+    registrar.setVariant(this)
 
-        if (variant.name.lowercase().contains("full")) {
-            registrar.jreRuntimeDependency(8, "components/jre")
-        }
+    registrar.projectJarDependency(project(":forge_installer"), "components/forge_installer")
+    registrar.projectJarDependency(project(":MioLibPatcher"), "components/MioLibPatcher")
 
-        val cacioJarUrl = "https://jitpack.io/com/github/MojoLauncher/%1\$s/%2\$s/%3\$s/%2\$s-%3\$s%4\$s.jar"
-
-        registrar.onlineJarDependency(cacioJarUrl, "caciocavallo", "cacio-shared", "-01d2dc1d65-1", "", "components/caciocavallo")
-        registrar.onlineJarDependency(cacioJarUrl, "caciocavallo", "cacio-androidnw", "-01d2dc1d65-1", "", "components/caciocavallo")
-
-        registrar.onlineJarDependency(cacioJarUrl, "cacio17", "cacio-tta", "72a9ab6323", "-jar-with-dependencies", "components/caciocavallo17")
-
-        // Set output APK name using Variant API
-        variant.outputs.forEach { output ->
-            if (output is VariantOutput) {
-                output.versionName.set("hyper_launcher-${variant.buildType}.apk")
-            }
-        }
+    if (name.lowercase().contains("full")) {
+        registrar.jreRuntimeDependency(8, "components/jre")
     }
+
+    val cacioJarUrl = "https://jitpack.io/com/github/MojoLauncher/%1\$s/%2\$s/%3\$s/%2\$s-%3\$s%4\$s.jar"
+
+    registrar.onlineJarDependency(cacioJarUrl, "caciocavallo", "cacio-shared", "-01d2dc1d65-1", "", "components/caciocavallo")
+    registrar.onlineJarDependency(cacioJarUrl, "caciocavallo", "cacio-androidnw", "-01d2dc1d65-1", "", "components/caciocavallo")
+
+    // FIX: Replaced "cacio17" with "caciocavallo17" to match Groovy
+    registrar.onlineJarDependency(cacioJarUrl, "caciocavallo17", "cacio-tta", "72a9ab6323", "-jar-with-dependencies", "components/caciocavallo17")
 }
 
 dependencies {
-    implementation("com.google.android.material:material:1.14.0")
-
     implementation("org.ow2.asm:asm:9.10.1")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.4.0")
     implementation("javax.annotation:javax.annotation-api:1.3.2")
     implementation("commons-codec:commons-codec:1.22.1")
 
-
     implementation("androidx.preference:preference:1.2.1")
     implementation("androidx.activity:activity:1.13.0")
+    implementation("com.google.android.material:material:1.14.0")
     implementation("androidx.drawerlayout:drawerlayout:1.2.0")
     implementation("androidx.viewpager2:viewpager2:1.1.0")
     implementation("androidx.annotation:annotation:1.10.0")
     implementation("androidx.constraintlayout:constraintlayout:2.2.2")
-
-
-    implementation("androidx.compose.material3:material3:1.5.0-alpha28")
-
-    val composeBom = platform("androidx.compose:compose-bom:2026.08.00")
-    implementation(composeBom)
-
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material:material-icons-extended")
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.activity:activity-compose")
-
-    debugImplementation("androidx.compose.ui:ui-tooling")
-
-
-    implementation("io.coil-kt:coil-compose:2.7.0")
-
 
     implementation("com.github.duanhong169:checkerboarddrawable:1.0.2")
     implementation("com.github.PojavLauncherTeam:portrait-sdp:ed33e89cbc")
@@ -388,20 +348,14 @@ dependencies {
     implementation("com.github.Mathias-Boulay:android_gamepad_remapper:2.0.3")
     implementation("com.github.Mathias-Boulay:virtual-joystick-android:1.14")
 
-
     implementation("org.tukaani:xz:1.12")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
-
-
     implementation("com.bytedance:bytehook:1.1.2")
     implementation("com.bytedance.android:shadowhook:2.0.1")
 
-
     implementation("com.github.MojoLauncher:alsoft-android-aar:f369161d5f")
 
-
-    val ktorVersion = "3.0.3"
-
+    val ktorVersion = "3.5.2"
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-cio:$ktorVersion")
     implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
@@ -410,14 +364,24 @@ dependencies {
     implementation("io.ktor:ktor-client-android:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
-
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
 
     implementation(project(":glfw:android-gradle"))
     implementation(project(":sdl:android-gradle"))
     implementation(project(":mojoexec:jni_bindings"))
     implementation(project(":ColorPicker"))
 
+    val composeBom = platform("androidx.compose:compose-bom-alpha:2026.09.00")
+    implementation(composeBom)
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-graphics")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.activity:activity-compose")
+    implementation("io.coil-kt:coil-compose:2.7.0")
+
+    debugImplementation("androidx.compose.ui:ui-tooling")
 
     implementation(
         fileTree(
@@ -428,15 +392,12 @@ dependencies {
         )
     )
 
-
-    val lwjglVersion = "3.3.3"
+    val lwjglVersion = "3.4.3"
+    val imguiVersion = "1.92.7.1"
 
     compileOnly("org.lwjgl:lwjgl:$lwjglVersion")
     compileOnly("org.lwjgl:lwjgl-glfw:$lwjglVersion")
     compileOnly("org.lwjgl:lwjgl-opengl:$lwjglVersion")
-
-    val imguiVersion = "1.90.0"
-
     implementation("io.github.spair:imgui-java-binding:$imguiVersion")
     implementation("io.github.spair:imgui-java-lwjgl3:$imguiVersion")
 }

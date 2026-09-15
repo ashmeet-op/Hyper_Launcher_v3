@@ -7,12 +7,3 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "2.4.20" apply false
 }
 
-subprojects {
-    configurations.all {
-        resolutionStrategy.eachDependency {
-            if (requested.group == "org.jetbrains.kotlin") {
-                useVersion("2.2.10")
-            }
-        }
-    }
-}
