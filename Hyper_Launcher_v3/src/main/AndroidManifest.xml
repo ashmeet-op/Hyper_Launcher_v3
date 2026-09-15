@@ -95,7 +95,7 @@
             android:theme="@style/Theme.Material3.DayNight.Dialog"
             android:screenOrientation="sensorLandscape" />
         <activity
-            android:name="com.ashmeet.hyperlauncher.activity.ExitActivity"
+            android:name="net.kdt.pojavlaunch.ExitActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|keyboard|navigation"
             android:theme="@style/AppTheme"
             android:screenOrientation="sensorLandscape" />

@@ -8,7 +8,6 @@ import java.util.Properties
 plugins {
     id("com.android.application") version "9.3.2"
     id("de.undercouch.download") version "5.7.0"
-    id("org.jetbrains.kotlin.android") version "2.4.20"
     id("org.jetbrains.kotlin.plugin.compose") version "2.4.20"
     id("org.jetbrains.kotlin.plugin.serialization") version "2.4.20"
 }
@@ -119,6 +118,7 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
         }
         create("proguard") {
             initWith(getByName("debug"))
+            isDebuggable = false
             isMinifyEnabled = true
             isShrinkResources = true
             matchingFallbacks += listOf("debug")
@@ -182,6 +182,7 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
         buildConfig = true
         prefab = true
         compose = true
+        resValues = true
     }
 }
 
@@ -196,7 +197,6 @@ kotlin {
 }
 
 class AssetTaskRegistrar(private val project: Project) {
-    private lateinit var preBuildTask: TaskProvider<Task>
     private lateinit var targetAssetsDir: File
     private lateinit var variantName: String
     private val targetDownloadDir: File = File(project.projectDir, "build/intermediates/download_deps")
@@ -207,16 +207,14 @@ class AssetTaskRegistrar(private val project: Project) {
         createDirectories(projectJarDir)
     }
 
-    @Suppress("DEPRECATION")
-    fun setVariant(variant: com.android.build.gradle.api.BaseVariant) {
+    fun setVariant(variant: com.android.build.api.variant.ApplicationVariant) {
         variantName = variant.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
-        preBuildTask = variant.preBuildProvider
 
         targetAssetsDir = File(project.projectDir, "build/intermediates/remote_asset_set/${variantName.lowercase()}/")
         createDirectories(targetAssetsDir)
 
         val androidExtension = project.extensions.getByType(com.android.build.api.dsl.ApplicationExtension::class.java)
-        androidExtension.sourceSets.getByName(variant.name).assets.srcDirs(targetAssetsDir.absolutePath)
+        androidExtension.sourceSets.getByName(variant.name).assets.srcDir(targetAssetsDir.absolutePath)
     }
 
     private fun createDirectories(location: File) {
@@ -254,7 +252,7 @@ class AssetTaskRegistrar(private val project: Project) {
 
     fun onlineZipDependency(downloadUrl: String, name: String, relativePath: String) {
         val unzipTask = onlineUnzipTask(downloadUrl, name, assetDestination(relativePath))
-        preBuildTask.configure {
+        project.tasks.matching { it.name.equals("pre${variantName}Build", ignoreCase = true) || it.name.equals("preBuild${variantName}", ignoreCase = true) }.configureEach {
             dependsOn(unzipTask)
         }
     }
@@ -272,7 +270,7 @@ class AssetTaskRegistrar(private val project: Project) {
             dependsOn(":${targetProject.name}:jar")
         }
 
-        preBuildTask.configure {
+        project.tasks.matching { it.name.equals("pre${variantName}Build", ignoreCase = true) || it.name.equals("preBuild${variantName}", ignoreCase = true) }.configureEach {
             dependsOn(copyTask)
         }
 
@@ -298,7 +296,7 @@ class AssetTaskRegistrar(private val project: Project) {
                 writeVersion(targetDir)
             }
         }
-        preBuildTask.configure {
+        project.tasks.matching { it.name.equals("pre${variantName}Build", ignoreCase = true) || it.name.equals("preBuild${variantName}", ignoreCase = true) }.configureEach {
             dependsOn(downloadTask)
         }
     }
@@ -310,15 +308,15 @@ class AssetTaskRegistrar(private val project: Project) {
 }
 
 val registrar = AssetTaskRegistrar(project)
-val androidExtension = project.extensions.getByType(com.android.build.gradle.AppExtension::class.java)
+val androidComponents = project.extensions.getByType(com.android.build.api.variant.ApplicationAndroidComponentsExtension::class.java)
 
-androidExtension.applicationVariants.configureEach {
-    registrar.setVariant(this)
+androidComponents.onVariants { variant ->
+    registrar.setVariant(variant)
 
     registrar.projectJarDependency(project(":forge_installer"), "components/forge_installer")
     registrar.projectJarDependency(project(":MioLibPatcher"), "components/MioLibPatcher")
 
-    if (name.lowercase().contains("full")) {
+    if (variant.name.lowercase().contains("full")) {
         registrar.jreRuntimeDependency(8, "components/jre")
     }
 

@@ -197,20 +197,20 @@ fun TaskProgressIndicator(task: TaskProgressState) {
     )
 
     if (!isIndeterminate) {
-        LinearWavyProgressIndicator(
+        LinearProgressIndicator(
             progress = { animatedProgress },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(16.dp)
+                .height(4.dp)
                 .clip(CircleShape),
             color = MaterialTheme.colorScheme.primary,
             trackColor = MaterialTheme.colorScheme.surfaceVariant,
         )
     } else {
-        LinearWavyProgressIndicator(
+        LinearProgressIndicator(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(16.dp)
+                .height(4.dp)
                 .clip(CircleShape),
             color = MaterialTheme.colorScheme.primary,
             trackColor = MaterialTheme.colorScheme.surfaceVariant,
