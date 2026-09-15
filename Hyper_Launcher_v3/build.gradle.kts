@@ -151,8 +151,8 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     bundle {
@@ -187,7 +187,7 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
 
 kotlin {
     compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_1_8)
+        jvmTarget.set(JvmTarget.JVM_11)
         optIn.addAll(
             "androidx.compose.material3.ExperimentalMaterial3Api",
             "androidx.compose.material3.ExperimentalMaterial3ExpressiveApi"
@@ -333,6 +333,7 @@ androidExtension.applicationVariants.configureEach {
 
 dependencies {
     implementation("org.ow2.asm:asm:9.10.1")
+    //noinspection GradleDependency
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.4.0")
     implementation("javax.annotation:javax.annotation-api:1.3.2")
     implementation("commons-codec:commons-codec:1.22.1")
