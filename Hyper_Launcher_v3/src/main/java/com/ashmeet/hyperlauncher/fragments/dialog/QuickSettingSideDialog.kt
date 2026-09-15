@@ -150,6 +150,7 @@ abstract class QuickSettingSideDialog : SideDialogView() {
                     is Int -> mEditor?.putInt(key, value)
                     is Float -> mEditor?.putFloat(key, value)
                 }
+                mEditor?.apply()
             }
         }
     }

@@ -1,5 +1,6 @@
 package net.kdt.pojavlaunch.customcontrols.handleview
 
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
@@ -9,6 +10,11 @@ import android.view.Choreographer
 import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -55,6 +61,9 @@ open class DrawerPullButton @JvmOverloads constructor(
     protected var showBackground by mutableStateOf(LauncherPreferences.PREF_DRAWER_PULL_BACKGROUND)
     protected var iconPath by mutableStateOf(LauncherPreferences.PREF_DRAWER_PULL_ICON_PATH)
     protected var showFps by mutableStateOf(LauncherPreferences.PREF_SHOW_FPS)
+
+    private var widthMultiplier by mutableFloatStateOf(if (LauncherPreferences.PREF_SHOW_FPS) 1.5f else 1.0f)
+    private var widthAnimator: ValueAnimator? = null
 
     private var fpsValue by mutableIntStateOf(0)
     private var frameCount = 0
@@ -130,6 +139,7 @@ open class DrawerPullButton @JvmOverloads constructor(
     override fun onDetachedFromWindow() {
         LauncherPreferences.prefs.unregisterOnSharedPreferenceChangeListener(prefListener)
         Choreographer.getInstance().removeFrameCallback(frameCallback)
+        widthAnimator?.cancel()
         super.onDetachedFromWindow()
     }
 
@@ -144,11 +154,30 @@ open class DrawerPullButton @JvmOverloads constructor(
         showFps = LauncherPreferences.PREF_SHOW_FPS
         if (showFps && !oldShowFps) {
             Choreographer.getInstance().postFrameCallback(frameCallback)
+            animateWidth(1.5f)
         } else if (!showFps && oldShowFps) {
             Choreographer.getInstance().removeFrameCallback(frameCallback)
+            animateWidth(1.0f)
+        } else if (showFps == oldShowFps) {
+            val target = if (showFps) 1.5f else 1.0f
+            if (widthMultiplier != target) {
+                animateWidth(target)
+            }
         }
 
         requestLayout()
+    }
+
+    private fun animateWidth(target: Float) {
+        widthAnimator?.cancel()
+        widthAnimator = ValueAnimator.ofFloat(widthMultiplier, target).apply {
+            duration = 300
+            addUpdateListener { animator ->
+                widthMultiplier = animator.animatedValue as Float
+                requestLayout()
+            }
+            start()
+        }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -156,7 +185,7 @@ open class DrawerPullButton @JvmOverloads constructor(
         val dpSize = (25 + (pullSizePerc - 10) * (35f / 90f))
         val size = (dpSize * dm.density).toInt()
         
-        val width = if (showFps) (size * 1.5f).toInt() else size
+        val width = (size * widthMultiplier).toInt()
         val height = size
         
         val newWidthSpec = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY)
@@ -211,7 +240,7 @@ open class DrawerPullButton @JvmOverloads constructor(
                         bitmap = customBitmap.asImageBitmap(),
                         contentDescription = null,
                         modifier = Modifier
-                            .size(if (showFps) 18.dp else 22.dp)
+                            .size(if (showFps) 24.dp else 28.dp)
                             .alpha(iconOpacity / 100f)
                     )
                 } else {
@@ -219,21 +248,27 @@ open class DrawerPullButton @JvmOverloads constructor(
                         imageVector = Icons.Rounded.Settings,
                         contentDescription = null,
                         modifier = Modifier
-                            .size(if (showFps) 18.dp else 22.dp)
+                            .size(if (showFps) 24.dp else 28.dp)
                             .alpha(iconOpacity / 100f),
                         tint = Color.White
                     )
                 }
 
-                if (showFps) {
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = fpsValue.toString(),
-                        color = Color.White,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.alpha(iconOpacity / 100f)
-                    )
+                AnimatedVisibility(
+                    visible = showFps,
+                    enter = fadeIn() + expandHorizontally(),
+                    exit = fadeOut() + shrinkHorizontally()
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = fpsValue.toString(),
+                            color = Color.White,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.alpha(iconOpacity / 100f)
+                        )
+                    }
                 }
             }
         }
@@ -308,6 +343,7 @@ open class DrawerPullButton @JvmOverloads constructor(
         }
     }
 
+    @Suppress("SameParameterValue")
     private fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
         val (height: Int, width: Int) = options.outHeight to options.outWidth
         var inSampleSize = 1
