@@ -16,6 +16,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.rounded.ArrowDropDown
+import androidx.compose.material.icons.rounded.ArrowDropUp
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -178,7 +180,7 @@ fun ProgressLayoutContent(
                         modifier = Modifier.size(24.dp)
                     ) {
                         Icon(
-                            imageVector = if (isCollapsed) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowUp,
+                            imageVector = if (isCollapsed) Icons.Rounded.ArrowDropDown else Icons.Rounded.ArrowDropUp,
                             contentDescription = if (isCollapsed) "Expand" else "Collapse",
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )

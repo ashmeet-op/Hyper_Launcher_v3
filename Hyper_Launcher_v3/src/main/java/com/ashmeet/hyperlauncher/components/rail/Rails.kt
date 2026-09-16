@@ -43,7 +43,7 @@ fun SideNavigationRail(
         contentColor = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier
             .fillMaxHeight()
-            .width(200.dp),
+            .width(240.dp),
         header = {
             Column(horizontalAlignment = Alignment.Start) {
                 SidebarRailButton(
