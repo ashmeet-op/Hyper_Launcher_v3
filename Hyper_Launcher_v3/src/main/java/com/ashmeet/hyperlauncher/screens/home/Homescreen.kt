@@ -310,7 +310,7 @@ fun MainMenuFragmentCompose(
                                         )
                                     } else {
                                         LoadingIndicator(
-                                            modifier = Modifier.size(28.dp),
+                                            modifier = Modifier.size(42.dp),
                                             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
                                         )
                                     }
