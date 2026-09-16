@@ -39,6 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ashmeet.hyperlauncher.utils.installer.ModrinthVersion
+import com.ashmeet.hyperlauncher.utils.installer.cleanLoadersList
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import kotlinx.coroutines.launch
 
@@ -80,7 +81,7 @@ fun VersionItemView(
                     fontSize = 15.sp
                 )
                 Text(
-                    text = version.loaders.joinToString(", "),
+                    text = cleanLoadersList(version.loaders),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,

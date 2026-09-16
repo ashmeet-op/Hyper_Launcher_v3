@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.ashmeet.hyperlauncher.utils.installer.ContentInstallerType
 import com.ashmeet.hyperlauncher.utils.installer.ModrinthVersion
 import com.ashmeet.hyperlauncher.utils.installer.isMcVersionCompatible
+import com.ashmeet.hyperlauncher.utils.installer.isLoaderCompatible
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
@@ -89,7 +90,7 @@ fun VersionList(
                 if (filteredVersions.isNotEmpty()) {
                     val compatibleIndex = filteredVersions.indexOfFirst { version ->
                         instanceVersion != null && version.gameVersions.any { isMcVersionCompatible(instanceVersion, it) } &&
-                                (instanceLoader == null || version.loaders.any { it.equals(instanceLoader, ignoreCase = true) })
+                                isLoaderCompatible(instanceLoader, version.loaders)
                     }
                     if (compatibleIndex > 5) {
                         delay(200.milliseconds)
@@ -108,8 +109,7 @@ fun VersionList(
                     val isMCCompatible = instanceVersion != null && version.gameVersions.any { isMcVersionCompatible(instanceVersion, it) }
                     val isLoaderCompatible = selectedType == ContentInstallerType.RESOURCEPACKS ||
                             selectedType == ContentInstallerType.SHADERS ||
-                            instanceLoader == null ||
-                            version.loaders.any { it.equals(instanceLoader, ignoreCase = true) }
+                            isLoaderCompatible(instanceLoader, version.loaders)
 
                     VersionItemView(
                         version = version,

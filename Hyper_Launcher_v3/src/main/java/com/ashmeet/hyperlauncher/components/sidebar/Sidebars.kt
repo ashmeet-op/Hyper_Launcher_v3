@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
@@ -26,10 +24,8 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
@@ -39,12 +35,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
@@ -52,10 +45,14 @@ import com.ashmeet.hyperlauncher.components.list.ProjectIcon
 import com.ashmeet.hyperlauncher.screens.settings.layouts.CardPosition
 import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsCard
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsActionItem
+import com.ashmeet.hyperlauncher.screens.settings.preferences.SingleChoiceDialog
 import com.ashmeet.hyperlauncher.utils.installer.ContentInstallerType
 import com.ashmeet.hyperlauncher.utils.installer.ContentSource
 import com.ashmeet.hyperlauncher.utils.installer.ModrinthProject
+import com.ashmeet.hyperlauncher.utils.installer.cleanMcVersion
+import com.ashmeet.hyperlauncher.utils.installer.cleanLoaderName
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
+import com.ashmeet.hyperlauncher.profiles.VersionSelectorDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,7 +72,7 @@ fun ProjectDetailsSidebar(project: ModrinthProject) {
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-            textAlign = TextAlign.Center
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
@@ -84,7 +81,7 @@ fun ProjectDetailsSidebar(project: ModrinthProject) {
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-            textAlign = TextAlign.Center
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
 
         Column(modifier = Modifier.padding(horizontal = 24.dp)) {
@@ -155,6 +152,9 @@ fun SearchFiltersSidebar(
     onSourceChange: (ContentSource) -> Unit,
     onImportModpack: () -> Unit
 ) {
+    val context = LocalContext.current
+    var showLoaderDialog by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -180,11 +180,19 @@ fun SearchFiltersSidebar(
                 position = if (showLoaderFilter) CardPosition.MIDDLE else CardPosition.BOTTOM,
                 useSurface = true
             ) {
-                FilterSectionItem(
+                val displayVersion = remember(selectedVersion, instanceVersion) {
+                    val v = selectedVersion ?: instanceVersion
+                    if (v == null || v == "Any") "Any" else cleanMcVersion(v)
+                }
+                SettingsActionItem(
                     title = translatedText("Game Version"),
-                    current = selectedVersion ?: instanceVersion ?: "Any",
-                    onValueChange = onVersionChange,
-                    icon = Icons.Rounded.Event
+                    summary = displayVersion,
+                    icon = Icons.Rounded.Event,
+                    onClick = {
+                        VersionSelectorDialog.open(context, true) { id, _ ->
+                            onVersionChange(id)
+                        }
+                    }
                 )
             }
 
@@ -193,11 +201,15 @@ fun SearchFiltersSidebar(
                     position = CardPosition.BOTTOM,
                     useSurface = true
                 ) {
-                    FilterSectionItem(
+                    val displayLoader = remember(selectedLoader, instanceLoader) {
+                        val l = selectedLoader ?: instanceLoader
+                        if (l == null || l == "any") "Any" else cleanLoaderName(l)
+                    }
+                    SettingsActionItem(
                         title = translatedText("Loader"),
-                        current = selectedLoader ?: instanceLoader ?: "Any",
-                        onValueChange = onLoaderChange,
-                        icon = Icons.Rounded.Settings
+                        summary = displayLoader,
+                        icon = Icons.Rounded.Settings,
+                        onClick = { showLoaderDialog = true }
                     )
                 }
             }
@@ -223,6 +235,22 @@ fun SearchFiltersSidebar(
         }
 
         Spacer(modifier = Modifier.height(24.dp))
+    }
+
+    if (showLoaderDialog) {
+        val loaders = listOf("Any", "Fabric", "Forge", "Quilt", "NeoForge")
+        val loaderValues = listOf(null, "fabric", "forge", "quilt", "neoforge")
+        SingleChoiceDialog(
+            title = translatedText("Select Loader"),
+            options = loaders,
+            optionValues = loaderValues.map { it ?: "any" },
+            selectedValue = selectedLoader ?: "any",
+            onValueChange = { value ->
+                onLoaderChange(if (value == "any") null else value)
+                showLoaderDialog = false
+            },
+            onDismiss = { showLoaderDialog = false }
+        )
     }
 }
 
@@ -294,61 +322,6 @@ fun FilterSourceItem(
         summary = currentSource.displayName,
         icon = Icons.Rounded.Language,
         warningTooltip = if (currentSource == ContentSource.CURSEFORGE) "CurseForge support is experimental and may be unstable." else null,
-        onClick = { isShowingDialog = true }
-    )
-}
-
-@Composable
-fun FilterSectionItem(
-    title: String,
-    current: String,
-    onValueChange: (String?) -> Unit,
-    icon: ImageVector
-) {
-    var isShowingDialog by remember { mutableStateOf(false) }
-    var textValue by remember(current) { mutableStateOf(if (current == "Any") "" else current) }
-
-    if (isShowingDialog) {
-        AlertDialog(
-            onDismissRequest = { isShowingDialog = false },
-            title = { Text(title) },
-            text = {
-                OutlinedTextField(
-                    value = textValue,
-                    onValueChange = { textValue = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Enter value") },
-                    singleLine = true,
-                    shape = RoundedCornerShape(12.dp),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(onDone = {
-                        onValueChange(textValue.ifBlank { null })
-                        isShowingDialog = false
-                    })
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onValueChange(textValue.ifBlank { null })
-                        isShowingDialog = false
-                    }
-                ) {
-                    Text("OK")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { isShowingDialog = false }) {
-                    Text("Cancel")
-                }
-            }
-        )
-    }
-
-    SettingsActionItem(
-        title = title,
-        summary = current,
-        icon = icon,
         onClick = { isShowingDialog = true }
     )
 }

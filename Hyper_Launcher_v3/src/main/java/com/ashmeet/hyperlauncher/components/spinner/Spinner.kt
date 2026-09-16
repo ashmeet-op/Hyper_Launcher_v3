@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,6 +18,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -306,9 +306,10 @@ fun AccountSpinnerUI(
 
         Box(
             modifier = Modifier
-                .align(Alignment.TopStart)
-                .width(300.dp)
-                .fillMaxHeight()
+                .padding(start = 16.dp)
+                .align(Alignment.BottomStart)
+                .width(200.dp)
+                .height(1.dp)
         ) {
             DropdownMenuPopup(
                 expanded = expanded,
@@ -317,68 +318,63 @@ fun AccountSpinnerUI(
                     MenuAnchorPosition.Below
                 ),
                 properties = PopupProperties(focusable = true, clippingEnabled = false),
-                modifier = Modifier
-                    .width(300.dp)
-                    .heightIn(max = 400.dp)
-
+                modifier = Modifier.width(300.dp)
             ) {
                 Column {
                     val groupInteractionSource = remember { MutableInteractionSource() }
                     if (accounts.isNotEmpty()) {
-                        Box(
+                        val accountShapes = MenuDefaults.groupShape(0, 1)
+                        val stableAccountShapes = remember(accountShapes) {
+                            accountShapes.copy(inactiveShape = accountShapes.shape)
+                        }
+
+                        DropdownMenuGroup(
+                            shapes = stableAccountShapes,
+                            interactionSource = groupInteractionSource,
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            tonalElevation = 0.dp,
+                            shadowElevation = 8.dp,
+                            contentPadding = PaddingValues(vertical = 4.dp),
                             modifier = Modifier
-                                .weight(1f, fill = false)
+                                .width(300.dp)
+                                .heightIn(max = 400.dp)
                                 .verticalScroll(rememberScrollState())
                         ) {
-                            val accountShapes = MenuDefaults.groupShape(0, 1)
-                            val stableAccountShapes = remember(accountShapes) {
-                                accountShapes.copy(inactiveShape = accountShapes.shape)
-                            }
-
-                            DropdownMenuGroup(
-                                shapes = stableAccountShapes,
-                                interactionSource = groupInteractionSource,
-                                containerColor = MenuDefaults.groupStandardContainerColor,
-                                tonalElevation = 0.dp,
-                                shadowElevation = 0.dp,
-                                contentPadding = PaddingValues(vertical = 4.dp)
-                            ) {
-                                accounts.fastForEachIndexed { index, account ->
-                                    val isSelected = account == selectedAccount
-                                    SelectableDropdownMenuItem(
-                                        selected = isSelected,
-                                        onClick = { onAccountSelected(account) },
-                                        text = {
-                                            Row(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.SpaceBetween
+                            accounts.fastForEachIndexed { index, account ->
+                                val isSelected = account == selectedAccount
+                                SelectableDropdownMenuItem(
+                                    selected = isSelected,
+                                    onClick = { onAccountSelected(account) },
+                                    text = {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            AccountItemContent(
+                                                account = account,
+                                                modifier = Modifier.weight(1f)
+                                            )
+                                            IconButton(
+                                                onClick = { onAccountDelete(account) },
+                                                modifier = Modifier.size(32.dp)
                                             ) {
-                                                AccountItemContent(
-                                                    account = account,
-                                                    modifier = Modifier.weight(1f)
+                                                Icon(
+                                                    Icons.Default.Delete,
+                                                    contentDescription = translatedText("Delete"),
+                                                    tint = MaterialTheme.colorScheme.error,
+                                                    modifier = Modifier.size(24.dp)
                                                 )
-                                                IconButton(
-                                                    onClick = { onAccountDelete(account) },
-                                                    modifier = Modifier.size(32.dp)
-                                                ) {
-                                                    Icon(
-                                                        Icons.Default.Delete,
-                                                        contentDescription = translatedText("Delete"),
-                                                        tint = MaterialTheme.colorScheme.error,
-                                                        modifier = Modifier.size(24.dp)
-                                                    )
-                                                }
                                             }
-                                        },
-                                        shapes = MenuDefaults.itemShape(index, accounts.size),
-                                        colors = MenuDefaults.selectableItemColors(
-                                            containerColor = Color.Transparent,
-                                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f)
-                                        ),
-                                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
-                                    )
-                                }
+                                        }
+                                    },
+                                    shapes = MenuDefaults.itemShape(index, accounts.size),
+                                    colors = MenuDefaults.selectableItemColors(
+                                        containerColor = Color.Transparent,
+                                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f)
+                                    ),
+                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+                                )
                             }
                         }
 
@@ -393,10 +389,11 @@ fun AccountSpinnerUI(
                     DropdownMenuGroup(
                         shapes = stableAddShapes,
                         interactionSource = groupInteractionSource,
-                        containerColor = MenuDefaults.groupStandardContainerColor,
+                        containerColor = MaterialTheme.colorScheme.surface,
                         tonalElevation = 0.dp,
-                        shadowElevation = 0.dp,
-                        contentPadding = PaddingValues(vertical = 4.dp)
+                        shadowElevation = 8.dp,
+                        contentPadding = PaddingValues(vertical = 4.dp),
+                        modifier = Modifier.width(300.dp)
                     ) {
                         SelectableDropdownMenuItem(
                             selected = false,
@@ -418,7 +415,10 @@ fun AccountSpinnerUI(
                                 }
                             },
                             shapes = MenuDefaults.itemShape(0, 1),
-                            colors = MenuDefaults.selectableItemColors(),
+                            colors = MenuDefaults.selectableItemColors(
+                                containerColor = Color.Transparent,
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f)
+                            ),
                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
                         )
                     }
@@ -458,7 +458,6 @@ fun AccountItemContent(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .offset(x = 2.dp, y = 2.dp)
-                        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(4.dp))
                         .padding(2.dp)
                 ) {
                     Icon(

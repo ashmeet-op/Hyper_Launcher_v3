@@ -41,6 +41,8 @@ import com.ashmeet.hyperlauncher.utils.installer.ContentSource
 import com.ashmeet.hyperlauncher.utils.installer.ModrinthProject
 import com.ashmeet.hyperlauncher.utils.installer.ModrinthVersion
 import com.ashmeet.hyperlauncher.utils.installer.isMcVersionCompatible
+import com.ashmeet.hyperlauncher.utils.installer.isLoaderCompatible
+import com.ashmeet.hyperlauncher.utils.installer.cleanMcVersion
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -125,27 +127,17 @@ class ContentInstallerFragment : Fragment() {
                     val instance = remember { Instances.loadSelectedInstance() }
                     val instanceVersion = remember(instance) {
                         instance?.let {
-                            if (it.versionId == "latest_release" || it.versionId == "latest_snapshot") {
-                                return@let null
-                            }
+                            val id = it.versionId
+                            if (id == "latest_release" || id == "latest_snapshot") return@let null
 
                             val v = try {
-                                Tools.getVersionInfo(it.versionId)
+                                Tools.getVersionInfo(id)
                             } catch (e: Exception) {
                                 null
                             }
-                            if (v != null && v.inheritsFrom != null) return@let v.inheritsFrom
+                            if (v?.inheritsFrom != null) return@let cleanMcVersion(v.inheritsFrom)
 
-                            val id = it.versionId
-                            if (id.contains("-")) {
-                                val lastPart = id.substringAfterLast("-")
-                                if (lastPart.contains(".") && lastPart.any { it.isDigit() }) {
-                                    return@let lastPart
-                                }
-                            }
-
-                            val regex = Regex("""1\.\d+(\.\d+)*(?:-?[a-zA-Z\d]+)?|\d+w\d+[a-z]""")
-                            regex.findAll(id).lastOrNull()?.value ?: id
+                            cleanMcVersion(id)
                         }
                     }
 
@@ -154,13 +146,20 @@ class ContentInstallerFragment : Fragment() {
 
                     val instanceLoader = remember(instance) {
                         instance?.let {
-                            val vId = it.versionId.lowercase()
+                            val id = it.versionId
+                            val v = try {
+                                Tools.getVersionInfo(id)
+                            } catch (e: Exception) {
+                                null
+                            }
+                            val searchStr = (id + (v?.inheritsFrom ?: "")).lowercase()
+
                             when {
-                                vId.contains("fabric") -> "fabric"
-                                vId.contains("forge") -> "forge"
-                                vId.contains("quilt") -> "quilt"
-                                vId.contains("neoforge") -> "neoforge"
-                                vId.contains("optifine") -> "optifine"
+                                searchStr.contains("neoforge") -> "neoforge"
+                                searchStr.contains("fabric") -> "fabric"
+                                searchStr.contains("forge") -> "forge"
+                                searchStr.contains("quilt") -> "quilt"
+                                searchStr.contains("optifine") -> "optifine"
                                 else -> null
                             }
                         }
@@ -192,14 +191,14 @@ class ContentInstallerFragment : Fragment() {
                             ModrinthService.search(
                                 searchQuery,
                                 selectedType,
-                                selectedVersion ?: instanceVersion,
+                                cleanMcVersion(selectedVersion ?: instanceVersion),
                                 selectedLoader ?: instanceLoader
                             )
                         } else {
                             CurseForgeService.search(
                                 searchQuery,
                                 selectedType,
-                                selectedVersion ?: instanceVersion,
+                                cleanMcVersion(selectedVersion ?: instanceVersion),
                                 selectedLoader ?: instanceLoader
                             )
                         }
@@ -255,7 +254,11 @@ class ContentInstallerFragment : Fragment() {
                     }
 
                     val availableProjectMCVersions = remember(projectVersions) {
-                        projectVersions.flatMap { it.gameVersions }.distinct().sortedDescending()
+                        projectVersions.flatMap { it.gameVersions }
+                            .map { cleanMcVersion(it) }
+                            .filter { it.isNotEmpty() }
+                            .distinct()
+                            .sortedDescending()
                     }
 
                     ContentInstallerScreen(
@@ -555,7 +558,7 @@ class ContentInstallerFragment : Fragment() {
 
                 val bestVersion = versions.find { v ->
                     (mcVersion == null || v.gameVersions.any { isMcVersionCompatible(mcVersion, it) }) &&
-                            (loader == null || v.loaders.any { it.equals(loader, ignoreCase = true) })
+                            isLoaderCompatible(loader, v.loaders)
                 } ?: versions.firstOrNull()
 
                 bestVersion?.let {
