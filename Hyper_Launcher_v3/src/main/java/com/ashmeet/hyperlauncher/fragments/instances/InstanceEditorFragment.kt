@@ -42,6 +42,15 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
     private var mSelectedRenderer by mutableStateOf("")
     private var mInstanceIcon by mutableStateOf<Drawable?>(null)
 
+    private var mInitialInstanceName = ""
+    private var mInitialVersionId = ""
+    private var mInitialControlLayout = ""
+    private var mInitialSharedData = false
+    private var mInitialJvmArgs = ""
+    private var mInitialRuntimeName: String? = null
+    private var mInitialRenderer: String? = null
+    private var mIconChanged by mutableStateOf(false)
+
     private var mRuntimes: List<Runtime> = emptyList()
     private var mRenderNames: List<String> = emptyList()
     private var mRenderDisplayNames: List<String> = emptyList()
@@ -71,10 +80,21 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
             return View(requireContext())
         }
 
-        loadValues(selectedInstance)
+        if (mInstance == null) {
+            loadValues(selectedInstance)
+        }
 
         return ComposeView(requireContext()).apply {
             setContent {
+                val hasChanges = mInstanceName != mInitialInstanceName ||
+                        mVersionId != mInitialVersionId ||
+                        mControlLayout != mInitialControlLayout ||
+                        mSharedData != mInitialSharedData ||
+                        mJvmArgs != mInitialJvmArgs ||
+                        mSelectedRuntime?.name != mInitialRuntimeName ||
+                        mSelectedRenderer != (mInitialRenderer ?: "default") ||
+                        mIconChanged
+
                 PojavTheme {
                     InstanceEditorScreen(
                         instanceName = mInstanceName,
@@ -99,8 +119,10 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
                             mRecommendedIconSize = 256
                             CropperUtils.startCropper(mCropperLauncher)
                         },
+                        hasChanges = hasChanges,
                         onSave = { save() },
                         onDelete = { delete() },
+                        onBack = { parentFragmentManager.popBackStack() }
                     )
                 }
             }
@@ -139,6 +161,14 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
         }
         mSharedData = instance.sharedData
         mJvmArgs = instance.jvmArgs ?: ""
+
+        mInitialInstanceName = mInstanceName
+        mInitialVersionId = mVersionId
+        mInitialControlLayout = mControlLayout
+        mInitialSharedData = mSharedData
+        mInitialJvmArgs = mJvmArgs
+        mInitialRuntimeName = mSelectedRuntime?.name
+        mInitialRenderer = instance.renderer
     }
 
     private fun openVersionSelector() {
@@ -174,7 +204,18 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
         try {
             InstanceIconProvider.dropIcon(instance)
             instance.write()
-            Tools.backToMainMenu(requireActivity())
+            mInitialInstanceName = mInstanceName
+            mInitialVersionId = mVersionId
+            mInitialControlLayout = mControlLayout
+            mInitialSharedData = mSharedData
+            mInitialJvmArgs = mJvmArgs
+            mInitialRuntimeName = instance.selectedRuntime
+            mInitialRenderer = instance.renderer
+            mIconChanged = false
+
+            ExtraCore.setValue(ExtraConstants.REFRESH_VERSION_SPINNER, true)
+            Toast.makeText(requireContext(), R.string.global_save, Toast.LENGTH_SHORT).show()
+            parentFragmentManager.popBackStack()
         } catch (e: IOException) {
             Tools.showErrorRemote(e)
         }
@@ -192,6 +233,7 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
         mInstanceIcon = BitmapDrawable(resources, contentBitmap)
         try {
             mInstance?.encodeNewIcon(contentBitmap)
+            mIconChanged = true
         } catch (e: IOException) {
             Tools.showErrorRemote(e)
         }

@@ -1,13 +1,16 @@
 package com.ashmeet.hyperlauncher.screens.instances
 
 import android.graphics.drawable.Drawable
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,43 +18,46 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.KeyboardArrowDown
-import androidx.compose.material3.BottomAppBarDefaults
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FlexibleBottomAppBar
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.rounded.AddPhotoAlternate
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Memory
+import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Terminal
+import androidx.compose.material.icons.rounded.Title
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.ashmeet.hyperlauncher.components.button.MineButton
-import com.ashmeet.hyperlauncher.components.menu.HyperDropdownTextField
-import com.ashmeet.hyperlauncher.components.switch.DefaultSwitch
-import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.screens.settings.layouts.CardPosition
+import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsCard
+import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsScreenWrapper
+import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsActionItem
+import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSwitchItem
+import com.ashmeet.hyperlauncher.screens.settings.preferences.SingleChoiceDialog
+import com.ashmeet.hyperlauncher.screens.settings.preferences.TextInputDialog
 import com.ashmeet.hyperlauncher.utils.drawable.rememberDrawablePainter
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.multirt.Runtime
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun InstanceEditorScreen(
     instanceName: String,
@@ -73,194 +79,229 @@ fun InstanceEditorScreen(
     onRendererSelected: (String) -> Unit,
     instanceIcon: Drawable?,
     onChangeIcon: () -> Unit,
+    hasChanges: Boolean,
     onSave: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onBack: () -> Unit
 ) {
-    val scrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior()
+    var showNameDialog by remember { mutableStateOf(false) }
+    var showJvmArgsDialog by remember { mutableStateOf(false) }
+    var showRuntimeDialog by remember { mutableStateOf(false) }
+    var showRendererDialog by remember { mutableStateOf(false) }
 
-    Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .nestedScroll(scrollBehavior.nestedScrollConnection),
-        containerColor = if (LauncherPreferences.PREF_LAUNCHER_BACKGROUND_PATH != null) Color.Transparent else MaterialTheme.colorScheme.background,
-        contentColor = MaterialTheme.colorScheme.onBackground,
-        bottomBar = {
-            FlexibleBottomAppBar(
-                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                scrollBehavior = scrollBehavior
-            ) {
-                MineButton(
-                    text = translatedText(stringResource(R.string.global_delete)),
-                    onClick = onDelete,
-                    modifier = Modifier.weight(1f),
-                    height = 40.dp,
-                    shape = CircleShape
-                )
-
-                MineButton(
-                    text = translatedText(stringResource(R.string.global_save)),
-                    onClick = onSave,
-                    modifier = Modifier.weight(1f),
-                    height = 40.dp,
-                    shape = CircleShape
-                )
-            }
-        }
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+    Box(modifier = Modifier.fillMaxSize()) {
+        SettingsScreenWrapper(
+            title = translatedText("Profile Editor"),
+            onBack = onBack,
+            addTopGap = true
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp)
-                    .padding(top = 8.dp, bottom = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(20.dp)
-            ) {
-
-                Box(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clickable { onChangeIcon() },
-                    contentAlignment = Alignment.BottomEnd
-                ) {
-                    Image(
-                        painter = rememberDrawablePainter(instanceIcon),
-                        contentDescription = null,
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                SettingsCard(position = CardPosition.TOP, useSurface = true) {
+                    Row(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                            .padding(8.dp)
-                    )
-
-                    Surface(
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(28.dp)
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Edit,
+                        Image(
+                            painter = rememberDrawablePainter(instanceIcon),
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.padding(6.dp)
+                            modifier = Modifier
+                                .size(64.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                                .padding(8.dp),
+                            contentScale = ContentScale.Fit
                         )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Column {
+                            Text(
+                                text = translatedText("Current Icon"),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = translatedText("Tap below to change"),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
-
-                OutlinedTextField(
-                    value = instanceName,
-                    onValueChange = onInstanceNameChange,
-                    label = { Text(translatedText(stringResource(R.string.profiles_profile_name))) },
-                    placeholder = { Text(translatedText(stringResource(R.string.unnamed))) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedTextField(
-                        value = versionId,
-                        onValueChange = {},
-                        label = { Text(translatedText(stringResource(R.string.profiles_profile_version))) },
-                        placeholder = { Text(translatedText(stringResource(R.string.version_select_hint))) },
-                        readOnly = true,
-                        modifier = Modifier.weight(1f),
-                        trailingIcon = {
-                             IconButton(onClick = onSelectVersion) {
-                                 Icon(Icons.Rounded.KeyboardArrowDown, contentDescription = null)
-                             }
-                        }
-                    )
-                    MineButton(
-                        text = translatedText(stringResource(R.string.global_select)),
-                        onClick = onSelectVersion,
-                        modifier = Modifier.height(40.dp)
+                SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
+                    SettingsActionItem(
+                        title = translatedText("Change Icon"),
+                        summary = translatedText("Choose a new image for this profile"),
+                        icon = Icons.Rounded.AddPhotoAlternate,
+                        onClick = onChangeIcon
                     )
                 }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedTextField(
-                        value = controlLayout,
-                        onValueChange = {},
-                        label = { Text(translatedText(stringResource(R.string.default_control))) },
-                        placeholder = { Text(translatedText(stringResource(R.string.use_global_default))) },
-                        readOnly = true,
-                        modifier = Modifier.weight(1f),
-                        trailingIcon = {
-                            IconButton(onClick = onSelectControl) {
-                                Icon(Icons.Rounded.KeyboardArrowDown, contentDescription = null)
-                            }
-                        }
-                    )
-                    MineButton(
-                        text = translatedText(stringResource(R.string.global_select)),
-                        onClick = onSelectControl,
-                        modifier = Modifier.height(40.dp)
+                SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
+                    SettingsActionItem(
+                        title = translatedText(stringResource(R.string.profiles_profile_name)),
+                        summary = instanceName.ifEmpty { translatedText(stringResource(R.string.unnamed)) },
+                        icon = Icons.Rounded.Title,
+                        onClick = { showNameDialog = true }
                     )
                 }
+            }
 
-                ListItem(
-                    headlineContent = { Text(translatedText(stringResource(R.string.instance_shared_data))) },
-                    supportingContent = {
-                        Text(stringResource(if (sharedData) R.string.instance_shared_data_on else R.string.instance_shared_data_off))
-                    },
-                    trailingContent = {
-                        DefaultSwitch(
-                            checked = sharedData,
-                            onCheckedChange = onSharedDataChange
-                        )
-                    },
-                    modifier = Modifier.clickable { onSharedDataChange(!sharedData) },
-                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                )
+            Spacer(modifier = Modifier.height(8.dp))
 
-                OutlinedTextField(
-                    value = jvmArgs,
-                    onValueChange = onJvmArgsChange,
-                    label = { Text(translatedText(stringResource(R.string.pvc_jvmArgs))) },
-                    placeholder = { Text(translatedText(stringResource(R.string.use_global_default))) },
-                    modifier = Modifier.fillMaxWidth()
-                )
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                SettingsCard(position = CardPosition.TOP, useSurface = true) {
+                    SettingsActionItem(
+                        title = translatedText(stringResource(R.string.profiles_profile_version)),
+                        summary = versionId.ifEmpty { translatedText(stringResource(R.string.version_select_hint)) },
+                        icon = Icons.AutoMirrored.Rounded.OpenInNew,
+                        onClick = onSelectVersion
+                    )
+                }
+                SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
+                    SettingsActionItem(
+                        title = translatedText(stringResource(R.string.default_control)),
+                        summary = controlLayout.ifEmpty { translatedText(stringResource(R.string.use_global_default)) },
+                        icon = Icons.Rounded.Settings,
+                        onClick = onSelectControl
+                    )
+                }
+                SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
+                    SettingsSwitchItem(
+                        title = translatedText(stringResource(R.string.instance_shared_data)),
+                        summary = stringResource(if (sharedData) R.string.instance_shared_data_on else R.string.instance_shared_data_off),
+                        checked = sharedData,
+                        onCheckedChange = onSharedDataChange
+                    )
+                }
+            }
 
-                HyperDropdownTextField(
-                    label = translatedText(stringResource(R.string.pedit_java_runtime)),
-                    items = runtimes,
-                    selectedItem = selectedRuntime,
-                    itemLabel = {
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                SettingsCard(position = CardPosition.TOP, useSurface = true) {
+                    val corruptText = translatedText(stringResource(R.string.multirt_runtime_corrupt))
+                    val currentSummary = selectedRuntime?.let { 
                         if (runtimes.indexOf(it) == runtimes.size - 1) it.name
-                        else "${it.name.replace(".tar.xz", "")} - ${it.versionString ?: translatedText(stringResource(R.string.multirt_runtime_corrupt))}"
-                    },
-                    onItemSelected = onRuntimeSelected
-                )
+                        else "${it.name.replace(".tar.xz", "")} - ${it.versionString ?: corruptText}"
+                    } ?: translatedText(stringResource(R.string.global_default))
 
-                HyperDropdownTextField(
-                    label = translatedText(stringResource(R.string.pedit_renderer)),
-                    items = renderers,
-                    selectedItem = selectedRenderer,
-                    itemLabel = {
-                        val index = renderers.indexOf(it)
-                        if (index != -1 && index < rendererDisplayNames.size) rendererDisplayNames[index]
-                        else it
-                    },
-                    onItemSelected = onRendererSelected
-                )
+                    SettingsActionItem(
+                        title = translatedText(stringResource(R.string.pedit_java_runtime)),
+                        summary = currentSummary,
+                        icon = Icons.Rounded.Memory,
+                        onClick = { showRuntimeDialog = true }
+                    )
+                }
+                SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
+                    val index = renderers.indexOf(selectedRenderer)
+                    val currentSummary = if (index != -1 && index < rendererDisplayNames.size) rendererDisplayNames[index] else selectedRenderer
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    SettingsActionItem(
+                        title = translatedText(stringResource(R.string.pedit_renderer)),
+                        summary = currentSummary,
+                        icon = Icons.Rounded.Settings,
+                        onClick = { showRendererDialog = true }
+                    )
+                }
+                SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
+                    SettingsActionItem(
+                        title = translatedText(stringResource(R.string.pvc_jvmArgs)),
+                        summary = jvmArgs.ifEmpty { translatedText(stringResource(R.string.use_global_default)) },
+                        icon = Icons.Rounded.Terminal,
+                        onClick = { showJvmArgsDialog = true }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            SettingsCard(position = CardPosition.SINGLE, useSurface = true) {
+                SettingsActionItem(
+                    title = translatedText(stringResource(R.string.global_delete)),
+                    icon = Icons.Rounded.Delete,
+                    tintIcon = true,
+                    onClick = onDelete
+                )
+            }
+
+            Spacer(modifier = Modifier.height(80.dp))
+        }
+
+        AnimatedVisibility(
+            visible = hasChanges,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(32.dp),
+            enter = fadeIn() + scaleIn(),
+            exit = fadeOut() + scaleOut()
+        ) {
+            FloatingActionButton(
+                onClick = onSave,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                shape = CircleShape,
+                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp)
+            ) {
+                Icon(Icons.Default.Save, contentDescription = translatedText(stringResource(R.string.global_save)))
             }
         }
+
+        if (showNameDialog) {
+            TextInputDialog(
+                title = translatedText(stringResource(R.string.profiles_profile_name)),
+                initialValue = instanceName,
+                onConfirm = {
+                    onInstanceNameChange(it)
+                    showNameDialog = false
+                },
+                onDismiss = { showNameDialog = false }
+            )
+        }
+
+        if (showJvmArgsDialog) {
+            TextInputDialog(
+                title = translatedText(stringResource(R.string.pvc_jvmArgs)),
+                initialValue = jvmArgs,
+                onConfirm = {
+                    onJvmArgsChange(it)
+                    showJvmArgsDialog = false
+                },
+                onDismiss = { showJvmArgsDialog = false }
+            )
+        }
+
+        if (showRuntimeDialog) {
+            val corruptText = translatedText(stringResource(R.string.multirt_runtime_corrupt))
+            val runtimeOptions = runtimes.map { 
+                if (runtimes.indexOf(it) == runtimes.size - 1) it.name
+                else "${it.name.replace(".tar.xz", "")} - ${it.versionString ?: corruptText}"
+            }
+            SingleChoiceDialog(
+                title = translatedText(stringResource(R.string.pedit_java_runtime)),
+                options = runtimeOptions,
+                optionValues = runtimes.map { it.name },
+                selectedValue = selectedRuntime?.name ?: "",
+                onValueChange = { name ->
+                    runtimes.find { it.name == name }?.let { onRuntimeSelected(it) }
+                    showRuntimeDialog = false
+                },
+                onDismiss = { showRuntimeDialog = false }
+            )
+        }
+
+        if (showRendererDialog) {
+            SingleChoiceDialog(
+                title = translatedText(stringResource(R.string.pedit_renderer)),
+                options = rendererDisplayNames,
+                optionValues = renderers,
+                selectedValue = selectedRenderer,
+                onValueChange = {
+                    onRendererSelected(it)
+                    showRendererDialog = false
+                },
+                onDismiss = { showRendererDialog = false }
+            )
+        }
+
     }
 }

@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import net.ashmeet.hyperlauncher.R
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.rounded.ArrowDropDown
 
 import androidx.compose.ui.platform.ComposeView
 import com.ashmeet.hyperlauncher.theme.PojavTheme
@@ -72,7 +73,7 @@ object LegacyMigratedComponentsBridge {
                             onClick = onToggle,
                             trailingIcon = {
                                 Icon(
-                                    imageVector = Icons.Default.ArrowDropDown,
+                                    imageVector = Icons.Rounded.ArrowDropDown,
                                     contentDescription = null,
                                     modifier = Modifier.rotate(rotation),
                                     tint = MaterialTheme.colorScheme.onSurface
@@ -192,7 +193,7 @@ fun ViewProgress(
                     .size(dimensionResource(R.dimen.padding_extra_large))
             ) {
                 Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
+                    imageVector = Icons.Rounded.ArrowDropDown,
                     contentDescription = null,
                     modifier = Modifier.rotate(if (isExpanded) 180f else 0f),
                     tint = MaterialTheme.colorScheme.onSurface
