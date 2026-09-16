@@ -1,18 +1,20 @@
 package com.ashmeet.hyperlauncher.screens.instances
 
-import com.ashmeet.hyperlauncher.utils.translation.translatedText
-
 import android.graphics.drawable.Drawable
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,24 +22,36 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
-import androidx.compose.material.icons.rounded.KeyboardArrowUp
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.BottomAppBarDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FlexibleBottomAppBar
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ashmeet.hyperlauncher.components.button.MineButton
+import com.ashmeet.hyperlauncher.components.menu.HyperDropdownTextField
 import com.ashmeet.hyperlauncher.components.switch.DefaultSwitch
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
-
 import com.ashmeet.hyperlauncher.utils.drawable.rememberDrawablePainter
+import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.multirt.Runtime
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun InstanceEditorScreen(
     instanceName: String,
@@ -62,34 +76,50 @@ fun InstanceEditorScreen(
     onSave: () -> Unit,
     onDelete: () -> Unit
 ) {
-    val scrollState = rememberScrollState()
+    val scrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior()
 
-    var isDockVisible by remember { mutableStateOf(true) }
-    var lastScrollValue by remember { mutableIntStateOf(0) }
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize()
+            .nestedScroll(scrollBehavior.nestedScrollConnection),
+        containerColor = if (LauncherPreferences.PREF_LAUNCHER_BACKGROUND_PATH != null) Color.Transparent else MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.onBackground,
+        bottomBar = {
+            FlexibleBottomAppBar(
+                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                scrollBehavior = scrollBehavior
+            ) {
+                MineButton(
+                    text = translatedText(stringResource(R.string.global_delete)),
+                    onClick = onDelete,
+                    modifier = Modifier.weight(1f),
+                    height = 40.dp,
+                    shape = CircleShape
+                )
 
-    LaunchedEffect(scrollState.value) {
-        val diff = scrollState.value - lastScrollValue
-        if (diff > 20) {
-            isDockVisible = false
-        } else if (diff < -20 || !scrollState.isScrollInProgress) {
-            isDockVisible = true
+                MineButton(
+                    text = translatedText(stringResource(R.string.global_save)),
+                    onClick = onSave,
+                    modifier = Modifier.weight(1f),
+                    height = 40.dp,
+                    shape = CircleShape
+                )
+            }
         }
-        lastScrollValue = scrollState.value
-    }
-
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = if (LauncherPreferences.PREF_LAUNCHER_BACKGROUND_PATH != null) Color.Transparent else MaterialTheme.colorScheme.background,
-        contentColor = MaterialTheme.colorScheme.onBackground
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(scrollState)
+                    .verticalScroll(rememberScrollState())
                     .padding(horizontal = 16.dp)
-                    .padding(top = 8.dp, bottom = 100.dp),
+                    .padding(top = 8.dp, bottom = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
@@ -206,7 +236,7 @@ fun InstanceEditorScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                InstanceDropdown(
+                HyperDropdownTextField(
                     label = translatedText(stringResource(R.string.pedit_java_runtime)),
                     items = runtimes,
                     selectedItem = selectedRuntime,
@@ -217,7 +247,7 @@ fun InstanceEditorScreen(
                     onItemSelected = onRuntimeSelected
                 )
 
-                InstanceDropdown(
+                HyperDropdownTextField(
                     label = translatedText(stringResource(R.string.pedit_renderer)),
                     items = renderers,
                     selectedItem = selectedRenderer,
@@ -230,110 +260,6 @@ fun InstanceEditorScreen(
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
-            }
-
-            AnimatedVisibility(
-                visible = isDockVisible,
-                enter = fadeIn() + slideInVertically { it },
-                exit = fadeOut() + slideOutVertically { it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .padding(16.dp)
-            ) {
-                val dockAlpha by animateFloatAsState(
-                    targetValue = if (scrollState.isScrollInProgress) 0.4f else 1f,
-                    label = "dockAlpha"
-                )
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .alpha(dockAlpha),
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
-                    tonalElevation = 8.dp
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        MineButton(
-                            text = translatedText(stringResource(R.string.global_delete)),
-                            onClick = onDelete,
-                            modifier = Modifier.weight(1f),
-                            height = 48.dp,
-                            shape = CircleShape
-                        )
-
-                        MineButton(
-                            text = translatedText(stringResource(R.string.global_save)),
-                            onClick = onSave,
-                            modifier = Modifier.weight(1f),
-                            height = 48.dp,
-                            shape = CircleShape
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun <T> InstanceDropdown(
-    label: String,
-    items: List<T>,
-    selectedItem: T?,
-    itemLabel: @Composable (T) -> String,
-    onItemSelected: (T) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Box(modifier = Modifier.fillMaxWidth()) {
-        OutlinedTextField(
-            value = selectedItem?.let { itemLabel(it) } ?: "",
-            onValueChange = {},
-            label = { Text(label) },
-            readOnly = true,
-            trailingIcon = {
-                Icon(
-                    imageVector = if (expanded) Icons.Rounded.KeyboardArrowUp else Icons.Rounded.KeyboardArrowDown,
-                    contentDescription = null
-                )
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { expanded = true },
-            enabled = true,
-            colors = OutlinedTextFieldDefaults.colors(
-                disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledBorderColor = MaterialTheme.colorScheme.outline
-            )
-        )
-
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .clickable { expanded = true }
-        )
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.fillMaxWidth(0.9f)
-        ) {
-            items.forEach { item ->
-                DropdownMenuItem(
-                    text = { Text(itemLabel(item)) },
-                    onClick = {
-                        onItemSelected(item)
-                        expanded = false
-                    }
-                )
             }
         }
     }

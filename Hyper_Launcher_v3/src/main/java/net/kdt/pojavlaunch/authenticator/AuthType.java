@@ -29,7 +29,7 @@ public enum AuthType {
           null,
           0,
           null,
-          "https://skinsystem.ely.by/skins/%s.png"
+          null
     );
 
     private final BackgroundLogin.Creator mCreator;

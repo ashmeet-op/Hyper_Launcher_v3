@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,6 +24,11 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
@@ -43,10 +49,21 @@ fun MineButton(
     val primaryColor = MaterialTheme.colorScheme.primary
     val contentColor = calculateMineButtonContentColor(isCustomTheme, primaryColor)
 
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.95f else 1f,
+        animationSpec = spring(dampingRatio = 0.6f, stiffness = 400f),
+        label = "ButtonScale"
+    )
+
     Button(
         onClick = onClick,
-        modifier = modifier.height(height),
+        modifier = modifier
+            .height(height)
+            .graphicsLayer(scaleX = scale, scaleY = scale),
         shape = shape,
+        interactionSource = interactionSource,
         colors = ButtonDefaults.buttonColors(
             containerColor = primaryColor,
             contentColor = contentColor

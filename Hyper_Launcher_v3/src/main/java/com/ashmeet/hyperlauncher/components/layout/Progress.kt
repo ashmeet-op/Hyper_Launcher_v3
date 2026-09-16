@@ -1,15 +1,7 @@
 package com.ashmeet.hyperlauncher.components.layout
 
-import androidx.compose.animation.AnimatedVisibility
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -73,6 +65,7 @@ fun ProgressLayout(
                     activeTasks[key] = TaskProgressState(key)
                 }
 
+                @android.annotation.SuppressLint("LocalContextGetResourceValueCall")
                 override fun onProgressUpdated(progress: Int, resid: Int, vararg va: Any?) {
                     val now = System.currentTimeMillis()
                     if (now - lastUpdate < 50 && progress != 100) return
@@ -114,57 +107,45 @@ fun ProgressLayout(
     )
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ProgressLayoutContent(
     taskCount: Int,
     activeTasks: List<TaskProgressState>,
     modifier: Modifier = Modifier
 ) {
-    var expanded by remember { mutableStateOf(false) }
-
     if (taskCount > 0) {
-        Column(
+        FlexibleBottomAppBar(
             modifier = modifier
-                .padding(bottom = 2.dp, start = 2.dp , end =  2.dp )
-                .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom))
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f))
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+                .clip(RoundedCornerShape(24.dp))
+                .height(IntrinsicSize.Min),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            expandedHeight = 60.dp
         ) {
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { expanded = !expanded },
-                color = Color.Transparent
+            Column(
+                modifier = Modifier.fillMaxWidth().wrapContentHeight()
             ) {
                 Row(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    modifier = Modifier.padding(vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.Start
                 ) {
                     Text(
                         text = translatedText(stringResource(R.string.progresslayout_tasks_in_progress, taskCount)),
                         color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 14.sp
-                    )
-                    Icon(
-                        imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface
+                        fontSize = 14.sp,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
                     )
                 }
-            }
 
-            AnimatedVisibility(visible = expanded) {
-                LazyColumn(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(max = 200.dp)
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                        .padding(top = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(activeTasks, key = { it.key }) { task ->
+                    activeTasks.forEach { task ->
                         TaskItem(task)
                     }
                 }

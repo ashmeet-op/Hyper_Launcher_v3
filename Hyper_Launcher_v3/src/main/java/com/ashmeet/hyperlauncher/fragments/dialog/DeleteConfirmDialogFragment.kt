@@ -53,6 +53,11 @@ class DeleteConfirmDialogFragment : DialogFragment() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        dialog?.window?.setGravity(android.view.Gravity.START or android.view.Gravity.CENTER_VERTICAL)
+    }
+
     companion object {
         const val TAG = "delete_dialog_confirm"
     }

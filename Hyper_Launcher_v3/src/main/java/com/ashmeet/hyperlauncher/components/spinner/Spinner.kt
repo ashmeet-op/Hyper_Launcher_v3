@@ -1,32 +1,38 @@
 package com.ashmeet.hyperlauncher.components.spinner
 
-import com.ashmeet.hyperlauncher.utils.translation.translatedText
-import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.DropdownMenuGroup
+import androidx.compose.material3.DropdownMenuPopup
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorPosition
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.SelectableDropdownMenuItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,12 +54,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastForEachIndexed
+import androidx.compose.ui.window.PopupProperties
+import com.ashmeet.hyperlauncher.activity.PojavApplication
+import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.theme.PojavTheme
+import com.ashmeet.hyperlauncher.utils.SkinUtils
+import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import net.ashmeet.hyperlauncher.R
-import com.ashmeet.hyperlauncher.activity.PojavApplication
-import com.ashmeet.hyperlauncher.utils.Tools
 import net.kdt.pojavlaunch.authenticator.AuthType
 import net.kdt.pojavlaunch.authenticator.accounts.Account
 import net.kdt.pojavlaunch.authenticator.accounts.Accounts
@@ -61,11 +74,8 @@ import net.kdt.pojavlaunch.authenticator.listener.LoginListener
 import net.kdt.pojavlaunch.extra.ExtraConstants
 import net.kdt.pojavlaunch.extra.ExtraCore
 import net.kdt.pojavlaunch.extra.ExtraListener
-import java.io.IOException
-import androidx.compose.ui.tooling.preview.Preview
 import net.kdt.pojavlaunch.progresskeeper.ProgressKeeper
-import com.ashmeet.hyperlauncher.utils.SkinUtils
-import com.ashmeet.hyperlauncher.theme.PojavTheme
+import java.io.IOException
 
 @Composable
 fun AccountSpinnerCompose(
@@ -205,14 +215,16 @@ fun AccountSpinnerCompose(
         },
         onAccountDelete = { account ->
             expanded = false
-            MaterialAlertDialogBuilder(context)
+            val dialog = MaterialAlertDialogBuilder(context)
                 .setMessage(R.string.warning_remove_account)
                 .setPositiveButton(android.R.string.cancel, null)
                 .setNeutralButton(R.string.global_delete) { _, _ ->
                     Accounts.delete(account)
                     reloadAccounts(true)
                 }
-                .show()
+                .create()
+            dialog.show()
+            dialog.window?.setGravity(android.view.Gravity.CENTER)
         },
         hideDivider = hideDivider,
         containerColor = containerColor,
@@ -220,73 +232,6 @@ fun AccountSpinnerCompose(
     )
 }
 
-@Composable
-fun <T> HyperSpinner(
-    options: List<T>,
-    selectedOption: T,
-    onOptionSelected: (T) -> Unit,
-    modifier: Modifier = Modifier,
-    labelProvider: (T) -> String = { it.toString() },
-    enabled: Boolean = true
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Box(modifier = modifier) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .clickable(enabled = enabled) { expanded = true },
-            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
-            shape = RoundedCornerShape(8.dp),
-            border = if (enabled) null else androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = labelProvider(selectedOption),
-                    color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = null,
-                    tint = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
-                    modifier = Modifier.size(16.dp)
-                )
-            }
-        }
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.surface)
-                .clip(RoundedCornerShape(12.dp))
-        ) {
-            options.forEach { option ->
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = labelProvider(option),
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    },
-                    onClick = {
-                        onOptionSelected(option)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
-}
 
 @Composable
 fun AccountSpinnerUI(
@@ -335,7 +280,7 @@ fun AccountSpinnerUI(
                             imageVector = Icons.Default.Add,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(32.dp)
                         )
                         Spacer(modifier = Modifier.width(16.dp))
                         Text(
@@ -358,58 +303,126 @@ fun AccountSpinnerUI(
             }
         }
 
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { onExpandedChange(false) },
-            modifier = Modifier
-                .width(300.dp)
-                .background(
-                    color = MaterialTheme.colorScheme.surface,
-                )
-                .clip(RoundedCornerShape(12.dp))
-        ) {
-            DropdownMenuItem(
-                text = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Text(
-                            text = translatedText(stringResource(R.string.main_add_account)),
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                },
-                onClick = onAddAccountClick
-            )
 
-            accounts.forEach { account ->
-                DropdownMenuItem(
-                    text = {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .width(300.dp)
+                .fillMaxHeight()
+        ) {
+            DropdownMenuPopup(
+                expanded = expanded,
+                onDismissRequest = { onExpandedChange(false) },
+                popupPositionProvider = MenuDefaults.rememberDropdownMenuPopupPositionProvider(
+                    MenuAnchorPosition.Below
+                ),
+                properties = PopupProperties(focusable = true, clippingEnabled = false),
+                modifier = Modifier
+                    .width(300.dp)
+                    .heightIn(max = 400.dp)
+
+            ) {
+                Column {
+                    val groupInteractionSource = remember { MutableInteractionSource() }
+                    if (accounts.isNotEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .weight(1f, fill = false)
+                                .verticalScroll(rememberScrollState())
                         ) {
-                            AccountItemContent(
-                                account = account,
-                                modifier = Modifier.weight(1f)
-                            )
-                            IconButton(onClick = { onAccountDelete(account) }) {
-                                Icon(
-                                    Icons.Default.Delete,
-                                    contentDescription = translatedText("Delete"),
-                                    tint = MaterialTheme.colorScheme.error
-                                )
+                            val accountShapes = MenuDefaults.groupShape(0, 1)
+                            val stableAccountShapes = remember(accountShapes) {
+                                accountShapes.copy(inactiveShape = accountShapes.shape)
+                            }
+
+                            DropdownMenuGroup(
+                                shapes = stableAccountShapes,
+                                interactionSource = groupInteractionSource,
+                                containerColor = MenuDefaults.groupStandardContainerColor,
+                                tonalElevation = 0.dp,
+                                shadowElevation = 0.dp,
+                                contentPadding = PaddingValues(vertical = 4.dp)
+                            ) {
+                                accounts.fastForEachIndexed { index, account ->
+                                    val isSelected = account == selectedAccount
+                                    SelectableDropdownMenuItem(
+                                        selected = isSelected,
+                                        onClick = { onAccountSelected(account) },
+                                        text = {
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.SpaceBetween
+                                            ) {
+                                                AccountItemContent(
+                                                    account = account,
+                                                    modifier = Modifier.weight(1f)
+                                                )
+                                                IconButton(
+                                                    onClick = { onAccountDelete(account) },
+                                                    modifier = Modifier.size(32.dp)
+                                                ) {
+                                                    Icon(
+                                                        Icons.Default.Delete,
+                                                        contentDescription = translatedText("Delete"),
+                                                        tint = MaterialTheme.colorScheme.error,
+                                                        modifier = Modifier.size(24.dp)
+                                                    )
+                                                }
+                                            }
+                                        },
+                                        shapes = MenuDefaults.itemShape(index, accounts.size),
+                                        colors = MenuDefaults.selectableItemColors(
+                                            containerColor = Color.Transparent,
+                                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f)
+                                        ),
+                                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+                                    )
+                                }
                             }
                         }
-                    },
-                    onClick = { onAccountSelected(account) }
-                )
+
+                        Spacer(modifier = Modifier.height(MenuDefaults.GroupSpacing))
+                    }
+
+                    val addAccountShapes = MenuDefaults.groupShape(0, 1)
+                    val stableAddShapes = remember(addAccountShapes) {
+                        addAccountShapes.copy(inactiveShape = addAccountShapes.shape)
+                    }
+
+                    DropdownMenuGroup(
+                        shapes = stableAddShapes,
+                        interactionSource = groupInteractionSource,
+                        containerColor = MenuDefaults.groupStandardContainerColor,
+                        tonalElevation = 0.dp,
+                        shadowElevation = 0.dp,
+                        contentPadding = PaddingValues(vertical = 4.dp)
+                    ) {
+                        SelectableDropdownMenuItem(
+                            selected = false,
+                            onClick = onAddAccountClick,
+                            text = {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurface,
+                                        modifier = Modifier.size(32.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(16.dp))
+                                    Text(
+                                        text = translatedText(stringResource(R.string.main_add_account)),
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                }
+                            },
+                            shapes = MenuDefaults.itemShape(0, 1),
+                            colors = MenuDefaults.selectableItemColors(),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+                        )
+                    }
+                }
             }
         }
     }

@@ -125,7 +125,7 @@ fun <T> ModloaderInstallScreen(
             }
 
             if (isDownloading || isLoading) {
-                LinearWavyProgressIndicator(
+                LinearProgressIndicator(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)

@@ -324,7 +324,6 @@ fun VersionProfileItem(
 }
 
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun TextProgressBar(
     progress: Int,
@@ -337,7 +336,7 @@ fun TextProgressBar(
             .height(dimensionResource(R.dimen._20sdp)),
         contentAlignment = Alignment.CenterStart
     ) {
-        LinearWavyProgressIndicator(
+        LinearProgressIndicator(
             progress = { progress / 100f },
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.primary,

@@ -16,6 +16,13 @@ import androidx.compose.ui.Modifier
 
 import androidx.compose.ui.graphics.Color
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleOut
+
 @Composable
 fun DefaultSwitch(
     checked: Boolean,
@@ -43,18 +50,26 @@ fun DefaultSwitch(
         onCheckedChange = onCheckedChange,
         modifier = modifier,
         thumbContent = {
-            if (checked) {
-                Icon(
-                    imageVector = Icons.Filled.Check,
-                    contentDescription = null,
-                    modifier = Modifier.size(SwitchDefaults.IconSize)
-                )
-            } else {
-                Icon(
-                    imageVector = Icons.Filled.Remove,
-                    contentDescription = null,
-                    modifier = Modifier.size(SwitchDefaults.IconSize)
-                )
+            AnimatedContent(
+                targetState = checked,
+                transitionSpec = {
+                    (fadeIn() + scaleIn(initialScale = 0.7f)) togetherWith (fadeOut() + scaleOut(targetScale = 0.7f))
+                },
+                label = "SwitchIconTransition"
+            ) { isChecked ->
+                if (isChecked) {
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = null,
+                        modifier = Modifier.size(SwitchDefaults.IconSize)
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Filled.Remove,
+                        contentDescription = null,
+                        modifier = Modifier.size(SwitchDefaults.IconSize)
+                    )
+                }
             }
         },
         enabled = enabled,

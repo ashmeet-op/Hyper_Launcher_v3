@@ -337,7 +337,7 @@ object LauncherPreferences {
         PREF_BUTTONSIZE = pref.getInt("buttonscale", 100).toFloat()
         PREF_MOUSESCALE = pref.getInt("mousescale", 100) / 100f
         PREF_MOUSESPEED = pref.getInt("mousespeed", 100).toFloat() / 100f
-        PREF_IGNORE_NOTCH = pref.getBoolean("ignoreNotch", false)
+        PREF_IGNORE_NOTCH = pref.getBoolean("ignoreNotch", true)
         PREF_LONGPRESS_TRIGGER = pref.getInt("timeLongPressTrigger", 300)
         PREF_DEFAULTCTRL_PATH = pref.getString("defaultCtrl", "") ?: ""
         if (PREF_DEFAULTCTRL_PATH.isEmpty()) {

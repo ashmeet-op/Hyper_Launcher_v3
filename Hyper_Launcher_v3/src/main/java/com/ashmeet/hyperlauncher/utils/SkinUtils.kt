@@ -28,6 +28,8 @@ object SkinUtils {
             return "file://${account.skinPath}"
         }
 
+        if (account.authType == AuthType.LOCAL) return null
+
         val template = account.authType.skinUrl ?: return null
 
         val idToUse = when (account.authType) {
@@ -38,7 +40,7 @@ object SkinUtils {
                     account.username
                 }
             }
-            AuthType.ELY_BY, AuthType.LOCAL -> {
+            AuthType.ELY_BY -> {
                 account.username
             }
             else -> account.username

@@ -8,9 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.LoadingIndicator
-import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,34 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-fun LinearWavyProgressIndicatorDemo() {
-    var progressValue by remember { mutableFloatStateOf(0.1f) }
-    val animatedProgress by animateFloatAsState(
-        targetValue = progressValue,
-        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec,
-        label = "WavyProgressAnimation"
-    )
-
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        LinearWavyProgressIndicator()
-
-        Spacer(Modifier.requiredHeight(20.dp))
-
-        LinearWavyProgressIndicator(
-            progress = { animatedProgress }
-        )
-
-        Spacer(Modifier.requiredHeight(30.dp))
-        Text("Set progress:")
-        Slider(
-            value = progressValue,
-            onValueChange = { progressValue = it },
-            modifier = Modifier.width(300.dp)
-        )
-    }
-}
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
