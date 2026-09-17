@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,6 +37,33 @@ import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.authenticator.AuthType
 import net.kdt.pojavlaunch.authenticator.accounts.Accounts
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
+
+import androidx.compose.material3.FloatingActionButtonMenu
+import androidx.compose.material3.FloatingActionButtonMenuItem
+import androidx.compose.material3.ToggleFloatingActionButton
+
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Texture
+
+
+
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.material3.ToggleButton
+import androidx.compose.ui.platform.LocalContext
+import net.kdt.pojavlaunch.contracts.OpenDocumentWithExtension
+import java.io.File
+import java.io.FileOutputStream
 import net.kdt.pojavlaunch.extra.ExtraConstants
 import net.kdt.pojavlaunch.extra.ExtraCore
 import net.kdt.pojavlaunch.extra.ExtraListener
@@ -47,6 +76,49 @@ fun AuthLayout(
 ) {
     var currentAccount by remember {
         mutableStateOf(try { Accounts.getCurrent() } catch (_: Exception) { null })
+    }
+
+    val context = LocalContext.current
+    var skinModel by remember(currentAccount) {
+        mutableStateOf(SkinUtils.getModelType(currentAccount))
+    }
+    var customSkinPath by remember { mutableStateOf<String?>(null) }
+    var customCapePath by remember { mutableStateOf<String?>(null) }
+
+    val skinPickerLauncher = rememberLauncherForActivityResult(
+        contract = OpenDocumentWithExtension("image/png")
+    ) { uri ->
+        uri?.let {
+            val skinFile = File(context.cacheDir, "skin_import_temp_${System.currentTimeMillis()}.png")
+            try {
+                context.contentResolver.openInputStream(it)?.use { input ->
+                    FileOutputStream(skinFile).use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                customSkinPath = skinFile.absolutePath
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    val capePickerLauncher = rememberLauncherForActivityResult(
+        contract = OpenDocumentWithExtension("image/png")
+    ) { uri ->
+        uri?.let {
+            val capeFile = File(context.cacheDir, "cape_import_temp_${System.currentTimeMillis()}.png")
+            try {
+                context.contentResolver.openInputStream(it)?.use { input ->
+                    FileOutputStream(capeFile).use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                customCapePath = capeFile.absolutePath
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     DisposableEffect(Unit) {
@@ -72,21 +144,118 @@ fun AuthLayout(
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                SkinPreview(
+                Column(
                     modifier = Modifier
                         .weight(1.0f)
                         .fillMaxHeight()
-                        .padding(vertical = 16.dp)
-                        .clip(RoundedCornerShape(16.dp)),
-                    skinUrl = SkinUtils.getSkinUrl(currentAccount),
-                    model = SkinUtils.getModelType(currentAccount),
-                    capeUrl = when (currentAccount?.authType) {
-                        AuthType.MICROSOFT -> "https://crafatar.com/capes/${currentAccount?.profileId}"
-                        AuthType.ELY_BY -> "http://skinsystem.ely.by/capes/${currentAccount?.username}.png"
-                        AuthType.LOCAL -> currentAccount?.capePath?.let { "file://$it" }
-                        else -> null
+                        .padding(vertical = 16.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    SkinPreview(
+                        modifier = Modifier
+                            .weight(1.0f)
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp)),
+                        skinUrl = customSkinPath?.let { "file://$it" } ?: SkinUtils.getSkinUrl(currentAccount),
+                        model = skinModel,
+                        capeUrl = customCapePath?.let { "file://$it" } ?: when (currentAccount?.authType) {
+                            AuthType.MICROSOFT -> "https://crafatar.com/capes/${currentAccount?.profileId}"
+                            AuthType.ELY_BY -> "http://skinsystem.ely.by/capes/${currentAccount?.username}.png"
+                            AuthType.LOCAL -> currentAccount?.capePath?.let { "file://$it" }
+                            else -> null
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        SingleChoiceSegmentedButtonRow(
+                            modifier = Modifier.wrapContentSize(),
+                        ) {
+                            val options = listOf("slim", "default")
+                            options.forEachIndexed { index, option ->
+                                SegmentedButton(
+                                    selected = skinModel == option,
+                                    onClick = { skinModel = option },
+                                    shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                                    label = { Text(if (option == "slim") translatedText("Slim") else translatedText("Wide")) },
+                                    modifier = Modifier.height(40.dp)
+                                )
+                            }
+                        }
+
+                        var fabMenuExpanded by remember { mutableStateOf(false) }
+                        val fabMenuStartColor = MaterialTheme.colorScheme.secondary
+                        val fabMenuEndColor = MaterialTheme.colorScheme.surface
+                        val fabMenuIconStartColor = MaterialTheme.colorScheme.onSecondary
+                        val fabMenuIconEndColor = MaterialTheme.colorScheme.onSurface
+
+                        Box(
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            FloatingActionButtonMenu(
+                                modifier = Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .wrapContentSize(align = Alignment.BottomCenter, unbounded = true)
+                                    .offset(y = 16.dp), // Compensate for internal FabMenuButtonPaddingBottom
+                                expanded = fabMenuExpanded,
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                button = {
+                                    ToggleFloatingActionButton(
+                                        checked = fabMenuExpanded,
+                                        onCheckedChange = { fabMenuExpanded = !fabMenuExpanded },
+                                        modifier = Modifier.size(40.dp),
+                                        containerSize = { 40.dp },
+                                        containerCornerRadius = { 20.dp },
+                                        contentAlignment = Alignment.Center,
+                                        containerColor = { progress ->
+                                            androidx.compose.ui.graphics.lerp(fabMenuStartColor, fabMenuEndColor, progress)
+                                        }
+                                    ) {
+                                        Box(
+                                            modifier = Modifier.fillMaxSize(),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            val imageVector = if (fabMenuExpanded) Icons.Rounded.Close else Icons.Rounded.Add
+                                            Icon(
+                                                imageVector = imageVector,
+                                                contentDescription = null,
+                                                modifier = Modifier.animateIcon(
+                                                    checkedProgress = { checkedProgress },
+                                                    color = { progress ->
+                                                        androidx.compose.ui.graphics.lerp(fabMenuIconStartColor, fabMenuIconEndColor, progress)
+                                                    }
+                                                )
+                                            )
+                                        }
+                                    }
+                                }
+                            ) {
+                                FloatingActionButtonMenuItem(
+                                    onClick = {
+                                        fabMenuExpanded = false
+                                        skinPickerLauncher.launch(null)
+                                    },
+                                    icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
+                                    text = { Text(text = translatedText("Add Skin")) }
+                                )
+                                FloatingActionButtonMenuItem(
+                                    onClick = {
+                                        fabMenuExpanded = false
+                                        capePickerLauncher.launch(null)
+                                    },
+                                    icon = { Icon(Icons.Rounded.Texture, contentDescription = null) },
+                                    text = { Text(text = translatedText("Add Cape")) }
+                                )
+                            }
+                        }
                     }
-                )
+                }
 
                 Spacer(modifier = Modifier.width(16.dp))
 
