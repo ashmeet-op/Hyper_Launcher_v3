@@ -45,6 +45,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.ashmeet.hyperlauncher.components.slider.SimpleTextSlider
+import io.ktor.http.ContentType
 
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.multirt.Runtime
@@ -194,6 +195,7 @@ fun TextInputDialog(
                 onValueChange = { text = it },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
+
             )
         },
         confirmButton = {

@@ -24,10 +24,32 @@ import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.VideogameAsset
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRail
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Icon
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FloatingActionButtonMenu
+import androidx.compose.material3.ToggleFloatingActionButton
+import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import net.ashmeet.hyperlauncher.R
@@ -41,6 +63,7 @@ fun SideNavigationRail(
     NavigationRail(
         containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
         contentColor = MaterialTheme.colorScheme.onSurface,
+        windowInsets = WindowInsets(0.dp),
         modifier = Modifier
             .fillMaxHeight()
             .width(240.dp),
@@ -151,6 +174,7 @@ fun SideNavigationRail(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SideRail(
     onCreateNew: () -> Unit,
@@ -158,11 +182,19 @@ fun SideRail(
     onImportModpack: () -> Unit,
     onBack: () -> Unit
 ) {
-    val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
-    val primaryColor = MaterialTheme.colorScheme.primary
+    var refreshRotationTarget by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
+    val refreshRotation by animateFloatAsState(
+        targetValue = refreshRotationTarget,
+        animationSpec = tween(durationMillis = 600),
+        label = "RefreshRotation"
+    )
+
+    var fabMenuExpanded by remember { mutableStateOf(false) }
+    var isSearchToggled by remember { mutableStateOf(false) }
 
     NavigationRail(
         containerColor = Color.Transparent,
+        windowInsets = WindowInsets(0.dp),
         modifier = Modifier.fillMaxHeight(),
         header = {
             SidebarRailButton(
@@ -174,29 +206,104 @@ fun SideRail(
     ) {
         Spacer(modifier = Modifier.weight(1f))
 
-        SidebarRailButton(
-            icon = Icons.Rounded.Add,
-            label = "New",
-            onClick = onCreateNew,
-            containerColor = primaryColor,
-            contentColor = onPrimaryColor
-        )
+        val fabMenuStartColor = MaterialTheme.colorScheme.secondary
+        val fabMenuEndColor = MaterialTheme.colorScheme.surface
+        val fabMenuIconStartColor = MaterialTheme.colorScheme.onSecondary
+        val fabMenuIconEndColor = MaterialTheme.colorScheme.onSurface
+
+        Box(
+            modifier = Modifier.size(56.dp)
+        ) {
+            FloatingActionButtonMenu(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .wrapContentSize(align = Alignment.BottomCenter, unbounded = true)
+                    .offset(y = 16.dp),
+                expanded = fabMenuExpanded,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                button = {
+                    ToggleFloatingActionButton(
+                        checked = fabMenuExpanded,
+                        onCheckedChange = { 
+                            fabMenuExpanded = !fabMenuExpanded
+                            if (fabMenuExpanded) {
+                                onCreateNew()
+                            }
+                        },
+                        modifier = Modifier.size(56.dp),
+                        containerSize = { 56.dp },
+                        contentAlignment = Alignment.Center,
+                        containerColor = { progress ->
+                            lerp(fabMenuStartColor, fabMenuEndColor, progress)
+                        }
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            val imageVector = if (fabMenuExpanded) Icons.Rounded.Close else Icons.Rounded.Add
+                            Icon(
+                                imageVector = imageVector,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .animateIcon(
+                                        checkedProgress = { checkedProgress },
+                                        color = { progress ->
+                                            lerp(fabMenuIconStartColor, fabMenuIconEndColor, progress)
+                                        }
+                                    )
+                            )
+                        }
+                    }
+                }
+            ) {
+                // Keep the structural content of the menu empty or minimal since it handles a single callback,
+                // matching the custom fab style menu pattern provided.
+            }
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        SidebarRailButton(
-            icon = Icons.Rounded.Refresh,
-            label = "Refresh",
-            onClick = onRefresh
-        )
+        IconButton(
+            onClick = {
+                refreshRotationTarget += 360f
+                onRefresh()
+            },
+            modifier = Modifier.size(56.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Refresh,
+                contentDescription = "Refresh",
+                modifier = Modifier
+                    .size(32.dp)
+                    .graphicsLayer(rotationZ = refreshRotation),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        SidebarRailButton(
-            icon = Icons.Rounded.Search,
-            label = "Import",
-            onClick = onImportModpack
-        )
+        IconToggleButton(
+            checked = isSearchToggled,
+            onCheckedChange = {
+                isSearchToggled = it
+                onImportModpack()
+            },
+            modifier = Modifier.size(56.dp),
+            colors = IconButtonDefaults.iconToggleButtonColors(
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                checkedContainerColor = MaterialTheme.colorScheme.secondary,
+                checkedContentColor = MaterialTheme.colorScheme.onSecondary
+            )
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Search,
+                contentDescription = "Search",
+                modifier = Modifier.size(32.dp)
+            )
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
     }
