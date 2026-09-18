@@ -3,7 +3,10 @@ package com.ashmeet.hyperlauncher.screens.auth
 
 import android.widget.FrameLayout
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -73,6 +76,7 @@ import java.io.FileOutputStream
 @Composable
 fun AuthLayout(
     title: String,
+    isFullScreen: Boolean = false,
     onBack: (() -> Unit)? = null,
     onFragmentViewCreated: (FrameLayout) -> Unit
 ) {
@@ -157,169 +161,175 @@ fun AuthLayout(
             Row(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
+                    .padding(if (isFullScreen) 0.dp else 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(
-                    modifier = Modifier
-                        .weight(1.0f)
-                        .fillMaxHeight()
-                        .padding(vertical = 16.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                AnimatedVisibility(
+                    visible = !isFullScreen,
+                    enter = expandHorizontally(),
+                    exit = shrinkHorizontally(),
+                    modifier = Modifier.weight(1.0f)
                 ) {
-                    var fabMenuExpanded by remember { mutableStateOf(false) }
-                    val modelAlpha by animateFloatAsState(if (fabMenuExpanded) 0.3f else 1.0f)
-
-                    Box(
+                    Column(
                         modifier = Modifier
-                            .weight(1.0f)
-                            .fillMaxWidth()
-                            .graphicsLayer(alpha = modelAlpha),
-                        contentAlignment = Alignment.Center
+                            .fillMaxHeight()
+                            .padding(vertical = 16.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        SkinPreview(
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            skinUrl = customSkinPath?.let { "file://$it" } ?: SkinUtils.getSkinUrl(currentAccount),
-                            model = skinModel,
-                            capeUrl = customCapePath?.let { "file://$it" } ?: currentAccount?.capePath?.let { "file://$it" } ?: when (currentAccount?.authType) {
-                                AuthType.MICROSOFT -> "https://crafatar.com/capes/${currentAccount?.profileId}"
-                                AuthType.ELY_BY -> "http://skinsystem.ely.by/capes/${currentAccount?.username}.png"
-                                else -> null
-                            },
-                            onLoadingStateChanged = { isLoadingSkin = it }
-                        )
-
-                        if (isLoadingSkin) {
-                            LoadingIndicator()
-                        }
+                        var fabMenuExpanded by remember { mutableStateOf(false) }
+                        val modelAlpha by animateFloatAsState(if (fabMenuExpanded) 0.3f else 1.0f)
 
                         Box(
                             modifier = Modifier
+                                .weight(1.0f)
                                 .fillMaxWidth()
-                                .height(120.dp)
-                                .align(Alignment.BottomCenter)
-                                .background(
-                                    brush = Brush.verticalGradient(
-                                        colors = listOf(
-                                            Color.Transparent,
-                                            MaterialTheme.colorScheme.background
+                                .graphicsLayer(alpha = modelAlpha),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            SkinPreview(
+                                modifier = Modifier
+                                    .fillMaxSize(),
+                                skinUrl = customSkinPath?.let { "file://$it" } ?: SkinUtils.getSkinUrl(currentAccount),
+                                model = skinModel,
+                                capeUrl = customCapePath?.let { "file://$it" } ?: currentAccount?.capePath?.let { "file://$it" } ?: when (currentAccount?.authType) {
+                                    AuthType.MICROSOFT -> "https://crafatar.com/capes/${currentAccount?.profileId}"
+                                    AuthType.ELY_BY -> "http://skinsystem.ely.by/capes/${currentAccount?.username}.png"
+                                    else -> null
+                                },
+                                onLoadingStateChanged = { isLoadingSkin = it }
+                            )
+
+                            if (isLoadingSkin) {
+                                LoadingIndicator()
+                            }
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(120.dp)
+                                    .align(Alignment.BottomCenter)
+                                    .background(
+                                        brush = Brush.verticalGradient(
+                                            colors = listOf(
+                                                Color.Transparent,
+                                                MaterialTheme.colorScheme.background
+                                            )
                                         )
                                     )
-                                )
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        SingleChoiceSegmentedButtonRow(
-                            modifier = Modifier.wrapContentSize(),
-                        ) {
-                            val options = listOf("slim", "default")
-                            options.forEachIndexed { index, option ->
-                                SegmentedButton(
-                                    selected = skinModel == option,
-                                    onClick = {
-                                        skinModel = option
-                                        currentAccount?.let { acc ->
-                                            acc.skinModel = if (option == "slim") SkinModelType.ALEX else SkinModelType.STEVE
-                                            try {
-                                                acc.save()
-                                            } catch (e: Exception) {
-                                                e.printStackTrace()
-                                            }
-                                        }
-                                    },
-                                    shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
-                                    label = { Text(if (option == "slim") translatedText("Slim") else translatedText("Wide")) },
-                                    modifier = Modifier.height(40.dp)
-                                )
-                            }
+                            )
                         }
 
-                        val fabMenuStartColor = MaterialTheme.colorScheme.secondary
-                        val fabMenuEndColor = MaterialTheme.colorScheme.surface
-                        val fabMenuIconStartColor = MaterialTheme.colorScheme.onSecondary
-                        val fabMenuIconEndColor = MaterialTheme.colorScheme.onSurface
+                        Spacer(modifier = Modifier.height(12.dp))
 
-                        Box(
-                            modifier = Modifier.size(40.dp)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            FloatingActionButtonMenu(
-                                modifier = Modifier
-                                    .align(Alignment.BottomCenter)
-                                    .wrapContentSize(align = Alignment.BottomCenter, unbounded = true)
-                                    .offset(y = 16.dp),
-                                expanded = fabMenuExpanded,
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                button = {
-                                    ToggleFloatingActionButton(
-                                        checked = fabMenuExpanded,
-                                        onCheckedChange = { fabMenuExpanded = !fabMenuExpanded },
-                                        modifier = Modifier.size(40.dp),
-                                        containerSize = { 40.dp },
-                                        containerCornerRadius = { 20.dp },
-                                        contentAlignment = Alignment.Center,
-                                        containerColor = { progress ->
-                                            androidx.compose.ui.graphics.lerp(fabMenuStartColor, fabMenuEndColor, progress)
-                                        }
-                                    ) {
-                                        Box(
-                                            modifier = Modifier.fillMaxSize(),
-                                            contentAlignment = Alignment.Center
+                            SingleChoiceSegmentedButtonRow(
+                                modifier = Modifier.wrapContentSize(),
+                            ) {
+                                val options = listOf("slim", "default")
+                                options.forEachIndexed { index, option ->
+                                    SegmentedButton(
+                                        selected = skinModel == option,
+                                        onClick = {
+                                            skinModel = option
+                                            currentAccount?.let { acc ->
+                                                acc.skinModel = if (option == "slim") SkinModelType.ALEX else SkinModelType.STEVE
+                                                try {
+                                                    acc.save()
+                                                } catch (e: Exception) {
+                                                    e.printStackTrace()
+                                                }
+                                            }
+                                        },
+                                        shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                                        label = { Text(if (option == "slim") translatedText("Slim") else translatedText("Wide")) },
+                                        modifier = Modifier.height(40.dp)
+                                    )
+                                }
+                            }
+
+                            val fabMenuStartColor = MaterialTheme.colorScheme.secondary
+                            val fabMenuEndColor = MaterialTheme.colorScheme.surface
+                            val fabMenuIconStartColor = MaterialTheme.colorScheme.onSecondary
+                            val fabMenuIconEndColor = MaterialTheme.colorScheme.onSurface
+
+                            Box(
+                                modifier = Modifier.size(40.dp)
+                            ) {
+                                FloatingActionButtonMenu(
+                                    modifier = Modifier
+                                        .align(Alignment.BottomCenter)
+                                        .wrapContentSize(align = Alignment.BottomCenter, unbounded = true)
+                                        .offset(y = 16.dp),
+                                    expanded = fabMenuExpanded,
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    button = {
+                                        ToggleFloatingActionButton(
+                                            checked = fabMenuExpanded,
+                                            onCheckedChange = { fabMenuExpanded = !fabMenuExpanded },
+                                            modifier = Modifier.size(40.dp),
+                                            containerSize = { 40.dp },
+                                            containerCornerRadius = { 20.dp },
+                                            contentAlignment = Alignment.Center,
+                                            containerColor = { progress ->
+                                                androidx.compose.ui.graphics.lerp(fabMenuStartColor, fabMenuEndColor, progress)
+                                            }
                                         ) {
-                                            val imageVector = if (fabMenuExpanded) Icons.Rounded.Close else Icons.Rounded.Add
-                                            Icon(
-                                                imageVector = imageVector,
-                                                contentDescription = null,
-                                                modifier = Modifier.animateIcon(
-                                                    checkedProgress = { checkedProgress },
-                                                    color = { progress ->
-                                                        androidx.compose.ui.graphics.lerp(fabMenuIconStartColor, fabMenuIconEndColor, progress)
-                                                    }
+                                            Box(
+                                                modifier = Modifier.fillMaxSize(),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                val imageVector = if (fabMenuExpanded) Icons.Rounded.Close else Icons.Rounded.Add
+                                                Icon(
+                                                    imageVector = imageVector,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.animateIcon(
+                                                        checkedProgress = { checkedProgress },
+                                                        color = { progress ->
+                                                            androidx.compose.ui.graphics.lerp(fabMenuIconStartColor, fabMenuIconEndColor, progress)
+                                                        }
+                                                    )
                                                 )
-                                            )
+                                            }
                                         }
                                     }
+                                ) {
+                                    FloatingActionButtonMenuItem(
+                                        onClick = {
+                                            fabMenuExpanded = false
+                                            skinPickerLauncher.launch(null)
+                                        },
+                                        icon = { Icon(Icons.Rounded.AddReaction, contentDescription = null) },
+                                        text = { Text(text = translatedText("Add Skin")) },
+                                        containerColor = MaterialTheme.colorScheme.surface,
+                                        contentColor = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    FloatingActionButtonMenuItem(
+                                        onClick = {
+                                            fabMenuExpanded = false
+                                            capePickerLauncher.launch(null)
+                                        },
+                                        icon = { Icon(Icons.Rounded.Sell, contentDescription = null) },
+                                        text = { Text(text = translatedText("Add Cape")) },
+                                        containerColor = MaterialTheme.colorScheme.surface,
+                                        contentColor = MaterialTheme.colorScheme.onSurface
+                                    )
                                 }
-                            ) {
-                                FloatingActionButtonMenuItem(
-                                    onClick = {
-                                        fabMenuExpanded = false
-                                        skinPickerLauncher.launch(null)
-                                    },
-                                    icon = { Icon(Icons.Rounded.AddReaction, contentDescription = null) },
-                                    text = { Text(text = translatedText("Add Skin")) },
-                                    containerColor = MaterialTheme.colorScheme.surface,
-                                    contentColor = MaterialTheme.colorScheme.onSurface
-                                )
-                                FloatingActionButtonMenuItem(
-                                    onClick = {
-                                        fabMenuExpanded = false
-                                        capePickerLauncher.launch(null)
-                                    },
-                                    icon = { Icon(Icons.Rounded.Sell, contentDescription = null) },
-                                    text = { Text(text = translatedText("Add Cape")) },
-                                    containerColor = MaterialTheme.colorScheme.surface,
-                                    contentColor = MaterialTheme.colorScheme.onSurface
-                                )
                             }
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.width(16.dp))
+                if (!isFullScreen) {
+                    Spacer(modifier = Modifier.width(16.dp))
+                }
 
                 Box(
-                    modifier = Modifier
-                        .weight(1.2f)
-                        .fillMaxHeight()
+                    modifier = (if (isFullScreen) Modifier.fillMaxSize() else Modifier.weight(1.2f).fillMaxHeight())
                 ) {
                     AndroidView(
                         factory = { context ->

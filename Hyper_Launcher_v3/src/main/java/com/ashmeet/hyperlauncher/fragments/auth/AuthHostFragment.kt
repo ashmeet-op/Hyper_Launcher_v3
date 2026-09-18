@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.fragment.app.FragmentManager
 import com.ashmeet.hyperlauncher.screens.auth.AuthLayout
+import com.ashmeet.hyperlauncher.fragments.auth.MicrosoftLoginFragment
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.ashmeet.hyperlauncher.R
 
@@ -42,20 +44,34 @@ class AuthHostFragment : Fragment() {
             setContent {
                 val fm = childFragmentManager
                 var backStackCount by remember { mutableStateOf(fm.backStackEntryCount) }
+                var currentFragment by remember { mutableStateOf(fm.findFragmentById(R.id.container_fragment_auth)) }
+                val isFullScreen by remember {
+                    derivedStateOf { currentFragment is MicrosoftLoginFragment }
+                }
 
                 DisposableEffect(fm) {
-                    val listener = FragmentManager.OnBackStackChangedListener {
+                    val backStackListener = FragmentManager.OnBackStackChangedListener {
                         backStackCount = fm.backStackEntryCount
                     }
-                    fm.addOnBackStackChangedListener(listener)
+                    val lifecycleCallbacks = object : FragmentManager.FragmentLifecycleCallbacks() {
+                        override fun onFragmentStarted(fm: FragmentManager, f: Fragment) {
+                            if (f.id == R.id.container_fragment_auth) {
+                                currentFragment = f
+                            }
+                        }
+                    }
+                    fm.addOnBackStackChangedListener(backStackListener)
+                    fm.registerFragmentLifecycleCallbacks(lifecycleCallbacks, false)
                     onDispose {
-                        fm.removeOnBackStackChangedListener(listener)
+                        fm.removeOnBackStackChangedListener(backStackListener)
+                        fm.unregisterFragmentLifecycleCallbacks(lifecycleCallbacks)
                     }
                 }
 
                 PojavTheme {
                     AuthLayout(
                         title = translatedText("Login"),
+                        isFullScreen = isFullScreen,
                         onBack = if (backStackCount > 0) {
                             { requireActivity().onBackPressedDispatcher.onBackPressed() }
                         } else null,
