@@ -26,10 +26,12 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.AddReaction
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Sell
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButtonMenu
 import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -46,7 +48,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -68,12 +69,14 @@ import net.kdt.pojavlaunch.extra.ExtraListener
 import java.io.File
 import java.io.FileOutputStream
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AuthLayout(
     title: String,
     onBack: (() -> Unit)? = null,
     onFragmentViewCreated: (FrameLayout) -> Unit
 ) {
+    var isLoadingSkin by remember { mutableStateOf(true) }
     var currentAccount by remember {
         mutableStateOf(try { Accounts.getCurrent() } catch (_: Exception) { null })
     }
@@ -144,6 +147,7 @@ fun AuthLayout(
         }
     }
 
+    @Suppress("RemoveRedundantQualifierName")
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = if (LauncherPreferences.PREF_LAUNCHER_BACKGROUND_PATH != null) androidx.compose.ui.graphics.Color.Transparent else MaterialTheme.colorScheme.background,
@@ -171,7 +175,8 @@ fun AuthLayout(
                         modifier = Modifier
                             .weight(1.0f)
                             .fillMaxWidth()
-                            .graphicsLayer(alpha = modelAlpha)
+                            .graphicsLayer(alpha = modelAlpha),
+                        contentAlignment = Alignment.Center
                     ) {
                         SkinPreview(
                             modifier = Modifier
@@ -182,8 +187,13 @@ fun AuthLayout(
                                 AuthType.MICROSOFT -> "https://crafatar.com/capes/${currentAccount?.profileId}"
                                 AuthType.ELY_BY -> "http://skinsystem.ely.by/capes/${currentAccount?.username}.png"
                                 else -> null
-                            }
+                            },
+                            onLoadingStateChanged = { isLoadingSkin = it }
                         )
+
+                        if (isLoadingSkin) {
+                            LoadingIndicator()
+                        }
 
                         Box(
                             modifier = Modifier

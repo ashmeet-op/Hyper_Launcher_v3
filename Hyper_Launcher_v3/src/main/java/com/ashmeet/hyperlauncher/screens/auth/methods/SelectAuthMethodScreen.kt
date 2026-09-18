@@ -74,7 +74,7 @@ fun SelectAuthMethodScreen(
                 onClick = onMicrosoftClick,
                 icon = painterResource(R.drawable.ic_auth_ms),
                 modifier = Modifier.fillMaxWidth(),
-                height = 60.dp,
+                height = 50.dp,
                 tintIcon = true
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -83,7 +83,7 @@ fun SelectAuthMethodScreen(
                 onClick = onElyByClick,
                 icon = rememberVectorPainter(ElyByIcon),
                 modifier = Modifier.fillMaxWidth(),
-                height = 60.dp,
+                height = 50.dp,
                 tintIcon = true
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -92,7 +92,7 @@ fun SelectAuthMethodScreen(
                 onClick = onLocalClick,
                 icon = rememberVectorPainter(Icons.Default.SportsEsports),
                 modifier = Modifier.fillMaxWidth(),
-                height = 60.dp,
+                height = 50.dp,
                 tintIcon = true
             )
         }

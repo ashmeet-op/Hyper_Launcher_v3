@@ -26,6 +26,7 @@ fun SkinPreview(
     capeUrl: String? = null,
     animation: String = "NewIdle",
     model: String = "default",
+    onLoadingStateChanged: (Boolean) -> Unit = {},
     onWebViewCreated: (WebView) -> Unit = {}
 ) {
     if (LocalInspectionMode.current) {
@@ -39,6 +40,7 @@ fun SkinPreview(
     AndroidView(
         modifier = modifier,
         factory = { context ->
+            onLoadingStateChanged(true)
             WebView(context).apply {
 
                 stopLoading()
@@ -81,6 +83,7 @@ fun SkinPreview(
 
                     override fun onPageFinished(view: WebView?, url: String?) {
                         isPageLoaded = true
+                        onLoadingStateChanged(false)
                         val finalSkinUrl = if (skinUrl?.startsWith("file://") == true) {
                         val path = skinUrl.substring(7)
                         val file = File(path)

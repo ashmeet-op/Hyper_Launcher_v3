@@ -1,36 +1,17 @@
 package com.ashmeet.hyperlauncher.screens.auth.methods
 
+import android.graphics.BitmapFactory
 import androidx.activity.compose.rememberLauncherForActivityResult
-import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.Person
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,7 +22,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ashmeet.hyperlauncher.components.button.MineButton
+import com.ashmeet.hyperlauncher.components.dialog.SimpleAlertDialog
 import com.ashmeet.hyperlauncher.theme.PojavTheme
+import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.contracts.OpenDocumentWithExtension
 import java.io.File
@@ -55,6 +38,20 @@ fun LocalLoginScreen(
     var username by remember { mutableStateOf("") }
     var selectedSkinPath by remember { mutableStateOf<String?>(null) }
     var selectedCapePath by remember { mutableStateOf<String?>(null) }
+    var errorDialogMessage by remember { mutableStateOf<String?>(null) }
+
+    fun validateImage(path: String, isSkin: Boolean): Boolean {
+        val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeFile(path, options)
+        val w = options.outWidth
+        val h = options.outHeight
+
+        return if (isSkin) {
+            (w > 0 && w % 64 == 0) && (h == w || h == w / 2)
+        } else {
+            ((w > 0 && w % 64 == 0) && h == w / 2) || ((w > 0 && w % 22 == 0) && h == (w * 17) / 22)
+        }
+    }
 
     val skinPickerLauncher = rememberLauncherForActivityResult(
         contract = OpenDocumentWithExtension("image/png")
@@ -67,7 +64,12 @@ fun LocalLoginScreen(
                         input.copyTo(output)
                     }
                 }
-                selectedSkinPath = skinFile.absolutePath
+                val path = skinFile.absolutePath
+                if (validateImage(path, true)) {
+                    selectedSkinPath = path
+                } else {
+                    errorDialogMessage = "Invalid skin dimensions. Standard sizes are 64x32 or 64x64 (or their multiples)."
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -85,7 +87,12 @@ fun LocalLoginScreen(
                         input.copyTo(output)
                     }
                 }
-                selectedCapePath = capeFile.absolutePath
+                val path = capeFile.absolutePath
+                if (validateImage(path, false)) {
+                    selectedCapePath = path
+                } else {
+                    errorDialogMessage = "Invalid cape dimensions. Standard sizes are 64x32 or 22x17 (or their multiples)."
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -101,27 +108,35 @@ fun LocalLoginScreen(
                 .fillMaxSize()
                 .clip(RoundedCornerShape(24.dp))
                 .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.1f))
+                .verticalScroll(rememberScrollState())
                 .padding(24.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.Start
         ) {
-            Text(
-                text = translatedText(stringResource(R.string.login_online_username_hint)),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
+
+            var hasAttemptedLogin by remember { mutableStateOf(false) }
+            val isUsernameValid = remember(username) {
+                username.length in 3..16 && username.matches(Regex("^[a-zA-Z0-9_]*$"))
+            }
+            val isError = (username.isNotEmpty() || hasAttemptedLogin) && !isUsernameValid
 
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
                 modifier = Modifier.fillMaxWidth(),
+                label = { Text(text = translatedText("Username")) },
                 placeholder = { Text(text = translatedText("Username")) },
+                supportingText = if (isError) {
+                    {
+                        Text(
+                            text = translatedText(stringResource(R.string.local_login_bad_username_text)),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                } else null,
+                isError = isError,
                 shape = RoundedCornerShape(12.dp),
                 singleLine = true,
-                leadingIcon = {
-                    Icon(imageVector = Icons.Rounded.Person, contentDescription = null)
-                }
             )
 
             Row(
@@ -137,8 +152,8 @@ fun LocalLoginScreen(
                         .weight(1f),
                     shape = CircleShape,
                     colors = ButtonDefaults.filledTonalButtonColors(
-                        containerColor = if (selectedSkinPath != null) Color(0xFF4CAF50).copy(alpha = 0.8f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
-                        contentColor = if (selectedSkinPath != null) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                     ),
                     contentPadding = PaddingValues(horizontal = 8.dp)
                 ) {
@@ -151,7 +166,7 @@ fun LocalLoginScreen(
                         Spacer(Modifier.width(8.dp))
                     }
                     Text(
-                        text = if (selectedSkinPath != null) "Skin selected" else "Change skin",
+                        text = "Change skin",
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -164,8 +179,8 @@ fun LocalLoginScreen(
                         .weight(1f),
                     shape = CircleShape,
                     colors = ButtonDefaults.filledTonalButtonColors(
-                        containerColor = if (selectedCapePath != null) Color(0xFF4CAF50).copy(alpha = 0.8f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
-                        contentColor = if (selectedCapePath != null) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                     ),
                     contentPadding = PaddingValues(horizontal = 8.dp)
                 ) {
@@ -178,7 +193,7 @@ fun LocalLoginScreen(
                         Spacer(Modifier.width(8.dp))
                     }
                     Text(
-                        text = if (selectedCapePath != null) "Cape selected" else "Change cape",
+                        text = "Change cape",
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -188,11 +203,26 @@ fun LocalLoginScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             MineButton(
-                onClick = { onLoginClick(username, selectedSkinPath, selectedCapePath) },
+                onClick = {
+                    hasAttemptedLogin = true
+                    if (isUsernameValid) {
+                        onLoginClick(username, selectedSkinPath, selectedCapePath)
+                    }
+                },
                 text = translatedText(stringResource(R.string.login_online_login_label)),
                 modifier = Modifier.fillMaxWidth(),
                 isUppercase = false
             )
+
+            errorDialogMessage?.let { message ->
+                SimpleAlertDialog(
+                    title = translatedText("Invalid Image"),
+                    text = translatedText(message),
+                    confirmText = translatedText("OK"),
+                    onConfirm = { errorDialogMessage = null },
+                    onDismiss = { errorDialogMessage = null }
+                )
+            }
         }
     }
 }
