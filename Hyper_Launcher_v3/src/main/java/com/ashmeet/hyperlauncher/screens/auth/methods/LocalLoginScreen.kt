@@ -25,6 +25,7 @@ import com.ashmeet.hyperlauncher.components.button.MineButton
 import com.ashmeet.hyperlauncher.components.dialog.SimpleAlertDialog
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
+import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.contracts.OpenDocumentWithExtension
 import java.io.File
@@ -120,7 +121,7 @@ fun LocalLoginScreen(
             }
             val isError = (username.isNotEmpty() || hasAttemptedLogin) && !isUsernameValid
 
-            OutlinedTextField(
+            HyperOutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
                 modifier = Modifier.fillMaxWidth(),

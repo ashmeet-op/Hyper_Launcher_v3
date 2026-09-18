@@ -27,6 +27,7 @@ fun ScreenLayout(
     onRefresh: () -> Unit,
     onCreateNew: () -> Unit = {},
     onImportModpack: () -> Unit = {},
+    isSearchActive: Boolean = false,
     sideRailExtra: @Composable (BoxScope.() -> Unit)? = null,
     header: @Composable () -> Unit = {},
     sidebar: @Composable (() -> Unit)? = null,
@@ -43,7 +44,8 @@ fun ScreenLayout(
                     onCreateNew = onCreateNew,
                     onRefresh = onRefresh,
                     onImportModpack = onImportModpack,
-                    onBack = onBack
+                    onBack = onBack,
+                    isSearchActive = isSearchActive
                 )
                 sideRailExtra?.invoke(this)
             }

@@ -61,6 +61,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ashmeet.hyperlauncher.components.layout.ScreenLayout
+import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
 import com.ashmeet.hyperlauncher.components.list.ProjectItemView
 import com.ashmeet.hyperlauncher.components.list.VersionList
 import com.ashmeet.hyperlauncher.components.sidebar.ProjectDetailsSidebar
@@ -170,6 +171,7 @@ fun ContentInstallerScreen(
         onRefresh = onRefresh,
         onCreateNew = onImportModpack,
         onImportModpack = { isSearchActive = !isSearchActive },
+        isSearchActive = isSearchActive,
         header = {
             AnimatedContent(
                 targetState = isSearchActive,
@@ -185,7 +187,7 @@ fun ContentInstallerScreen(
                 label = "search_transition"
             ) { active ->
                 if (active) {
-                    OutlinedTextField(
+                    HyperOutlinedTextField(
                         value = searchQuery,
                         onValueChange = {
                             searchQuery = it
@@ -196,7 +198,7 @@ fun ContentInstallerScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 8.dp),
-                        placeholder = { Text("Search content...") },
+                        label = { Text("Search content...") },
                         leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
                         singleLine = true,
                         shape = RoundedCornerShape(16.dp),

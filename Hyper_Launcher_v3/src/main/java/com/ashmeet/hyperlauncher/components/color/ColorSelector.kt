@@ -19,6 +19,7 @@ import com.ashmeet.hyperlauncher.colorpicker.components.VerticalAlphaBarPicker
 import com.ashmeet.hyperlauncher.colorpicker.components.ColorSquarePicker
 import com.ashmeet.hyperlauncher.colorpicker.components.VerticalHueBarPicker
 import com.ashmeet.hyperlauncher.colorpicker.components.TransparentChecker
+import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
 
 @Composable
 fun ColorSelectorContent(
@@ -104,7 +105,7 @@ fun ColorSelectorContent(
                 mutableStateOf(String.format("%08X", currentColor.toArgb()))
             }
 
-            OutlinedTextField(
+            HyperOutlinedTextField(
                 value = hexText,
                 onValueChange = { hex ->
                     hexText = hex

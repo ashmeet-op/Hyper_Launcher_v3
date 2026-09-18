@@ -2,6 +2,7 @@ package com.ashmeet.hyperlauncher.screens.controls
 
 import androidx.compose.foundation.Image
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
+import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -63,11 +64,11 @@ fun ImportControlScreen(
                         modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
                     )
 
-                    OutlinedTextField(
+                    HyperOutlinedTextField(
                         value = fileName,
                         onValueChange = { fileName = it },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("File name") },
+                        label = { Text("File name") },
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = MaterialTheme.colorScheme.primary,

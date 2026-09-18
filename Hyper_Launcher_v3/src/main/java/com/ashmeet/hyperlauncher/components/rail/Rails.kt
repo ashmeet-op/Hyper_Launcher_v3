@@ -180,7 +180,8 @@ fun SideRail(
     onCreateNew: () -> Unit,
     onRefresh: () -> Unit,
     onImportModpack: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    isSearchActive: Boolean = false
 ) {
     var refreshRotationTarget by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
     val refreshRotation by animateFloatAsState(
@@ -190,7 +191,6 @@ fun SideRail(
     )
 
     var fabMenuExpanded by remember { mutableStateOf(false) }
-    var isSearchToggled by remember { mutableStateOf(false) }
 
     NavigationRail(
         containerColor = Color.Transparent,
@@ -285,9 +285,8 @@ fun SideRail(
         Spacer(modifier = Modifier.height(16.dp))
 
         IconToggleButton(
-            checked = isSearchToggled,
+            checked = isSearchActive,
             onCheckedChange = {
-                isSearchToggled = it
                 onImportModpack()
             },
             modifier = Modifier.size(56.dp),

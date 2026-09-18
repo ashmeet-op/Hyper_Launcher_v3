@@ -1,6 +1,7 @@
 package com.ashmeet.hyperlauncher.screens.settings.preferences
 
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
+import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -190,12 +191,12 @@ fun TextInputDialog(
         onDismissRequest = onDismiss,
         title = { Text(text = title) },
         text = {
-            OutlinedTextField(
+            HyperOutlinedTextField(
                 value = text,
                 onValueChange = { text = it },
                 modifier = Modifier.fillMaxWidth(),
+                label = { Text(title) },
                 singleLine = true
-
             )
         },
         confirmButton = {

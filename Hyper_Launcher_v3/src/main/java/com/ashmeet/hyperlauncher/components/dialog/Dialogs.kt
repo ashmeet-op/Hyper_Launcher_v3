@@ -88,6 +88,7 @@ import com.ashmeet.hyperlauncher.components.switch.DefaultSwitch
 import com.ashmeet.hyperlauncher.components.slider.SimpleTextSlider
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
+import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
 import net.kdt.pojavlaunch.utils.KeycodeUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -114,35 +115,6 @@ fun ImePanContainer(
     content: @Composable BoxScope.() -> Unit
 ) {
     Box(modifier = modifier, contentAlignment = contentAlignment, content = content)
-}
-
-@Composable
-fun OwnOutlinedTextField(
-    value: String,
-    onValueChange: (newValue: String) -> Unit,
-    modifier: Modifier = Modifier,
-    label: @Composable (() -> Unit)? = null,
-    isError: Boolean = false,
-    supportingText: @Composable (() -> Unit)? = null,
-    singleLine: Boolean = false,
-    maxLines: Int = 3,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
-    shape: Shape = MaterialTheme.shapes.large
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = modifier,
-        label = label,
-        isError = isError,
-        supportingText = supportingText,
-        singleLine = singleLine,
-        maxLines = maxLines,
-        keyboardOptions = keyboardOptions,
-        keyboardActions = keyboardActions,
-        shape = shape
-    )
 }
 
 @Composable
@@ -635,10 +607,11 @@ fun DialogTextInput(
         onDismissRequest = onDismiss,
         title = { Text(text = title) },
         text = {
-            OutlinedTextField(
+            HyperOutlinedTextField(
                 value = text,
                 onValueChange = { text = it },
                 modifier = Modifier.fillMaxWidth(),
+                label = { Text(title) },
                 singleLine = true
             )
         },
@@ -696,7 +669,7 @@ private fun simpleEditDialogBody(
             )
         }
 
-        OwnOutlinedTextField(
+        HyperOutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             value = value,
             onValueChange = onValueChange,

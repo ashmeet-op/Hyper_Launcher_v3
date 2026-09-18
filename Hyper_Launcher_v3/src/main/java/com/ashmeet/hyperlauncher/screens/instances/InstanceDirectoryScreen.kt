@@ -45,6 +45,8 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
+import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
+import com.ashmeet.hyperlauncher.components.HyperDropdownMenu
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -320,8 +322,9 @@ fun InstanceDirectoryContent(
         onRefresh = { currentDir?.let { loadFiles(it) } },
         onCreateNew = { sidebarMenuExpanded = true },
         onImportModpack = { isSearchActive = !isSearchActive },
+        isSearchActive = isSearchActive,
         sideRailExtra = {
-            DropdownMenu(
+            HyperDropdownMenu(
                 expanded = sidebarMenuExpanded,
                 onDismissRequest = { sidebarMenuExpanded = false },
                 modifier = Modifier
@@ -375,14 +378,14 @@ fun InstanceDirectoryContent(
                 label = "search_transition"
             ) { active ->
                 if (active) {
-                    OutlinedTextField(
+                    HyperOutlinedTextField(
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
                         textStyle = MaterialTheme.typography.bodyLarge.copy(lineHeight = 24.sp),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 8.dp),
-                        placeholder = { Text("Search files...") },
+                        label = { Text("Search files...") },
                         leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
                         singleLine = true,
                         shape = RoundedCornerShape(16.dp),

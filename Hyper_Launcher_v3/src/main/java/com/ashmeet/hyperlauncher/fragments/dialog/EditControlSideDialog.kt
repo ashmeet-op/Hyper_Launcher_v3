@@ -1,6 +1,7 @@
 package com.ashmeet.hyperlauncher.fragments.dialog
 
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
+import com.ashmeet.hyperlauncher.components.HyperDropdownMenu
 
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -339,7 +340,7 @@ private fun EditControlContent(
                                             summary = allKeyNames.getOrElse(selectedIndex) { "" },
                                             onClick = { expanded = true }
                                         )
-                                        DropdownMenu(
+                                        HyperDropdownMenu(
                                             expanded = expanded,
                                             onDismissRequest = { expanded = false }) {
                                             allKeyNames.forEachIndexed { i, keyName ->

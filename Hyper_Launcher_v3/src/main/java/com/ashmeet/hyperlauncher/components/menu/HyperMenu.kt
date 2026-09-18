@@ -31,7 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorPosition
 import androidx.compose.material3.MenuDefaults
-import androidx.compose.material3.OutlinedTextField
+import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SelectableDropdownMenuItem
 import androidx.compose.material3.Surface
@@ -65,7 +65,7 @@ fun <T> HyperDropdownTextField(
     properties: PopupProperties = PopupProperties(focusable = true, clippingEnabled = false),
     containerColor: Color = Color.Unspecified,
     tonalElevation: Dp = 0.dp,
-    shadowElevation: Dp = 0.dp
+    shadowElevation: Dp = 8.dp
 ) {
     HyperGroupedDropdownTextField(
         label = label,
@@ -212,13 +212,13 @@ fun <T> HyperGroupedDropdownTextField(
     properties: PopupProperties = PopupProperties(focusable = true, clippingEnabled = false),
     containerColor: Color = Color.Unspecified,
     tonalElevation: Dp = 0.dp,
-    shadowElevation: Dp = 0.dp
+    shadowElevation: Dp = 8.dp
 ) {
     var internalExpanded by remember { mutableStateOf(false) }
     val isExpanded = expanded ?: internalExpanded
 
     Box(modifier = modifier) {
-        OutlinedTextField(
+        HyperOutlinedTextField(
             value = selectedItem?.let { itemLabel(it) } ?: "",
             onValueChange = {},
             label = { Text(label) },

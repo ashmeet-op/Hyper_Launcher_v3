@@ -31,6 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorPosition
+import androidx.compose.material3.MenuGroupShapes
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.SelectableDropdownMenuItem
 import androidx.compose.material3.Surface
@@ -326,9 +327,8 @@ fun AccountSpinnerUI(
                 Column {
                     val groupInteractionSource = remember { MutableInteractionSource() }
                     if (accounts.isNotEmpty()) {
-                        val accountShapes = MenuDefaults.groupShape(0, 1)
-                        val stableAccountShapes = remember(accountShapes) {
-                            accountShapes.copy(inactiveShape = accountShapes.shape)
+                        val stableAccountShapes = remember {
+                            MenuGroupShapes(RoundedCornerShape(12.dp), RoundedCornerShape(12.dp))
                         }
 
                         DropdownMenuGroup(

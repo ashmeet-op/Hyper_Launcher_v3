@@ -47,6 +47,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
+import com.ashmeet.hyperlauncher.components.HyperDropdownMenu
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -339,12 +340,9 @@ fun FileListItem(
                     )
                 }
 
-                DropdownMenu(
+                HyperDropdownMenu(
                     expanded = menuExpanded,
-                    onDismissRequest = { menuExpanded = false },
-                    modifier = Modifier
-                        .background(MaterialTheme.colorScheme.surface)
-                        .clip(RoundedCornerShape(12.dp))
+                    onDismissRequest = { menuExpanded = false }
                 ) {
                     DropdownMenuItem(
                         text = {
@@ -536,12 +534,9 @@ fun InstanceListItem(
                     )
                 }
 
-                DropdownMenu(
+                HyperDropdownMenu(
                     expanded = menuExpanded,
-                    onDismissRequest = { menuExpanded = false },
-                    modifier = Modifier
-                        .background(MaterialTheme.colorScheme.surface)
-                        .clip(RoundedCornerShape(12.dp))
+                    onDismissRequest = { menuExpanded = false }
                 ) {
                     DropdownMenuItem(
                         text = {
