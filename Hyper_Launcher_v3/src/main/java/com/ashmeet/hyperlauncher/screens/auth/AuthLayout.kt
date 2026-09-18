@@ -8,7 +8,6 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,6 +47,7 @@ import androidx.compose.material3.ToggleFloatingActionButton
 import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -169,31 +169,19 @@ fun AuthLayout(
         contentColor = MaterialTheme.colorScheme.onBackground
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            val animationSpec = androidx.compose.animation.core.tween<androidx.compose.ui.unit.Dp>(500)
-            val weightAnimationSpec = androidx.compose.animation.core.tween<Float>(500)
-
-            val animatedPadding by animateDpAsState(
-                targetValue = if (isFullScreen) 0.dp else 16.dp,
-                animationSpec = animationSpec,
-                label = "PaddingAnimation"
-            )
-
             val sideWeight by animateFloatAsState(
                 targetValue = if (isFullScreen) 0.001f else 1.0f,
-                animationSpec = weightAnimationSpec,
                 label = "SideWeightAnimation"
             )
 
             val mainWeight by animateFloatAsState(
                 targetValue = if (isFullScreen) 1.0f else 1.2f,
-                animationSpec = weightAnimationSpec,
                 label = "MainWeightAnimation"
             )
 
-            val spacerWidth by animateDpAsState(
+            val animatedPadding by animateDpAsState(
                 targetValue = if (isFullScreen) 0.dp else 16.dp,
-                animationSpec = animationSpec,
-                label = "SpacerAnimation"
+                label = "PaddingAnimation"
             )
 
             Row(
@@ -374,7 +362,9 @@ fun AuthLayout(
                     }
                 }
 
-                Spacer(modifier = Modifier.width(spacerWidth))
+                if (!isFullScreen) {
+                    Spacer(modifier = Modifier.width(16.dp))
+                }
 
                 Box(
                     modifier = Modifier
