@@ -23,6 +23,7 @@ import com.ashmeet.hyperlauncher.theme.PojavTheme
 fun MicrosoftLoginScreen(
     authUrl: String,
     trackedUrl: String,
+    isFullScreen: Boolean = false,
     onCompletion: (String) -> Unit,
     onWebViewCreated: (WebView) -> Unit = {}
 ) {
@@ -34,7 +35,7 @@ fun MicrosoftLoginScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .clip(RoundedCornerShape(24.dp))
+                .then(if (isFullScreen) Modifier else Modifier.clip(RoundedCornerShape(24.dp)))
                 .background(MaterialTheme.colorScheme.surface)
         ) {
             AndroidView(

@@ -35,6 +35,7 @@ class ElyByLoginFragment : Fragment() {
                     MicrosoftLoginScreen(
                         authUrl = mAuthUrl,
                         trackedUrl = mTrackedUrl,
+                        isFullScreen = true,
                         onCompletion = { fullUrl -> handleCompletion(fullUrl) },
                         onWebViewCreated = { mWebView = it }
                     )

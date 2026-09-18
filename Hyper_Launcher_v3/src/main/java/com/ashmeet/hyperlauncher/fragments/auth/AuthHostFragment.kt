@@ -17,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.fragment.app.FragmentManager
 import com.ashmeet.hyperlauncher.screens.auth.AuthLayout
 import com.ashmeet.hyperlauncher.fragments.auth.MicrosoftLoginFragment
+import com.ashmeet.hyperlauncher.fragments.auth.ElyByLoginFragment
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.ashmeet.hyperlauncher.R
 
@@ -46,7 +47,7 @@ class AuthHostFragment : Fragment() {
                 var backStackCount by remember { mutableStateOf(fm.backStackEntryCount) }
                 var currentFragment by remember { mutableStateOf(fm.findFragmentById(R.id.container_fragment_auth)) }
                 val isFullScreen by remember {
-                    derivedStateOf { currentFragment is MicrosoftLoginFragment }
+                    derivedStateOf { currentFragment is MicrosoftLoginFragment || currentFragment is ElyByLoginFragment }
                 }
 
                 DisposableEffect(fm) {
