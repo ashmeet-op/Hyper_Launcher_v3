@@ -30,11 +30,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.FileUpload
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FloatingActionButtonMenuItem
+import androidx.compose.material3.FloatingActionButtonMenuScope
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
@@ -53,7 +56,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -108,6 +116,15 @@ fun ContentInstallerScreen(
 
     val handleBack = {
         if (viewingProject != null) {
+            isSearchActive = false
+            searchQuery = ""
+            onSearch(
+                "",
+                selectedType,
+                selectedVersion,
+                selectedLoader,
+                selectedSource
+            )
             onBackToProjects()
         } else if (isSearchActive) {
             isSearchActive = false
@@ -194,9 +211,20 @@ fun ContentInstallerScreen(
     ScreenLayout(
         onBack = handleBack,
         onRefresh = onRefresh,
-        onCreateNew = onImportModpack,
         onImportModpack = { isSearchActive = !isSearchActive },
         isSearchActive = isSearchActive,
+        fabMenuContent = { onDismiss ->
+            FloatingActionButtonMenuItem(
+                onClick = {
+                    onDismiss()
+                    onImportModpack()
+                },
+                icon = { Icon(Icons.Rounded.FileUpload, contentDescription = null) },
+                text = { Text(text = translatedText("Import File")) },
+                containerColor = MaterialTheme.colorScheme.onSurface,
+                contentColor = MaterialTheme.colorScheme.surface
+            )
+        },
         header = {
             AnimatedContent(
                 targetState = isSearchActive,
@@ -245,7 +273,29 @@ fun ContentInstallerScreen(
                 } else {
                     ScrollableTabRow(
                         selectedTabIndex = ContentInstallerType.entries.indexOf(selectedType),
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
+                            .drawWithContent {
+                                drawContent()
+                                val fadeWidth = 32.dp.toPx()
+                                drawRect(
+                                    brush = Brush.horizontalGradient(
+                                        colors = listOf(Color.Transparent, Color.Black),
+                                        startX = 0f,
+                                        endX = fadeWidth
+                                    ),
+                                    blendMode = BlendMode.DstIn
+                                )
+                                drawRect(
+                                    brush = Brush.horizontalGradient(
+                                        colors = listOf(Color.Black, Color.Transparent),
+                                        startX = size.width - fadeWidth,
+                                        endX = size.width
+                                    ),
+                                    blendMode = BlendMode.DstIn
+                                )
+                            },
                         containerColor = Color.Transparent,
                         edgePadding = 0.dp,
                         divider = {},

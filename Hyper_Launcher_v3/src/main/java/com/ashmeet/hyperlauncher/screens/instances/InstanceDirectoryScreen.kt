@@ -35,6 +35,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FloatingActionButtonMenuItem
+import androidx.compose.material3.FloatingActionButtonMenuScope
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
@@ -318,48 +320,29 @@ fun InstanceDirectoryContent(
             }
         },
         onRefresh = { currentDir?.let { loadFiles(it) } },
-        onCreateNew = { sidebarMenuExpanded = true },
         onImportModpack = { isSearchActive = !isSearchActive },
         isSearchActive = isSearchActive,
-        sideRailExtra = {
-            HyperDropdownMenu(
-                expanded = sidebarMenuExpanded,
-                onDismissRequest = { sidebarMenuExpanded = false },
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(start = 72.dp, bottom = 80.dp)
-            ) {
-                DropdownMenuItem(
-                    text = { Text("New Folder") },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Rounded.FolderOpen,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    },
-                    onClick = {
-                        sidebarMenuExpanded = false
-                        showNewFolderDialog = true
-                    }
-                )
-                DropdownMenuItem(
-                    text = { Text("Import File") },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.InsertDriveFile,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    },
-                    onClick = {
-                        sidebarMenuExpanded = false
-                        importFileLauncher.launch("*/*")
-                    }
-                )
-            }
+        fabMenuContent = { onDismiss ->
+            FloatingActionButtonMenuItem(
+                onClick = {
+                    onDismiss()
+                    showNewFolderDialog = true
+                },
+                icon = { Icon(Icons.Rounded.FolderOpen, contentDescription = null) },
+                text = { Text(text = translatedText("New Folder")) },
+                containerColor = MaterialTheme.colorScheme.onSurface,
+                contentColor = MaterialTheme.colorScheme.surface
+            )
+            FloatingActionButtonMenuItem(
+                onClick = {
+                    onDismiss()
+                    importFileLauncher.launch("*/*")
+                },
+                icon = { Icon(Icons.AutoMirrored.Rounded.InsertDriveFile, contentDescription = null) },
+                text = { Text(text = translatedText("Import File")) },
+                containerColor = MaterialTheme.colorScheme.onSurface,
+                contentColor = MaterialTheme.colorScheme.surface
+            )
         },
         header = {
             AnimatedContent(

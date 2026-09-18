@@ -106,7 +106,12 @@ object ModrinthService {
             description = response.get("description").asString,
             iconUrl = response.get("icon_url")?.let { if (it.isJsonNull) null else it.asString },
             fullDescription = response.get("body")?.asString,
-            gallery = response.getAsJsonArray("gallery")?.map { it.asJsonObject.get("url").asString } ?: emptyList()
+            gallery = response.getAsJsonArray("gallery")?.map { it.asJsonObject.get("url").asString } ?: emptyList(),
+            sourceUrl = response.get("source_url")?.let { if (it.isJsonNull) null else it.asString },
+            discordUrl = response.get("discord_url")?.let { if (it.isJsonNull) null else it.asString },
+            wikiUrl = response.get("wiki_url")?.let { if (it.isJsonNull) null else it.asString },
+            issuesUrl = response.get("issues_url")?.let { if (it.isJsonNull) null else it.asString },
+            websiteUrl = response.get("website_url")?.let { if (it.isJsonNull) null else it.asString }
         )
     }
 

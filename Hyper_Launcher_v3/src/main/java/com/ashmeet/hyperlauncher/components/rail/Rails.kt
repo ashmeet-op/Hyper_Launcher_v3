@@ -3,6 +3,7 @@ package com.ashmeet.hyperlauncher.components.rail
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
@@ -36,6 +37,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButtonMenu
+import androidx.compose.material3.FloatingActionButtonMenuScope
 import androidx.compose.material3.ToggleFloatingActionButton
 import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
 import androidx.compose.runtime.getValue
@@ -177,11 +179,11 @@ fun SideNavigationRail(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SideRail(
-    onCreateNew: () -> Unit,
     onRefresh: () -> Unit,
     onImportModpack: () -> Unit,
     onBack: () -> Unit,
-    isSearchActive: Boolean = false
+    isSearchActive: Boolean = false,
+    fabMenuContent: @Composable FloatingActionButtonMenuScope.(() -> Unit) -> Unit = {}
 ) {
     var refreshRotationTarget by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
     val refreshRotation by animateFloatAsState(
@@ -226,9 +228,6 @@ fun SideRail(
                         checked = fabMenuExpanded,
                         onCheckedChange = { 
                             fabMenuExpanded = !fabMenuExpanded
-                            if (fabMenuExpanded) {
-                                onCreateNew()
-                            }
                         },
                         modifier = Modifier.size(56.dp),
                         containerSize = { 56.dp },
@@ -258,8 +257,7 @@ fun SideRail(
                     }
                 }
             ) {
-                // Keep the structural content of the menu empty or minimal since it handles a single callback,
-                // matching the custom fab style menu pattern provided.
+                fabMenuContent { fabMenuExpanded = false }
             }
         }
 

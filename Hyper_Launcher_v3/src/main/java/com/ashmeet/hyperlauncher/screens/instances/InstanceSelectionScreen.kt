@@ -18,10 +18,13 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.FileUpload
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
@@ -138,8 +141,28 @@ private fun InstanceSelectionContent(
     ScreenLayout(
         onBack = onBack,
         onRefresh = onRefresh,
-        onCreateNew = onCreateNew,
-        onImportModpack = onImportModpack,
+        fabMenuContent = @Composable { onDismiss ->
+            FloatingActionButtonMenuItem(
+                onClick = {
+                    onDismiss()
+                    onCreateNew()
+                },
+                icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
+                text = { Text(text = translatedText("Create New")) },
+                containerColor = MaterialTheme.colorScheme.onSurface,
+                contentColor = MaterialTheme.colorScheme.surface
+            )
+            FloatingActionButtonMenuItem(
+                onClick = {
+                    onDismiss()
+                    onImportModpack()
+                },
+                icon = { Icon(Icons.Rounded.FileUpload, contentDescription = null) },
+                text = { Text(text = translatedText("Import Modpack")) },
+                containerColor = MaterialTheme.colorScheme.onSurface,
+                contentColor = MaterialTheme.colorScheme.surface
+            )
+        },
         header = {
             TabRow(
                 selectedTabIndex = selectedTab,

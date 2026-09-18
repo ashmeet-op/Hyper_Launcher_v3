@@ -31,7 +31,12 @@ data class ModrinthProject(
     var iconBitmap: Bitmap? = null,
     var isIconLoading: Boolean = false,
     val fullDescription: String? = null,
-    val gallery: List<String> = emptyList()
+    val gallery: List<String> = emptyList(),
+    val sourceUrl: String? = null,
+    val discordUrl: String? = null,
+    val wikiUrl: String? = null,
+    val issuesUrl: String? = null,
+    val websiteUrl: String? = null
 )
 
 data class ModrinthVersion(

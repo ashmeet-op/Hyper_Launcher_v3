@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.FloatingActionButtonMenuScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -25,10 +26,10 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreference
 fun ScreenLayout(
     onBack: () -> Unit,
     onRefresh: () -> Unit,
-    onCreateNew: () -> Unit = {},
     onImportModpack: () -> Unit = {},
     isSearchActive: Boolean = false,
     sideRailExtra: @Composable (BoxScope.() -> Unit)? = null,
+    fabMenuContent: @Composable FloatingActionButtonMenuScope.(() -> Unit) -> Unit = {},
     header: @Composable () -> Unit = {},
     sidebar: @Composable (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
@@ -41,11 +42,11 @@ fun ScreenLayout(
         Row(modifier = Modifier.fillMaxSize()) {
             Box {
                 SideRail(
-                    onCreateNew = onCreateNew,
                     onRefresh = onRefresh,
                     onImportModpack = onImportModpack,
                     onBack = onBack,
-                    isSearchActive = isSearchActive
+                    isSearchActive = isSearchActive,
+                    fabMenuContent = fabMenuContent
                 )
                 sideRailExtra?.invoke(this)
             }

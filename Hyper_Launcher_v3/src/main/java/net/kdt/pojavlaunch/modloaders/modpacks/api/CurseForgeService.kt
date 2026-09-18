@@ -131,13 +131,23 @@ object CurseForgeService {
             it.asJsonObject.get("url").asString 
         } ?: emptyList()
 
+        val linksObj = data.getAsJsonObject("links")
+        val websiteUrl = linksObj?.get("websiteUrl")?.let { if (it.isJsonNull) null else it.asString }
+        val wikiUrl = linksObj?.get("wikiUrl")?.let { if (it.isJsonNull) null else it.asString }
+        val issuesUrl = linksObj?.get("issuesUrl")?.let { if (it.isJsonNull) null else it.asString }
+        val sourceUrl = linksObj?.get("sourceUrl")?.let { if (it.isJsonNull) null else it.asString }
+
         ModrinthProject(
             id = data.get("id").asString,
             title = data.get("name").asString,
             description = data.get("summary").asString,
             iconUrl = data.getAsJsonObject("logo")?.get("thumbnailUrl")?.asString,
             fullDescription = data.get("summary").asString,
-            gallery = gallery
+            gallery = gallery,
+            websiteUrl = websiteUrl,
+            wikiUrl = wikiUrl,
+            issuesUrl = issuesUrl,
+            sourceUrl = sourceUrl
         )
     }
 
