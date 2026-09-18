@@ -8,6 +8,12 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.fragment.app.FragmentManager
 import com.ashmeet.hyperlauncher.screens.auth.AuthLayout
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.ashmeet.hyperlauncher.R
@@ -34,10 +40,25 @@ class AuthHostFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return ComposeView(requireContext()).apply {
             setContent {
+                val fm = childFragmentManager
+                var backStackCount by remember { mutableStateOf(fm.backStackEntryCount) }
+
+                DisposableEffect(fm) {
+                    val listener = FragmentManager.OnBackStackChangedListener {
+                        backStackCount = fm.backStackEntryCount
+                    }
+                    fm.addOnBackStackChangedListener(listener)
+                    onDispose {
+                        fm.removeOnBackStackChangedListener(listener)
+                    }
+                }
+
                 PojavTheme {
                     AuthLayout(
                         title = translatedText("Login"),
-                        onBack = { requireActivity().onBackPressedDispatcher.onBackPressed() },
+                        onBack = if (backStackCount > 0) {
+                            { requireActivity().onBackPressedDispatcher.onBackPressed() }
+                        } else null,
                         onFragmentViewCreated = {
                             val fm = childFragmentManager
                             if (fm.findFragmentById(R.id.container_fragment_auth) == null) {

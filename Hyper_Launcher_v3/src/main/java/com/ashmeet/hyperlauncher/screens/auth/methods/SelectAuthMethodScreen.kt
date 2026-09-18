@@ -16,12 +16,38 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ashmeet.hyperlauncher.components.button.MineButton
-
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SportsEsports
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.graphics.SolidColor
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.ashmeet.hyperlauncher.R
+
+private val ElyByIcon = ImageVector.Builder(
+    name = "ElyBy",
+    defaultWidth = 24.dp,
+    defaultHeight = 24.dp,
+    viewportWidth = 24f,
+    viewportHeight = 24f
+).apply {
+    path(fill = SolidColor(Color.Black)) {
+        moveTo(6f, 4f)
+        verticalLineTo(20f)
+        horizontalLineTo(18f)
+        verticalLineTo(17f)
+        horizontalLineTo(9f)
+        verticalLineTo(13f)
+        horizontalLineTo(16f)
+        verticalLineTo(10f)
+        horizontalLineTo(9f)
+        verticalLineTo(7f)
+        horizontalLineTo(18f)
+        verticalLineTo(4f)
+        close()
+    }
+}.build()
 
 @Composable
 fun SelectAuthMethodScreen(
@@ -47,14 +73,18 @@ fun SelectAuthMethodScreen(
                 text = translatedText(stringResource(R.string.auth_select_microsoft)),
                 onClick = onMicrosoftClick,
                 icon = painterResource(R.drawable.ic_auth_ms),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                height = 60.dp,
+                tintIcon = true
             )
             Spacer(modifier = Modifier.height(16.dp))
             MineButton(
                 text = translatedText(stringResource(R.string.auth_select_elyby)),
                 onClick = onElyByClick,
-                icon = painterResource(R.drawable.ic_auth_elyby),
-                modifier = Modifier.fillMaxWidth()
+                icon = rememberVectorPainter(ElyByIcon),
+                modifier = Modifier.fillMaxWidth(),
+                height = 60.dp,
+                tintIcon = true
             )
             Spacer(modifier = Modifier.height(16.dp))
             MineButton(
@@ -62,6 +92,7 @@ fun SelectAuthMethodScreen(
                 onClick = onLocalClick,
                 icon = rememberVectorPainter(Icons.Default.SportsEsports),
                 modifier = Modifier.fillMaxWidth(),
+                height = 60.dp,
                 tintIcon = true
             )
         }

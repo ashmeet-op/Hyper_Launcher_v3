@@ -1,24 +1,43 @@
 package com.ashmeet.hyperlauncher.screens.auth
 
+
 import android.widget.FrameLayout
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.AddReaction
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Sell
+import androidx.compose.material3.FloatingActionButtonMenu
+import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.ToggleFloatingActionButton
+import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -28,45 +47,26 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.skin.SkinPreview
+import com.ashmeet.hyperlauncher.skin.model.SkinModelType
 import com.ashmeet.hyperlauncher.utils.SkinUtils
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.authenticator.AuthType
 import net.kdt.pojavlaunch.authenticator.accounts.Accounts
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
-
-import androidx.compose.material3.FloatingActionButtonMenu
-import androidx.compose.material3.FloatingActionButtonMenuItem
-import androidx.compose.material3.ToggleFloatingActionButton
-
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Texture
-
-
-
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.compose.material3.ToggleButton
-import androidx.compose.ui.platform.LocalContext
 import net.kdt.pojavlaunch.contracts.OpenDocumentWithExtension
-import java.io.File
-import java.io.FileOutputStream
 import net.kdt.pojavlaunch.extra.ExtraConstants
 import net.kdt.pojavlaunch.extra.ExtraCore
 import net.kdt.pojavlaunch.extra.ExtraListener
+import java.io.File
+import java.io.FileOutputStream
 
 @Composable
 fun AuthLayout(
@@ -82,21 +82,27 @@ fun AuthLayout(
     var skinModel by remember(currentAccount) {
         mutableStateOf(SkinUtils.getModelType(currentAccount))
     }
-    var customSkinPath by remember { mutableStateOf<String?>(null) }
-    var customCapePath by remember { mutableStateOf<String?>(null) }
+    var customSkinPath by remember(currentAccount) { mutableStateOf(currentAccount?.skinPath) }
+    var customCapePath by remember(currentAccount) { mutableStateOf(currentAccount?.capePath) }
 
     val skinPickerLauncher = rememberLauncherForActivityResult(
         contract = OpenDocumentWithExtension("image/png")
     ) { uri ->
         uri?.let {
-            val skinFile = File(context.cacheDir, "skin_import_temp_${System.currentTimeMillis()}.png")
+            val skinFile = File(context.filesDir, "skins/skin_${currentAccount?.username}_${System.currentTimeMillis()}.png")
+            skinFile.parentFile?.mkdirs()
             try {
                 context.contentResolver.openInputStream(it)?.use { input ->
                     FileOutputStream(skinFile).use { output ->
                         input.copyTo(output)
                     }
                 }
-                customSkinPath = skinFile.absolutePath
+                val path = skinFile.absolutePath
+                customSkinPath = path
+                currentAccount?.let { acc ->
+                    acc.skinPath = path
+                    acc.save()
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -107,14 +113,20 @@ fun AuthLayout(
         contract = OpenDocumentWithExtension("image/png")
     ) { uri ->
         uri?.let {
-            val capeFile = File(context.cacheDir, "cape_import_temp_${System.currentTimeMillis()}.png")
+            val capeFile = File(context.filesDir, "capes/cape_${currentAccount?.username}_${System.currentTimeMillis()}.png")
+            capeFile.parentFile?.mkdirs()
             try {
                 context.contentResolver.openInputStream(it)?.use { input ->
                     FileOutputStream(capeFile).use { output ->
                         input.copyTo(output)
                     }
                 }
-                customCapePath = capeFile.absolutePath
+                val path = capeFile.absolutePath
+                customCapePath = path
+                currentAccount?.let { acc ->
+                    acc.capePath = path
+                    acc.save()
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -152,22 +164,44 @@ fun AuthLayout(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    SkinPreview(
+                    var fabMenuExpanded by remember { mutableStateOf(false) }
+                    val modelAlpha by animateFloatAsState(if (fabMenuExpanded) 0.3f else 1.0f)
+
+                    Box(
                         modifier = Modifier
                             .weight(1.0f)
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(16.dp)),
-                        skinUrl = customSkinPath?.let { "file://$it" } ?: SkinUtils.getSkinUrl(currentAccount),
-                        model = skinModel,
-                        capeUrl = customCapePath?.let { "file://$it" } ?: when (currentAccount?.authType) {
-                            AuthType.MICROSOFT -> "https://crafatar.com/capes/${currentAccount?.profileId}"
-                            AuthType.ELY_BY -> "http://skinsystem.ely.by/capes/${currentAccount?.username}.png"
-                            AuthType.LOCAL -> currentAccount?.capePath?.let { "file://$it" }
-                            else -> null
-                        }
-                    )
+                            .graphicsLayer(alpha = modelAlpha)
+                    ) {
+                        SkinPreview(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            skinUrl = customSkinPath?.let { "file://$it" } ?: SkinUtils.getSkinUrl(currentAccount),
+                            model = skinModel,
+                            capeUrl = customCapePath?.let { "file://$it" } ?: currentAccount?.capePath?.let { "file://$it" } ?: when (currentAccount?.authType) {
+                                AuthType.MICROSOFT -> "https://crafatar.com/capes/${currentAccount?.profileId}"
+                                AuthType.ELY_BY -> "http://skinsystem.ely.by/capes/${currentAccount?.username}.png"
+                                else -> null
+                            }
+                        )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(120.dp)
+                                .align(Alignment.BottomCenter)
+                                .background(
+                                    brush = Brush.verticalGradient(
+                                        colors = listOf(
+                                            Color.Transparent,
+                                            MaterialTheme.colorScheme.background
+                                        )
+                                    )
+                                )
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -181,7 +215,17 @@ fun AuthLayout(
                             options.forEachIndexed { index, option ->
                                 SegmentedButton(
                                     selected = skinModel == option,
-                                    onClick = { skinModel = option },
+                                    onClick = {
+                                        skinModel = option
+                                        currentAccount?.let { acc ->
+                                            acc.skinModel = if (option == "slim") SkinModelType.ALEX else SkinModelType.STEVE
+                                            try {
+                                                acc.save()
+                                            } catch (e: Exception) {
+                                                e.printStackTrace()
+                                            }
+                                        }
+                                    },
                                     shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
                                     label = { Text(if (option == "slim") translatedText("Slim") else translatedText("Wide")) },
                                     modifier = Modifier.height(40.dp)
@@ -189,7 +233,6 @@ fun AuthLayout(
                             }
                         }
 
-                        var fabMenuExpanded by remember { mutableStateOf(false) }
                         val fabMenuStartColor = MaterialTheme.colorScheme.secondary
                         val fabMenuEndColor = MaterialTheme.colorScheme.surface
                         val fabMenuIconStartColor = MaterialTheme.colorScheme.onSecondary
@@ -202,7 +245,7 @@ fun AuthLayout(
                                 modifier = Modifier
                                     .align(Alignment.BottomCenter)
                                     .wrapContentSize(align = Alignment.BottomCenter, unbounded = true)
-                                    .offset(y = 16.dp), // Compensate for internal FabMenuButtonPaddingBottom
+                                    .offset(y = 16.dp),
                                 expanded = fabMenuExpanded,
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 button = {
@@ -241,16 +284,20 @@ fun AuthLayout(
                                         fabMenuExpanded = false
                                         skinPickerLauncher.launch(null)
                                     },
-                                    icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
-                                    text = { Text(text = translatedText("Add Skin")) }
+                                    icon = { Icon(Icons.Rounded.AddReaction, contentDescription = null) },
+                                    text = { Text(text = translatedText("Add Skin")) },
+                                    containerColor = MaterialTheme.colorScheme.surface,
+                                    contentColor = MaterialTheme.colorScheme.onSurface
                                 )
                                 FloatingActionButtonMenuItem(
                                     onClick = {
                                         fabMenuExpanded = false
                                         capePickerLauncher.launch(null)
                                     },
-                                    icon = { Icon(Icons.Rounded.Texture, contentDescription = null) },
-                                    text = { Text(text = translatedText("Add Cape")) }
+                                    icon = { Icon(Icons.Rounded.Sell, contentDescription = null) },
+                                    text = { Text(text = translatedText("Add Cape")) },
+                                    containerColor = MaterialTheme.colorScheme.surface,
+                                    contentColor = MaterialTheme.colorScheme.onSurface
                                 )
                             }
                         }

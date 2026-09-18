@@ -24,7 +24,7 @@ object SkinUtils {
 
     fun getSkinUrl(account: Account?): String? {
         if (account == null) return null
-        if (account.authType == AuthType.LOCAL && !account.skinPath.isNullOrEmpty()) {
+        if (!account.skinPath.isNullOrEmpty()) {
             return "file://${account.skinPath}"
         }
 
