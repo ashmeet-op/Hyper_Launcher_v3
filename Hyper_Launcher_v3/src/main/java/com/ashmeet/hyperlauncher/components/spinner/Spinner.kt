@@ -336,7 +336,7 @@ fun AccountSpinnerUI(
                             interactionSource = groupInteractionSource,
                             containerColor = MaterialTheme.colorScheme.surface,
                             tonalElevation = 0.dp,
-                            shadowElevation = 8.dp,
+                            shadowElevation = 12.dp,
                             contentPadding = PaddingValues(vertical = 4.dp),
                             modifier = Modifier
                                 .width(300.dp)

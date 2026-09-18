@@ -138,6 +138,9 @@ object LauncherPreferences {
     var PREF_SKIP_NOTIFICATION_PERMISSION_CHECK = false
 
     @JvmField
+    var PREF_SKIP_INCOMPATIBLE_WARNING = false
+
+    @JvmField
     var PREF_VSYNC_IN_ZINK = true
 
     @JvmField
@@ -372,6 +375,7 @@ object LauncherPreferences {
         PREF_DOWNLOAD_SOURCE = pref.getString("downloadSource", "default") ?: "default"
         PREF_VERIFY_MANIFEST = pref.getBoolean("verifyManifest", true)
         PREF_SKIP_NOTIFICATION_PERMISSION_CHECK = pref.getBoolean(PREF_KEY_SKIP_NOTIFICATION_CHECK, false)
+        PREF_SKIP_INCOMPATIBLE_WARNING = pref.getBoolean("skipIncompatibleWarning", false)
         PREF_VSYNC_IN_ZINK = pref.getBoolean("vsync_in_zink", true)
         PREF_FULLSCREEN_LAUNCHER = pref.getBoolean("fullscreen_launcher", true)
         PREF_DYNAMIC_ORIENTATION = pref.getBoolean("dynamic_orientation", false)

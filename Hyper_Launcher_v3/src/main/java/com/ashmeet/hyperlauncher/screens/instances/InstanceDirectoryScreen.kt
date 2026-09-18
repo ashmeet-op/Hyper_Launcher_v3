@@ -15,10 +15,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -26,10 +24,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.FolderOpen
-import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.AlertDialog
@@ -404,7 +402,9 @@ fun InstanceDirectoryContent(
                         indicator = { tabPositions ->
                             if (selectedTab < tabPositions.size) {
                                 TabRowDefaults.SecondaryIndicator(
-                                    modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
+                                    modifier = Modifier
+                                        .tabIndicatorOffset(tabPositions[selectedTab])
+                                        .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp)),
                                     height = 3.dp,
                                     color = MaterialTheme.colorScheme.primary
                                 )
@@ -446,33 +446,11 @@ fun InstanceDirectoryContent(
             } else if (filteredFiles.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = Icons.Rounded.Warning,
-                            contentDescription = null,
-                            modifier = Modifier.size(64.dp),
-                            tint = MaterialTheme.colorScheme.error.copy(alpha = 0.5f)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = if (searchQuery.isNotEmpty()) "No results found" else "This folder is empty",
+                            text = if (searchQuery.isNotEmpty()) "No files found for \"$searchQuery\"" else "This folder is empty",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-
-                        Spacer(modifier = Modifier.height(24.dp))
-
-                        TextButton(
-                            onClick = { currentDir?.let { loadFiles(it) } },
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.textButtonColors(
-                                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                            )
-                        ) {
-                            Icon(Icons.Rounded.Refresh, contentDescription = null, modifier = Modifier.size(20.dp))
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Refresh")
-                        }
-
                     }
                 }
             } else {

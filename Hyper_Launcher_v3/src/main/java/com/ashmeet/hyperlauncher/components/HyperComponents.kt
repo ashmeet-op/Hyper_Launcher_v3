@@ -87,7 +87,7 @@ fun HyperDropdownMenu(
         shape = RoundedCornerShape(12.dp),
         containerColor = MaterialTheme.colorScheme.surface,
         tonalElevation = 0.dp,
-        shadowElevation = 8.dp,
+        shadowElevation = 12.dp,
         content = content
     )
 }

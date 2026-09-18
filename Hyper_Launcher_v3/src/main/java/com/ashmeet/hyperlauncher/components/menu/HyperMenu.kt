@@ -65,7 +65,7 @@ fun <T> HyperDropdownTextField(
     properties: PopupProperties = PopupProperties(focusable = true, clippingEnabled = false),
     containerColor: Color = Color.Unspecified,
     tonalElevation: Dp = 0.dp,
-    shadowElevation: Dp = 8.dp
+    shadowElevation: Dp = 12.dp
 ) {
     HyperGroupedDropdownTextField(
         label = label,
@@ -147,7 +147,7 @@ fun <T> HyperSpinner(
                 shape = RoundedCornerShape(12.dp),
                 color = MaterialTheme.colorScheme.surface,
                 tonalElevation = 0.dp,
-                shadowElevation = 8.dp
+                shadowElevation = 12.dp
             ) {
                 Box(
                     modifier = Modifier
@@ -212,7 +212,7 @@ fun <T> HyperGroupedDropdownTextField(
     properties: PopupProperties = PopupProperties(focusable = true, clippingEnabled = false),
     containerColor: Color = Color.Unspecified,
     tonalElevation: Dp = 0.dp,
-    shadowElevation: Dp = 8.dp
+    shadowElevation: Dp = 12.dp
 ) {
     var internalExpanded by remember { mutableStateOf(false) }
     val isExpanded = expanded ?: internalExpanded

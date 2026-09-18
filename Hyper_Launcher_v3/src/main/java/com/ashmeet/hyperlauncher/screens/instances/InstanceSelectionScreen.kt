@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Warning
@@ -146,7 +147,9 @@ private fun InstanceSelectionContent(
                 indicator = { tabPositions ->
                     if (selectedTab < tabPositions.size) {
                         TabRowDefaults.SecondaryIndicator(
-                            modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
+                            modifier = Modifier
+                                .tabIndicatorOffset(tabPositions[selectedTab])
+                                .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp)),
                             height = 3.dp,
                             color = MaterialTheme.colorScheme.primary
                         )
