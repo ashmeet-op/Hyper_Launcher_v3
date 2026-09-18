@@ -320,9 +320,18 @@ function loadCape(capeUrl) {
     }
 }
 
+function setBackEquipment(type) {
+    if (type === "elytra") {
+        skinViewer.backEquipment = "elytra";
+    } else {
+        skinViewer.backEquipment = "cape";
+    }
+}
+
 // Ensure functions are exposed to WebView
 window.loadSkin = loadSkin;
 window.loadCape = loadCape;
+window.setBackEquipment = setBackEquipment;
 window.startAnim = startAnim;
 window.setAzimuthAndPitch = setAzimuthAndPitch;
 window.resize = resize;

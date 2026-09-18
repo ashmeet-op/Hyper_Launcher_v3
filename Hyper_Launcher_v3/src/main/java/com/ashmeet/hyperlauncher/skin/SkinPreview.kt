@@ -24,6 +24,7 @@ fun SkinPreview(
     modifier: Modifier = Modifier,
     skinUrl: String? = null,
     capeUrl: String? = null,
+    backEquipment: String = "cape",
     animation: String = "NewIdle",
     model: String = "default",
     onLoadingStateChanged: (Boolean) -> Unit = {},
@@ -106,7 +107,7 @@ fun SkinPreview(
                         ""
                     }
 
-                    view?.evaluateJavascript("loadSkin('$finalSkinUrl', '$model'); loadCape('$finalCapeUrl'); startAnim('$animation');", null)
+                    view?.evaluateJavascript("loadSkin('$finalSkinUrl', '$model'); loadCape('$finalCapeUrl'); setBackEquipment('$backEquipment'); startAnim('$animation');", null)
                     }
                 }
 
@@ -138,6 +139,7 @@ fun SkinPreview(
 
                 webView.evaluateJavascript("loadSkin('$skin', '$model');", null)
                 webView.evaluateJavascript("loadCape('$cape');", null)
+                webView.evaluateJavascript("setBackEquipment('$backEquipment');", null)
                 webView.evaluateJavascript("startAnim('$animation');", null)
                 webView.evaluateJavascript("resize();", null)
             }

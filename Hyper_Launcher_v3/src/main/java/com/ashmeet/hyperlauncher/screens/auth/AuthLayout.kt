@@ -8,6 +8,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.AddReaction
+import androidx.compose.material.icons.rounded.Animation
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Sell
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -58,6 +60,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.edit
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.skin.SkinPreview
 import com.ashmeet.hyperlauncher.skin.model.SkinModelType
@@ -81,6 +84,13 @@ fun AuthLayout(
     onBack: (() -> Unit)? = null,
     onFragmentViewCreated: (FrameLayout) -> Unit
 ) {
+    val animations = listOf("NewIdle", "DefaultIdle", "Walking", "Running", "Flying", "Wave", "Crouch", "Hit")
+    var currentAnimation by remember { mutableStateOf(LauncherPreferences.PREF_SKIN_ANIMATION) }
+    val backEquipment by remember {
+        derivedStateOf { if (currentAnimation == "Flying") "elytra" else "cape" }
+    }
+    var showAnimationDialog by remember { mutableStateOf(false) }
+
     var isLoadingSkin by remember { mutableStateOf(true) }
     var currentAccount by remember {
         mutableStateOf(try { Accounts.getCurrent() } catch (_: Exception) { null })
@@ -220,6 +230,8 @@ fun AuthLayout(
                                     .fillMaxSize(),
                                 skinUrl = customSkinPath?.let { "file://$it" } ?: SkinUtils.getSkinUrl(currentAccount),
                                 model = skinModel,
+                                animation = currentAnimation,
+                                backEquipment = backEquipment,
                                 capeUrl = customCapePath?.let { "file://$it" } ?: currentAccount?.capePath?.let { "file://$it" } ?: when (currentAccount?.authType) {
                                     AuthType.MICROSOFT -> "https://crafatar.com/capes/${currentAccount?.profileId}"
                                     AuthType.ELY_BY -> "http://skinsystem.ely.by/capes/${currentAccount?.username}.png"
@@ -346,6 +358,16 @@ fun AuthLayout(
                                         containerColor = MaterialTheme.colorScheme.onSurface,
                                         contentColor = MaterialTheme.colorScheme.surface
                                     )
+                                    FloatingActionButtonMenuItem(
+                                        onClick = {
+                                            fabMenuExpanded = false
+                                            showAnimationDialog = true
+                                        },
+                                        icon = { Icon(Icons.Rounded.Animation, contentDescription = null) },
+                                        text = { Text(text = translatedText("Animations")) },
+                                        containerColor = MaterialTheme.colorScheme.onSurface,
+                                        contentColor = MaterialTheme.colorScheme.surface
+                                    )
                                 }
                             }
                         }
@@ -369,6 +391,22 @@ fun AuthLayout(
                         modifier = Modifier.fillMaxSize()
                     )
                 }
+            }
+
+            if (showAnimationDialog) {
+                com.ashmeet.hyperlauncher.screens.settings.preferences.SingleChoiceDialog(
+                    title = translatedText("Choose Animation"),
+                    options = animations,
+                    optionValues = animations,
+                    selectedValue = currentAnimation,
+                    onValueChange = {
+                        currentAnimation = it
+                        LauncherPreferences.prefs.edit { putString("skin_animation", it) }
+                        LauncherPreferences.PREF_SKIN_ANIMATION = it
+                        showAnimationDialog = false
+                    },
+                    onDismiss = { showAnimationDialog = false }
+                )
             }
 
             if (onBack != null) {

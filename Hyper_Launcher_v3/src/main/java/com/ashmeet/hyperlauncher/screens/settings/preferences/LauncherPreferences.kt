@@ -323,6 +323,9 @@ object LauncherPreferences {
     var PREF_SHOW_FPS = false
 
     @JvmField
+    var PREF_SKIN_ANIMATION = "NewIdle"
+
+    @JvmField
     var PREF_RECENT_LAUNCHER_BACKGROUNDS: MutableList<String> = mutableListOf()
 
     @JvmStatic
@@ -456,6 +459,7 @@ object LauncherPreferences {
         PREF_VOLUME_UP_KEYBIND = pref.getInt("volume_up_keybind", 24)
         PREF_VOLUME_DOWN_KEYBIND = pref.getInt("volume_down_keybind", 25)
         PREF_SHOW_FPS = pref.getBoolean("show_fps", false)
+        PREF_SKIN_ANIMATION = pref.getString("skin_animation", "NewIdle") ?: "NewIdle"
 
         val recentBgs = pref.getString("recent_launcher_backgrounds", "") ?: ""
         PREF_RECENT_LAUNCHER_BACKGROUNDS = if (recentBgs.isEmpty()) mutableListOf() else recentBgs.split(";").toMutableList()
