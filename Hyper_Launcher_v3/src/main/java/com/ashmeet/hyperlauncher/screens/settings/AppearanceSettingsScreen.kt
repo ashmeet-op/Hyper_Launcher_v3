@@ -312,7 +312,8 @@ fun AppearanceSettingsScreen(
                                 LauncherPreferences.loadPreferences(context)
                             }
                             colorSelector.setAlphaEnabled(false)
-                            SideDialogUtils.show(colorSelector, true)
+                            colorSelector.show(true, themeColor)
+                            SideDialogUtils.activeDialog = colorSelector
                         }
                     )
                 }
@@ -858,7 +859,7 @@ fun AppearanceSettingsScreen(
                 }
             )
         }
-
-        SideDialogUtils.activeDialog?.Content()
     }
+
+    SideDialogUtils.activeDialog?.Content()
 }

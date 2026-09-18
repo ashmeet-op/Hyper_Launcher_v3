@@ -4,9 +4,10 @@ package com.ashmeet.hyperlauncher.screens.auth
 import android.widget.FrameLayout
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -158,17 +159,44 @@ fun AuthLayout(
         contentColor = MaterialTheme.colorScheme.onBackground
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
+            val animationSpec = androidx.compose.animation.core.tween<androidx.compose.ui.unit.Dp>(500)
+            val weightAnimationSpec = androidx.compose.animation.core.tween<Float>(500)
+
+            val animatedPadding by animateDpAsState(
+                targetValue = if (isFullScreen) 0.dp else 16.dp,
+                animationSpec = animationSpec,
+                label = "PaddingAnimation"
+            )
+
+            val sideWeight by animateFloatAsState(
+                targetValue = if (isFullScreen) 0.001f else 1.0f,
+                animationSpec = weightAnimationSpec,
+                label = "SideWeightAnimation"
+            )
+
+            val mainWeight by animateFloatAsState(
+                targetValue = if (isFullScreen) 1.0f else 1.2f,
+                animationSpec = weightAnimationSpec,
+                label = "MainWeightAnimation"
+            )
+
+            val spacerWidth by animateDpAsState(
+                targetValue = if (isFullScreen) 0.dp else 16.dp,
+                animationSpec = animationSpec,
+                label = "SpacerAnimation"
+            )
+
             Row(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(if (isFullScreen) 0.dp else 16.dp),
+                    .padding(animatedPadding),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 AnimatedVisibility(
                     visible = !isFullScreen,
-                    enter = expandHorizontally(),
-                    exit = shrinkHorizontally(),
-                    modifier = Modifier.weight(1.0f)
+                    enter = fadeIn(),
+                    exit = fadeOut(),
+                    modifier = Modifier.weight(sideWeight)
                 ) {
                     Column(
                         modifier = Modifier
@@ -252,10 +280,10 @@ fun AuthLayout(
                                 }
                             }
 
-                            val fabMenuStartColor = MaterialTheme.colorScheme.secondary
-                            val fabMenuEndColor = MaterialTheme.colorScheme.surface
-                            val fabMenuIconStartColor = MaterialTheme.colorScheme.onSecondary
-                            val fabMenuIconEndColor = MaterialTheme.colorScheme.onSurface
+                            val fabMenuStartColor = MaterialTheme.colorScheme.surface
+                            val fabMenuEndColor = MaterialTheme.colorScheme.secondary
+                            val fabMenuIconStartColor = MaterialTheme.colorScheme.onSurface
+                            val fabMenuIconEndColor = MaterialTheme.colorScheme.onSecondary
 
                             Box(
                                 modifier = Modifier.size(40.dp)
@@ -305,8 +333,8 @@ fun AuthLayout(
                                         },
                                         icon = { Icon(Icons.Rounded.AddReaction, contentDescription = null) },
                                         text = { Text(text = translatedText("Add Skin")) },
-                                        containerColor = MaterialTheme.colorScheme.surface,
-                                        contentColor = MaterialTheme.colorScheme.onSurface
+                                        containerColor = MaterialTheme.colorScheme.onSurface,
+                                        contentColor = MaterialTheme.colorScheme.surface
                                     )
                                     FloatingActionButtonMenuItem(
                                         onClick = {
@@ -315,8 +343,8 @@ fun AuthLayout(
                                         },
                                         icon = { Icon(Icons.Rounded.Sell, contentDescription = null) },
                                         text = { Text(text = translatedText("Add Cape")) },
-                                        containerColor = MaterialTheme.colorScheme.surface,
-                                        contentColor = MaterialTheme.colorScheme.onSurface
+                                        containerColor = MaterialTheme.colorScheme.onSurface,
+                                        contentColor = MaterialTheme.colorScheme.surface
                                     )
                                 }
                             }
@@ -324,12 +352,12 @@ fun AuthLayout(
                     }
                 }
 
-                if (!isFullScreen) {
-                    Spacer(modifier = Modifier.width(16.dp))
-                }
+                Spacer(modifier = Modifier.width(spacerWidth))
 
                 Box(
-                    modifier = (if (isFullScreen) Modifier.fillMaxSize() else Modifier.weight(1.2f).fillMaxHeight())
+                    modifier = Modifier
+                        .weight(mainWeight)
+                        .fillMaxHeight()
                 ) {
                     AndroidView(
                         factory = { context ->
