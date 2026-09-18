@@ -255,8 +255,9 @@ fun ContentInstallerScreen(
                                 TabRowDefaults.SecondaryIndicator(
                                     modifier = Modifier
                                         .tabIndicatorOffset(tabPositions[index])
-                                        .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp)),
-                                    height = 3.dp,
+                                        .padding(horizontal = 16.dp)
+                                        .clip(RoundedCornerShape(3.dp)),
+                                    height = 4.dp,
                                     color = MaterialTheme.colorScheme.primary
                                 )
                             }

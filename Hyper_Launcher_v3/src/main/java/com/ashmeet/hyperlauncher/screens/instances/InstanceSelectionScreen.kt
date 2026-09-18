@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -149,8 +150,9 @@ private fun InstanceSelectionContent(
                         TabRowDefaults.SecondaryIndicator(
                             modifier = Modifier
                                 .tabIndicatorOffset(tabPositions[selectedTab])
-                                .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp)),
-                            height = 3.dp,
+                                .padding(horizontal = 16.dp)
+                                .clip(RoundedCornerShape(3.dp)),
+                            height = 4.dp,
                             color = MaterialTheme.colorScheme.primary
                         )
                     }
