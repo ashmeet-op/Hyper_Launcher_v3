@@ -252,7 +252,10 @@ fun AccountSpinnerUI(
         Surface(
             modifier = Modifier
                 .fillMaxSize()
-                .clickable { onExpandedChange(true) },
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) { onExpandedChange(true) },
             color = if (isMatte) containerColor.copy(alpha = 0.4f) else containerColor,
             shape = RoundedCornerShape(0.dp)
         ) {
@@ -345,6 +348,7 @@ fun AccountSpinnerUI(
                                 SelectableDropdownMenuItem(
                                     selected = isSelected,
                                     onClick = { onAccountSelected(account) },
+                                    interactionSource = remember { MutableInteractionSource() },
                                     text = {
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
@@ -355,9 +359,14 @@ fun AccountSpinnerUI(
                                                 account = account,
                                                 modifier = Modifier.weight(1f)
                                             )
-                                            IconButton(
-                                                onClick = { onAccountDelete(account) },
-                                                modifier = Modifier.size(32.dp)
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(32.dp)
+                                                    .clickable(
+                                                        interactionSource = remember { MutableInteractionSource() },
+                                                        indication = null
+                                                    ) { onAccountDelete(account) },
+                                                contentAlignment = Alignment.Center
                                             ) {
                                                 Icon(
                                                     Icons.Default.Delete,
@@ -398,6 +407,7 @@ fun AccountSpinnerUI(
                         SelectableDropdownMenuItem(
                             selected = false,
                             onClick = onAddAccountClick,
+                            interactionSource = remember { MutableInteractionSource() },
                             text = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(

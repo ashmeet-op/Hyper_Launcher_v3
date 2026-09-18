@@ -125,7 +125,6 @@ fun LocalLoginScreen(
                 onValueChange = { username = it },
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text(text = translatedText("Username")) },
-                placeholder = { Text(text = translatedText("Username")) },
                 supportingText = if (isError) {
                     {
                         Text(
