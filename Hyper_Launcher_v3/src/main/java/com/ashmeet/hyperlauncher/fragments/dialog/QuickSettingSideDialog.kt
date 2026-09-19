@@ -243,7 +243,7 @@ private fun QuickSettingContent(
     ) {
         var cardIndex = 0
 
-        DialogCard(useSurface = true, delayIndex = cardIndex++) {
+        DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
             DialogActionItem(
                 title = translatedText(stringResource(R.string.close)),
                 onClick = onClose
@@ -267,7 +267,7 @@ private fun QuickSettingContent(
             ) {
                 when (targetTab) {
                     0 -> {
-                        DialogCard(position = CardPosition.TOP, useSurface = true, delayIndex = cardIndex++) {
+                        DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
                             DialogSliderItem(
                                 title = translatedText(stringResource(R.string.mcl_setting_title_resolution_scaler)),
                                 value = resolutionScaler,
@@ -282,7 +282,7 @@ private fun QuickSettingContent(
                             )
                         }
 
-                        DialogCard(position = CardPosition.BOTTOM, useSurface = true, delayIndex = cardIndex++) {
+                        DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
                             DialogSwitchItem(
                                 title = translatedText("Show FPS Display"),
                                 checked = showFps,
@@ -311,7 +311,7 @@ private fun QuickSettingContent(
                         }
                     }
                     1 -> {
-                        DialogCard(position = CardPosition.TOP, useSurface = true, delayIndex = cardIndex++) {
+                        DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
                             DialogSliderItem(
                                 title = translatedText(stringResource(R.string.mcl_setting_title_mousespeed)),
                                 value = mouseSpeed,
@@ -326,7 +326,7 @@ private fun QuickSettingContent(
                         }
 
                         DialogCard(
-                            position = if (!disableGestures) CardPosition.MIDDLE else CardPosition.BOTTOM,
+                            position = CardPosition.SINGLE,
                             useSurface = true,
                             delayIndex = cardIndex++
                         ) {
@@ -342,7 +342,7 @@ private fun QuickSettingContent(
                         }
 
                         if (!disableGestures) {
-                            DialogCard(position = CardPosition.BOTTOM, useSurface = true, delayIndex = cardIndex++) {
+                            DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
                                 DialogSliderItem(
                                     title = translatedText(stringResource(R.string.mcl_setting_title_longpresstrigger)),
                                     value = gestureDelay,
@@ -360,7 +360,7 @@ private fun QuickSettingContent(
                     2 -> {
                         if (isGyroAvailable) {
                             DialogCard(
-                                position = if (enableGyro) CardPosition.TOP else CardPosition.SINGLE,
+                                position = CardPosition.SINGLE,
                                 useSurface = true,
                                 delayIndex = cardIndex++
                             ) {
@@ -378,7 +378,7 @@ private fun QuickSettingContent(
 
                             if (enableGyro) {
                                 DialogCard(
-                                    position = CardPosition.MIDDLE,
+                                    position = CardPosition.SINGLE,
                                     useSurface = true,
                                     delayIndex = cardIndex++
                                 ) {
@@ -394,7 +394,7 @@ private fun QuickSettingContent(
                                     )
                                 }
                                 DialogCard(
-                                    position = CardPosition.MIDDLE,
+                                    position = CardPosition.SINGLE,
                                     useSurface = true,
                                     delayIndex = cardIndex++
                                 ) {
@@ -409,7 +409,7 @@ private fun QuickSettingContent(
                                         }
                                     )
                                 }
-                                DialogCard(position = CardPosition.BOTTOM, useSurface = true, delayIndex = cardIndex++) {
+                                DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
                                     DialogSliderItem(
                                         title = translatedText(stringResource(R.string.preference_gyro_sensitivity_title)),
                                         value = gyroSensitivity,
@@ -427,7 +427,7 @@ private fun QuickSettingContent(
                         }
                     }
                     3 -> {
-                        DialogCard(position = CardPosition.TOP, useSurface = true, delayIndex = cardIndex++) {
+                        DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
                             DialogSwitchItem(
                                 title = translatedText("Enable Volume Key Controls"),
                                 icon = Icons.AutoMirrored.Rounded.VolumeUp,
@@ -440,7 +440,7 @@ private fun QuickSettingContent(
                             )
                         }
 
-                        DialogCard(position = CardPosition.MIDDLE, useSurface = true, delayIndex = cardIndex++) {
+                        DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
                             DialogActionItem(
                                 title = translatedText("Volume Up Keybind"),
                                 icon = Icons.AutoMirrored.Rounded.VolumeUp,
@@ -449,7 +449,7 @@ private fun QuickSettingContent(
                             )
                         }
 
-                        DialogCard(position = CardPosition.BOTTOM, useSurface = true, delayIndex = cardIndex++) {
+                        DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
                             DialogActionItem(
                                 title = translatedText("Volume Down Keybind"),
                                 icon = Icons.AutoMirrored.Rounded.VolumeUp,
@@ -460,7 +460,7 @@ private fun QuickSettingContent(
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        DialogCard(position = CardPosition.TOP, useSurface = true, delayIndex = cardIndex++) {
+                        DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
                             DialogActionItem(
                                 title = translatedText(stringResource(R.string.control_forceclose)),
                                 icon = Icons.Rounded.Close,
@@ -468,7 +468,7 @@ private fun QuickSettingContent(
                             )
                         }
 
-                        DialogCard(position = CardPosition.MIDDLE, useSurface = true, delayIndex = cardIndex++) {
+                        DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
                             DialogActionItem(
                                 title = translatedText(stringResource(R.string.control_viewout)),
                                 icon = Icons.Rounded.Description,
@@ -476,7 +476,7 @@ private fun QuickSettingContent(
                             )
                         }
 
-                        DialogCard(position = CardPosition.BOTTOM, useSurface = true, delayIndex = cardIndex++) {
+                        DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
                             DialogActionItem(
                                 title = translatedText(stringResource(R.string.control_customkey)),
                                 icon = Icons.Rounded.Keyboard,

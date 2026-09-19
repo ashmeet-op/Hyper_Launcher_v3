@@ -216,7 +216,7 @@ private fun EditControlContent(
     ) {
         var cardIndex = 0
 
-        DialogCard(useSurface = true, delayIndex = cardIndex++) {
+        DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
             DialogActionItem(
                 title = translatedText(stringResource(R.string.close)),
                 onClick = onClose
@@ -241,7 +241,7 @@ private fun EditControlContent(
                     0 -> {
 
                         if (!isJoystick) {
-                            DialogCard(useSurface = true, delayIndex = cardIndex++) {
+                            DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
                                 DialogActionItem(
                                     title = translatedText(stringResource(R.string.global_name)),
                                     summary = name ?: "",
@@ -266,7 +266,7 @@ private fun EditControlContent(
 
 
                         if (!isSubButton) {
-                            DialogCard(useSurface = true, delayIndex = cardIndex++) {
+                            DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
                                 DialogActionItem(
                                     title = translatedText(stringResource(R.string.customctrl_size)) + " X",
                                     summary = widthText,
@@ -292,7 +292,7 @@ private fun EditControlContent(
                             }
 
                             if (!isJoystick) {
-                                DialogCard(useSurface = true, delayIndex = cardIndex++) {
+                                DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
                                     DialogActionItem(
                                         title = translatedText(stringResource(R.string.customctrl_size)) + " Y",
                                         summary = heightText,
@@ -333,7 +333,7 @@ private fun EditControlContent(
                                     KeycodeUtils.getIndexByValue(keycode) + specialArray.size
                                 }
 
-                                DialogCard(useSurface = true, delayIndex = cardIndex++) {
+                                DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
                                     Box {
                                         DialogActionItem(
                                             title = "Key ${index + 1}",
@@ -454,7 +454,7 @@ private fun EditControlContent(
                     2 -> {
 
                         if (context is CustomControlsActivity && !isJoystick) {
-                            DialogCard(useSurface = true, delayIndex = cardIndex++) {
+                            DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
                                 DialogActionItem(
                                     title = translatedText(stringResource(R.string.customctrl_background_bitmap)),
                                     onClick = {
@@ -485,7 +485,7 @@ private fun EditControlContent(
                             }
                         }
 
-                        DialogCard(useSurface = true, delayIndex = cardIndex++) {
+                        DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
                             DialogActionItem(
                                 title = translatedText(stringResource(R.string.customctrl_background_color)),
                                 summary = if (properties.bitmapTag != null) translatedText(
@@ -502,7 +502,7 @@ private fun EditControlContent(
                         }
 
                         if (properties.bitmapTag == null) {
-                            DialogCard(useSurface = true, delayIndex = cardIndex++) {
+                            DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
                                 DialogActionItem(
                                     title = translatedText(stringResource(R.string.customctrl_stroke_color)),
                                     onClick = {
@@ -513,7 +513,7 @@ private fun EditControlContent(
                                     }
                                 )
                             }
-                            DialogCard(useSurface = true, delayIndex = cardIndex++) {
+                            DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
                                 DialogSliderItem(
                                     title = translatedText(stringResource(R.string.customctrl_stroke_width)),
                                     value = strokeWidth,
@@ -525,7 +525,7 @@ private fun EditControlContent(
                                     }
                                 )
                             }
-                            DialogCard(useSurface = true, delayIndex = cardIndex++) {
+                            DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
                                 DialogSliderItem(
                                     title = translatedText(stringResource(R.string.customctrl_corner_radius)),
                                     value = cornerRadius,
@@ -539,7 +539,7 @@ private fun EditControlContent(
                             }
                         }
 
-                        DialogCard(useSurface = true, delayIndex = cardIndex++) {
+                        DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
                             DialogSliderItem(
                                 title = translatedText(stringResource(R.string.customctrl_button_opacity)),
                                 value = opacity,
