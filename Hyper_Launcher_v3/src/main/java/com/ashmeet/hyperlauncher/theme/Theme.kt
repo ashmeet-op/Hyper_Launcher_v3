@@ -86,6 +86,15 @@ fun PojavTheme(
             blue = primaryColor.blue * 0.2f + 0.8f,
             alpha = 1f
         )
+
+        val errorColor = colorResource(R.color.warning)
+        val darkenedError = Color(
+            red = errorColor.red * 0.3f,
+            green = errorColor.green * 0.3f,
+            blue = errorColor.blue * 0.3f,
+            alpha = 1f
+        )
+
         if (isDark) {
             darkColorScheme(
                 primary = primaryColor,
@@ -100,8 +109,8 @@ fun PojavTheme(
                 onTertiary = if (primaryColor.luminance() > 0.5f) darkenedPrimary else lightenedPrimary,
                 tertiaryContainer = primaryColor.copy(alpha = 0.15f),
                 onTertiaryContainer = lightenedPrimary,
-                error = colorResource(R.color.warning),
-                onError = darkenedPrimary,
+                error = errorColor,
+                onError = darkenedError,
                 errorContainer = Color(0xFF93000A),
                 onErrorContainer = Color(0xFFFFDAD6),
                 background = colorResource(R.color.background_app),
@@ -138,8 +147,8 @@ fun PojavTheme(
                 onTertiary = if (primaryColor.luminance() > 0.5f) darkenedPrimary else Color.White,
                 tertiaryContainer = primaryColor.copy(alpha = 0.03f),
                 onTertiaryContainer = darkenedPrimary,
-                error = colorResource(R.color.warning),
-                onError = lightenedPrimary,
+                error = errorColor,
+                onError = darkenedError,
                 errorContainer = Color(0xFFFFDAD6),
                 onErrorContainer = Color(0xFF410002),
                 background = colorResource(R.color.background_app),
@@ -186,6 +195,14 @@ private fun generateCustomColorScheme(primary: Color, isDark: Boolean): ColorSch
     )
     val onPrimary = if (primary.luminance() > 0.5f) darkenedPrimary else if (isDark) lightenedPrimary else Color.White
 
+    val errorColor = Color(if (isDark) 0xFFCF6679 else 0xFFB00020)
+    val darkenedError = Color(
+        red = errorColor.red * 0.3f,
+        green = errorColor.green * 0.3f,
+        blue = errorColor.blue * 0.3f,
+        alpha = 1f
+    )
+
     return if (isDark) {
         val darkBackground = Color(0xFF121212)
         val tintedBackground = primary.copy(alpha = 0.08f).compositeOver(darkBackground)
@@ -205,8 +222,8 @@ private fun generateCustomColorScheme(primary: Color, isDark: Boolean): ColorSch
             onTertiary = onPrimary,
             tertiaryContainer = primary.copy(alpha = 0.15f).compositeOver(darkBackground),
             onTertiaryContainer = lightenedPrimary,
-            error = Color(0xFFCF6679),
-            onError = darkenedPrimary,
+            error = errorColor,
+            onError = darkenedError,
             errorContainer = Color(0xFF93000A),
             onErrorContainer = Color(0xFFFFDAD6),
             background = tintedBackground,
@@ -248,8 +265,8 @@ private fun generateCustomColorScheme(primary: Color, isDark: Boolean): ColorSch
             onTertiary = onPrimary,
             tertiaryContainer = primary.copy(alpha = 0.07f).compositeOver(Color.White),
             onTertiaryContainer = darkenedPrimary,
-            error = Color(0xFFB00020),
-            onError = lightenedPrimary,
+            error = errorColor,
+            onError = darkenedError,
             errorContainer = Color(0xFFFFDAD6),
             onErrorContainer = Color(0xFF410002),
             background = tintedBackground,
