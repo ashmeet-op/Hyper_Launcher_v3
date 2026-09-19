@@ -1,8 +1,5 @@
 package com.ashmeet.hyperlauncher.screens.settings.preferences
 
-import com.ashmeet.hyperlauncher.utils.translation.translatedText
-import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
-
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,13 +20,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -45,9 +42,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.ashmeet.hyperlauncher.components.HyperAlertDialog
+import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
 import com.ashmeet.hyperlauncher.components.slider.SimpleTextSlider
-import io.ktor.http.ContentType
-
+import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.multirt.Runtime
 import java.io.File
@@ -61,9 +59,11 @@ fun SingleChoiceDialog(
     onValueChange: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
-    AlertDialog(
+    var tempValue by remember { mutableStateOf(selectedValue) }
+
+    HyperAlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = title) },
+        title = { Text(text = translatedText(title)) },
         text = {
             LazyColumn {
                 items(options.size) { index ->
@@ -73,14 +73,13 @@ fun SingleChoiceDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                onValueChange(value)
-                                onDismiss()
+                                tempValue = value
                             }
                             .padding(vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         RadioButton(
-                            selected = value == selectedValue,
+                            selected = value == tempValue,
                             onClick = null
                         )
                         Spacer(modifier = Modifier.width(16.dp))
@@ -89,11 +88,13 @@ fun SingleChoiceDialog(
                 }
             }
         },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(android.R.string.cancel))
-            }
-        }
+        confirmText = stringResource(android.R.string.ok),
+        onConfirm = {
+            onValueChange(tempValue)
+            onDismiss()
+        },
+        dismissText = stringResource(android.R.string.cancel),
+        onDismiss = onDismiss
     )
 }
 
@@ -111,7 +112,7 @@ fun RuntimeSelectionDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = title) },
+        title = { Text(text = translatedText(title)) },
         text = {
             LazyColumn {
                 items(runtimes) { runtime ->
@@ -161,20 +162,21 @@ fun RuntimeSelectionDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = onAddRuntime) {
+            Button(onClick = onAddRuntime) {
                 Text(translatedText(stringResource(R.string.multirt_config_add)))
             }
         },
         dismissButton = {
-            Row {
-                TextButton(onClick = onToggleDeleteMode) {
-                    Text(stringResource(if (isDeleting) R.string.multirt_config_setdefault else R.string.global_delete))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilledTonalButton(onClick = onToggleDeleteMode) {
+                    Text(translatedText(stringResource(if (isDeleting) R.string.multirt_config_setdefault else R.string.global_delete)))
                 }
-                TextButton(onClick = onDismiss) {
-                    Text(stringResource(android.R.string.cancel))
+                FilledTonalButton(onClick = onDismiss) {
+                    Text(translatedText(stringResource(android.R.string.cancel)))
                 }
             }
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
     )
 }
 
@@ -187,28 +189,22 @@ fun TextInputDialog(
 ) {
     var text by remember { mutableStateOf(initialValue) }
 
-    AlertDialog(
+    HyperAlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = title) },
+        title = { Text(text = translatedText(title)) },
         text = {
             HyperOutlinedTextField(
                 value = text,
                 onValueChange = { text = it },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text(title) },
+                label = { Text(translatedText(title)) },
                 singleLine = true
             )
         },
-        confirmButton = {
-            TextButton(onClick = { onConfirm(text) }) {
-                Text(stringResource(android.R.string.ok))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(android.R.string.cancel))
-            }
-        }
+        confirmText = stringResource(android.R.string.ok),
+        onConfirm = { onConfirm(text) },
+        dismissText = stringResource(android.R.string.cancel),
+        onDismiss = onDismiss
     )
 }
 
@@ -224,9 +220,9 @@ fun PointerHotspotPickerDialog(
     var hotspotX by remember { mutableFloatStateOf(initialX) }
     var hotspotY by remember { mutableFloatStateOf(initialY) }
 
-    AlertDialog(
+    HyperAlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = title) },
+        title = { Text(text = translatedText(title)) },
         text = {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -305,15 +301,9 @@ fun PointerHotspotPickerDialog(
                 }
             }
         },
-        confirmButton = {
-            TextButton(onClick = { onConfirm(hotspotX, hotspotY) }) {
-                Text(stringResource(android.R.string.ok))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(android.R.string.cancel))
-            }
-        }
+        confirmText = stringResource(android.R.string.ok),
+        onConfirm = { onConfirm(hotspotX, hotspotY) },
+        dismissText = stringResource(android.R.string.cancel),
+        onDismiss = onDismiss
     )
 }

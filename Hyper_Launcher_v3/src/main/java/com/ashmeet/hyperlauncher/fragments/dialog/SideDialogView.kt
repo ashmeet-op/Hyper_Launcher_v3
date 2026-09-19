@@ -72,7 +72,6 @@ abstract class SideDialogView {
         SideDialog(
             visible = visible,
             onDismissRequest = { disappear(false) },
-            title = null,
             fromRight = isAtRight,
             width = dialogWidth,
             verticalPadding = verticalPadding,

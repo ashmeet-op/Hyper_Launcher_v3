@@ -107,7 +107,7 @@ fun DependencyDialog(
         },
         confirmButton = {
             Button(onClick = onConfirm) {
-                Text("Download")
+                Text(translatedText("Download"))
             }
         },
         dismissButton = {
@@ -115,13 +115,14 @@ fun DependencyDialog(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(onClick = onDismiss) {
-                    Text("Skip")
+                FilledTonalButton(onClick = onDismiss) {
+                    Text(translatedText("Skip"))
                 }
-                TextButton(onClick = onCancel) {
-                    Text("Cancel")
+                FilledTonalButton(onClick = onCancel) {
+                    Text(translatedText("Cancel"))
                 }
             }
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
     )
 }

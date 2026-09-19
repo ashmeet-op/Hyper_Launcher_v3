@@ -1,5 +1,6 @@
 package com.ashmeet.hyperlauncher.components.dialog
 
+//noinspection SuspiciousImport
 import android.R
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
@@ -45,18 +46,15 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Warning
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
@@ -72,26 +70,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.ashmeet.hyperlauncher.components.switch.DefaultSwitch
+import com.ashmeet.hyperlauncher.components.HyperAlertDialog
+import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
 import com.ashmeet.hyperlauncher.components.slider.SimpleTextSlider
+import com.ashmeet.hyperlauncher.components.switch.DefaultSwitch
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
-import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
-import net.kdt.pojavlaunch.utils.KeycodeUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import net.kdt.pojavlaunch.utils.KeycodeUtils
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
@@ -123,8 +121,7 @@ fun SingleLineTextCheck(
 
 @Composable
 fun rememberDialogMaxHeight(): Dp {
-    val configuration = LocalConfiguration.current
-    return configuration.screenHeightDp.dp
+    return LocalWindowInfo.current.containerSize.height.dp
 }
 
 @Composable
@@ -134,13 +131,15 @@ fun SimpleAlertDialog(
     confirmText: String = stringResource(R.string.ok),
     dismissText: String = stringResource(R.string.cancel),
     dismissByDialog: Boolean = true,
+    isDestructive: Boolean = false,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    AlertDialog(
+    HyperAlertDialog(
         onDismissRequest = {
             if (dismissByDialog) onDismiss()
         },
+        title = { Text(translatedText(title)) },
         text = {
             val scrollState = rememberScrollState()
             Column(
@@ -151,17 +150,11 @@ fun SimpleAlertDialog(
                 Text(text = text)
             }
         },
-        confirmButton = {
-            Button(onClick = onConfirm) {
-                MarqueeText(text = confirmText)
-            }
-        },
-        dismissButton = {
-            FilledTonalButton(onClick = onDismiss) {
-                MarqueeText(text = dismissText)
-            }
-        },
-        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
+        confirmText = confirmText,
+        onConfirm = onConfirm,
+        dismissText = dismissText,
+        onDismiss = onDismiss,
+        isDestructive = isDestructive
     )
 }
 
@@ -169,7 +162,6 @@ fun SimpleAlertDialog(
 fun SideDialog(
     visible: Boolean,
     onDismissRequest: () -> Unit,
-    title: String? = null,
     fromRight: Boolean = false,
     width: Dp = 340.dp,
     verticalPadding: Dp = 32.dp,
@@ -228,7 +220,7 @@ fun SideDialog(
                         else -> 32.dp
                     }
                 ),
-                color = MaterialTheme.colorScheme.surfaceContainerLowest,
+                color = MaterialTheme.colorScheme.surfaceContainerHigh,
                 tonalElevation = 0.dp,
                 shadowElevation = 8.dp
             ) {
@@ -250,19 +242,23 @@ fun SideDialog(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             if (startText != null) {
-                                TextButton(onClick = onStartClick ?: onDismissRequest) {
-                                    Text(text = startText)
+                                FilledTonalButton(
+                                    modifier = Modifier.weight(1f),
+                                    onClick = onStartClick ?: onDismissRequest
+                                ) {
+                                    Text(text = translatedText(startText))
                                 }
-                            } else {
-                                Spacer(modifier = Modifier.width(1.dp))
                             }
 
                             if (endText != null) {
-                                TextButton(onClick = onEndClick ?: onDismissRequest) {
-                                    Text(text = endText)
+                                Button(
+                                    modifier = Modifier.weight(1f),
+                                    onClick = onEndClick ?: onDismissRequest
+                                ) {
+                                    Text(text = translatedText(endText))
                                 }
                             }
                         }
@@ -603,28 +599,22 @@ fun DialogTextInput(
 ) {
     var text by remember { mutableStateOf(initialValue) }
 
-    AlertDialog(
+    HyperAlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = title) },
+        title = { Text(text = translatedText(title)) },
         text = {
             HyperOutlinedTextField(
                 value = text,
                 onValueChange = { text = it },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text(title) },
+                label = { Text(translatedText(title)) },
                 singleLine = true
             )
         },
-        confirmButton = {
-            TextButton(onClick = { onConfirm(text) }) {
-                Text(stringResource(R.string.ok))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel))
-            }
-        }
+        confirmText = stringResource(R.string.ok),
+        onConfirm = { onConfirm(text) },
+        dismissText = stringResource(R.string.cancel),
+        onDismiss = onDismiss
     )
 }
 
@@ -696,7 +686,6 @@ private fun simpleEditDialogBody(
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun <T> SimpleListDialog(
-    title: String,
     items: List<T>,
     onItemSelected: (T) -> Unit,
     onDismissRequest: (selected: Boolean) -> Unit,
@@ -726,7 +715,7 @@ fun <T> SimpleListDialog(
                     .heightIn(max = (maxHeight - 6.dp).coerceAtMost(rememberDialogMaxHeight()))
                     .wrapContentHeight(),
                 shape = MaterialTheme.shapes.extraLarge,
-                color = MaterialTheme.colorScheme.surfaceContainerLowest,
+                color = MaterialTheme.colorScheme.surfaceContainerHigh,
                 contentColor = MaterialTheme.colorScheme.onSurface,
                 shadowElevation = 3.dp
             ) {
@@ -789,9 +778,9 @@ fun KeycodePickerDialog(
     }
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = initialIndex)
 
-    AlertDialog(
+    HyperAlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = title) },
+        title = { Text(text = translatedText(title)) },
         text = {
             Box(modifier = Modifier.height(300.dp)) {
                 LazyColumn(state = listState) {
@@ -820,10 +809,7 @@ fun KeycodePickerDialog(
                 }
             }
         },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel))
-            }
-        }
+        confirmText = stringResource(R.string.cancel),
+        onConfirm = onDismiss
     )
 }

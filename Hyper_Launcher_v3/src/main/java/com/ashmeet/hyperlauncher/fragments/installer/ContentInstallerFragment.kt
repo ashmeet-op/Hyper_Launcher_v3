@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,6 +36,7 @@ import com.ashmeet.hyperlauncher.components.dialog.MissingDependency
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.utils.ModMetadataReader
 import com.ashmeet.hyperlauncher.utils.translation.Translator
+import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import com.ashmeet.hyperlauncher.screens.installer.ContentInstallerScreen
 import com.ashmeet.hyperlauncher.utils.installer.ContentInstallerType
 import com.ashmeet.hyperlauncher.utils.installer.ContentSource
@@ -68,6 +70,7 @@ import java.io.IOException
 import java.net.URL
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
+import kotlin.time.Duration.Companion.milliseconds
 
 class ContentInstallerFragment : Fragment() {
 
@@ -132,7 +135,7 @@ class ContentInstallerFragment : Fragment() {
 
                             val v = try {
                                 Tools.getVersionInfo(id)
-                            } catch (e: Exception) {
+                            } catch (_: Exception) {
                                 null
                             }
                             if (v?.inheritsFrom != null) return@let cleanMcVersion(v.inheritsFrom)
@@ -149,7 +152,7 @@ class ContentInstallerFragment : Fragment() {
                             val id = it.versionId
                             val v = try {
                                 Tools.getVersionInfo(id)
-                            } catch (e: Exception) {
+                            } catch (_: Exception) {
                                 null
                             }
                             val searchStr = (id + (v?.inheritsFrom ?: "")).lowercase()
@@ -183,7 +186,7 @@ class ContentInstallerFragment : Fragment() {
                         refreshTrigger
                     ) {
                         if (searchQuery.isNotEmpty() && refreshTrigger == 0) {
-                            delay(500)
+                            delay(500.milliseconds)
                         }
 
                         isSearching = true
@@ -246,7 +249,7 @@ class ContentInstallerFragment : Fragment() {
                                 projectVersions = versions
                                 isProjectLoading = false
                             }
-                        } catch (e: Exception) {
+                        } catch (_: Exception) {
                             withContext(Dispatchers.Main) {
                                 isProjectLoading = false
                             }
@@ -254,11 +257,11 @@ class ContentInstallerFragment : Fragment() {
                     }
 
                     val availableProjectMCVersions = remember(projectVersions) {
-                        projectVersions.flatMap { it.gameVersions }
+                        projectVersions.asSequence().flatMap { it.gameVersions }
                             .map { cleanMcVersion(it) }
                             .filter { it.isNotEmpty() }
                             .distinct()
-                            .sortedDescending()
+                            .sortedDescending().toList()
                     }
 
                     ContentInstallerScreen(
@@ -355,9 +358,7 @@ class ContentInstallerFragment : Fragment() {
                                     val missing = checkDependencies(
                                         version,
                                         instance,
-                                        selectedSource,
-                                        instanceVersion,
-                                        instanceLoader
+                                        selectedSource
                                     )
                                     isDependencyChecking = false
 
@@ -462,7 +463,7 @@ class ContentInstallerFragment : Fragment() {
                         AlertDialog(
                             onDismissRequest = {},
                             confirmButton = {},
-                            title = { Text("Checking Dependencies...") },
+                            title = { Text(translatedText("Checking Dependencies...")) },
                             text = {
                                 Box(
                                     modifier = Modifier.fillMaxWidth(),
@@ -470,7 +471,8 @@ class ContentInstallerFragment : Fragment() {
                                 ) {
                                     LoadingIndicator()
                                 }
-                            }
+                            },
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
                         )
                     }
                 }
@@ -481,9 +483,7 @@ class ContentInstallerFragment : Fragment() {
     private suspend fun checkDependencies(
         version: ModrinthVersion,
         instance: Instance,
-        source: ContentSource,
-        mcVersion: String?,
-        loader: String?
+        source: ContentSource
     ): List<MissingDependency> {
         val requiredDeps = version.dependencies.filter { it.dependencyType == "required" }
         if (requiredDeps.isEmpty()) return emptyList()
@@ -802,7 +802,6 @@ class ContentInstallerFragment : Fragment() {
                     ContentInstallerType.RESOURCEPACKS -> File(instance.gameDirectory, "resourcepacks")
                     ContentInstallerType.SHADERS -> File(instance.gameDirectory, "shaderpacks")
                     ContentInstallerType.WORLDS -> File(instance.gameDirectory, "saves")
-                    else -> File(instance.gameDirectory, "downloads")
                 }
                 destFolder.mkdirs()
 

@@ -39,6 +39,8 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
+import com.ashmeet.hyperlauncher.components.dialog.SimpleAlertDialog
+import com.ashmeet.hyperlauncher.components.dialog.GenericComposeDialogFragment
 import com.ashmeet.hyperlauncher.plugins.manager.HyperPluginManager
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.google.gson.Gson
@@ -403,6 +405,34 @@ object Tools {
         }
 
         val runnable = Runnable {
+            if (ctx is FragmentActivity && !ctx.isFinishing && !ctx.isDestroyed) {
+                val dialogFragment = GenericComposeDialogFragment {
+                    val errMsg = if (showMore) printToString(e) else rolledMessage ?: e.message
+                    SimpleAlertDialog(
+                        title = ctx.getString(titleId),
+                        text = errMsg ?: "",
+                        confirmText = ctx.getString(android.R.string.ok),
+                        onConfirm = {
+                            dismiss()
+                            if (exitIfOk) {
+                                if (ctx is GameActivity) {
+                                    fullyExit()
+                                } else {
+                                    ctx.finish()
+                                }
+                            }
+                        },
+                        dismissText = if (showMore) ctx.getString(R.string.error_show_less) else ctx.getString(R.string.error_show_more),
+                        onDismiss = {
+                            dismiss()
+                            showError(ctx, titleId, rolledMessage, e, exitIfOk = exitIfOk, showMore = !showMore)
+                        }
+                    )
+                }
+                dialogFragment.show(ctx.supportFragmentManager, "error_dialog")
+                return@Runnable
+            }
+
             val errMsg = if (showMore) printToString(e) else rolledMessage ?: e.message
             val builder = com.google.android.material.dialog.MaterialAlertDialogBuilder(ctx)
                 .setTitle(titleId)
@@ -475,6 +505,20 @@ object Tools {
 
     @JvmStatic
     fun dialog(context: Context, title: CharSequence?, message: CharSequence?) {
+        if (context is FragmentActivity && !context.isFinishing && !context.isDestroyed) {
+            val dialogFragment = GenericComposeDialogFragment {
+                SimpleAlertDialog(
+                    title = title?.toString() ?: "",
+                    text = message?.toString() ?: "",
+                    confirmText = context.getString(android.R.string.ok),
+                    onConfirm = { dismiss() },
+                    onDismiss = { dismiss() }
+                )
+            }
+            dialogFragment.show(context.supportFragmentManager, "generic_dialog")
+            return
+        }
+
         com.google.android.material.dialog.MaterialAlertDialogBuilder(context)
             .setTitle(title)
             .setMessage(message)
@@ -484,11 +528,7 @@ object Tools {
 
     @JvmStatic
     fun dialog(context: Context, title: Int, message: Int) {
-        com.google.android.material.dialog.MaterialAlertDialogBuilder(context)
-            .setTitle(title)
-            .setMessage(message)
-            .setPositiveButton(android.R.string.ok, null)
-            .show()
+        dialog(context, context.getString(title), context.getString(message))
     }
 
     @JvmStatic
@@ -953,6 +993,29 @@ object Tools {
 
     @JvmStatic
     fun dialogForceClose(ctx: Context) {
+        if (ctx is FragmentActivity && !ctx.isFinishing && !ctx.isDestroyed) {
+            val dialogFragment = GenericComposeDialogFragment {
+                SimpleAlertDialog(
+                    title = ctx.getString(R.string.global_error),
+                    text = ctx.getString(R.string.mcn_exit_confirm),
+                    confirmText = ctx.getString(android.R.string.ok),
+                    onConfirm = {
+                        dismiss()
+                        try {
+                            restartLauncherActivity(ctx)
+                            fullyExit()
+                        } catch (th: Throwable) {
+                            Log.w(APP_NAME, "Could not enable System.exit() method!", th)
+                        }
+                    },
+                    dismissText = ctx.getString(android.R.string.cancel),
+                    onDismiss = { dismiss() }
+                )
+            }
+            dialogFragment.show(ctx.supportFragmentManager, "force_close_dialog")
+            return
+        }
+
         com.google.android.material.dialog.MaterialAlertDialogBuilder(ctx)
             .setMessage(R.string.mcn_exit_confirm)
             .setNegativeButton(android.R.string.cancel, null)

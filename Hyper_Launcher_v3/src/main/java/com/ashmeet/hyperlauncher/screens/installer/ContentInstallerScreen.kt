@@ -26,13 +26,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Warning
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButtonMenuItem
@@ -46,37 +45,36 @@ import androidx.compose.material3.SecondaryScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.input.ImeAction
 import androidx.core.content.edit
+import com.ashmeet.hyperlauncher.components.HyperAlertDialog
 import com.ashmeet.hyperlauncher.components.layout.ScreenLayout
 import com.ashmeet.hyperlauncher.components.list.ProjectItemView
 import com.ashmeet.hyperlauncher.components.list.VersionList
@@ -89,7 +87,6 @@ import com.ashmeet.hyperlauncher.utils.installer.ContentSource
 import com.ashmeet.hyperlauncher.utils.installer.ModrinthProject
 import com.ashmeet.hyperlauncher.utils.installer.ModrinthVersion
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
-import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -177,7 +174,7 @@ fun ContentInstallerScreen(
     }
 
     if (isUnsupported && !bypassWarning) {
-        AlertDialog(
+        HyperAlertDialog(
             onDismissRequest = onBack,
             icon = {
                 Icon(
@@ -215,26 +212,18 @@ fun ContentInstallerScreen(
                     }
                 }
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        if (skipWarningPermanently) {
-                            LauncherPreferences.PREF_SKIP_INCOMPATIBLE_WARNING = true
-                            LauncherPreferences.prefs.edit {
-                                putBoolean("skipIncompatibleWarning", true)
-                            }
-                        }
-                        bypassWarning = true
+            confirmText = "Use Anyway",
+            onConfirm = {
+                if (skipWarningPermanently) {
+                    LauncherPreferences.PREF_SKIP_INCOMPATIBLE_WARNING = true
+                    LauncherPreferences.prefs.edit {
+                        putBoolean("skipIncompatibleWarning", true)
                     }
-                ) {
-                    Text("Use Anyway")
                 }
+                bypassWarning = true
             },
-            dismissButton = {
-                TextButton(onClick = onBack) {
-                    Text("Cancel")
-                }
-            }
+            dismissText = "Cancel",
+            onDismiss = onBack
         )
     }
 

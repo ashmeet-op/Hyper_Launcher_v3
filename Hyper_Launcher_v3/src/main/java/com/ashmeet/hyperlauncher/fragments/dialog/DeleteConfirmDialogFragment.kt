@@ -33,8 +33,9 @@ class DeleteConfirmDialogFragment : DialogFragment() {
                         SimpleAlertDialog(
                             title = translatedText(stringResource(R.string.instance_delete)),
                             text = translatedText(stringResource(R.string.instance_delete_confirmation)),
-                            confirmText = translatedText(stringResource(R.string.global_delete)),
-                            dismissText = translatedText(stringResource(R.string.global_no)),
+                            confirmText = stringResource(R.string.global_delete),
+                            dismissText = stringResource(R.string.global_no),
+                            isDestructive = true,
                             onConfirm = {
                                 InstanceIconProvider.dropIcon(mInstance)
                                 Tools.removeCurrentFragment(requireActivity())

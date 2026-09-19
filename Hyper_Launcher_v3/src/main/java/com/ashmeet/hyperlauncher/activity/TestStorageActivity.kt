@@ -7,20 +7,24 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.ashmeet.hyperlauncher.components.dialog.SimpleAlertDialog
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.utils.Tools
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.tasks.AsyncAssetManager
 
 class TestStorageActivity : BaseActivity() {
     private val REQUEST_STORAGE_REQUEST_CODE = 1
-    private var mPermissionRequestDialog: AlertDialog? = null
     private var mPermsRequired = false
     private var mPermsDialogShown = false
+    private var mShowRerequestDialog by mutableStateOf(false)
 
     @SuppressLint("ObsoleteSdkInt")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,6 +32,24 @@ class TestStorageActivity : BaseActivity() {
         mPermsDialogShown = false
         if (Build.VERSION.SDK_INT >= 23 && Build.VERSION.SDK_INT < 29 && !isStorageAllowed(this)) {
             mPermsRequired = true
+            setContentView(ComposeView(this).apply {
+                setContent {
+                    PojavTheme {
+                        if (mShowRerequestDialog) {
+                            SimpleAlertDialog(
+                                title = getString(R.string.global_error),
+                                text = getString(R.string.toast_permission_denied),
+                                confirmText = getString(android.R.string.ok),
+                                onConfirm = {
+                                    mShowRerequestDialog = false
+                                    requestStoragePermission()
+                                },
+                                onDismiss = { finish() }
+                            )
+                        }
+                    }
+                }
+            })
         } else {
             exit()
         }
@@ -45,16 +67,10 @@ class TestStorageActivity : BaseActivity() {
 
     override fun onPause() {
         super.onPause()
-        mPermissionRequestDialog?.dismiss()
     }
 
     private fun showRerequestDialog() {
-        mPermissionRequestDialog?.dismiss()
-        mPermissionRequestDialog = MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.global_error)
-            .setMessage(R.string.toast_permission_denied)
-            .setPositiveButton(android.R.string.ok) { _, _ -> requestStoragePermission() }
-            .show()
+        mShowRerequestDialog = true
     }
 
     override fun onRequestPermissionsResult(

@@ -5,11 +5,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
 import com.ashmeet.hyperlauncher.components.layout.ActionRow
 import com.ashmeet.hyperlauncher.components.layout.LauncherBackground
+import com.ashmeet.hyperlauncher.components.HyperAlertDialog
 import com.ashmeet.hyperlauncher.fragments.dialog.EditControlSideDialog
 import com.ashmeet.hyperlauncher.utils.SideDialogUtils
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
@@ -92,26 +91,19 @@ fun ControlsEditorScreen(
         )
 
         if (showDeleteConfirm) {
-            AlertDialog(
+            HyperAlertDialog(
                 onDismissRequest = { showDeleteConfirm = false },
                 title = { Text(text = translatedText(stringResource(R.string.global_delete))) },
                 text = { Text(text = translatedText("Are you sure you want to delete this button?")) },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            followedButton?.removeButton()
-                            followedButton = null
-                            showDeleteConfirm = false
-                        }
-                    ) {
-                        Text(text = translatedText(stringResource(R.string.global_delete)))
-                    }
+                confirmText = stringResource(R.string.global_delete),
+                onConfirm = {
+                    followedButton?.removeButton()
+                    followedButton = null
+                    showDeleteConfirm = false
                 },
-                dismissButton = {
-                    TextButton(onClick = { showDeleteConfirm = false }) {
-                        Text(text = stringResource(android.R.string.cancel))
-                    }
-                }
+                dismissText = stringResource(android.R.string.cancel),
+                onDismiss = { showDeleteConfirm = false },
+                isDestructive = true
             )
         }
 

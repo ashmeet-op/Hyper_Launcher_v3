@@ -1,7 +1,5 @@
 package com.ashmeet.hyperlauncher.screens.settings
 
-import com.ashmeet.hyperlauncher.utils.translation.translatedText
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
@@ -12,18 +10,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
-import androidx.core.content.edit
 import androidx.compose.ui.unit.dp
+import androidx.core.content.edit
 import com.ashmeet.hyperlauncher.screens.settings.layouts.CardPosition
 import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsCard
 import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsScreenWrapper
-import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSwitchItem
-import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSwitchItem
+import com.ashmeet.hyperlauncher.utils.translation.translatedText
+import net.ashmeet.hyperlauncher.R
 
 @Composable
 fun ExperimentalSettingsScreen(

@@ -1,24 +1,22 @@
 package com.ashmeet.hyperlauncher.fragments.auth
 
 import android.os.Bundle
-import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
-import androidx.compose.ui.platform.ComposeView
-import androidx.fragment.app.Fragment
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.ashmeet.hyperlauncher.screens.auth.AuthLayout
-import com.ashmeet.hyperlauncher.fragments.auth.MicrosoftLoginFragment
-import com.ashmeet.hyperlauncher.fragments.auth.ElyByLoginFragment
 import com.ashmeet.hyperlauncher.theme.PojavTheme
+import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
 
 class AuthHostFragment : Fragment() {

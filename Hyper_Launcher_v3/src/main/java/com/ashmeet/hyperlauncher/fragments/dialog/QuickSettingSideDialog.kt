@@ -1,15 +1,33 @@
 package com.ashmeet.hyperlauncher.fragments.dialog
 
-import com.ashmeet.hyperlauncher.utils.translation.translatedText
-
 import android.content.SharedPreferences
-import androidx.compose.animation.*
-import androidx.compose.foundation.layout.*
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.*
 import androidx.compose.material.icons.automirrored.rounded.VolumeUp
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Description
+import androidx.compose.material.icons.rounded.GraphicEq
+import androidx.compose.material.icons.rounded.Keyboard
+import androidx.compose.material.icons.rounded.Mouse
+import androidx.compose.material.icons.rounded.ScreenRotation
 import androidx.compose.material.icons.rounded.Tune
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,7 +37,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -31,9 +48,10 @@ import com.ashmeet.hyperlauncher.components.dialog.DialogCard
 import com.ashmeet.hyperlauncher.components.dialog.DialogSliderItem
 import com.ashmeet.hyperlauncher.components.dialog.DialogSwitchItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
-import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.utils.Tools
-import net.kdt.pojavlaunch.utils.KeycodeUtils
+import com.ashmeet.hyperlauncher.utils.translation.translatedText
+import kotlinx.coroutines.launch
+import net.ashmeet.hyperlauncher.R
 
 
 abstract class QuickSettingSideDialog : SideDialogView() {

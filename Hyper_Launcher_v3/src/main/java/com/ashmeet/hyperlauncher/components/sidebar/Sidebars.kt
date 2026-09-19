@@ -326,7 +326,7 @@ fun FilterSourceItem(
     if (isShowingDialog) {
         AlertDialog(
             onDismissRequest = { isShowingDialog = false },
-            title = { Text("Select Source") },
+            title = { Text(translatedText("Select Source")) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     ContentSource.entries.forEach { source ->
@@ -375,7 +375,8 @@ fun FilterSourceItem(
                     }
                 }
             },
-            confirmButton = {}
+            confirmButton = {},
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
         )
     }
 

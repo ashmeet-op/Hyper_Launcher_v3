@@ -4,11 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
+import com.ashmeet.hyperlauncher.components.dialog.SimpleAlertDialog
+import com.ashmeet.hyperlauncher.components.dialog.DialogTextInput
+import com.ashmeet.hyperlauncher.components.dialog.GenericComposeDialogFragment
 import com.ashmeet.hyperlauncher.fragments.installer.ContentInstallerFragment
 import com.ashmeet.hyperlauncher.fragments.selection.ProfileTypeSelectFragment
 import com.ashmeet.hyperlauncher.screens.instances.InstanceSelectionScreen
@@ -114,49 +115,43 @@ class InstanceSelectionFragment : Fragment() {
     }
 
     private fun showRenameDialog(instance: Instance, onRefresh: () -> Unit) {
-        val context = requireContext()
-        val editText = EditText(context)
-        editText.setText(instance.name)
-        val container = FrameLayout(context)
-        val params = FrameLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        val margin = context.resources.getDimensionPixelSize(R.dimen._16sdp)
-        params.leftMargin = margin
-        params.rightMargin = margin
-        params.topMargin = margin / 2
-        params.bottomMargin = margin / 2
-        editText.layoutParams = params
-        container.addView(editText)
-
-        MaterialAlertDialogBuilder(context)
-            .setTitle(R.string.global_name)
-            .setView(container)
-            .setNegativeButton(android.R.string.cancel, null)
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                val newName = editText.text.toString()
-                if (newName.isNotBlank()) {
-                    instance.name = newName
-                    instance.maybeWrite()
-                    Toast.makeText(context, R.string.global_save, Toast.LENGTH_SHORT).show()
-                    onRefresh()
-                }
-            }
-            .show()
+        val dialogFragment = GenericComposeDialogFragment {
+            DialogTextInput(
+                title = getString(R.string.global_name),
+                initialValue = instance.name,
+                onConfirm = { newName ->
+                    if (newName.isNotBlank()) {
+                        instance.name = newName
+                        instance.maybeWrite()
+                        Toast.makeText(requireContext(), R.string.global_save, Toast.LENGTH_SHORT).show()
+                        onRefresh()
+                    }
+                    dismiss()
+                },
+                onDismiss = { dismiss() }
+            )
+        }
+        dialogFragment.show(parentFragmentManager, "rename_dialog")
     }
 
     private fun showDeleteConfirmDialog(instance: Instance, onRefresh: () -> Unit) {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.instance_delete)
-            .setMessage(R.string.instance_delete_confirmation)
-            .setNegativeButton(android.R.string.cancel, null)
-            .setPositiveButton(R.string.global_delete) { _, _ ->
-                Instances.removeInstance(instance)
-                Toast.makeText(requireContext(), R.string.global_delete, Toast.LENGTH_SHORT).show()
-                onRefresh()
-            }
-            .show()
+        val dialogFragment = GenericComposeDialogFragment {
+            SimpleAlertDialog(
+                title = getString(R.string.instance_delete),
+                text = getString(R.string.instance_delete_confirmation),
+                confirmText = getString(R.string.global_delete),
+                dismissText = getString(android.R.string.cancel),
+                isDestructive = true,
+                onConfirm = {
+                    Instances.removeInstance(instance)
+                    Toast.makeText(requireContext(), R.string.global_delete, Toast.LENGTH_SHORT).show()
+                    onRefresh()
+                    dismiss()
+                },
+                onDismiss = { dismiss() }
+            )
+        }
+        dialogFragment.show(parentFragmentManager, "delete_dialog")
     }
 
     companion object {

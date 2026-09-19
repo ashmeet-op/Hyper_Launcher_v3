@@ -4,20 +4,27 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
+import com.ashmeet.hyperlauncher.utils.translation.translatedText
 
 @Composable
 fun HyperOutlinedTextField(
@@ -70,6 +77,62 @@ fun HyperOutlinedTextField(
 }
 
 @Composable
+fun HyperAlertDialog(
+    onDismissRequest: () -> Unit,
+    confirmText: String,
+    onConfirm: () -> Unit,
+    modifier: Modifier = Modifier,
+    dismissText: String? = null,
+    onDismiss: (() -> Unit)? = null,
+    title: @Composable (() -> Unit)? = null,
+    icon: @Composable (() -> Unit)? = null,
+    isDestructive: Boolean = false,
+    text: @Composable (() -> Unit)? = null,
+    shape: Shape = AlertDialogDefaults.shape,
+    containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    titleContentColor: Color = AlertDialogDefaults.titleContentColor,
+    textContentColor: Color = AlertDialogDefaults.textContentColor,
+    tonalElevation: androidx.compose.ui.unit.Dp = AlertDialogDefaults.TonalElevation,
+    properties: androidx.compose.ui.window.DialogProperties = androidx.compose.ui.window.DialogProperties()
+) {
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                colors = if (isDestructive) {
+                    ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    )
+                } else {
+                    ButtonDefaults.buttonColors()
+                }
+            ) {
+                Text(translatedText(confirmText))
+            }
+        },
+        dismissButton = if (dismissText != null) {
+            {
+                FilledTonalButton(onClick = onDismiss ?: onDismissRequest) {
+                    Text(translatedText(dismissText))
+                }
+            }
+        } else null,
+        modifier = modifier,
+        title = title,
+        icon = icon,
+        text = text,
+        shape = shape,
+        containerColor = containerColor,
+        titleContentColor = titleContentColor,
+        textContentColor = textContentColor,
+        tonalElevation = tonalElevation,
+        properties = properties
+    )
+}
+
+@Composable
 fun HyperDropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
@@ -85,7 +148,7 @@ fun HyperDropdownMenu(
         offset = offset,
         properties = properties,
         shape = RoundedCornerShape(12.dp),
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
         tonalElevation = 0.dp,
         shadowElevation = 12.dp,
         content = content
