@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -126,7 +128,7 @@ fun InstanceSelectionScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 private fun InstanceSelectionContent(
     instances: List<DisplayInstance>,
@@ -142,6 +144,14 @@ private fun InstanceSelectionContent(
     onAddShortcut: (DisplayInstance) -> Unit,
     onSelectInstance: (DisplayInstance, Int) -> Unit
 ) {
+    val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
+    val isImeVisible = WindowInsets.isImeVisible
+    LaunchedEffect(isImeVisible) {
+        if (!isImeVisible) {
+            focusManager.clearFocus()
+        }
+    }
+
     var selectedTab by remember { mutableIntStateOf(0) }
     var searchQuery by remember { mutableStateOf("") }
     val searchTextFieldState = rememberTextFieldState(searchQuery)
@@ -238,8 +248,8 @@ private fun InstanceSelectionContent(
                             interactionSource = interactionSource,
                             shape = SearchBarDefaults.inputFieldShape,
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                                 focusedBorderColor = MaterialTheme.colorScheme.primary,
                                 unfocusedBorderColor = Color.Transparent,
                             ),

@@ -1,27 +1,53 @@
 package com.ashmeet.hyperlauncher.screens.modloader
 
-import com.ashmeet.hyperlauncher.utils.translation.translatedText
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
-import androidx.compose.material.icons.rounded.Refresh
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,55 +67,10 @@ fun <T> ModloaderInstallScreen(
         color = if (LauncherPreferences.PREF_LAUNCHER_BACKGROUND_PATH != null) Color.Transparent else MaterialTheme.colorScheme.background,
         contentColor = MaterialTheme.colorScheme.onBackground
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
-        ) {
+        Box(modifier = Modifier.fillMaxSize()) {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                IconButton(onClick = onBack) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                        contentDescription = stringResource(android.R.string.cancel)
-                    )
-                }
-
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Bold
-                )
-
-                if (!isLoading && !isDownloading) {
-                    IconButton(
-                        onClick = onRetry,
-                        modifier = Modifier.align(Alignment.CenterEnd)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Refresh,
-                            contentDescription = translatedText(stringResource(R.string.global_retry))
-                        )
-                    }
-                }
-            }
-
-            HorizontalDivider(
-                modifier = Modifier.padding(bottom = 8.dp),
-                thickness = 2.dp,
-                color = MaterialTheme.colorScheme.outline
-            )
-
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
+                    .fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 if (isLoading && versionGroups.isEmpty()) {
@@ -111,7 +92,8 @@ fun <T> ModloaderInstallScreen(
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(bottom = 16.dp)
+                        contentPadding = PaddingValues(top = 80.dp, bottom = 16.dp, start = 16.dp, end = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(versionGroups) { group ->
                             ModloaderVersionGroupItem(
@@ -124,11 +106,41 @@ fun <T> ModloaderInstallScreen(
                 }
             }
 
+            Surface(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .align(Alignment.TopStart),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+                tonalElevation = 4.dp
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(end = 16.dp)
+                ) {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                            contentDescription = translatedText("Back"),
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+            }
+
             if (isDownloading || isLoading) {
                 LinearProgressIndicator(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp)
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 8.dp)
                 )
             }
         }
@@ -153,48 +165,65 @@ private fun <T> ModloaderVersionGroupItem(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    Column {
-        ListItem(
-            headlineContent = {
-                Text(
-                    text = group.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium
-                )
-            },
-            trailingContent = {
-                Icon(
-                    imageVector = if (expanded) Icons.Rounded.KeyboardArrowDown else Icons.Rounded.KeyboardArrowUp,
-                    contentDescription = null
-                )
-            },
-            modifier = Modifier.clickable { expanded = !expanded },
-            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         )
+    ) {
+        Column {
+            ListItem(
+                modifier = Modifier.clickable { expanded = !expanded },
+                leadingContent = null,
+                trailingContent = {
+                Icon(
+                imageVector = if (expanded) Icons.Rounded.KeyboardArrowUp else Icons.Rounded.KeyboardArrowDown,
+                contentDescription = null
+                )
+                },
+                overlineContent = null,
+                supportingContent = null,
+                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                elevation = ListItemDefaults.elevation(),
+                content = {
+                Text(
+                text = group.name,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+                )
+                },
+            )
 
-        AnimatedVisibility(visible = expanded) {
-            Column(modifier = Modifier.padding(start = 16.dp)) {
-                group.versions.forEach { version ->
-                    ListItem(
-                        headlineContent = {
-                            Text(
-                                text = version.name,
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        },
-                        modifier = Modifier.clickable(enabled = enabled) {
+            AnimatedVisibility(visible = expanded) {
+                Column(
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                ) {
+                    group.versions.forEach { version ->
+                        ListItem(
+                            modifier = Modifier
+                            .padding(horizontal = 8.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable(enabled = enabled) {
                             onVersionSelected(version.data)
-                        },
-                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                    )
+                            },
+                            leadingContent = null,
+                            trailingContent = null,
+                            overlineContent = null,
+                            supportingContent = null,
+                            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                            elevation = ListItemDefaults.elevation(),
+                            content = {
+                            Text(
+                            text = version.name,
+                            style = MaterialTheme.typography.bodyLarge
+                            )
+                            },
+                        )
+                    }
                 }
             }
         }
-
-        HorizontalDivider(
-            modifier = Modifier.padding(horizontal = 8.dp),
-            thickness = 0.5.dp,
-            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
-        )
     }
 }

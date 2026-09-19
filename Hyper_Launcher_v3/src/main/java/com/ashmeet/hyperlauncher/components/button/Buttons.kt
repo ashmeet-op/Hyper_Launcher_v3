@@ -79,7 +79,7 @@ fun MineButton(
                     painter = icon,
                     contentDescription = null,
                     modifier = Modifier.size(20.dp),
-                    tint = if (tintIcon) androidx.compose.material3.LocalContentColor.current else Color.Unspecified
+                    tint = if (tintIcon) MaterialTheme.colorScheme.onPrimary else Color.Unspecified
                 )
                 Spacer(modifier = Modifier.width(8.dp))
             }

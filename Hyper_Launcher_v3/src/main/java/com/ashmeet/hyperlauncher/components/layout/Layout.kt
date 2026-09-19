@@ -1,5 +1,6 @@
 package com.ashmeet.hyperlauncher.components.layout
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.ashmeet.hyperlauncher.components.rail.SideRail
@@ -35,6 +38,7 @@ fun ScreenLayout(
     sidebar: @Composable (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    val focusManager = LocalFocusManager.current
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = if (LauncherPreferences.PREF_LAUNCHER_BACKGROUND_PATH != null) Color.Transparent else MaterialTheme.colorScheme.background,
@@ -65,7 +69,15 @@ fun ScreenLayout(
                 },
                 tonalElevation = 2.dp
             ) {
-                Box(modifier = Modifier.fillMaxSize()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .pointerInput(Unit) {
+                            detectTapGestures(onTap = {
+                                focusManager.clearFocus()
+                            })
+                        }
+                ) {
                     if (LauncherPreferences.PREF_BLURRED_ELEMENTS_ENABLED) {
                         Box(
                             modifier = Modifier
