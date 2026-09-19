@@ -152,8 +152,8 @@ fun ProgressLayoutContent(
                 .padding(horizontal = 8.dp, vertical = 4.dp)
                 .clip(RoundedCornerShape(24.dp))
                 .wrapContentHeight(),
-            color = MaterialTheme.colorScheme.surfaceContainer,
-            tonalElevation = 3.dp
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 0.dp
         ) {
             Column(
                 modifier = Modifier

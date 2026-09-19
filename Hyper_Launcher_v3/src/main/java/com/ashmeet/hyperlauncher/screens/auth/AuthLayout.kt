@@ -311,16 +311,19 @@ fun AuthLayout(
                                                 modifier = Modifier.fillMaxSize(),
                                                 contentAlignment = Alignment.Center
                                             ) {
-                                                val imageVector = if (fabMenuExpanded) Icons.Rounded.Close else Icons.Rounded.Add
                                                 Icon(
-                                                    imageVector = imageVector,
+                                                    imageVector = Icons.Rounded.Add,
                                                     contentDescription = null,
-                                                    modifier = Modifier.animateIcon(
-                                                        checkedProgress = { checkedProgress },
-                                                        color = { progress ->
-                                                            androidx.compose.ui.graphics.lerp(fabMenuIconStartColor, fabMenuIconEndColor, progress)
+                                                    modifier = Modifier
+                                                        .graphicsLayer {
+                                                            rotationZ = checkedProgress * 45f
                                                         }
-                                                    )
+                                                        .animateIcon(
+                                                            checkedProgress = { checkedProgress },
+                                                            color = { progress ->
+                                                                androidx.compose.ui.graphics.lerp(fabMenuIconStartColor, fabMenuIconEndColor, progress)
+                                                            }
+                                                        )
                                                 )
                                             }
                                         }

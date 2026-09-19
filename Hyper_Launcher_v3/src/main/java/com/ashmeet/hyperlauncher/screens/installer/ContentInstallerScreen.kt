@@ -26,36 +26,37 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.draw.clip
-import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.FileUpload
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButtonMenuItem
-import androidx.compose.material3.FloatingActionButtonMenuScope
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.ScrollableTabRow
+import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.SecondaryScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
@@ -63,15 +64,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.core.content.edit
 import com.ashmeet.hyperlauncher.components.layout.ScreenLayout
-import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
 import com.ashmeet.hyperlauncher.components.list.ProjectItemView
 import com.ashmeet.hyperlauncher.components.list.VersionList
 import com.ashmeet.hyperlauncher.components.sidebar.ProjectDetailsSidebar
@@ -83,6 +89,8 @@ import com.ashmeet.hyperlauncher.utils.installer.ContentSource
 import com.ashmeet.hyperlauncher.utils.installer.ModrinthProject
 import com.ashmeet.hyperlauncher.utils.installer.ModrinthVersion
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
+import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -92,7 +100,7 @@ fun ContentInstallerScreen(
     onProjectClick: (ModrinthProject) -> Unit,
     onVersionClick: (ModrinthVersion) -> Unit,
     onRefresh: () -> Unit,
-    onImportModpack: () -> Unit,
+    onImportContent: (ContentInstallerType) -> Unit,
     projects: List<ModrinthProject>,
     isLoading: Boolean,
     selectedVersion: String?,
@@ -107,17 +115,37 @@ fun ContentInstallerScreen(
     selectedProjectMCVersion: String? = null,
     initialBypassWarning: Boolean = false,
     onProjectMCVersionClick: (String) -> Unit = {},
-    onBackToProjects: () -> Unit = {}
+    onBackToProjects: () -> Unit = {},
 ) {
     var searchQuery by remember { mutableStateOf("") }
+    val searchTextFieldState = rememberTextFieldState(searchQuery)
     var isSearchActive by remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val interactionSource = remember { MutableInteractionSource() }
+
     var bypassWarning by remember { mutableStateOf(initialBypassWarning || LauncherPreferences.PREF_SKIP_INCOMPATIBLE_WARNING) }
     var skipWarningPermanently by remember { mutableStateOf(false) }
+
+    LaunchedEffect(viewingProject) {
+        if (viewingProject != null) {
+            isSearchActive = false
+            searchTextFieldState.edit { replace(0, length, "") }
+        }
+    }
+
+    LaunchedEffect(searchTextFieldState.text) {
+        val query = searchTextFieldState.text.toString()
+        if (query != searchQuery) {
+            searchQuery = query
+            onSearch(query, selectedType, selectedVersion, selectedLoader, selectedSource)
+        }
+    }
 
     val handleBack = {
         if (viewingProject != null) {
             isSearchActive = false
-            searchQuery = ""
+            searchTextFieldState.edit { replace(0, length, "") }
             onSearch(
                 "",
                 selectedType,
@@ -128,7 +156,7 @@ fun ContentInstallerScreen(
             onBackToProjects()
         } else if (isSearchActive) {
             isSearchActive = false
-            searchQuery = ""
+            searchTextFieldState.edit { replace(0, length, "") }
             onSearch(
                 "",
                 selectedType,
@@ -141,7 +169,7 @@ fun ContentInstallerScreen(
         }
     }
 
-    BackHandler(enabled = isSearchActive || viewingProject != null, onBack = handleBack)
+    BackHandler(enabled = (isSearchActive || viewingProject != null), onBack = handleBack)
 
     val isUnsupported = remember(instanceLoader, selectedType) {
         (selectedType == ContentInstallerType.MODS || selectedType == ContentInstallerType.MODPACKS) &&
@@ -188,15 +216,17 @@ fun ContentInstallerScreen(
                 }
             },
             confirmButton = {
-                TextButton(onClick = {
-                    if (skipWarningPermanently) {
-                        LauncherPreferences.PREF_SKIP_INCOMPATIBLE_WARNING = true
-                        LauncherPreferences.prefs.edit {
-                            putBoolean("skipIncompatibleWarning", true)
+                TextButton(
+                    onClick = {
+                        if (skipWarningPermanently) {
+                            LauncherPreferences.PREF_SKIP_INCOMPATIBLE_WARNING = true
+                            LauncherPreferences.prefs.edit {
+                                putBoolean("skipIncompatibleWarning", true)
+                            }
                         }
+                        bypassWarning = true
                     }
-                    bypassWarning = true
-                }) {
+                ) {
                     Text("Use Anyway")
                 }
             },
@@ -211,19 +241,28 @@ fun ContentInstallerScreen(
     ScreenLayout(
         onBack = handleBack,
         onRefresh = onRefresh,
-        onImportModpack = { isSearchActive = !isSearchActive },
+        onImportModpack = {
+            if (viewingProject == null) {
+                isSearchActive = !isSearchActive
+                if (!isSearchActive) {
+                    searchTextFieldState.edit { replace(0, length, "") }
+                }
+            }
+        },
         isSearchActive = isSearchActive,
         fabMenuContent = { onDismiss ->
-            FloatingActionButtonMenuItem(
-                onClick = {
-                    onDismiss()
-                    onImportModpack()
-                },
-                icon = { Icon(Icons.Rounded.FileUpload, contentDescription = null) },
-                text = { Text(text = translatedText("Import File")) },
-                containerColor = MaterialTheme.colorScheme.onSurface,
-                contentColor = MaterialTheme.colorScheme.surface
-            )
+            ContentInstallerType.entries.forEach { type ->
+                FloatingActionButtonMenuItem(
+                    onClick = {
+                        onDismiss()
+                        onImportContent(type)
+                    },
+                    icon = { Icon(type.iconRes, contentDescription = null) },
+                    text = { Text(text = translatedText("Import ${stringResource(type.labelRes)}")) },
+                    containerColor = MaterialTheme.colorScheme.onSurface,
+                    contentColor = MaterialTheme.colorScheme.surface
+                )
+            }
         },
         header = {
             AnimatedContent(
@@ -240,38 +279,45 @@ fun ContentInstallerScreen(
                 label = "search_transition"
             ) { active ->
                 if (active) {
-                    HyperOutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = {
-                            searchQuery = it
-                            onSearch(it, selectedType, selectedVersion, selectedLoader, selectedSource)
-                        },
-                        enabled = viewingProject == null,
-                        textStyle = MaterialTheme.typography.bodyLarge.copy(lineHeight = 24.sp),
-                        modifier = Modifier
+                    LaunchedEffect(Unit) {
+                        kotlinx.coroutines.delay(200.milliseconds)
+                        focusRequester.requestFocus()
+                        keyboardController?.show()
+                    }
+                    Box(
+                        Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                        label = { Text("Search content...") },
-                        leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
-                        singleLine = true,
-                        shape = RoundedCornerShape(16.dp),
-                        keyboardOptions = KeyboardOptions(
-                            imeAction = ImeAction.Search
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onSearch = {
-                                onSearch(searchQuery, selectedType, selectedVersion, selectedLoader, selectedSource)
+                            .semantics { isTraversalGroup = true }
+                    ) {
+                        OutlinedTextField(
+                            state = searchTextFieldState,
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .semantics { traversalIndex = 0f }
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .focusRequester(focusRequester),
+                            label = { Text("Search content...") },
+                            leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
+                            enabled = viewingProject == null,
+                            interactionSource = interactionSource,
+                            shape = SearchBarDefaults.inputFieldShape,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = Color.Transparent,
+                            ),
+                            lineLimits = TextFieldLineLimits.SingleLine,
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                            onKeyboardAction = {
+                                onSearch(searchTextFieldState.text.toString(), selectedType, selectedVersion, selectedLoader, selectedSource)
+                                isSearchActive = false
                             }
-                        ),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surface,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = Color.Transparent
                         )
-                    )
+                    }
                 } else {
-                    ScrollableTabRow(
+                    SecondaryScrollableTabRow(
                         selectedTabIndex = ContentInstallerType.entries.indexOf(selectedType),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -299,12 +345,12 @@ fun ContentInstallerScreen(
                         containerColor = Color.Transparent,
                         edgePadding = 0.dp,
                         divider = {},
-                        indicator = { tabPositions ->
+                        indicator = @Composable {
                             val index = ContentInstallerType.entries.indexOf(selectedType)
-                            if (index >= 0 && index < tabPositions.size) {
+                            if (index >= 0) {
                                 TabRowDefaults.SecondaryIndicator(
                                     modifier = Modifier
-                                        .tabIndicatorOffset(tabPositions[index])
+                                        .tabIndicatorOffset(index)
                                         .padding(horizontal = 16.dp)
                                         .clip(RoundedCornerShape(3.dp)),
                                     height = 4.dp,
@@ -352,7 +398,7 @@ fun ContentInstallerScreen(
                     onVersionChange = { onSearch(searchQuery, selectedType, it, selectedLoader, selectedSource) },
                     onLoaderChange = { onSearch(searchQuery, selectedType, selectedVersion, it, selectedSource) },
                     onSourceChange = { onSearch(searchQuery, selectedType, selectedVersion, selectedLoader, it) },
-                    onImportModpack = onImportModpack
+                    onImportContent = onImportContent
                 )
             }
         }
@@ -429,7 +475,7 @@ fun ContentInstallerScreenPreview() {
             onProjectClick = {},
             onVersionClick = {},
             onRefresh = {},
-            onImportModpack = {},
+            onImportContent = {},
             projects = listOf(
                 sampleProject,
                 sampleProject.copy(id = "2", title = translatedText("Another Mod"), description = "Description for the second mod.")
@@ -469,7 +515,7 @@ fun ContentInstallerScreenDetailPreview() {
             onProjectClick = {},
             onVersionClick = {},
             onRefresh = {},
-            onImportModpack = {},
+            onImportContent = {},
             projects = emptyList(),
             isLoading = false,
             selectedVersion = "1.20.1",

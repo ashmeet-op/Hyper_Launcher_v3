@@ -404,7 +404,8 @@ class ContentInstallerFragment : Fragment() {
                             selectedProjectMCVersion = null
                         },
                         onRefresh = { refreshTrigger++ },
-                        onImportModpack = {
+                        onImportContent = { type ->
+                            mPendingImportType = type
                             importLauncher.launch("*/*")
                         }
                     )
@@ -747,20 +748,23 @@ class ContentInstallerFragment : Fragment() {
         }
     }
 
+    private var mPendingImportType = ContentInstallerType.MODPACKS
+
     private val importLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri == null) return@registerForActivityResult
         val context = requireContext()
         val contentResolver = context.contentResolver
+        val type = mPendingImportType
         PojavApplication.sExecutorService.execute {
-            performLocalInstall(uri, context, contentResolver)
+            performLocalInstall(uri, context, contentResolver, type)
         }
     }
 
-    private fun performLocalInstall(uri: Uri, context: Context, contentResolver: ContentResolver) {
+    private fun performLocalInstall(uri: Uri, context: Context, contentResolver: ContentResolver, type: ContentInstallerType) {
         val fileName = Tools.getFileName(context, uri) ?: return
         val outFile = File(Tools.DIR_CACHE, "$fileName.cf")
-        val progressKey = "install_modpack"
-        ProgressKeeper.submitProgress(progressKey, 0, -1, "Caching modpack...")
+        val progressKey = if (type == ContentInstallerType.MODPACKS) "install_modpack" else "install_content"
+        ProgressKeeper.submitProgress(progressKey, 0, -1, "Caching content...")
         try {
             contentResolver.openInputStream(uri)?.use { input ->
                 outFile.outputStream().use { output ->
@@ -774,22 +778,100 @@ class ContentInstallerFragment : Fragment() {
         }
 
         try {
-            if (MMCInstanceImporter.isMMCInstance(outFile)) {
-                ProgressKeeper.submitProgress(progressKey, 50, -1, "Importing MMC Instance...")
-                MMCInstanceImporter.importInstance(fileName.substringBeforeLast("."), outFile)
-                Tools.runOnUiThread {
-                    Toast.makeText(context, "MMC Instance imported successfully", Toast.LENGTH_SHORT).show()
+            if (type == ContentInstallerType.MODPACKS) {
+                if (MMCInstanceImporter.isMMCInstance(outFile)) {
+                    ProgressKeeper.submitProgress(progressKey, 50, -1, "Importing MMC Instance...")
+                    MMCInstanceImporter.importInstance(fileName.substringBeforeLast("."), outFile)
+                    Tools.runOnUiThread {
+                        Toast.makeText(context, "MMC Instance imported successfully", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    val modpackApi: ModpackApi =
+                        CommonApi(getString(R.string.curseforge_api_key))
+                    modpackApi.installLocalModpack(fileName, outFile, null)
                 }
             } else {
-                val modpackApi: ModpackApi =
-                    CommonApi(getString(R.string.curseforge_api_key))
-                modpackApi.installLocalModpack(fileName, outFile, null)
+                val instance = Instances.loadSelectedInstance()
+                if (instance == null) {
+                    Tools.runOnUiThread { Toast.makeText(context, "No instance selected", Toast.LENGTH_SHORT).show() }
+                    return
+                }
+
+                val destFolder = when (type) {
+                    ContentInstallerType.MODS -> File(instance.gameDirectory, "mods")
+                    ContentInstallerType.RESOURCEPACKS -> File(instance.gameDirectory, "resourcepacks")
+                    ContentInstallerType.SHADERS -> File(instance.gameDirectory, "shaderpacks")
+                    ContentInstallerType.WORLDS -> File(instance.gameDirectory, "saves")
+                    else -> File(instance.gameDirectory, "downloads")
+                }
+                destFolder.mkdirs()
+
+                if (type == ContentInstallerType.WORLDS) {
+                    ProgressKeeper.submitProgress(progressKey, 50, -1, "Extracting world...")
+                    extractWorldLocal(outFile, destFolder, fileName)
+                    Tools.runOnUiThread {
+                        Toast.makeText(context, "World $fileName imported successfully", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    val destFile = File(destFolder, fileName)
+                    outFile.copyTo(destFile, overwrite = true)
+                    Tools.runOnUiThread {
+                        Toast.makeText(context, "Installed $fileName", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             Tools.showErrorRemote("Error", e)
         } finally {
             outFile.delete()
             ProgressKeeper.submitProgress(progressKey, -1, -1)
+        }
+    }
+
+    private fun extractWorldLocal(zipFile: File, savesFolder: File, fileName: String) {
+        ZipFile(zipFile).use { zip ->
+            val entries = zip.entries()
+            var levelDatEntry: ZipEntry? = null
+            while (entries.hasMoreElements()) {
+                val entry = entries.nextElement()
+                if (entry.name.endsWith("level.dat")) {
+                    levelDatEntry = entry
+                    break
+                }
+            }
+
+            if (levelDatEntry == null) throw IOException("No level.dat found in zip")
+
+            val worldPath = levelDatEntry.name.substringBeforeLast("level.dat")
+            val worldFolderName = if (worldPath.isEmpty()) {
+                fileName.substringBeforeLast(".")
+            } else {
+                worldPath.removeSuffix("/").substringAfterLast("/")
+            }
+
+            val finalWorldDir = File(savesFolder, worldFolderName)
+            finalWorldDir.mkdirs()
+
+            val extractEntries = zip.entries()
+            while (extractEntries.hasMoreElements()) {
+                val entry = extractEntries.nextElement()
+                if (entry.name.startsWith(worldPath)) {
+                    val relativePath = entry.name.substring(worldPath.length)
+                    if (relativePath.isEmpty()) continue
+
+                    val destFile = File(finalWorldDir, relativePath)
+                    if (entry.isDirectory) {
+                        destFile.mkdirs()
+                    } else {
+                        destFile.parentFile?.mkdirs()
+                        zip.getInputStream(entry).use { input ->
+                            destFile.outputStream().use { output ->
+                                input.copyTo(output)
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 

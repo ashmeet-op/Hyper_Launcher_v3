@@ -18,36 +18,29 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
 import androidx.compose.material.icons.rounded.FolderOpen
 import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButtonMenuItem
-import androidx.compose.material3.FloatingActionButtonMenuScope
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
-import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
-import com.ashmeet.hyperlauncher.components.HyperDropdownMenu
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -56,31 +49,42 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ashmeet.hyperlauncher.activity.PojavApplication
 import com.ashmeet.hyperlauncher.components.layout.ScreenLayout
 import com.ashmeet.hyperlauncher.components.list.FileListItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.TextInputDialog
 import com.ashmeet.hyperlauncher.theme.PojavTheme
-import com.ashmeet.hyperlauncher.utils.translation.translatedText
-import com.ashmeet.hyperlauncher.activity.PojavApplication
 import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.translation.translatedText
+import kotlinx.coroutines.launch
 import net.kdt.pojavlaunch.instances.Instances
 import net.kdt.pojavlaunch.progresskeeper.ProgressKeeper
 import org.apache.commons.io.FileUtils
 import java.io.File
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun InstanceDirectoryScreen(
-    onBack: () -> Unit
+    onBack: () -> Unit,
 ) {
     val isPreview = LocalInspectionMode.current
     val selectedInstance = remember {
@@ -111,12 +115,19 @@ fun InstanceDirectoryContent(
     var selectedTab by remember { mutableIntStateOf(0) }
 
     var showNewFolderDialog by remember { mutableStateOf(false) }
-    var sidebarMenuExpanded by remember { mutableStateOf(false) }
     var fileToRename by remember { mutableStateOf<File?>(null) }
     var fileToDelete by remember { mutableStateOf<File?>(null) }
 
     var searchQuery by remember { mutableStateOf("") }
+    val searchTextFieldState = rememberTextFieldState(searchQuery)
     var isSearchActive by remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val interactionSource = remember { MutableInteractionSource() }
+
+    LaunchedEffect(searchTextFieldState.text) {
+        searchQuery = searchTextFieldState.text.toString()
+    }
 
     val instanceVersion = remember(selectedInstance) {
         selectedInstance?.let {
@@ -134,7 +145,7 @@ fun InstanceDirectoryContent(
             val id = it.versionId
             if (id.contains("-")) {
                 val lastPart = id.substringAfterLast("-")
-                if (lastPart.contains(".") && lastPart.any { it.isDigit() }) {
+                if (lastPart.contains(".") && lastPart.any { char -> char.isDigit() }) {
                     return@let lastPart
                 }
             }
@@ -162,7 +173,7 @@ fun InstanceDirectoryContent(
         isLoading = true
         PojavApplication.sExecutorService.execute {
             try {
-                val list = dir.listFiles()?.toList()?.sortedWith(compareBy({ !it.isDirectory }, { it.name.lowercase() })) ?: emptyList()
+                val list = dir.listFiles()?.asSequence()?.toList()?.sortedWith(compareBy({ !it.isDirectory }, { it.name.lowercase() })) ?: emptyList()
                 files = list
                 currentDir = dir
                 isLoading = false
@@ -178,36 +189,38 @@ fun InstanceDirectoryContent(
     ) { uri ->
         if (uri != null) {
             val fileName = Tools.getFileName(context, uri)
-            currentDir?.let { destDir ->
-                val destFile = File(destDir, fileName)
-                PojavApplication.sExecutorService.execute {
-                    try {
-                        val progressKey = "copy_files"
-                        ProgressKeeper.submitProgress(progressKey, 0, -1, "Importing $fileName...")
+            if (fileName != null) {
+                currentDir?.let { destDir ->
+                    val destFile = File(destDir, fileName)
+                    PojavApplication.sExecutorService.execute {
+                        try {
+                            val progressKey = "copy_files"
+                            ProgressKeeper.submitProgress(progressKey, 0, -1, "Importing $fileName...")
 
-                        context.contentResolver.openInputStream(uri)?.use { input ->
-                            destFile.outputStream().use { output ->
-                                val totalSize = context.contentResolver.openAssetFileDescriptor(uri, "r")?.use { it.length } ?: -1L
-                                var bytesCopied = 0L
-                                val buffer = ByteArray(8192)
-                                var bytes = input.read(buffer)
-                                while (bytes >= 0) {
-                                    output.write(buffer, 0, bytes)
-                                    bytesCopied += bytes
-                                    if (totalSize > 0) {
-                                        val progress = ((bytesCopied * 100) / totalSize).toInt()
-                                        ProgressKeeper.submitProgress(progressKey, progress, -1, "Importing $fileName...")
+                            context.contentResolver.openInputStream(uri)?.use { input ->
+                                destFile.outputStream().use { output ->
+                                    val totalSize = context.contentResolver.openAssetFileDescriptor(uri, "r")?.use { it.length } ?: -1L
+                                    var bytesCopied = 0L
+                                    val buffer = ByteArray(8192)
+                                    var bytes = input.read(buffer)
+                                    while (bytes >= 0) {
+                                        output.write(buffer, 0, bytes)
+                                        bytesCopied += bytes
+                                        if (totalSize > 0) {
+                                            val progress = ((bytesCopied * 100) / totalSize).toInt()
+                                            ProgressKeeper.submitProgress(progressKey, progress, -1, "Importing $fileName...")
+                                        }
+                                        bytes = input.read(buffer)
                                     }
-                                    bytes = input.read(buffer)
                                 }
                             }
-                        }
 
-                        ProgressKeeper.submitProgress(progressKey, -1, -1)
-                        loadFiles(destDir)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        ProgressKeeper.submitProgress("copy_files", -1, -1)
+                            ProgressKeeper.submitProgress(progressKey, -1, -1)
+                            loadFiles(destDir)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            ProgressKeeper.submitProgress("copy_files", -1, -1)
+                        }
                     }
                 }
             }
@@ -223,7 +236,7 @@ fun InstanceDirectoryContent(
             3 -> loadFiles(File(root, "resourcepacks"))
         }
         isSearchActive = false
-        searchQuery = ""
+        searchTextFieldState.edit { replace(0, length, "") }
     }
 
     if (showNewFolderDialog) {
@@ -285,7 +298,7 @@ fun InstanceDirectoryContent(
                             }
                             currentDir?.let { loadFiles(it) }
                         }
-                    }
+                    },
                 ) {
                     Text("Delete", color = MaterialTheme.colorScheme.error)
                 }
@@ -294,7 +307,7 @@ fun InstanceDirectoryContent(
                 TextButton(onClick = { fileToDelete = null }) {
                     Text("Cancel")
                 }
-            }
+            },
         )
     }
 
@@ -307,7 +320,7 @@ fun InstanceDirectoryContent(
         onBack = {
             if (isSearchActive) {
                 isSearchActive = false
-                searchQuery = ""
+                searchTextFieldState.edit { replace(0, length, "") }
             } else {
                 val parent = currentDir?.parentFile
                 if (currentDir == instanceRoot || parent == null || instanceRoot == null) {
@@ -320,7 +333,12 @@ fun InstanceDirectoryContent(
             }
         },
         onRefresh = { currentDir?.let { loadFiles(it) } },
-        onImportModpack = { isSearchActive = !isSearchActive },
+        onImportModpack = {
+            isSearchActive = !isSearchActive
+            if (!isSearchActive) {
+                searchTextFieldState.edit { replace(0, length, "") }
+            }
+        },
         isSearchActive = isSearchActive,
         fabMenuContent = { onDismiss ->
             FloatingActionButtonMenuItem(
@@ -359,40 +377,55 @@ fun InstanceDirectoryContent(
                 label = "search_transition"
             ) { active ->
                 if (active) {
-                    HyperOutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
-                        textStyle = MaterialTheme.typography.bodyLarge.copy(lineHeight = 24.sp),
-                        modifier = Modifier
+                    LaunchedEffect(Unit) {
+                        kotlinx.coroutines.delay(200.milliseconds)
+                        focusRequester.requestFocus()
+                        keyboardController?.show()
+                    }
+                    Box(
+                        Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                        label = { Text("Search files...") },
-                        leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
-                        singleLine = true,
-                        shape = RoundedCornerShape(16.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surface,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            unfocusedBorderColor = Color.Transparent
+                            .semantics { isTraversalGroup = true }
+                    ) {
+                        OutlinedTextField(
+                            state = searchTextFieldState,
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .semantics { traversalIndex = 0f }
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .focusRequester(focusRequester),
+                            label = { Text("Search files...") },
+                            leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
+                            interactionSource = interactionSource,
+                            shape = SearchBarDefaults.inputFieldShape,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = Color.Transparent,
+                            ),
+                            lineLimits = TextFieldLineLimits.SingleLine,
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                            onKeyboardAction = {
+                                isSearchActive = false
+                            }
                         )
-                    )
+                    }
                 } else {
-                    TabRow(
+                    SecondaryTabRow(
                         selectedTabIndex = selectedTab,
                         containerColor = Color.Transparent,
                         divider = {},
-                        indicator = { tabPositions ->
-                            if (selectedTab < tabPositions.size) {
-                                TabRowDefaults.SecondaryIndicator(
-                                    modifier = Modifier
-                                        .tabIndicatorOffset(tabPositions[selectedTab])
-                                        .padding(horizontal = 16.dp)
-                                        .clip(RoundedCornerShape(3.dp)),
-                                    height = 4.dp,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
+                        indicator = @Composable {
+                            TabRowDefaults.SecondaryIndicator(
+                                modifier = Modifier
+                                    .tabIndicatorOffset(selectedTab)
+                                    .padding(horizontal = 16.dp)
+                                    .clip(RoundedCornerShape(3.dp)),
+                                height = 4.dp,
+                                color = MaterialTheme.colorScheme.primary
+                            )
                         }
                     ) {
                         val tabs = listOf("All", "Mods", "Saves", "Packs")
@@ -462,7 +495,7 @@ fun InstanceDirectoryContent(
                             onClick = {
                                 if (file.isDirectory) {
                                     loadFiles(file)
-                                    searchQuery = ""
+                                    searchTextFieldState.edit { replace(0, length, "") }
                                     isSearchActive = false
                                 } else {
                                     Tools.openPath(context, file, false)

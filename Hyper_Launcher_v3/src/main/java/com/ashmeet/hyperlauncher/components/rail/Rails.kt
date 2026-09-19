@@ -61,6 +61,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.zIndex
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
+import kotlinx.coroutines.delay
 import net.ashmeet.hyperlauncher.R
 
 @Composable
@@ -200,6 +201,20 @@ fun SideRail(
     )
 
     var fabMenuExpanded by remember { mutableStateOf(false) }
+    var innerVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(fabMenuExpanded) {
+        if (fabMenuExpanded) {
+            innerVisible = true
+        }
+    }
+
+    LaunchedEffect(innerVisible) {
+        if (!innerVisible && fabMenuExpanded) {
+            delay(200)
+            fabMenuExpanded = false
+        }
+    }
 
     NavigationRail(
         containerColor = Color.Transparent,
@@ -229,7 +244,13 @@ fun SideRail(
         ) {
             ToggleFloatingActionButton(
                 checked = fabMenuExpanded,
-                onCheckedChange = { fabMenuExpanded = it },
+                onCheckedChange = {
+                    if (it) {
+                        fabMenuExpanded = true
+                    } else {
+                        innerVisible = false
+                    }
+                },
                 modifier = Modifier.size(56.dp),
                 containerSize = { 56.dp },
                 contentAlignment = Alignment.Center,
@@ -263,12 +284,9 @@ fun SideRail(
                 Popup(
                     alignment = Alignment.CenterStart,
                     offset = IntOffset(popupOffset, 0),
-                    onDismissRequest = { fabMenuExpanded = false },
+                    onDismissRequest = { innerVisible = false },
                     properties = PopupProperties(focusable = true)
                 ) {
-                    var innerVisible by remember { mutableStateOf(false) }
-                    LaunchedEffect(Unit) { innerVisible = true }
-
                     Box {
                         androidx.compose.animation.AnimatedVisibility(
                             visible = innerVisible,
@@ -282,7 +300,6 @@ fun SideRail(
                             ) {
                                 fabMenuContent { 
                                     innerVisible = false
-                                    fabMenuExpanded = false 
                                 }
                             }
                         }

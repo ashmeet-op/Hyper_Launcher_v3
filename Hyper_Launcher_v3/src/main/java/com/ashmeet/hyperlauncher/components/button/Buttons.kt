@@ -85,7 +85,8 @@ fun MineButton(
             }
             Text(
                 text = if (isUppercase) text.uppercase() else text,
-                fontWeight = if (isCustomTheme) FontWeight.Bold else FontWeight.Normal
+                fontWeight = if (isCustomTheme) FontWeight.Bold else FontWeight.Normal,
+                color = MaterialTheme.colorScheme.onPrimary
             )
         }
     }

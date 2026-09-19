@@ -212,7 +212,7 @@ fun SearchFiltersSidebar(
     onVersionChange: (String?) -> Unit,
     onLoaderChange: (String?) -> Unit,
     onSourceChange: (ContentSource) -> Unit,
-    onImportModpack: () -> Unit
+    onImportContent: (ContentInstallerType) -> Unit
 ) {
     val context = LocalContext.current
     var showLoaderDialog by remember { mutableStateOf(false) }
@@ -290,7 +290,7 @@ fun SearchFiltersSidebar(
                         title = translatedText("Import Modpack"),
                         summary = translatedText("Install a local modpack file (.zip, .mrpack)"),
                         icon = Icons.Rounded.FileUpload,
-                        onClick = onImportModpack
+                        onClick = { onImportContent(ContentInstallerType.MODPACKS) }
                     )
                 }
             }

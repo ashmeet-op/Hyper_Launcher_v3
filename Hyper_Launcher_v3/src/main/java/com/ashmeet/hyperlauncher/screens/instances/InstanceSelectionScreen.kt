@@ -1,35 +1,46 @@
 package com.ashmeet.hyperlauncher.screens.instances
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.FileUpload
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,22 +50,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ashmeet.hyperlauncher.activity.PojavApplication
+import com.ashmeet.hyperlauncher.components.button.MineButton
 import com.ashmeet.hyperlauncher.components.layout.ScreenLayout
 import com.ashmeet.hyperlauncher.components.list.InstanceListItem
-import com.ashmeet.hyperlauncher.components.button.MineButton
-
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import com.google.gson.Gson
-import com.ashmeet.hyperlauncher.activity.PojavApplication
 import net.kdt.pojavlaunch.instances.DisplayInstance
 import net.kdt.pojavlaunch.instances.Instances
 import java.io.File
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -65,7 +81,7 @@ fun InstanceSelectionScreen(
     onEditInstance: (DisplayInstance) -> Unit,
     onRenameInstance: (DisplayInstance, onRefresh: () -> Unit) -> Unit,
     onDeleteInstance: (DisplayInstance, onRefresh: () -> Unit) -> Unit,
-    onAddShortcut: (DisplayInstance) -> Unit
+    onAddShortcut: (DisplayInstance) -> Unit,
 ) {
     var instances by remember { mutableStateOf<List<DisplayInstance>>(emptyList()) }
     var selectedIndex by remember { mutableIntStateOf(-1) }
@@ -106,7 +122,7 @@ fun InstanceSelectionScreen(
         onSelectInstance = { instance, index ->
             Instances.setSelectedInstance(instance)
             selectedIndex = index
-        }
+        },
     )
 }
 
@@ -127,19 +143,45 @@ private fun InstanceSelectionContent(
     onSelectInstance: (DisplayInstance, Int) -> Unit
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
+    var searchQuery by remember { mutableStateOf("") }
+    val searchTextFieldState = rememberTextFieldState(searchQuery)
+    var isSearchActive by remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val interactionSource = remember { MutableInteractionSource() }
 
-    val filteredInstances = remember(instances, selectedTab) {
-        when (selectedTab) {
+    LaunchedEffect(searchTextFieldState.text) {
+        searchQuery = searchTextFieldState.text.toString()
+    }
+
+    val filteredInstances = remember(instances, selectedTab, searchQuery) {
+        val base = when (selectedTab) {
             1 -> instances.filter { isVanilla(it.versionId) }
             2 -> instances.filter { !isVanilla(it.versionId) }
             else -> instances
         }
+        if (searchQuery.isBlank()) base
+        else base.filter { it.name.contains(searchQuery, ignoreCase = true) }
     }
 
     ScreenLayout(
-        onBack = onBack,
+        onBack = {
+            if (isSearchActive) {
+                isSearchActive = false
+                searchTextFieldState.edit { replace(0, length, "") }
+            } else {
+                onBack()
+            }
+        },
         onRefresh = onRefresh,
-        fabMenuContent = @Composable { onDismiss ->
+        isSearchActive = isSearchActive,
+        onImportModpack = {
+            isSearchActive = !isSearchActive
+            if (!isSearchActive) {
+                searchTextFieldState.edit { replace(0, length, "") }
+            }
+        },
+        fabMenuContent = { onDismiss ->
             FloatingActionButtonMenuItem(
                 onClick = {
                     onDismiss()
@@ -162,36 +204,83 @@ private fun InstanceSelectionContent(
             )
         },
         header = {
-            TabRow(
-                selectedTabIndex = selectedTab,
-                containerColor = Color.Transparent,
-                divider = {},
-                indicator = { tabPositions ->
-                    if (selectedTab < tabPositions.size) {
-                        TabRowDefaults.SecondaryIndicator(
+            AnimatedContent(
+                targetState = isSearchActive,
+                transitionSpec = {
+                    (scaleIn(
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessLow
+                        ),
+                        initialScale = 0.9f
+                    ) + fadeIn()) togetherWith fadeOut(animationSpec = tween(200))
+                },
+                label = "search_transition"
+            ) { active ->
+                if (active) {
+                    LaunchedEffect(Unit) {
+                        kotlinx.coroutines.delay(200.milliseconds)
+                        focusRequester.requestFocus()
+                        keyboardController?.show()
+                    }
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    ) {
+                        OutlinedTextField(
+                            state = searchTextFieldState,
                             modifier = Modifier
-                                .tabIndicatorOffset(tabPositions[selectedTab])
-                                .padding(horizontal = 16.dp)
-                                .clip(RoundedCornerShape(3.dp)),
-                            height = 4.dp,
-                            color = MaterialTheme.colorScheme.primary
+                                .fillMaxWidth()
+                                .focusRequester(focusRequester),
+                            label = { Text("Search instances...") },
+                            leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
+                            interactionSource = interactionSource,
+                            shape = SearchBarDefaults.inputFieldShape,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = Color.Transparent,
+                            ),
+                            lineLimits = TextFieldLineLimits.SingleLine,
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                            onKeyboardAction = {
+                                isSearchActive = false
+                            }
                         )
                     }
-                }
-            ) {
-                val tabs = listOf("All", "Vanilla", "Modded")
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTab == index,
-                        onClick = { selectedTab = index },
-                        interactionSource = remember { MutableInteractionSource() },
-                        text = {
-                            Text(
-                                text = title,
-                                fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Normal
+                } else {
+                    SecondaryTabRow(
+                        selectedTabIndex = selectedTab,
+                        containerColor = Color.Transparent,
+                        divider = {},
+                        indicator = @Composable {
+                            TabRowDefaults.SecondaryIndicator(
+                                modifier = Modifier
+                                    .tabIndicatorOffset(selectedTab)
+                                    .padding(horizontal = 16.dp)
+                                    .clip(RoundedCornerShape(3.dp)),
+                                height = 4.dp,
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
-                    )
+                    ) {
+                        val tabs = listOf("All", "Vanilla", "Modded")
+                        tabs.forEachIndexed { index, title ->
+                            Tab(
+                                selected = selectedTab == index,
+                                onClick = { selectedTab = index },
+                                interactionSource = remember { MutableInteractionSource() },
+                                text = {
+                                    Text(
+                                        text = title,
+                                        fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Normal
+                                    )
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }
