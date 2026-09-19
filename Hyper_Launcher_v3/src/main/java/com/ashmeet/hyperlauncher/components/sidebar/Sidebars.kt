@@ -14,10 +14,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.MenuBook
+import androidx.compose.material.icons.rounded.BugReport
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Code
+import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.Event
 import androidx.compose.material.icons.rounded.Extension
 import androidx.compose.material.icons.rounded.FileUpload
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.AlertDialog
@@ -37,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
@@ -49,6 +55,7 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.SingleChoiceDialog
 import com.ashmeet.hyperlauncher.utils.installer.ContentInstallerType
 import com.ashmeet.hyperlauncher.utils.installer.ContentSource
 import com.ashmeet.hyperlauncher.utils.installer.ModrinthProject
+import com.ashmeet.hyperlauncher.utils.installer.ModrinthVersion
 import com.ashmeet.hyperlauncher.utils.installer.cleanMcVersion
 import com.ashmeet.hyperlauncher.utils.installer.cleanLoaderName
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
@@ -56,7 +63,12 @@ import com.ashmeet.hyperlauncher.profiles.VersionSelectorDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProjectDetailsSidebar(project: ModrinthProject) {
+fun ProjectDetailsSidebar(
+    project: ModrinthProject,
+    versions: List<ModrinthVersion> = emptyList()
+) {
+    val uriHandler = LocalUriHandler.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -118,21 +130,71 @@ fun ProjectDetailsSidebar(project: ModrinthProject) {
                         )
                     }
                 }
-            } else {
-                Spacer(modifier = Modifier.height(24.dp))
+            }
 
+            // Version Info Section
+            if (versions.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(24.dp))
                 Text(
-                    text = translatedText("Images"),
+                    text = translatedText("Version Information"),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = translatedText("No gallery images available."),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                SettingsCard(position = CardPosition.SINGLE, useSurface = true) {
+                    Column {
+                        val latestVersion = versions.firstOrNull()?.name ?: "Unknown"
+                        
+                        SettingsActionItem(
+                            title = translatedText("Latest Version"),
+                            summary = latestVersion,
+                            icon = Icons.Rounded.Info,
+                            onClick = {}
+                        )
+                    }
+                }
+            }
+
+            // Links Section
+            val links = remember(project) {
+                listOfNotNull(
+                    project.websiteUrl?.let { "Website" to it to Icons.Rounded.Language },
+                    project.wikiUrl?.let { "Wiki" to it to Icons.AutoMirrored.Rounded.MenuBook },
+                    project.sourceUrl?.let { "Source Code" to it to Icons.Rounded.Code },
+                    project.issuesUrl?.let { "Issues" to it to Icons.Rounded.BugReport },
+                    project.discordUrl?.let { "Discord" to it to Icons.Rounded.Description }
                 )
             }
+
+            if (links.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(
+                    text = translatedText("Links"),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                SettingsCard(position = CardPosition.SINGLE, useSurface = true) {
+                    Column {
+                        links.forEach { (data, icon) ->
+                            val (label, url) = data
+                            SettingsActionItem(
+                                title = translatedText(label),
+                                summary = url,
+                                icon = icon,
+                                onClick = {
+                                    try {
+                                        uriHandler.openUri(url)
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(48.dp))
         }
     }
