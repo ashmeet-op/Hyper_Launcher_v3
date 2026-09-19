@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.ashmeet.hyperlauncher.components.rail.SideRail
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 
@@ -40,7 +41,7 @@ fun ScreenLayout(
         contentColor = MaterialTheme.colorScheme.onBackground
     ) {
         Row(modifier = Modifier.fillMaxSize()) {
-            Box {
+            Box(modifier = Modifier.zIndex(1f)) {
                 SideRail(
                     onRefresh = onRefresh,
                     onImportModpack = onImportModpack,

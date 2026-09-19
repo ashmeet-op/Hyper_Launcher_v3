@@ -1,13 +1,20 @@
 package com.ashmeet.hyperlauncher.components.rail
 
-import com.ashmeet.hyperlauncher.utils.translation.translatedText
-
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -23,37 +30,37 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.VideogameAsset
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationRail
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Icon
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButtonMenu
 import androidx.compose.material3.FloatingActionButtonMenuScope
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.ToggleFloatingActionButton
 import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.lerp
-import androidx.compose.runtime.Composable
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.material3.IconToggleButton
-import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
+import androidx.compose.ui.zIndex
+import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
 
 @Composable
@@ -208,56 +215,79 @@ fun SideRail(
     ) {
         Spacer(modifier = Modifier.weight(1f))
 
-        val fabMenuStartColor = MaterialTheme.colorScheme.secondary
-        val fabMenuEndColor = MaterialTheme.colorScheme.surface
-        val fabMenuIconStartColor = MaterialTheme.colorScheme.onSecondary
-        val fabMenuIconEndColor = MaterialTheme.colorScheme.onSurface
+        val secondaryColor = MaterialTheme.colorScheme.secondary
+        val surfaceColor = MaterialTheme.colorScheme.surface
+        val onSecondaryColor = MaterialTheme.colorScheme.onSecondary
+        val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+
+        val density = LocalDensity.current
+        val popupOffset = remember(density) { with(density) { 60.dp.roundToPx() } }
 
         Box(
-            modifier = Modifier.size(56.dp)
+            modifier = Modifier.size(56.dp).zIndex(2f),
+            contentAlignment = Alignment.Center
         ) {
-            FloatingActionButtonMenu(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .wrapContentSize(align = Alignment.BottomCenter, unbounded = true)
-                    .offset(y = 16.dp),
-                expanded = fabMenuExpanded,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                button = {
-                    ToggleFloatingActionButton(
-                        checked = fabMenuExpanded,
-                        onCheckedChange = { 
-                            fabMenuExpanded = !fabMenuExpanded
-                        },
-                        modifier = Modifier.size(56.dp),
-                        containerSize = { 56.dp },
-                        contentAlignment = Alignment.Center,
-                        containerColor = { progress ->
-                            lerp(fabMenuStartColor, fabMenuEndColor, progress)
-                        }
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            val imageVector = if (fabMenuExpanded) Icons.Rounded.Close else Icons.Rounded.Add
-                            Icon(
-                                imageVector = imageVector,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .animateIcon(
-                                        checkedProgress = { checkedProgress },
-                                        color = { progress ->
-                                            lerp(fabMenuIconStartColor, fabMenuIconEndColor, progress)
-                                        }
-                                    )
+            ToggleFloatingActionButton(
+                checked = fabMenuExpanded,
+                onCheckedChange = { fabMenuExpanded = it },
+                modifier = Modifier.size(56.dp),
+                containerSize = { 56.dp },
+                contentAlignment = Alignment.Center,
+                containerColor = { progress ->
+                    lerp(secondaryColor, surfaceColor, progress)
+                }
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Add,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(32.dp)
+                            .graphicsLayer {
+                                rotationZ = checkedProgress * 45f
+                            }
+                            .animateIcon(
+                                checkedProgress = { checkedProgress },
+                                color = { progress ->
+                                    lerp(onSecondaryColor, onSurfaceColor, progress)
+                                }
                             )
+                    )
+                }
+            }
+
+            if (fabMenuExpanded) {
+                Popup(
+                    alignment = Alignment.CenterStart,
+                    offset = IntOffset(popupOffset, 0),
+                    onDismissRequest = { fabMenuExpanded = false },
+                    properties = PopupProperties(focusable = true)
+                ) {
+                    var innerVisible by remember { mutableStateOf(false) }
+                    LaunchedEffect(Unit) { innerVisible = true }
+
+                    Box {
+                        androidx.compose.animation.AnimatedVisibility(
+                            visible = innerVisible,
+                            enter = fadeIn(tween(300)) + scaleIn(initialScale = 0f, transformOrigin = TransformOrigin(0f, 0.5f)),
+                            exit = fadeOut(tween(200)) + scaleOut(targetScale = 0f, transformOrigin = TransformOrigin(0f, 0.5f))
+                        ) {
+                            FloatingActionButtonMenu(
+                                expanded = innerVisible,
+                                horizontalAlignment = Alignment.Start,
+                                button = { Box(Modifier.size(0.dp)) }
+                            ) {
+                                fabMenuContent { 
+                                    innerVisible = false
+                                    fabMenuExpanded = false 
+                                }
+                            }
                         }
                     }
                 }
-            ) {
-                fabMenuContent { fabMenuExpanded = false }
             }
         }
 

@@ -170,7 +170,7 @@ fun VideoSettingsScreen(
                 )
             }
 
-            SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
+            SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
                 SettingsSwitchItem(
                     title = translatedText(stringResource(R.string.preference_force_vsync_title)),
                     summary = translatedText(stringResource(R.string.preference_force_vsync_description)),
