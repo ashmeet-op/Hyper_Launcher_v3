@@ -12,8 +12,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.rounded.AddCircleOutline
 import androidx.compose.material.icons.rounded.AddPhotoAlternate
 import androidx.compose.material.icons.rounded.DragIndicator
+import androidx.compose.material.icons.rounded.RemoveCircleOutline
 import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -123,7 +126,7 @@ fun CursorPreferenceItem(
         }
 
         IconButton(onClick = onPickImage) {
-            Icon(Icons.Rounded.AddPhotoAlternate, contentDescription = translatedText("Change image"), tint = MaterialTheme.colorScheme.onSurface)
+            Icon(Icons.Rounded.AddCircleOutline, contentDescription = translatedText("Change image"), tint = MaterialTheme.colorScheme.onSurface)
         }
 
         if (imagePath != null) {
@@ -133,7 +136,7 @@ fun CursorPreferenceItem(
         }
 
         IconButton(onClick = onReset) {
-            Icon(Icons.Rounded.Restore, contentDescription = translatedText("Reset"), tint = MaterialTheme.colorScheme.onSurface)
+            Icon(Icons.Rounded.RemoveCircleOutline, contentDescription = translatedText("Reset"), tint = MaterialTheme.colorScheme.onSurface)
         }
     }
 }

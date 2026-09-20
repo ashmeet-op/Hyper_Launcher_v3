@@ -21,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -47,7 +46,7 @@ fun MineButton(
 ) {
     val isCustomTheme = remember { LauncherPreferences.PREF_CUSTOM_THEME }
     val primaryColor = MaterialTheme.colorScheme.primary
-    val contentColor = calculateMineButtonContentColor(isCustomTheme, primaryColor)
+    val contentColor = MaterialTheme.colorScheme.onPrimary
 
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -79,48 +78,16 @@ fun MineButton(
                     painter = icon,
                     contentDescription = null,
                     modifier = Modifier.size(20.dp),
-                    tint = if (tintIcon) MaterialTheme.colorScheme.onPrimary else Color.Unspecified
+                    tint = if (tintIcon) contentColor else Color.Unspecified
                 )
                 Spacer(modifier = Modifier.width(8.dp))
             }
             Text(
                 text = if (isUppercase) text.uppercase() else text,
                 fontWeight = if (isCustomTheme) FontWeight.Bold else FontWeight.Normal,
-                color = MaterialTheme.colorScheme.onPrimary
+                color = contentColor
             )
         }
     }
 }
 
-@Composable
-private fun calculateMineButtonContentColor(isCustomTheme: Boolean, primaryColor: Color): Color {
-    val isLightMode = MaterialTheme.colorScheme.surface.luminance() > 0.5f
-    return if (isCustomTheme) {
-        if (isLightMode) {
-            Color(
-                red = primaryColor.red * 0.3f,
-                green = primaryColor.green * 0.3f,
-                blue = primaryColor.blue * 0.3f,
-                alpha = 1f
-            )
-        } else {
-            if (primaryColor.luminance() > 0.5f) {
-                Color(
-                    red = primaryColor.red * 0.3f,
-                    green = primaryColor.green * 0.3f,
-                    blue = primaryColor.blue * 0.3f,
-                    alpha = 1f
-                )
-            } else {
-                Color(
-                    red = primaryColor.red * 0.2f + 0.8f,
-                    green = primaryColor.green * 0.2f + 0.8f,
-                    blue = primaryColor.blue * 0.2f + 0.8f,
-                    alpha = 1f
-                )
-            }
-        }
-    } else {
-        MaterialTheme.colorScheme.onPrimary
-    }
-}
