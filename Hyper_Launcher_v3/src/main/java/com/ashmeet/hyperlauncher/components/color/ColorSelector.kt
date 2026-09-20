@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.ashmeet.hyperlauncher.colorpicker.rememberColorPickerController
 import com.ashmeet.hyperlauncher.colorpicker.components.VerticalAlphaBarPicker
@@ -25,10 +26,19 @@ import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
 fun ColorSelectorContent(
     initialColor: Int,
     alphaEnabled: Boolean,
+    lockSatVal: Boolean = false,
     onColorChanged: (Int) -> Unit,
     onClose: () -> Unit
 ) {
     val controller = rememberColorPickerController(initialColor = Color(initialColor))
+
+    if (lockSatVal) {
+        LaunchedEffect(Unit) {
+            controller.setSaturation(1f)
+            controller.setValue(1f)
+        }
+    }
+
     val currentColor by controller.color
 
     LaunchedEffect(currentColor) {
@@ -53,13 +63,18 @@ fun ColorSelectorContent(
                 .height(160.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            ColorSquarePicker(
-                controller = controller,
+            Box(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(8.dp))
-            )
+                    .then(if (lockSatVal) Modifier.pointerInput(Unit) {} else Modifier)
+            ) {
+                ColorSquarePicker(
+                    controller = controller,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
 
 
             VerticalHueBarPicker(

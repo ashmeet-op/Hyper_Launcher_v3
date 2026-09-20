@@ -73,6 +73,7 @@
     <string name="preference_app_theme_system">Follow system</string>
     <string name="preference_app_theme_light">Light</string>
     <string name="preference_app_theme_dark">Dark</string>
+    <string name="preference_app_theme_dynamic">Dynamic (Android 12+)</string>
 
 
     <string name="mcl_setting_title_use_surface_view">Use alternate surface rendering</string>

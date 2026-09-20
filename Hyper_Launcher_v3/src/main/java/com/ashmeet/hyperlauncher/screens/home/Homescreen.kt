@@ -179,7 +179,7 @@ fun MainMenuFragmentCompose(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = if (hasBackground) Color.Transparent else MaterialTheme.colorScheme.background,
+        color = if (hasBackground) Color.Transparent else MaterialTheme.colorScheme.surface.copy(alpha = 0.1f),
         contentColor = MaterialTheme.colorScheme.onBackground,
         tonalElevation = 3.dp
     ) {

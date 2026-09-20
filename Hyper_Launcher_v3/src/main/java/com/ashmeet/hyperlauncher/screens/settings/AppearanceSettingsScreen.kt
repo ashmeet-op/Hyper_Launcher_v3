@@ -233,12 +233,13 @@ fun AppearanceSettingsScreen(
         }
     }
 
-    val themeOptions = listOf("system", "light", "dark")
+    val themeOptions = listOf("system", "light", "dark", "dynamic")
     val themeOptionNames = themeOptions.map { id ->
         when (id) {
             "system" -> translatedText(stringResource(R.string.preference_app_theme_system))
             "light" -> translatedText(stringResource(R.string.preference_app_theme_light))
             "dark" -> translatedText(stringResource(R.string.preference_app_theme_dark))
+            "dynamic" -> translatedText(stringResource(R.string.preference_app_theme_dynamic))
             else -> id
         }
     }
@@ -312,6 +313,7 @@ fun AppearanceSettingsScreen(
                                 LauncherPreferences.loadPreferences(context)
                             }
                             colorSelector.setAlphaEnabled(false)
+                            colorSelector.setLockSatVal(true)
                             colorSelector.show(true, themeColor)
                             SideDialogUtils.activeDialog = colorSelector
                         }

@@ -17,6 +17,7 @@ class ColorSelectorFragment(private var colorSelectionListener: ColorSelectionLi
     private var initialColor by mutableIntStateOf(Color.RED)
 
     private var mAlphaEnabled by mutableStateOf(true)
+    private var mLockSatVal by mutableStateOf(false)
 
     init {
         setStartButtonListener(android.R.string.cancel) {
@@ -33,6 +34,7 @@ class ColorSelectorFragment(private var colorSelectionListener: ColorSelectionLi
         ColorSelectorContent(
             initialColor = selectedColor,
             alphaEnabled = mAlphaEnabled,
+            lockSatVal = mLockSatVal,
             onColorChanged = { color ->
                 selectedColor = color
                 colorSelectionListener?.onColorSelected(color)
@@ -49,6 +51,10 @@ class ColorSelectorFragment(private var colorSelectionListener: ColorSelectionLi
 
     fun setAlphaEnabled(enabled: Boolean) {
         mAlphaEnabled = enabled
+    }
+
+    fun setLockSatVal(locked: Boolean) {
+        mLockSatVal = locked
     }
 
 }
