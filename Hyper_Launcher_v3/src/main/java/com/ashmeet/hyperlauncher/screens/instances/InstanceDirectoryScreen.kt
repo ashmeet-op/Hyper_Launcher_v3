@@ -338,8 +338,8 @@ fun InstanceDirectoryContent(
                 },
                 icon = { Icon(Icons.Rounded.FolderOpen, contentDescription = null) },
                 text = { Text(text = translatedText("New Folder")) },
-                containerColor = MaterialTheme.colorScheme.onSurface,
-                contentColor = MaterialTheme.colorScheme.surface
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             )
             FloatingActionButtonMenuItem(
                 onClick = {
@@ -348,8 +348,8 @@ fun InstanceDirectoryContent(
                 },
                 icon = { Icon(Icons.AutoMirrored.Rounded.InsertDriveFile, contentDescription = null) },
                 text = { Text(text = translatedText("Import File")) },
-                containerColor = MaterialTheme.colorScheme.onSurface,
-                contentColor = MaterialTheme.colorScheme.surface
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             )
         },
         header = {

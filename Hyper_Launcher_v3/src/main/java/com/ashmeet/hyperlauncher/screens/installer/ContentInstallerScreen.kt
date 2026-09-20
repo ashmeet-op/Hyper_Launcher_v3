@@ -248,8 +248,8 @@ fun ContentInstallerScreen(
                     },
                     icon = { Icon(type.iconRes, contentDescription = null) },
                     text = { Text(text = translatedText("Import ${stringResource(type.labelRes)}")) },
-                    containerColor = MaterialTheme.colorScheme.onSurface,
-                    contentColor = MaterialTheme.colorScheme.surface
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
         },

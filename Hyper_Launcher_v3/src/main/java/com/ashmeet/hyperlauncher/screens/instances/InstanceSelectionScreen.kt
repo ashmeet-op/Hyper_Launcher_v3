@@ -199,8 +199,8 @@ private fun InstanceSelectionContent(
                 },
                 icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
                 text = { Text(text = translatedText("Create New")) },
-                containerColor = MaterialTheme.colorScheme.onSurface,
-                contentColor = MaterialTheme.colorScheme.surface
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             )
             FloatingActionButtonMenuItem(
                 onClick = {
@@ -209,8 +209,8 @@ private fun InstanceSelectionContent(
                 },
                 icon = { Icon(Icons.Rounded.FileUpload, contentDescription = null) },
                 text = { Text(text = translatedText("Import Modpack")) },
-                containerColor = MaterialTheme.colorScheme.onSurface,
-                contentColor = MaterialTheme.colorScheme.surface
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             )
         },
         header = {

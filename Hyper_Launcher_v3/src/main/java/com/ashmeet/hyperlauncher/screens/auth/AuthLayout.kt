@@ -335,8 +335,8 @@ fun AuthLayout(
                                         },
                                         icon = { Icon(Icons.Rounded.AddReaction, contentDescription = null) },
                                         text = { Text(text = translatedText("Add Skin")) },
-                                        containerColor = MaterialTheme.colorScheme.onSurface,
-                                        contentColor = MaterialTheme.colorScheme.surface
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                                     )
                                     FloatingActionButtonMenuItem(
                                         onClick = {
@@ -345,8 +345,8 @@ fun AuthLayout(
                                         },
                                         icon = { Icon(Icons.Rounded.Sell, contentDescription = null) },
                                         text = { Text(text = translatedText("Add Cape")) },
-                                        containerColor = MaterialTheme.colorScheme.onSurface,
-                                        contentColor = MaterialTheme.colorScheme.surface
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                                     )
                                     FloatingActionButtonMenuItem(
                                         onClick = {
@@ -355,8 +355,8 @@ fun AuthLayout(
                                         },
                                         icon = { Icon(Icons.Rounded.Animation, contentDescription = null) },
                                         text = { Text(text = translatedText("Animations")) },
-                                        containerColor = MaterialTheme.colorScheme.onSurface,
-                                        contentColor = MaterialTheme.colorScheme.surface
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                                     )
                                 }
                             }
