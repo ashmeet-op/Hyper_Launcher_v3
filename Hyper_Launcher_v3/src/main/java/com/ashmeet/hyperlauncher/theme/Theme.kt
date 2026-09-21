@@ -76,7 +76,7 @@ fun PojavTheme(
         else -> getMonochromeColorScheme(primaryColor, isDark)
     }
 
-    UpdateSystemBars(colorScheme, isDark, view)
+    UpdateSystemBars(isDark, view)
 
     MaterialTheme(
         colorScheme = colorScheme,
