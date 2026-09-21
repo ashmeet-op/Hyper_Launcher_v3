@@ -231,10 +231,20 @@ class AssetTaskRegistrar(private val project: Project) {
         return File(targetAssetsDir, relativePath)
     }
 
+    private fun dependsOnAssetTask(taskProvider: TaskProvider<*>) {
+        project.tasks.matching {
+            val name = it.name
+            (name.equals("pre${variantName}Build", ignoreCase = true) || name.equals("preBuild${variantName}", ignoreCase = true)) ||
+            (name.contains("Lint", ignoreCase = true) && name.contains(variantName, ignoreCase = true))
+        }.configureEach {
+            dependsOn(taskProvider)
+        }
+    }
+
     private fun onlineUnzipTask(downloadUrl: String, name: String, targetExtractionDir: File): TaskProvider<Copy> {
         createDirectories(targetExtractionDir)
 
-        val downloadTarget = File(targetDownloadDir, name)
+        val downloadTarget = File(targetDownloadDir, "$name-$variantName")
         val dependencySuffix = "$name$variantName"
 
         val downloadTask = project.tasks.register<Download>("download$dependencySuffix") {
@@ -252,9 +262,7 @@ class AssetTaskRegistrar(private val project: Project) {
 
     fun onlineZipDependency(downloadUrl: String, name: String, relativePath: String) {
         val unzipTask = onlineUnzipTask(downloadUrl, name, assetDestination(relativePath))
-        project.tasks.matching { it.name.equals("pre${variantName}Build", ignoreCase = true) || it.name.equals("preBuild${variantName}", ignoreCase = true) }.configureEach {
-            dependsOn(unzipTask)
-        }
+        dependsOnAssetTask(unzipTask)
     }
 
     fun projectJarDependency(targetProject: Project, relativePath: String) {
@@ -270,9 +278,7 @@ class AssetTaskRegistrar(private val project: Project) {
             dependsOn(":${targetProject.name}:jar")
         }
 
-        project.tasks.matching { it.name.equals("pre${variantName}Build", ignoreCase = true) || it.name.equals("preBuild${variantName}", ignoreCase = true) }.configureEach {
-            dependsOn(copyTask)
-        }
+        dependsOnAssetTask(copyTask)
 
         targetProject.tasks.withType<org.gradle.jvm.tasks.Jar>().configureEach {
             destinationDirectory.set(jarTargetDir)
@@ -296,9 +302,7 @@ class AssetTaskRegistrar(private val project: Project) {
                 writeVersion(targetDir)
             }
         }
-        project.tasks.matching { it.name.equals("pre${variantName}Build", ignoreCase = true) || it.name.equals("preBuild${variantName}", ignoreCase = true) }.configureEach {
-            dependsOn(downloadTask)
-        }
+        dependsOnAssetTask(downloadTask)
     }
 
     fun jreRuntimeDependency(version: Int, relPath: String) {
