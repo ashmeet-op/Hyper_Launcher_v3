@@ -75,7 +75,7 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
             ?: 5
         versionCode = propVersionCode
 
-        versionName = "$hyperVersionNumber-$hyperVersionSuffix"
+        versionName = if (hyperVersionSuffix.isNullOrBlank()) hyperVersionNumber else "$hyperVersionNumber-$hyperVersionSuffix"
         multiDexEnabled = false
         resValue("string", "curseforge_api_key", getCFApiKey())
         resValue("string", "group_id", "git.artdeell")
@@ -317,6 +317,10 @@ val androidComponents = project.extensions.getByType(com.android.build.api.varia
 
 androidComponents.onVariants { variant ->
     registrar.setVariant(variant)
+
+    variant.outputs.forEach { output ->
+        output.outputFileName.set(output.versionName.map { "hyper_launcher-$it.apk" })
+    }
 
     registrar.projectJarDependency(project(":forge_installer"), "components/forge_installer")
     registrar.projectJarDependency(project(":MioLibPatcher"), "components/MioLibPatcher")
