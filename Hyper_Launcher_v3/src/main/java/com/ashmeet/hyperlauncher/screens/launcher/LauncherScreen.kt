@@ -101,13 +101,13 @@ fun PojavLauncherScreen(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .blur(16.dp)
-                                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.4f))
+                                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.1f))
                         )
                     } else {
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .background(if (launcherBgPath != null) Color.Transparent else MaterialTheme.colorScheme.surface)
+                                .background(if (launcherBgPath != null) Color.Transparent else MaterialTheme.colorScheme.surface.copy(alpha = 0.1f))
                         )
                     }
 
@@ -164,7 +164,7 @@ fun PojavLauncherScreen(
                             .fillMaxWidth()
                             .height(2.dp),
                         color = MaterialTheme.colorScheme.primary,
-                        trackColor = if (launcherBgPath != null) Color.Transparent else MaterialTheme.colorScheme.surface
+                        trackColor = if (launcherBgPath != null) Color.Transparent else  MaterialTheme.colorScheme.surface.copy(alpha = 0.1f)
                     )
                 }
 

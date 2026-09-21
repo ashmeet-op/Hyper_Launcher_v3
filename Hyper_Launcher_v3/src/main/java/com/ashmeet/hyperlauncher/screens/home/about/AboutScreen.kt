@@ -1,5 +1,6 @@
 package com.ashmeet.hyperlauncher.screens.home.about
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.Image
@@ -47,6 +48,7 @@ import com.ashmeet.hyperlauncher.utils.Architecture
 import net.kdt.pojavlaunch.Logger
 import com.ashmeet.hyperlauncher.utils.Tools
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun AboutScreen(
     onBack: () -> Unit
@@ -98,11 +100,15 @@ fun AboutScreen(
                     SettingsActionItem(title = translatedText("App Name"), summary = "Hyper Launcher 3", onClick = {})
                 }
 
+                val versionParts = remember { BuildConfig.VERSION_NAME.split("-") }
+                val displayVersion = versionParts.getOrNull(0) ?: BuildConfig.VERSION_NAME
+                val displayBuild = versionParts.getOrNull(1)?.let { "${it}_build" }
+
                 var developerClickCount by remember { mutableIntStateOf(0) }
                 SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
                     SettingsActionItem(
                         title = translatedText("Version"),
-                        summary = BuildConfig.VERSION_NAME,
+                        summary = displayVersion,
                         onClick = {
                             if (!LauncherPreferences.PREF_DEVELOPER_OPTIONS) {
                                 developerClickCount++
@@ -117,6 +123,17 @@ fun AboutScreen(
                         }
                     )
                 }
+
+                if (displayBuild != null) {
+                    SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
+                        SettingsActionItem(
+                            title = translatedText("Build"),
+                            summary = displayBuild,
+                            onClick = {}
+                        )
+                    }
+                }
+
                 SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
                     SettingsActionItem(title = translatedText("Version Code"), summary = BuildConfig.VERSION_CODE.toString(), onClick = {})
                 }

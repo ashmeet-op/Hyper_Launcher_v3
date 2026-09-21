@@ -63,6 +63,7 @@ import androidx.compose.ui.zIndex
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import kotlinx.coroutines.delay
 import net.ashmeet.hyperlauncher.R
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun SideNavigationRail(
@@ -211,7 +212,7 @@ fun SideRail(
 
     LaunchedEffect(innerVisible) {
         if (!innerVisible && fabMenuExpanded) {
-            delay(200)
+            delay(200.milliseconds)
             fabMenuExpanded = false
         }
     }
