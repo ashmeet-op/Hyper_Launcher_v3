@@ -1,29 +1,42 @@
 package com.ashmeet.hyperlauncher.components
 
-import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
+import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 
 @Composable
@@ -139,7 +152,7 @@ fun HyperDropdownMenu(
     modifier: Modifier = Modifier,
     offset: DpOffset = DpOffset(0.dp, 0.dp),
     properties: PopupProperties = PopupProperties(focusable = true, clippingEnabled = false),
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit
 ) {
     DropdownMenu(
         expanded = expanded,
@@ -150,7 +163,46 @@ fun HyperDropdownMenu(
         shape = RoundedCornerShape(12.dp),
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
         tonalElevation = 0.dp,
-        shadowElevation = 12.dp,
+        shadowElevation = 0.dp,
         content = content
+    )
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun HyperSearchBar(
+    state: TextFieldState,
+    modifier: Modifier = Modifier,
+    label: String = "Search...",
+    icon: ImageVector = Icons.Rounded.Search,
+    focusRequester: FocusRequester = remember { FocusRequester() },
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    onSearchAction: () -> Unit = {}
+) {
+    val isBlurred = LauncherPreferences.PREF_BLURRED_ELEMENTS_ENABLED
+    val containerColor = if (isBlurred) {
+        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+    } else {
+        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
+    }
+
+    OutlinedTextField(
+        state = state,
+        modifier = modifier.focusRequester(focusRequester),
+        label = { Text(translatedText(label)) },
+        leadingIcon = { Icon(icon, contentDescription = null) },
+        interactionSource = interactionSource,
+        shape = SearchBarDefaults.inputFieldShape,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = containerColor,
+            unfocusedContainerColor = containerColor,
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = Color.Transparent,
+        ),
+        lineLimits = TextFieldLineLimits.SingleLine,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+        onKeyboardAction = {
+            onSearchAction()
+        }
     )
 }

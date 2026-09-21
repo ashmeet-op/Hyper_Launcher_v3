@@ -26,8 +26,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Search
@@ -38,9 +36,6 @@ import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SecondaryScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
@@ -56,7 +51,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -68,13 +62,13 @@ import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.edit
 import com.ashmeet.hyperlauncher.components.HyperAlertDialog
+import com.ashmeet.hyperlauncher.components.HyperSearchBar
 import com.ashmeet.hyperlauncher.components.layout.ScreenLayout
 import com.ashmeet.hyperlauncher.components.list.ProjectItemView
 import com.ashmeet.hyperlauncher.components.list.VersionList
@@ -278,28 +272,17 @@ fun ContentInstallerScreen(
                             .fillMaxWidth()
                             .semantics { isTraversalGroup = true }
                     ) {
-                        OutlinedTextField(
+                        HyperSearchBar(
                             state = searchTextFieldState,
                             modifier = Modifier
                                 .align(Alignment.TopCenter)
                                 .semantics { traversalIndex = 0f }
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 8.dp)
-                                .focusRequester(focusRequester),
-                            label = { Text("Search content...") },
-                            leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
-                            enabled = viewingProject == null,
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            label = "Search content...",
+                            focusRequester = focusRequester,
                             interactionSource = interactionSource,
-                            shape = SearchBarDefaults.inputFieldShape,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                unfocusedBorderColor = Color.Transparent,
-                            ),
-                            lineLimits = TextFieldLineLimits.SingleLine,
-                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                            onKeyboardAction = {
+                            onSearchAction = {
                                 onSearch(searchTextFieldState.text.toString(), selectedType, selectedVersion, selectedLoader, selectedSource)
                                 isSearchActive = false
                             }

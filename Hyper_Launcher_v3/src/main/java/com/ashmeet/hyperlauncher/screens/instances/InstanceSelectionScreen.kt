@@ -63,6 +63,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ashmeet.hyperlauncher.activity.PojavApplication
+import com.ashmeet.hyperlauncher.components.HyperSearchBar
 import com.ashmeet.hyperlauncher.components.button.MineButton
 import com.ashmeet.hyperlauncher.components.layout.ScreenLayout
 import com.ashmeet.hyperlauncher.components.list.InstanceListItem
@@ -238,24 +239,13 @@ private fun InstanceSelectionContent(
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 8.dp)
                     ) {
-                        OutlinedTextField(
+                        HyperSearchBar(
                             state = searchTextFieldState,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .focusRequester(focusRequester),
-                            label = { Text("Search instances...") },
-                            leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
+                            modifier = Modifier.fillMaxWidth(),
+                            label = "Search instances...",
+                            focusRequester = focusRequester,
                             interactionSource = interactionSource,
-                            shape = SearchBarDefaults.inputFieldShape,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                                unfocusedBorderColor = Color.Transparent,
-                            ),
-                            lineLimits = TextFieldLineLimits.SingleLine,
-                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                            onKeyboardAction = {
+                            onSearchAction = {
                                 isSearchActive = false
                             }
                         )
