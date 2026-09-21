@@ -450,7 +450,7 @@ fun AccountItemContent(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(modifier = Modifier.size(32.dp)) {
+        Box(modifier = Modifier.size(32.dp),Alignment.Center) {
             if (skinHead != null) {
                 Image(
                     bitmap = skinHead!!.asImageBitmap(),
