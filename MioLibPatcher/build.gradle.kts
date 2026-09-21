@@ -6,8 +6,8 @@ group = "com.mio"
 
 
 dependencies {
-    implementation("org.javassist:javassist:3.29.2-GA")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
+    implementation("org.javassist:javassist:3.30.2-GA")
+    testImplementation("org.junit.jupiter:junit-jupiter:6.1.3")
 }
 
 java {

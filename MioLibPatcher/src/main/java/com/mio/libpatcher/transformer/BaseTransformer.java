@@ -3,6 +3,10 @@ package com.mio.libpatcher.transformer;
 import com.mio.libpatcher.util.LogUtil;
 import javassist.ClassPool;
 import javassist.CtClass;
+import javassist.CtConstructor;
+import javassist.CtMethod;
+import javassist.bytecode.MethodInfo;
+import javassist.bytecode.MethodParametersAttribute;
 
 import java.io.ByteArrayInputStream;
 import java.lang.instrument.ClassFileTransformer;
@@ -47,6 +51,14 @@ public interface BaseTransformer extends ClassFileTransformer {
         CtClass clazz = null;
         try {
             clazz = pool.makeClass(new ByteArrayInputStream(classfileBuffer));
+            for (CtMethod method : clazz.getDeclaredMethods()) {
+                MethodInfo methodInfo = method.getMethodInfo();
+                methodInfo.removeAttribute(MethodParametersAttribute.tag);
+            }
+            for (CtConstructor constructor : clazz.getDeclaredConstructors()) {
+                MethodInfo methodInfo = constructor.getMethodInfo();
+                methodInfo.removeAttribute(MethodParametersAttribute.tag);
+            }
             transform(clazz, loader);
             return clazz.toBytecode();
         } catch (Throwable e) {
