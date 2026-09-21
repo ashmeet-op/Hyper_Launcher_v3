@@ -1,5 +1,7 @@
 package net.kdt.pojavlaunch.modloaders.modpacks.api;
 
+import android.util.Log;
+
 import com.kdt.mcgui.ProgressLayout;
 
 import net.ashmeet.hyperlauncher.R;
@@ -12,6 +14,7 @@ import net.kdt.pojavlaunch.modloaders.modpacks.imagecache.ModIconCache;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.ModDetail;
 import net.kdt.pojavlaunch.progresskeeper.DownloaderProgressWrapper;
 import net.kdt.pojavlaunch.utils.DownloadUtils;
+import net.kdt.pojavlaunch.utils.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,6 +67,19 @@ public class ModpackInstaller {
                 .trim().replaceAll("[\\\\/:*?\"<>| \\t\\n]", "_" );
         String name = modDetail.title;
         String icon = modDetail.getIconCacheTag();
+
+        if (modDetail.imageUrl != null && !modDetail.imageUrl.isEmpty()) {
+            File cacheDir = ModIconCache.getImageCachePath();
+            File iconFile = new File(cacheDir, icon + ".ca");
+            if (!iconFile.exists()) {
+                try {
+                    FileUtils.ensureDirectorySilently(cacheDir);
+                    DownloadUtils.downloadFile(modDetail.imageUrl, iconFile);
+                } catch (IOException e) {
+                    Log.e("ModpackInstaller", "Failed to download modpack icon", e);
+                }
+            }
+        }
 
         if (versionHash != null) {
             modpackName += "_" + versionHash;

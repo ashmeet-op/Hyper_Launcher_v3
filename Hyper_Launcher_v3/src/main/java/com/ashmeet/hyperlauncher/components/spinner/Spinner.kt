@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuPopup
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorPosition
 import androidx.compose.material3.MenuDefaults
@@ -334,7 +335,7 @@ fun AccountSpinnerUI(
                             interactionSource = groupInteractionSource,
                             containerColor = MaterialTheme.colorScheme.surface,
                             tonalElevation = 0.dp,
-                            shadowElevation = 12.dp,
+                            shadowElevation = 0.dp,
                             contentPadding = PaddingValues(vertical = 4.dp),
                             modifier = Modifier
                                 .width(300.dp)
@@ -398,7 +399,7 @@ fun AccountSpinnerUI(
                         interactionSource = groupInteractionSource,
                         containerColor = MaterialTheme.colorScheme.surface,
                         tonalElevation = 0.dp,
-                        shadowElevation = 8.dp,
+                        shadowElevation = 0.dp,
                         contentPadding = PaddingValues(vertical = 4.dp),
                         modifier = Modifier.width(300.dp)
                     ) {
@@ -406,6 +407,7 @@ fun AccountSpinnerUI(
                             selected = false,
                             onClick = onAddAccountClick,
                             interactionSource = remember { MutableInteractionSource() },
+
                             text = {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(
@@ -419,6 +421,7 @@ fun AccountSpinnerUI(
                                         text = translatedText(stringResource(R.string.main_add_account)),
                                         color = MaterialTheme.colorScheme.onSurface,
                                         style = MaterialTheme.typography.bodyLarge
+
                                     )
                                 }
                             },
@@ -458,7 +461,10 @@ fun AccountItemContent(
                     contentScale = ContentScale.FillBounds
                 )
             } else {
-                Box(modifier = Modifier.fillMaxSize().background(Color.Gray, RoundedCornerShape(4.dp)))
+                LoadingIndicator(
+                    modifier = Modifier.size(20.dp),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                )
             }
 
             if (account.authType != AuthType.LOCAL && account.authType.iconResource != 0) {

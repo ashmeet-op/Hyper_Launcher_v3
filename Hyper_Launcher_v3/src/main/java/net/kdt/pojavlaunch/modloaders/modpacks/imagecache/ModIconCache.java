@@ -33,7 +33,7 @@ public class ModIconCache {
         }
 
     }
-    static File getImageCachePath() {
+    public static File getImageCachePath() {
         return new File(Tools.DIR_CACHE, "mod_icons");
     }
 
