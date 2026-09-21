@@ -232,10 +232,11 @@ class AssetTaskRegistrar(private val project: Project) {
     }
 
     private fun dependsOnAssetTask(taskProvider: TaskProvider<*>) {
+        val currentVariantName = variantName
         project.tasks.matching {
             val name = it.name
-            (name.equals("pre${variantName}Build", ignoreCase = true) || name.equals("preBuild${variantName}", ignoreCase = true)) ||
-            (name.contains("Lint", ignoreCase = true) && name.contains(variantName, ignoreCase = true))
+            (name.equals("pre${currentVariantName}Build", ignoreCase = true) || name.equals("preBuild${currentVariantName}", ignoreCase = true)) ||
+            (name.contains("Lint", ignoreCase = true) && name.contains(currentVariantName, ignoreCase = true))
         }.configureEach {
             dependsOn(taskProvider)
         }
