@@ -20,12 +20,14 @@ class LauncherPreferenceVideoFragment : Fragment(), SharedPreferences.OnSharedPr
         savedInstanceState: Bundle?
     ): View {
         val isAngleAvailable = LibraryPlugin.discoverPlugin(requireContext(), LibraryPlugin.ID_ANGLE_PLUGIN) != null
+        val supportsTurnip = com.ashmeet.hyperlauncher.utils.RendererCompatUtil.checkVulkanSupport(requireContext().packageManager) && net.kdt.pojavlaunch.utils.GLInfoUtils.getGlInfo().isAdreno
         return ComposeView(requireContext()).apply {
             setContent {
                 PojavTheme {
                     VideoSettingsScreen(
                         onBack = { requireActivity().onBackPressedDispatcher.onBackPressed() },
-                        isAngleAvailable = isAngleAvailable
+                        isAngleAvailable = isAngleAvailable,
+                        isZinkPreferSystemDriverVisible = supportsTurnip
                     )
                 }
             }

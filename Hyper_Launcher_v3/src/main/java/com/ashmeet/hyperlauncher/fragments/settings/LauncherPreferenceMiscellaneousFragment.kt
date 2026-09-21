@@ -21,8 +21,6 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreference
 import com.ashmeet.hyperlauncher.screens.settings.MiscSettingsScreen
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.kdt.pojavlaunch.tasks.DataMigrator
-import net.kdt.pojavlaunch.utils.GLInfoUtils
-import com.ashmeet.hyperlauncher.utils.RendererCompatUtil
 
 class LauncherPreferenceMiscellaneousFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -51,13 +49,11 @@ class LauncherPreferenceMiscellaneousFragment : Fragment(), SharedPreferences.On
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val supportsTurnip = RendererCompatUtil.checkVulkanSupport(requireContext().packageManager) && GLInfoUtils.getGlInfo().isAdreno
         return ComposeView(requireContext()).apply {
             setContent {
                 PojavTheme {
                     MiscSettingsScreen(
                         onBack = { requireActivity().onBackPressedDispatcher.onBackPressed() },
-                        isZinkPreferSystemDriverVisible = supportsTurnip,
                         isMicrophonePermissionGranted = mIsMicPermissionGranted,
                         onMicrophoneAccessClick = {
                             mRecordAudioPermission.launch(Manifest.permission.RECORD_AUDIO)

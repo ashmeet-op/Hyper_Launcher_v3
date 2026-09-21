@@ -32,6 +32,7 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsActionItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSliderItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSwitchItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SingleChoiceDialog
+import androidx.compose.material.icons.filled.Settings
 import com.ashmeet.hyperlauncher.utils.RendererCompatUtil
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
@@ -39,7 +40,8 @@ import net.ashmeet.hyperlauncher.R
 @Composable
 fun VideoSettingsScreen(
     onBack: () -> Unit,
-    isAngleAvailable: Boolean
+    isAngleAvailable: Boolean,
+    isZinkPreferSystemDriverVisible: Boolean
 ) {
     val context = LocalContext.current
     var renderer by remember { mutableStateOf(LauncherPreferences.PREF_RENDERER) }
@@ -52,6 +54,7 @@ fun VideoSettingsScreen(
     var forceVsync by remember { mutableStateOf(LauncherPreferences.PREF_FORCE_VSYNC) }
     var useAngle by remember { mutableStateOf(LauncherPreferences.PREF_USE_ANGLE) }
     var vsyncInZink by remember { mutableStateOf(LauncherPreferences.PREF_VSYNC_IN_ZINK) }
+    var zinkPreferSystemDriver by remember { mutableStateOf(LauncherPreferences.PREF_ZINK_PREFER_SYSTEM_DRIVER) }
     var zinkForceLegacy by remember { mutableStateOf(LauncherPreferences.PREF_ZINK_FORCE_LEGACY) }
     var dynamicOrientation by remember { mutableStateOf(LauncherPreferences.PREF_DYNAMIC_ORIENTATION) }
     var showRendererDialog by remember { mutableStateOf(false) }
@@ -206,8 +209,7 @@ fun VideoSettingsScreen(
 
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 if (isZinkUsed) {
-                    val zinkVsyncPos = if (isAngleAvailable) CardPosition.TOP else CardPosition.TOP
-                    SettingsCard(position = zinkVsyncPos, useSurface = true) {
+                    SettingsCard(position = CardPosition.TOP, useSurface = true) {
                         SettingsSwitchItem(
                             title = translatedText(stringResource(R.string.preference_vsync_in_zink_title)),
                             summary = translatedText(stringResource(R.string.preference_vsync_in_zink_description)),
@@ -220,14 +222,26 @@ fun VideoSettingsScreen(
                             }
                         )
                     }
+
+                    if (isZinkPreferSystemDriverVisible) {
+                        SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
+                            SettingsSwitchItem(
+                                title = translatedText(stringResource(R.string.preference_vulkan_driver_system_title)),
+                                summary = translatedText(stringResource(R.string.preference_vulkan_driver_system_description)),
+                                icon = Icons.Default.Architecture,
+                                checked = zinkPreferSystemDriver,
+                                onCheckedChange = {
+                                    zinkPreferSystemDriver = it
+                                    LauncherPreferences.prefs.edit { putBoolean("zinkPreferSystemDriver", it) }
+                                    LauncherPreferences.loadPreferences(context)
+                                }
+                            )
+                        }
+                    }
                 }
 
                 if (isAngleAvailable) {
-
-                    val anglePos = when {
-                        isZinkUsed -> CardPosition.MIDDLE
-                        else -> CardPosition.SINGLE
-                    }
+                    val anglePos = if (isZinkUsed) CardPosition.MIDDLE else CardPosition.TOP
                     SettingsCard(position = anglePos, useSurface = true) {
                         SettingsSwitchItem(
                             title = translatedText(stringResource(R.string.preference_use_angle_title)),
@@ -244,7 +258,6 @@ fun VideoSettingsScreen(
                 }
 
                 if (isZinkUsed) {
-
                     SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
                         SettingsSwitchItem(
                             title = translatedText(stringResource(R.string.preference_force_legacy_zink_title)),

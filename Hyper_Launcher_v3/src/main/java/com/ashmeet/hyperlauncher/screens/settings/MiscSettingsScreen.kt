@@ -10,7 +10,6 @@ import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Numbers
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Verified
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,7 +33,6 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreference
 @Composable
 fun MiscSettingsScreen(
     onBack: () -> Unit,
-    isZinkPreferSystemDriverVisible: Boolean,
     isMicrophonePermissionGranted: Boolean,
     onMicrophoneAccessClick: () -> Unit,
     onRunDataMigrationClick: () -> Unit
@@ -44,7 +42,6 @@ fun MiscSettingsScreen(
     var fastStartupCheck by remember { mutableStateOf(LauncherPreferences.PREF_RAPID_START) }
     var downloadSource by remember { mutableStateOf(LauncherPreferences.PREF_DOWNLOAD_SOURCE) }
     var verifyManifest by remember { mutableStateOf(LauncherPreferences.PREF_VERIFY_MANIFEST) }
-    var zinkPreferSystemDriver by remember { mutableStateOf(LauncherPreferences.PREF_ZINK_PREFER_SYSTEM_DRIVER) }
 
     var showDownloadSourceDialog by remember { mutableStateOf(false) }
 
@@ -125,22 +122,6 @@ fun MiscSettingsScreen(
 
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             val visibleItems = mutableListOf<@Composable () -> Unit>()
-
-            if (isZinkPreferSystemDriverVisible) {
-                visibleItems.add {
-                    SettingsSwitchItem(
-                        title = translatedText(stringResource(R.string.preference_vulkan_driver_system_title)),
-                        summary = translatedText(stringResource(R.string.preference_vulkan_driver_system_description)),
-                        icon = Icons.Default.Settings,
-                        checked = zinkPreferSystemDriver,
-                        onCheckedChange = {
-                            zinkPreferSystemDriver = it
-                            LauncherPreferences.prefs.edit { putBoolean("zinkPreferSystemDriver", it) }
-                            LauncherPreferences.loadPreferences(context)
-                        }
-                    )
-                }
-            }
 
             if (!isMicrophonePermissionGranted) {
                 visibleItems.add {
