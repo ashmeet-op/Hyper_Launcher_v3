@@ -36,7 +36,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
-import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 
 @Composable
@@ -62,8 +61,8 @@ fun HyperOutlinedTextField(
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors(
         focusedBorderColor = MaterialTheme.colorScheme.primary,
         unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-        focusedContainerColor = MaterialTheme.colorScheme.surface,
-        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+        focusedContainerColor = Color.Transparent,
+        unfocusedContainerColor = Color.Transparent,
     )
 ) {
     OutlinedTextField(
@@ -179,12 +178,6 @@ fun HyperSearchBar(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     onSearchAction: () -> Unit = {}
 ) {
-    val isBlurred = LauncherPreferences.PREF_BLURRED_ELEMENTS_ENABLED
-    val containerColor = if (isBlurred) {
-        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
-    } else {
-        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
-    }
 
     OutlinedTextField(
         state = state,
