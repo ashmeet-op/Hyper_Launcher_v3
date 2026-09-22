@@ -100,6 +100,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
     public static TouchCharInput touchCharInput;
     private GameView launcherGLView;
     private static WeakReference<GameCursorView> weakCursor;
+    private static int sManualMouseVisibility = -1;
     private LoggerView loggerView;
     private GyroControl mGyroControl = null;
     private ControlLayout mControlLayout;
@@ -126,6 +127,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        sManualMouseVisibility = PREF_VIRTUAL_MOUSE_START ? View.VISIBLE : View.GONE;
         instance = Instances.loadSelectedInstance();
         account = Accounts.getCurrent();
         if(instance == null) {
@@ -462,7 +464,11 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
             if (hasMouse) {
                 cursorView.setVisibility(View.GONE);
             } else {
-                cursorView.setVisibility(PREF_VIRTUAL_MOUSE_START ? View.VISIBLE : View.GONE);
+                if (sManualMouseVisibility == View.VISIBLE) {
+                    cursorView.setVisibility(View.VISIBLE);
+                } else {
+                    cursorView.setVisibility(View.GONE);
+                }
             }
         }
         
@@ -629,10 +635,12 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
             case View.INVISIBLE:
                 toastString = R.string.control_mouseon;
                 cursorView.setVisibility(View.VISIBLE);
+                sManualMouseVisibility = View.VISIBLE;
                 break;
             case View.VISIBLE:
                 toastString = R.string.control_mouseoff;
                 cursorView.setVisibility(View.GONE);
+                sManualMouseVisibility = View.GONE;
                 break;
         }
 
