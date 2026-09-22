@@ -65,7 +65,7 @@ import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.utils.SkinUtils
 import com.ashmeet.hyperlauncher.utils.Tools
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.ashmeet.hyperlauncher.components.HyperAlertDialog
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.authenticator.AuthType
 import net.kdt.pojavlaunch.authenticator.accounts.Account
@@ -87,6 +87,8 @@ fun AccountSpinnerCompose(
     var accounts by remember { mutableStateOf<List<Account>>(emptyList()) }
     var selectedIndex by remember { mutableIntStateOf(-1) }
     var expanded by remember { mutableStateOf(false) }
+    var showDeleteConfirm by remember { mutableStateOf(false) }
+    var accountToDelete by remember { mutableStateOf<Account?>(null) }
 
     val loginListener = remember {
         object : LoginListener {
@@ -215,21 +217,37 @@ fun AccountSpinnerCompose(
         },
         onAccountDelete = { account ->
             expanded = false
-            val dialog = MaterialAlertDialogBuilder(context)
-                .setMessage(R.string.warning_remove_account)
-                .setPositiveButton(android.R.string.cancel, null)
-                .setNeutralButton(R.string.global_delete) { _, _ ->
-                    Accounts.delete(account)
-                    reloadAccounts(true)
-                }
-                .create()
-            dialog.show()
-            dialog.window?.setGravity(android.view.Gravity.CENTER)
+            accountToDelete = account
+            showDeleteConfirm = true
         },
         hideDivider = hideDivider,
         containerColor = containerColor,
         modifier = modifier
     )
+
+    if (showDeleteConfirm && accountToDelete != null) {
+        HyperAlertDialog(
+            onDismissRequest = {
+                showDeleteConfirm = false
+                accountToDelete = null
+            },
+            title = { Text(translatedText(stringResource(R.string.global_delete))) },
+            text = { Text(translatedText(stringResource(R.string.warning_remove_account))) },
+            confirmText = stringResource(R.string.global_delete),
+            onConfirm = {
+                Accounts.delete(accountToDelete!!)
+                reloadAccounts(true)
+                showDeleteConfirm = false
+                accountToDelete = null
+            },
+            dismissText = stringResource(android.R.string.cancel),
+            onDismiss = {
+                showDeleteConfirm = false
+                accountToDelete = null
+            },
+            isDestructive = true
+        )
+    }
 }
 
 

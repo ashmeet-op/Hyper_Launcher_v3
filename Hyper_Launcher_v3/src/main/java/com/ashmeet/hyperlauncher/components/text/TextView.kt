@@ -24,7 +24,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -49,11 +48,14 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
+import com.ashmeet.hyperlauncher.components.HyperAlertDialog
 import com.ashmeet.hyperlauncher.theme.PojavTheme
+import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
 
 
@@ -82,42 +84,53 @@ object LegacyMigratedComponentsBridge {
         view: ComposeView,
         groups: List<String>,
         groupData: List<List<String>>,
+        onDismiss: () -> Unit,
         onItemClick: (Int, Int) -> Unit
     ) {
         view.setContent {
             PojavTheme {
-                ExpandableVersionList(
-                    groups = groups,
-                    getItems = { group -> groupData[groups.indexOf(group)] },
-                    groupContent = { group, isExpanded, onToggle ->
-                        val rotation by animateFloatAsState(targetValue = if (isExpanded) 180f else 0f, label = "rotation")
-                        SimpleListItem1(
-                            text = group,
-                            onClick = onToggle,
-                            trailingIcon = {
-                                Icon(
-                                    imageVector = Icons.Rounded.ArrowDropDown,
-                                    contentDescription = null,
-                                    modifier = Modifier.rotate(rotation),
-                                    tint = MaterialTheme.colorScheme.onSurface
+                HyperAlertDialog(
+                    onDismissRequest = onDismiss,
+                    title = { Text(translatedText("Select Version")) },
+                    confirmText = "Done",
+                    onConfirm = onDismiss,
+                    dismissText = stringResource(android.R.string.cancel),
+                    onDismiss = onDismiss,
+                    text = {
+                        ExpandableVersionList(
+                            groups = groups,
+                            getItems = { group -> groupData[groups.indexOf(group)] },
+                            groupContent = { group, isExpanded, onToggle ->
+                                val rotation by animateFloatAsState(targetValue = if (isExpanded) 180f else 0f, label = "rotation")
+                                SimpleListItem1(
+                                    text = group,
+                                    onClick = onToggle,
+                                    trailingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Rounded.ArrowDropDown,
+                                            contentDescription = null,
+                                            modifier = Modifier.rotate(rotation),
+                                            tint = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
                                 )
+                            },
+                            itemContent = { item ->
+
+                                var groupIdx = -1
+                                var itemIdx = -1
+                                for (i in groupData.indices) {
+                                    if (groupData[i].contains(item)) {
+                                        groupIdx = i
+                                        itemIdx = groupData[i].indexOf(item)
+                                        break
+                                    }
+                                }
+                                SimpleListItem1(text = item, onClick = {
+                                    onItemClick(groupIdx, itemIdx)
+                                })
                             }
                         )
-                    },
-                    itemContent = { item ->
-
-                        var groupIdx = -1
-                        var itemIdx = -1
-                        for (i in groupData.indices) {
-                            if (groupData[i].contains(item)) {
-                                groupIdx = i
-                                itemIdx = groupData[i].indexOf(item)
-                                break
-                            }
-                        }
-                        SimpleListItem1(text = item, onClick = {
-                            onItemClick(groupIdx, itemIdx)
-                        })
                     }
                 )
             }
@@ -404,11 +417,6 @@ fun <G, I> ExpandableVersionList(
             if (expandedStates[index] == true) {
                 items(getItems(group)) { item ->
                     itemContent(item)
-                    HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        thickness = 0.5.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                    )
                 }
             }
             

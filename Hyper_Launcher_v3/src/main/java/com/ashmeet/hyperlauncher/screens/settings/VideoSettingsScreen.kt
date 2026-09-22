@@ -93,7 +93,7 @@ fun VideoSettingsScreen(
                     trailingIcon = Icons.Default.Download,
                     onTrailingIconClick = {
                         val intent = Intent(Intent.ACTION_VIEW,
-                            "https://github.com/ZalithLauncher/RendererPlugin".toUri())
+                            "https://github.com/ShirosakiMio/FCLRendererPlugin/releases/tag/Renderer".toUri())
                         context.startActivity(intent)
                     },
                     onClick = { showRendererDialog = true }

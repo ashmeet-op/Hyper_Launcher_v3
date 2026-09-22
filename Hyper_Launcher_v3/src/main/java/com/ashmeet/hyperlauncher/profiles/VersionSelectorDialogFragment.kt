@@ -1,12 +1,13 @@
 package com.ashmeet.hyperlauncher.profiles
 
-import android.app.Dialog
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.DialogFragment
 import com.ashmeet.hyperlauncher.components.text.LegacyMigratedComponentsBridge
 import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import net.kdt.pojavlaunch.JVersionList
 import net.kdt.pojavlaunch.extra.ExtraConstants
 import net.kdt.pojavlaunch.extra.ExtraCore
@@ -19,10 +20,18 @@ class VersionSelectorDialogFragment : DialogFragment() {
         this.listener = listener
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setStyle(STYLE_NO_FRAME, 0)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         val context = requireContext()
         val hideCustomVersions = arguments?.getBoolean("hideCustomVersions") ?: false
-        val builder = MaterialAlertDialogBuilder(context)
 
         val jVersionList = ExtraCore.getValue(ExtraConstants.RELEASE_TABLE) as? JVersionList
         val versionArray = jVersionList?.versions ?: emptyArray()
@@ -35,22 +44,20 @@ class VersionSelectorDialogFragment : DialogFragment() {
             groupData.add(adapter.getGroupChildren(i))
         }
 
-        val composeView = ComposeView(context)
-        // ensureViewTreeOwners is still good to have, though DialogFragment handles it mostly
-        LauncherComposeHelper.ensureViewTreeOwners(composeView)
+        return ComposeView(context).apply {
+            LauncherComposeHelper.ensureViewTreeOwners(this)
 
-        LegacyMigratedComponentsBridge.setVersionSelectorContent(
-            composeView,
-            groups,
-            groupData
-        ) { groupIdx, childIdx ->
-            val version = adapter.getChild(groupIdx, childIdx)
-            listener?.onVersionSelected(version, adapter.isSnapshotSelected(groupIdx))
-            dismiss()
+            LegacyMigratedComponentsBridge.setVersionSelectorContent(
+                this,
+                groups,
+                groupData,
+                onDismiss = { dismiss() }
+            ) { groupIdx, childIdx ->
+                val version = adapter.getChild(groupIdx, childIdx)
+                listener?.onVersionSelected(version, adapter.isSnapshotSelected(groupIdx))
+                dismiss()
+            }
         }
-
-        builder.setView(composeView)
-        return builder.create()
     }
 
     companion object {
