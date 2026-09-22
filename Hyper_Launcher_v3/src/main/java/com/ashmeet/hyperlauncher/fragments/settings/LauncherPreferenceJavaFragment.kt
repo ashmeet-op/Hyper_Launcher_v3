@@ -51,7 +51,7 @@ class LauncherPreferenceJavaFragment : Fragment(), SharedPreferences.OnSharedPre
                     JavaSettingsScreen(
                         onBack = { requireActivity().onBackPressedDispatcher.onBackPressed() },
                         onAddRuntime = { mVmInstallLauncher.launch(null) },
-                        onDeleteRuntime = { runtime -> deleteRuntime(runtime) },
+                        onDeleteRuntime = { runtime, onDeleted -> deleteRuntime(runtime, onDeleted) },
                         maxRam = maxRAM
                     )
                 }
@@ -59,16 +59,7 @@ class LauncherPreferenceJavaFragment : Fragment(), SharedPreferences.OnSharedPre
         }
     }
 
-    private fun deleteRuntime(runtime: Runtime) {
-        if (MultiRTUtils.getRuntimes().size < 2) {
-            MaterialAlertDialogBuilder(requireContext())
-                .setTitle(R.string.global_error)
-                .setMessage(R.string.multirt_config_removeerror_last)
-                .setPositiveButton(android.R.string.ok) { dialog, _ -> dialog.dismiss() }
-                .show()
-            return
-        }
-
+    private fun deleteRuntime(runtime: Runtime, onDeleted: () -> Unit) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 MultiRTUtils.removeRuntimeNamed(runtime.name)
@@ -81,6 +72,7 @@ class LauncherPreferenceJavaFragment : Fragment(), SharedPreferences.OnSharedPre
                             LauncherPreferences.loadPreferences(context)
                         }
                     }
+                    onDeleted()
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {

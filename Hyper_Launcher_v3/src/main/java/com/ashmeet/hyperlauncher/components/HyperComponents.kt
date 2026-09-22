@@ -1,6 +1,12 @@
 package com.ashmeet.hyperlauncher.components
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -24,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -33,6 +40,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
@@ -91,11 +99,12 @@ fun HyperOutlinedTextField(
 @Composable
 fun HyperAlertDialog(
     onDismissRequest: () -> Unit,
-    confirmText: String,
-    onConfirm: () -> Unit,
-    modifier: Modifier = Modifier,
+    confirmText: String? = null,
+    onConfirm: (() -> Unit)? = null,
+    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
     dismissText: String? = null,
     onDismiss: (() -> Unit)? = null,
+    buttons: @Composable (RowScope.() -> Unit)? = null,
     title: @Composable (() -> Unit)? = null,
     icon: @Composable (() -> Unit)? = null,
     isDestructive: Boolean = false,
@@ -110,27 +119,47 @@ fun HyperAlertDialog(
     AlertDialog(
         onDismissRequest = onDismissRequest,
         confirmButton = {
-            Button(
-                onClick = onConfirm,
-                colors = if (isDestructive) {
-                    ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error,
-                        contentColor = MaterialTheme.colorScheme.onError
-                    )
-                } else {
-                    ButtonDefaults.buttonColors()
-                }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(translatedText(confirmText))
+                if (buttons != null) {
+                    buttons(this)
+                } else {
+                    if (dismissText != null) {
+                        FilledTonalButton(onClick = onDismiss ?: onDismissRequest) {
+                            Text(
+                                text = translatedText(dismissText),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+                    if (confirmText != null && onConfirm != null) {
+                        Button(
+                            onClick = onConfirm,
+                            colors = if (isDestructive) {
+                                ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.error,
+                                    contentColor = MaterialTheme.colorScheme.onError
+                                )
+                            } else {
+                                ButtonDefaults.buttonColors()
+                            }
+                        ) {
+                            Text(
+                                text = translatedText(confirmText),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+                }
             }
         },
-        dismissButton = if (dismissText != null) {
-            {
-                FilledTonalButton(onClick = onDismiss ?: onDismissRequest) {
-                    Text(translatedText(dismissText))
-                }
-            }
-        } else null,
         modifier = modifier,
         title = title,
         icon = icon,

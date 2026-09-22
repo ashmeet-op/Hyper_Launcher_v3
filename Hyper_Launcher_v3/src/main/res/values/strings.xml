@@ -226,7 +226,7 @@
     <string name="multirt_runtime_corrupt">Corrupted Java Runtime</string>
     <string name="multirt_runtime_incompatiblearch">Incompatible architecture: %s</string>
     <string name="multirt_config_title">Java Runtimes</string>
-    <string name="multirt_config_add">Add new</string>
+    <string name="multirt_config_add">Add</string>
     <string name="multirt_title">Runtime Manager</string>
     <string name="multirt_subtitle">Manage installed Java Runtimes.</string>
     <string name="multirt_progress_caching">Caching…</string>

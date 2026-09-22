@@ -22,6 +22,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.kdt.pickafile.FileListView;
 import com.kdt.pickafile.FileSelectedListener;
@@ -59,6 +60,7 @@ public class ControlLayout extends FrameLayout {
 	private boolean mModifiable = false;
 	private boolean mIsModified;
 	private boolean mControlVisible = false;
+	private boolean mIsHardwareHide = false;
 
 	private float mButtonsOpacity = 1.0f;
 
@@ -262,7 +264,7 @@ public class ControlLayout extends FrameLayout {
 
 	public void toggleControlVisible(){
 		mControlVisible = !mControlVisible;
-		setControlVisible(mControlVisible);
+		setControlVisible(mControlVisible, true, false);
 	}
 
 	public float getLayoutScale(){
@@ -274,12 +276,37 @@ public class ControlLayout extends FrameLayout {
 	}
 
 	public void setControlVisible(boolean isVisible) {
+		setControlVisible(isVisible, false, false);
+	}
+
+	public void setControlVisible(boolean isVisible, boolean animate, boolean force) {
 		if (mModifiable) return; // Not using on custom controls activity
 
 		mControlVisible = isVisible;
+		if (force) mIsHardwareHide = !isVisible;
+
 		for(ControlInterface button : getButtonChildren()){
             // Avoid going through the JNI each time.
-            button.setVisible(((button.getProperties().displayInGame && Platform.isGrabbing()) || (button.getProperties().displayInMenu && !Platform.isGrabbing())) && isVisible);
+            boolean targetVisibility = ((button.getProperties().displayInGame && Platform.isGrabbing()) || (button.getProperties().displayInMenu && !Platform.isGrabbing())) && isVisible;
+			float targetAlpha = targetVisibility ? button.getProperties().opacity * mButtonsOpacity : 0f;
+
+			if (animate) {
+				if (targetVisibility && button.getControlView().getVisibility() != VISIBLE) {
+					button.getControlView().setAlpha(0f);
+					button.setVisible(true, force);
+				}
+				button.getControlView().animate()
+						.alpha(targetAlpha)
+						.setDuration(300)
+						.withEndAction(() -> {
+							if (!targetVisibility) button.setVisible(false, force);
+						})
+						.start();
+			} else {
+				button.getControlView().animate().cancel();
+				button.setVisible(targetVisibility, force);
+				button.getControlView().setAlpha(targetAlpha);
+			}
 		}
 	}
 
@@ -520,7 +547,7 @@ public class ControlLayout extends FrameLayout {
 		return jsonPath;
 	}
 
-	class OnClickExitListener implements View.OnClickListener {
+	class OnClickExitListener implements OnClickListener {
 		private final AlertDialog mDialog;
 		private final EditText mEditText;
 		private final EditorExitable mListener;
@@ -555,7 +582,7 @@ public class ControlLayout extends FrameLayout {
 		edit.setSingleLine();
 		edit.setText(mLayoutFileName);
 
-		com.google.android.material.dialog.MaterialAlertDialogBuilder builder = new com.google.android.material.dialog.MaterialAlertDialogBuilder(context);
+		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
 		builder.setTitle(R.string.global_save);
 		builder.setView(edit);
 		builder.setPositiveButton(android.R.string.ok, null);
@@ -572,7 +599,7 @@ public class ControlLayout extends FrameLayout {
 	}
 
 	public void openLoadDialog() {
-		com.google.android.material.dialog.MaterialAlertDialogBuilder builder = new com.google.android.material.dialog.MaterialAlertDialogBuilder(getContext());
+		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
 		builder.setTitle(R.string.global_load);
 		builder.setPositiveButton(android.R.string.cancel, null);
 
@@ -597,7 +624,7 @@ public class ControlLayout extends FrameLayout {
 	}
 
 	public void openSetDefaultDialog() {
-		com.google.android.material.dialog.MaterialAlertDialogBuilder builder = new com.google.android.material.dialog.MaterialAlertDialogBuilder(getContext());
+		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
 		builder.setTitle(R.string.customctrl_selectdefault);
 		builder.setPositiveButton(android.R.string.cancel, null);
 
@@ -622,7 +649,7 @@ public class ControlLayout extends FrameLayout {
 	}
 
 	public void openExitDialog(EditorExitable exitListener) {
-		com.google.android.material.dialog.MaterialAlertDialogBuilder builder = new com.google.android.material.dialog.MaterialAlertDialogBuilder(getContext());
+		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
 		builder.setTitle(R.string.customctrl_editor_exit_title);
 		builder.setMessage(R.string.customctrl_editor_exit_msg);
 		builder.setPositiveButton(R.string.global_yes, (d,w)->exitListener.exitEditor());
@@ -717,6 +744,10 @@ public class ControlLayout extends FrameLayout {
 
 	public boolean areControlVisible(){
 		return mControlVisible;
+	}
+
+	public boolean isHardwareHide() {
+		return mIsHardwareHide;
 	}
 
 	public LayoutBitmaps getBitmaps() {

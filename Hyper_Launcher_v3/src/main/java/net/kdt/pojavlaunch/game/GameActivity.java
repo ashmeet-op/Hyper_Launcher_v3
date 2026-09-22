@@ -85,12 +85,15 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Objects;
+import net.kdt.pojavlaunch.game.platform.input.PlatformGrabListener;
+import net.kdt.pojavlaunch.input.HardwareInputHandler;
 import androidx.compose.ui.platform.ComposeView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import kotlin.Unit;
 
 
-public class GameActivity extends BaseActivity implements ControlButtonMenuListener, EditorExitable, ServiceConnection {
+public class GameActivity extends BaseActivity implements ControlButtonMenuListener, EditorExitable, ServiceConnection, PlatformGrabListener {
     public static final String INTENT_LAUNCH_VERSION = "intent_version";
     public static final String INTENT_LAUNCH_CLASSPATH = "intent_classpath";
 
@@ -112,6 +115,9 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
     private QuickSettingSideDialog mQuickSettingSideDialog;
     private EditControlSideDialog mEditControlSideDialog;
     private LauncherComposeHelper.DrawerController mDrawerController;
+    private HardwareInputHandler mHardwareInputHandler;
+    private boolean mHasHardwareKeyboard = false;
+    private boolean mHasHardwareMouse = false;
 
     public static int mForcedPanningHeight = 0;
     public static int mImeHeight = 0;
@@ -167,6 +173,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
                     // AndroidX keeps SystemUI visible for some reason after IME session
                     view.postDelayed(() -> {
                         WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(getWindow(), view);
+                        //noinspection ConstantValue
                         if (controller != null) {
                             controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
                             controller.hide(WindowInsetsCompat.Type.systemBars());
@@ -204,6 +211,14 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
         ContextExecutor.setActivity(this);
         //Now, attach to the service. The game will only start when this happens, to make sure that we know the right state.
         bindService(gameServiceIntent, this, 0);
+
+        mHardwareInputHandler = new HardwareInputHandler(this, (hasKeyboard, hasMouse) -> {
+            mHasHardwareKeyboard = hasKeyboard;
+            mHasHardwareMouse = hasMouse;
+            updateInputSupportVisibility(hasKeyboard, hasMouse, Platform.isGrabbing());
+        });
+        mHardwareInputHandler.register();
+        Platform.addGrabListener(this);
     }
 
     @SuppressWarnings("deprecation")
@@ -228,9 +243,9 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
                 loggerView,
                 launcherGLView,
                 true, // hostViews = true
-                isOpen -> kotlin.Unit.INSTANCE,
-                controller -> { mDrawerController = controller; return kotlin.Unit.INSTANCE; },
-                action -> { onAction(action); return kotlin.Unit.INSTANCE; }
+                isOpen -> Unit.INSTANCE,
+                controller -> { mDrawerController = controller; return Unit.INSTANCE; },
+                action -> { onAction(action); return Unit.INSTANCE; }
         );
 
         mControlLayout.setOnControlEditListener(new ControlLayout.OnControlEditListener() {
@@ -320,7 +335,8 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
         } catch (Throwable th) {
             Tools.showError(this, th);
         }
-        mControlLayout.toggleControlVisible();
+        mControlLayout.setControlVisible(true, false, false);
+        mControlLayout.postDelayed(() -> updateInputSupportVisibility(mHasHardwareKeyboard, mHasHardwareMouse, Platform.isGrabbing()), 100);
     }
 
     @Override
@@ -394,6 +410,9 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
         ContextExecutor.setActivity(this);
         if(PREF_ENABLE_GYRO) mGyroControl.enable();
         PLATFORM.setHovered(true);
+        if (mHardwareInputHandler != null) {
+            mHardwareInputHandler.updateState();
+        }
     }
 
     @Override
@@ -424,7 +443,37 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
     }
 
     @Override
+    public void onGrabState(boolean isGrabbing) {
+        if (mHardwareInputHandler != null) {
+            mHardwareInputHandler.updateState();
+        }
+    }
+
+    private void updateInputSupportVisibility(boolean hasKeyboard, boolean hasMouse, boolean isGrabbing) {
+        if (mControlLayout == null) return;
+        boolean bothAttached = hasKeyboard && hasMouse;
+        
+        // Hide controls if both keyboard and mouse are attached, with fade animation
+        mControlLayout.setControlVisible(!bothAttached, true, true);
+
+        GameCursorView cursorView = Tools.getWeakReference(weakCursor);
+        if (cursorView != null) {
+            // Mouse pointer visibility logic:
+            if (hasMouse) {
+                cursorView.setVisibility(View.GONE);
+            } else {
+                cursorView.setVisibility(PREF_VIRTUAL_MOUSE_START ? View.VISIBLE : View.GONE);
+            }
+        }
+        
+        Log.i("InputSupport", "Hardware: Kbd=" + hasKeyboard + ", Mouse=" + hasMouse + ", Grabbing=" + isGrabbing);
+    }
+
+    @Override
     protected void onDestroy() {
+        if (mHardwareInputHandler != null) {
+            mHardwareInputHandler.unregister();
+        }
         super.onDestroy();
         ContextExecutor.clearActivity();
     }
@@ -443,6 +492,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
             // Child of mControlLayout, so refreshing size here is correct
             launcherGLView.refreshSize();
             mControlLayout.refreshControlButtonPositions();
+            if (mHardwareInputHandler != null) mHardwareInputHandler.updateState();
         });
     }
 
@@ -451,7 +501,10 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
         super.onPostResume();
         if(mLoadingScreen != null && !(PLATFORM instanceof DummyBackend)) hideLoadingScreen();
         if(launcherGLView != null)  // Useful when backing out of the app
-            Tools.MAIN_HANDLER.postDelayed(() -> launcherGLView.refreshSize(), 500);
+            Tools.MAIN_HANDLER.postDelayed(() -> {
+                launcherGLView.refreshSize();
+                if (mHardwareInputHandler != null) mHardwareInputHandler.updateState();
+            }, 500);
     }
 
     @Override
@@ -505,9 +558,9 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
                 loggerView,
                 launcherGLView,
                 true, // hostViews = true
-                isOpen -> kotlin.Unit.INSTANCE,
-                controller -> { mDrawerController = controller; return kotlin.Unit.INSTANCE; },
-                action -> { onAction(action); return kotlin.Unit.INSTANCE; }
+                isOpen -> Unit.INSTANCE,
+                controller -> { mDrawerController = controller; return Unit.INSTANCE; },
+                action -> { onAction(action); return Unit.INSTANCE; }
         );
         mControlLayout.setModifiable(true);
     }
@@ -528,7 +581,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
                 @Override
                 public void onGyroStateChanged() {
                     mGyroControl.updateOrientation();
-                    if (LauncherPreferences.PREF_ENABLE_GYRO) {
+                    if (PREF_ENABLE_GYRO) {
                         mGyroControl.enable();
                     } else {
                         mGyroControl.disable();
@@ -647,9 +700,9 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
                 loggerView,
                 launcherGLView,
                 true, // hostViews = true
-                isOpen -> kotlin.Unit.INSTANCE,
-                controller -> { mDrawerController = controller; return kotlin.Unit.INSTANCE; },
-                action -> { onAction(action); return kotlin.Unit.INSTANCE; }
+                isOpen -> Unit.INSTANCE,
+                controller -> { mDrawerController = controller; return Unit.INSTANCE; },
+                action -> { onAction(action); return Unit.INSTANCE; }
         );
     }
 

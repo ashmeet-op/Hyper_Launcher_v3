@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Coffee
 import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.Terminal
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -20,6 +21,7 @@ import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
+import com.ashmeet.hyperlauncher.components.HyperAlertDialog
 import com.ashmeet.hyperlauncher.screens.settings.layouts.CardPosition
 import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsCard
 import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsScreenWrapper
@@ -37,7 +39,7 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreference
 fun JavaSettingsScreen(
     onBack: () -> Unit,
     onAddRuntime: () -> Unit,
-    onDeleteRuntime: (Runtime) -> Unit,
+    onDeleteRuntime: (Runtime, onDeleted: () -> Unit) -> Unit,
     maxRam: Int
 ) {
     val context = LocalContext.current
@@ -46,9 +48,11 @@ fun JavaSettingsScreen(
     var defaultRuntimeName by remember { mutableStateOf(LauncherPreferences.PREF_DEFAULT_RUNTIME ?: "") }
     var javaArgs by remember { mutableStateOf(LauncherPreferences.PREF_CUSTOM_JAVA_ARGS ?: "") }
 
+    var runtimes by remember { mutableStateOf(MultiRTUtils.getRuntimes()) }
     var showRuntimeDialog by remember { mutableStateOf(false) }
     var isDeletingRuntimes by remember { mutableStateOf(false) }
     var showJavaArgsDialog by remember { mutableStateOf(false) }
+    var errorDialogMessage by remember { mutableStateOf<String?>(null) }
 
     SettingsScreenWrapper(
         title = translatedText(stringResource(R.string.preference_java_title)),
@@ -121,7 +125,7 @@ fun JavaSettingsScreen(
     if (showRuntimeDialog) {
         RuntimeSelectionDialog(
             title = translatedText(stringResource(R.string.multirt_title)),
-            runtimes = MultiRTUtils.getRuntimes(),
+            runtimes = runtimes,
             selectedRuntimeName = defaultRuntimeName,
             isDeleting = isDeletingRuntimes,
             onRuntimeSelected = { runtime ->
@@ -131,9 +135,18 @@ fun JavaSettingsScreen(
                 showRuntimeDialog = false
             },
             onRuntimeDelete = { runtime ->
-                onDeleteRuntime(runtime)
+                if (runtimes.size < 2) {
+                    errorDialogMessage = context.getString(R.string.multirt_config_removeerror_last)
+                } else {
+                    onDeleteRuntime(runtime) {
+                        runtimes = MultiRTUtils.getRuntimes()
+                    }
+                }
             },
-            onAddRuntime = onAddRuntime,
+            onAddRuntime = {
+                onAddRuntime()
+                runtimes = MultiRTUtils.getRuntimes()
+            },
             onToggleDeleteMode = { isDeletingRuntimes = !isDeletingRuntimes },
             onDismiss = {
                 showRuntimeDialog = false
@@ -153,6 +166,16 @@ fun JavaSettingsScreen(
                 showJavaArgsDialog = false
             },
             onDismiss = { showJavaArgsDialog = false }
+        )
+    }
+
+    if (errorDialogMessage != null) {
+        HyperAlertDialog(
+            onDismissRequest = { errorDialogMessage = null },
+            title = { Text(translatedText(stringResource(R.string.global_error))) },
+            text = { Text(translatedText(errorDialogMessage!!)) },
+            confirmText = stringResource(android.R.string.ok),
+            onConfirm = { errorDialogMessage = null }
         )
     }
 }

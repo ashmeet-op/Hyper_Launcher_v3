@@ -13,10 +13,11 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreference
 import com.ashmeet.hyperlauncher.utils.Tools;
 
 import net.kdt.pojavlaunch.CallbackBridge;
+import net.kdt.pojavlaunch.game.platform.input.PlatformGrabListener;
 import net.kdt.pojavlaunch.game.platform.Platform;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
-public class AndroidPointerCapture implements ViewTreeObserver.OnWindowFocusChangeListener, View.OnCapturedPointerListener {
+public class AndroidPointerCapture implements ViewTreeObserver.OnWindowFocusChangeListener, View.OnCapturedPointerListener, PlatformGrabListener {
     private static final float TOUCHPAD_SCROLL_THRESHOLD = 1;
     private final View mTouchpadView;
     private final View mHostView;
@@ -27,12 +28,14 @@ public class AndroidPointerCapture implements ViewTreeObserver.OnWindowFocusChan
 
     private int mInputDeviceIdentifier;
     private boolean mDeviceSupportsRelativeAxis;
+    private boolean mHasMouse = false;
 
     public AndroidPointerCapture(View touchpad, View hostView) {
         this.mTouchpadView = touchpad;
         this.mHostView = hostView;
         hostView.setOnCapturedPointerListener(this);
         hostView.getViewTreeObserver().addOnWindowFocusChangeListener(this);
+        Platform.addGrabListener(this);
     }
 
     private void enableTouchpadIfNecessary() {
@@ -43,7 +46,12 @@ public class AndroidPointerCapture implements ViewTreeObserver.OnWindowFocusChan
         if(!mHostView.hasWindowFocus()) {
             mHostView.requestFocus();
         } else {
-            mHostView.requestPointerCapture();
+            if (mHasMouse && !Platform.isGrabbing()) {
+                // Don't capture if it's a mouse and we are not in-game
+                mHostView.releasePointerCapture();
+            } else {
+                mHostView.requestPointerCapture();
+            }
         }
     }
 
@@ -85,7 +93,7 @@ public class AndroidPointerCapture implements ViewTreeObserver.OnWindowFocusChan
 
         // Avoid going through the JNI each time.
         if(!Platform.isGrabbing()) {
-            enableTouchpadIfNecessary();
+            if (!mHasMouse) enableTouchpadIfNecessary();
             // Yes, if the user's touchpad is multi-touch we will also receive events for that.
             // So, handle the scrolling gesture ourselves.
             mVector[0] *= mMousePrescale;
@@ -128,8 +136,14 @@ public class AndroidPointerCapture implements ViewTreeObserver.OnWindowFocusChan
 
     private void checkSameDevice(InputDevice inputDevice) {
         int newIdentifier;
-        if(inputDevice != null) newIdentifier = inputDevice.getId();
-        else newIdentifier = Integer.MAX_VALUE;
+        if(inputDevice != null) {
+            newIdentifier = inputDevice.getId();
+            mHasMouse = (inputDevice.getSources() & InputDevice.SOURCE_MOUSE) == InputDevice.SOURCE_MOUSE;
+        }
+        else {
+            newIdentifier = Integer.MAX_VALUE;
+            mHasMouse = false;
+        }
         if(mInputDeviceIdentifier != newIdentifier) {
             reinitializeDeviceSpecificProperties(inputDevice);
             mInputDeviceIdentifier = newIdentifier;
@@ -148,8 +162,13 @@ public class AndroidPointerCapture implements ViewTreeObserver.OnWindowFocusChan
     }
 
     @Override
+    public void onGrabState(boolean isGrabbing) {
+        Tools.runOnUiThread(this::handleAutomaticCapture);
+    }
+
+    @Override
     public void onWindowFocusChanged(boolean hasFocus) {
-        if(hasFocus && Tools.isAndroid8OrHigher()) mHostView.requestPointerCapture();
+        if(hasFocus && Tools.isAndroid8OrHigher()) handleAutomaticCapture();
     }
 
     public void detach() {

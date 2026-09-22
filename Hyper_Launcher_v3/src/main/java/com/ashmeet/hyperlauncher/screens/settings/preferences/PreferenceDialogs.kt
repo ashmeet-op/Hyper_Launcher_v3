@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.ashmeet.hyperlauncher.components.HyperAlertDialog
@@ -110,8 +112,9 @@ fun RuntimeSelectionDialog(
     onToggleDeleteMode: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    AlertDialog(
+    HyperAlertDialog(
         onDismissRequest = onDismiss,
+        modifier = Modifier.widthIn(800.dp),
         title = { Text(text = translatedText(title)) },
         text = {
             LazyColumn {
@@ -161,22 +164,29 @@ fun RuntimeSelectionDialog(
                 }
             }
         },
-        confirmButton = {
+        buttons = {
+            FilledTonalButton(onClick = onToggleDeleteMode) {
+                Text(
+                    text = translatedText(stringResource(if (isDeleting) android.R.string.ok else R.string.global_delete)),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            FilledTonalButton(onClick = onDismiss) {
+                Text(
+                    text = translatedText(stringResource(android.R.string.cancel)),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
             Button(onClick = onAddRuntime) {
-                Text(translatedText(stringResource(R.string.multirt_config_add)))
+                Text(
+                    text = translatedText(stringResource(R.string.multirt_config_add)),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
-        },
-        dismissButton = {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilledTonalButton(onClick = onToggleDeleteMode) {
-                    Text(translatedText(stringResource(if (isDeleting) R.string.multirt_config_setdefault else R.string.global_delete)))
-                }
-                FilledTonalButton(onClick = onDismiss) {
-                    Text(translatedText(stringResource(android.R.string.cancel)))
-                }
-            }
-        },
-        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+        }
     )
 }
 
