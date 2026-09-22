@@ -877,7 +877,7 @@ object Tools {
 
         when (LauncherPreferences.PREF_SCREEN_TRANSITION) {
             "fade" -> transaction.setCustomAnimations(R.anim.fade_enter, R.anim.fade_exit, R.anim.fade_pop_enter, R.anim.fade_pop_exit)
-            "bounce" -> transaction.setCustomAnimations(R.anim.bounce_enter, R.anim.bounce_exit, R.anim.bounce_pop_enter, R.anim.bounce_pop_exit)
+            "bounce", "jelly_bounce" -> transaction.setCustomAnimations(R.anim.bounce_enter, R.anim.bounce_exit, R.anim.bounce_pop_enter, R.anim.bounce_pop_exit)
         }
 
         transaction.setReorderingAllowed(true)

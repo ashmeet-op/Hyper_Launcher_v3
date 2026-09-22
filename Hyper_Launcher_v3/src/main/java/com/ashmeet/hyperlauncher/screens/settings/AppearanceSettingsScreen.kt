@@ -259,7 +259,7 @@ fun AppearanceSettingsScreen(
         }
     }
 
-    val languageOptions = listOf("system", "en", "es", "fr", "de", "it", "ja", "zh", "ru")
+    val languageOptions = listOf("system", "en", "es", "fr", "de", "it", "ja", "zh", "ru", "ko", "pt", "tr", "vi", "hi", "ar", "uk")
     val languageOptionNames = languageOptions.map { id ->
         when (id) {
             "system" -> translatedText(stringResource(R.string.preference_language_system))
@@ -271,6 +271,13 @@ fun AppearanceSettingsScreen(
             "ja" -> translatedText(stringResource(R.string.preference_language_japanese))
             "zh" -> translatedText(stringResource(R.string.preference_language_chinese))
             "ru" -> translatedText(stringResource(R.string.preference_language_russian))
+            "ko" -> translatedText(stringResource(R.string.preference_language_korean))
+            "pt" -> translatedText(stringResource(R.string.preference_language_portuguese))
+            "tr" -> translatedText(stringResource(R.string.preference_language_turkish))
+            "vi" -> translatedText(stringResource(R.string.preference_language_vietnamese))
+            "hi" -> translatedText(stringResource(R.string.preference_language_hindi))
+            "ar" -> translatedText(stringResource(R.string.preference_language_arabic))
+            "uk" -> translatedText(stringResource(R.string.preference_language_ukrainian))
             else -> id
         }
     }

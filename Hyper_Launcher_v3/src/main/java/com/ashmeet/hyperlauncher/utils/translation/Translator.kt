@@ -102,7 +102,8 @@ object Translator {
         "tr" to "turkish",
         "vi" to "vietnamese",
         "hi" to "hindi",
-        "ar" to "arabic"
+        "ar" to "arabic",
+        "uk" to "ukrainian"
     )
 
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())

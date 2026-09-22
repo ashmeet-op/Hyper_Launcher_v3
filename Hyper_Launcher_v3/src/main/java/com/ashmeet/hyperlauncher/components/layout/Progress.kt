@@ -2,6 +2,8 @@ package com.ashmeet.hyperlauncher.components.layout
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -144,9 +146,14 @@ fun ProgressLayoutContent(
 ) {
     var isCollapsed by remember { mutableStateOf(false) }
 
-    if (taskCount > 0) {
+    AnimatedVisibility(
+        visible = taskCount > 0,
+        enter = fadeIn(),
+        exit = fadeOut(),
+        modifier = modifier
+    ) {
         Surface(
-            modifier = modifier
+            modifier = Modifier
                 .padding(horizontal = 8.dp, vertical = 4.dp)
                 .clip(RoundedCornerShape(24.dp))
                 .wrapContentHeight(),
