@@ -1,7 +1,6 @@
 package com.ashmeet.hyperlauncher.fragments.instances
 
 import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,13 +8,22 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
-import androidx.compose.runtime.*
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
+import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.Fragment
 import com.ashmeet.hyperlauncher.fragments.dialog.DeleteConfirmDialogFragment
 import com.ashmeet.hyperlauncher.fragments.selection.FileSelectorFragment
-import net.ashmeet.hyperlauncher.R
+import com.ashmeet.hyperlauncher.profiles.VersionSelectorDialog
+import com.ashmeet.hyperlauncher.screens.instances.InstanceEditorScreen
+import com.ashmeet.hyperlauncher.theme.PojavTheme
+import com.ashmeet.hyperlauncher.utils.RendererCompatUtil
 import com.ashmeet.hyperlauncher.utils.Tools
+import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.extra.ExtraConstants
 import net.kdt.pojavlaunch.extra.ExtraCore
 import net.kdt.pojavlaunch.instances.Instance
@@ -23,11 +31,7 @@ import net.kdt.pojavlaunch.instances.InstanceIconProvider
 import net.kdt.pojavlaunch.instances.Instances
 import net.kdt.pojavlaunch.multirt.MultiRTUtils
 import net.kdt.pojavlaunch.multirt.Runtime
-import com.ashmeet.hyperlauncher.profiles.VersionSelectorDialog
-import com.ashmeet.hyperlauncher.screens.instances.InstanceEditorScreen
-import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.kdt.pojavlaunch.utils.CropperUtils
-import com.ashmeet.hyperlauncher.utils.RendererCompatUtil
 import java.io.IOException
 
 class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
@@ -68,11 +72,6 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val value = ExtraCore.consumeValue(ExtraConstants.FILE_SELECTOR) as? String
-        if (value != null) {
-            mControlLayout = value
-        }
-
         val selectedInstance = Instances.loadSelectedInstance()
         if (selectedInstance == null) {
             Toast.makeText(requireContext(), R.string.no_instance, Toast.LENGTH_LONG).show()
@@ -86,6 +85,13 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
 
         return ComposeView(requireContext()).apply {
             setContent {
+                val value = remember { ExtraCore.consumeValue(ExtraConstants.FILE_SELECTOR) as? String }
+                LaunchedEffect(value) {
+                    if (value != null) {
+                        mControlLayout = value
+                    }
+                }
+
                 val hasChanges = mInstanceName != mInitialInstanceName ||
                         mVersionId != mInitialVersionId ||
                         mControlLayout != mInitialControlLayout ||
@@ -188,9 +194,9 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
     private fun save() {
         val instance = mInstance ?: return
         instance.versionId = mVersionId
-        instance.controlLayout = if (mControlLayout.isEmpty()) null else mControlLayout
+        instance.controlLayout = mControlLayout.ifEmpty { null }
         instance.name = mInstanceName
-        instance.jvmArgs = if (mJvmArgs.isEmpty()) null else mJvmArgs
+        instance.jvmArgs = mJvmArgs.ifEmpty { null }
         instance.sharedData = mSharedData
 
         instance.selectedRuntime = if (mSelectedRuntime?.name == "<Default>" || mSelectedRuntime?.versionString == null) {
@@ -230,7 +236,7 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
     override fun getTargetMaxSide(): Int = mRecommendedIconSize
 
     override fun onCropped(contentBitmap: Bitmap) {
-        mInstanceIcon = BitmapDrawable(resources, contentBitmap)
+        mInstanceIcon = contentBitmap.toDrawable(resources)
         try {
             mInstance?.encodeNewIcon(contentBitmap)
             mIconChanged = true
