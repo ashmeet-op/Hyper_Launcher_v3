@@ -1,5 +1,6 @@
 package com.ashmeet.hyperlauncher.screens.settings
 
+import android.annotation.SuppressLint
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 
 import androidx.compose.foundation.layout.Arrangement
@@ -35,6 +36,7 @@ import net.kdt.pojavlaunch.multirt.MultiRTUtils
 import net.kdt.pojavlaunch.multirt.Runtime
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun JavaSettingsScreen(
     onBack: () -> Unit,
@@ -48,7 +50,7 @@ fun JavaSettingsScreen(
     var defaultRuntimeName by remember { mutableStateOf(LauncherPreferences.PREF_DEFAULT_RUNTIME ?: "") }
     var javaArgs by remember { mutableStateOf(LauncherPreferences.PREF_CUSTOM_JAVA_ARGS ?: "") }
 
-    var runtimes by remember { mutableStateOf(MultiRTUtils.getRuntimes()) }
+    var runtimes by remember { mutableStateOf(listOf(Runtime("auto")) + MultiRTUtils.getRuntimes()) }
     var showRuntimeDialog by remember { mutableStateOf(false) }
     var isDeletingRuntimes by remember { mutableStateOf(false) }
     var showJavaArgsDialog by remember { mutableStateOf(false) }
@@ -64,8 +66,10 @@ fun JavaSettingsScreen(
                 MultiRTUtils.read(defaultRuntimeName)
             } else null
         }
-        val runtimeSummary = remember(currentRuntime) {
-            if (currentRuntime?.versionString != null) {
+        val runtimeSummary = remember(currentRuntime, defaultRuntimeName) {
+            if (defaultRuntimeName == "auto") {
+                context.getString(R.string.multirt_auto)
+            } else if (currentRuntime?.versionString != null) {
                 currentRuntime.name.replace(".tar.xz", "").replace("-", " ") + " (" + currentRuntime.versionString + ")"
             } else currentRuntime?.name ?: ""
         }
@@ -135,17 +139,17 @@ fun JavaSettingsScreen(
                 showRuntimeDialog = false
             },
             onRuntimeDelete = { runtime ->
-                if (runtimes.size < 2) {
+                if (runtimes.filter { it.name != "auto" }.size < 2) {
                     errorDialogMessage = context.getString(R.string.multirt_config_removeerror_last)
                 } else {
                     onDeleteRuntime(runtime) {
-                        runtimes = MultiRTUtils.getRuntimes()
+                        runtimes = listOf(Runtime("auto")) + MultiRTUtils.getRuntimes()
                     }
                 }
             },
             onAddRuntime = {
                 onAddRuntime()
-                runtimes = MultiRTUtils.getRuntimes()
+                runtimes = listOf(Runtime("auto")) + MultiRTUtils.getRuntimes()
             },
             onToggleDeleteMode = { isDeletingRuntimes = !isDeletingRuntimes },
             onDismiss = {

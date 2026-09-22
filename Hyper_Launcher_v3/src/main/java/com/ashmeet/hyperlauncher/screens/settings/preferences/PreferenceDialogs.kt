@@ -134,26 +134,31 @@ fun RuntimeSelectionDialog(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = runtime.name.replace(".tar.xz", "").replace("-", " "),
+                                text = if (runtime.name == "auto") translatedText(stringResource(R.string.multirt_auto))
+                                       else runtime.name.replace(".tar.xz", "").replace("-", " "),
                                 style = MaterialTheme.typography.bodyLarge
                             )
-                            if (runtime.versionString != null) {
-                                Text(
-                                    text = runtime.versionString,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            } else {
-                                Text(
-                                    text = translatedText(stringResource(R.string.multirt_runtime_corrupt)),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.error
-                                )
+                            if (runtime.name != "auto") {
+                                if (runtime.versionString != null) {
+                                    Text(
+                                        text = runtime.versionString,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                } else {
+                                    Text(
+                                        text = translatedText(stringResource(R.string.multirt_runtime_corrupt)),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
                             }
                         }
                         if (isDeleting) {
-                            IconButton(onClick = { onRuntimeDelete(runtime) }) {
-                                Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error)
+                            if (runtime.name != "auto") {
+                                IconButton(onClick = { onRuntimeDelete(runtime) }) {
+                                    Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error)
+                                }
                             }
                         } else if (isDefault) {
                             Icon(

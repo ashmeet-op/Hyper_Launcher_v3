@@ -139,7 +139,8 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
         mInstance = instance
         mInstanceIcon = InstanceIconProvider.fetchIcon(resources, instance)
 
-        val runtimes = MultiRTUtils.getRuntimes().toMutableList()
+        val runtimes = mutableListOf(Runtime("auto"))
+        runtimes.addAll(MultiRTUtils.getRuntimes())
         if (runtimes.none { it.name == "<Default>" }) {
             runtimes.add(Runtime("<Default>"))
         }
@@ -149,7 +150,7 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
             mRuntimes.indexOfFirst { it.name == instance.selectedRuntime }
         } else -1
 
-        mSelectedRuntime = if (jvmIndex != -1) mRuntimes[jvmIndex] else mRuntimes.last()
+        mSelectedRuntime = if (jvmIndex != -1) mRuntimes[jvmIndex] else mRuntimes.find { it.name == "<Default>" } ?: mRuntimes.last()
 
         val renderersList = RendererCompatUtil.getCompatibleRenderers(requireContext())
         mRenderNames = renderersList.rendererIds.toList()
@@ -199,7 +200,7 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
         instance.jvmArgs = mJvmArgs.ifEmpty { null }
         instance.sharedData = mSharedData
 
-        instance.selectedRuntime = if (mSelectedRuntime?.name == "<Default>" || mSelectedRuntime?.versionString == null) {
+        instance.selectedRuntime = if (mSelectedRuntime?.name == "<Default>" || (mSelectedRuntime?.versionString == null && mSelectedRuntime?.name != "auto")) {
             null
         } else {
             mSelectedRuntime?.name

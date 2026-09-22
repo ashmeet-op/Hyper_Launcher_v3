@@ -476,10 +476,10 @@ public class GameRunner {
         String runtime = Tools.getSelectedRuntime(instance);
         String profileRuntime = instance.selectedRuntime;
         Runtime pickedRuntime = MultiRTUtils.read(runtime);
-        if(runtime == null || pickedRuntime.javaVersion == 0 || pickedRuntime.javaVersion < targetJavaVersion) {
+        if(runtime == null || "auto".equals(runtime) || pickedRuntime.javaVersion == 0 || pickedRuntime.javaVersion < targetJavaVersion) {
             String preferredRuntime = MultiRTUtils.getNearestJreName(targetJavaVersion);
             if(preferredRuntime == null) throw new RuntimeException("Failed to autopick runtime!");
-            if(profileRuntime != null) {
+            if(profileRuntime != null && !"auto".equals(profileRuntime)) {
                 instance.selectedRuntime = preferredRuntime;
                 instance.maybeWrite();
             }

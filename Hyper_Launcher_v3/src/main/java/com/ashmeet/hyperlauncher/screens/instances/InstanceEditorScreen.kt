@@ -181,8 +181,13 @@ fun InstanceEditorScreen(
                 SettingsCard(position = CardPosition.TOP, useSurface = true) {
                     val corruptText = translatedText(stringResource(R.string.multirt_runtime_corrupt))
                     val currentSummary = selectedRuntime?.let { 
-                        if (runtimes.indexOf(it) == runtimes.size - 1) it.name
-                        else "${it.name.replace(".tar.xz", "")} - ${it.versionString ?: corruptText}"
+                        if (it.name == "auto") {
+                            translatedText(stringResource(R.string.multirt_auto))
+                        } else if (it.name == "<Default>") {
+                            it.name
+                        } else {
+                            "${it.name.replace(".tar.xz", "")} - ${it.versionString ?: corruptText}"
+                        }
                     } ?: translatedText(stringResource(R.string.global_default))
 
                     SettingsActionItem(
@@ -273,8 +278,13 @@ fun InstanceEditorScreen(
         if (showRuntimeDialog) {
             val corruptText = translatedText(stringResource(R.string.multirt_runtime_corrupt))
             val runtimeOptions = runtimes.map { 
-                if (runtimes.indexOf(it) == runtimes.size - 1) it.name
-                else "${it.name.replace(".tar.xz", "")} - ${it.versionString ?: corruptText}"
+                if (it.name == "auto") {
+                    translatedText(stringResource(R.string.multirt_auto))
+                } else if (it.name == "<Default>") {
+                    it.name
+                } else {
+                    "${it.name.replace(".tar.xz", "")} - ${it.versionString ?: corruptText}"
+                }
             }
             SingleChoiceDialog(
                 title = translatedText(stringResource(R.string.pedit_java_runtime)),

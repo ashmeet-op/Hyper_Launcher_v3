@@ -228,6 +228,7 @@
     <string name="multirt_config_title">Java Runtimes</string>
     <string name="multirt_config_add">Add</string>
     <string name="multirt_title">Runtime Manager</string>
+    <string name="multirt_auto">Automatic</string>
     <string name="multirt_subtitle">Manage installed Java Runtimes.</string>
     <string name="multirt_progress_caching">Caching…</string>
     <string name="translation_prefetching">Downloading translations: %1$s (%2$d/%3$d)</string>

@@ -491,14 +491,10 @@ object LauncherPreferences {
         }
 
         if (pref.contains("defaultRuntime")) {
-            PREF_DEFAULT_RUNTIME = pref.getString("defaultRuntime", "")
+            PREF_DEFAULT_RUNTIME = pref.getString("defaultRuntime", "auto")
+            if (PREF_DEFAULT_RUNTIME.isNullOrEmpty()) PREF_DEFAULT_RUNTIME = "auto"
         } else {
-            val runtimes = MultiRTUtils.getRuntimes()
-            if (runtimes.isEmpty()) {
-                PREF_DEFAULT_RUNTIME = ""
-                return
-            }
-            PREF_DEFAULT_RUNTIME = runtimes[0].name
+            PREF_DEFAULT_RUNTIME = "auto"
             pref.edit { putString("defaultRuntime", PREF_DEFAULT_RUNTIME) }
         }
     }
