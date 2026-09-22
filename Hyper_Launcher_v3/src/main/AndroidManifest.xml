@@ -43,6 +43,7 @@
         tools:ignore="UnusedAttribute,DiscouragedApi">
         <activity
             android:name="com.ashmeet.hyperlauncher.activity.MissingStorageActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation|uiMode"
             android:exported="false" />
 
         <meta-data
@@ -51,6 +52,7 @@
 
         <activity
             android:name="com.ashmeet.hyperlauncher.activity.TestStorageActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation|uiMode"
             android:exported="true"
             android:screenOrientation="sensorLandscape"
             android:launchMode="singleTop">
@@ -62,11 +64,12 @@
         </activity>
         <activity
             android:name="com.ashmeet.hyperlauncher.activity.LauncherActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation|uiMode"
             android:screenOrientation="sensorLandscape"
             android:windowSoftInputMode="adjustResize"/>
         <activity
             android:name="com.ashmeet.hyperlauncher.activity.ImportControlActivity"
-            android:configChanges="keyboard|keyboardHidden"
+            android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation|uiMode"
             android:exported="true"
             android:screenOrientation="sensorLandscape"
             android:launchMode="singleInstance"
@@ -87,11 +90,11 @@
         </activity>
         <activity
             android:name="com.ashmeet.hyperlauncher.activity.FatalErrorActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|keyboard|navigation"
+            android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation|uiMode"
             android:theme="@style/AppTheme"
             android:screenOrientation="sensorLandscape" />
         <activity android:name="com.ashmeet.hyperlauncher.activity.ShowErrorActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|keyboard|navigation"
+            android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation|uiMode"
             android:theme="@style/Theme.Material3.DayNight.Dialog"
             android:screenOrientation="sensorLandscape" />
         <activity

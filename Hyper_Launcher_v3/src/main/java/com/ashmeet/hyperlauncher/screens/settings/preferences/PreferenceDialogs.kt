@@ -10,13 +10,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
@@ -187,6 +190,42 @@ fun RuntimeSelectionDialog(
                 )
             }
         }
+    )
+}
+
+@Composable
+fun TextViewerDialog(
+    title: String,
+    content: String,
+    onSave: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var text by remember { mutableStateOf(content) }
+
+    HyperAlertDialog(
+        onDismissRequest = onDismiss,
+        modifier = Modifier.widthIn(min = 400.dp, max = 600.dp),
+        title = { Text(text = translatedText(title)) },
+        text = {
+            val scrollState = rememberScrollState()
+            HyperOutlinedTextField(
+                value = text,
+                onValueChange = { text = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 400.dp),
+                label = { Text(translatedText("Content")) },
+                singleLine = false,
+                textStyle = MaterialTheme.typography.bodySmall
+            )
+        },
+        confirmText = stringResource(R.string.global_save),
+        onConfirm = {
+            onSave(text)
+            onDismiss()
+        },
+        dismissText = stringResource(android.R.string.cancel),
+        onDismiss = onDismiss
     )
 }
 

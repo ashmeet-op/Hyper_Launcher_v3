@@ -3,9 +3,11 @@ package com.ashmeet.hyperlauncher.components.list
 import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,6 +25,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
 import androidx.compose.material.icons.automirrored.rounded.List
 import androidx.compose.material.icons.automirrored.rounded.Shortcut
+import androidx.compose.material.icons.rounded.ContentCopy
+import androidx.compose.material.icons.rounded.ContentCut
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Extension
@@ -94,7 +98,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun FileListItem(
     modifier: Modifier = Modifier,
@@ -105,6 +109,9 @@ fun FileListItem(
     onClick: () -> Unit,
     onDelete: () -> Unit,
     onRename: () -> Unit,
+    onCopy: () -> Unit,
+    onMove: () -> Unit,
+    onCompress: () -> Unit,
     onOpenInFiles: () -> Unit,
     onRefresh: () -> Unit
 ) {
@@ -167,8 +174,9 @@ fun FileListItem(
             .graphicsLayer {
                 alpha = animatedAlpha.value
             }
-            .clickable(
+            .combinedClickable(
                 onClick = onClick,
+                onLongClick = { menuExpanded = true },
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() }
             ),
@@ -366,6 +374,66 @@ fun FileListItem(
                     DropdownMenuItem(
                         text = {
                             Text(
+                                text = translatedText("Copy"),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Rounded.ContentCopy,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        },
+                        onClick = {
+                            menuExpanded = false
+                            onCopy()
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = translatedText("Cut"),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Rounded.ContentCut,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        },
+                        onClick = {
+                            menuExpanded = false
+                            onMove()
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = translatedText("Compress"),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Rounded.InsertDriveFile,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        },
+                        onClick = {
+                            menuExpanded = false
+                            onCompress()
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = {
+                            Text(
                                 text = translatedText("Open in Files"),
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -422,6 +490,9 @@ fun FileListItemPreview() {
                 onClick = {},
                 onDelete = {},
                 onRename = {},
+                onCopy = {},
+                onMove = {},
+                onCompress = {},
                 onOpenInFiles = {},
                 onRefresh = {}
             )
@@ -466,8 +537,9 @@ fun InstanceListItem(
             .graphicsLayer {
                 alpha = animatedAlpha.value
             }
-            .clickable(
+            .combinedClickable(
                 onClick = onClick,
+                onLongClick = { menuExpanded = true },
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() }
             ),

@@ -2,6 +2,7 @@ package com.ashmeet.hyperlauncher.activity
 
 import android.content.Context
 import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -35,6 +36,13 @@ abstract class BaseActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         LocaleUtils.setLocale(this)
 
+        applySystemBarConfiguration()
+        updateOrientation()
+        Tools.getDisplayMetrics(this)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
         applySystemBarConfiguration()
         updateOrientation()
         Tools.getDisplayMetrics(this)

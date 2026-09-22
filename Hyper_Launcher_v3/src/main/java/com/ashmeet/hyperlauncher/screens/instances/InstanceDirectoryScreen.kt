@@ -25,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.InsertDriveFile
+import androidx.compose.material.icons.rounded.ContentPaste
 import androidx.compose.material.icons.rounded.FolderOpen
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButtonMenuItem
@@ -62,10 +63,15 @@ import com.ashmeet.hyperlauncher.components.HyperAlertDialog
 import com.ashmeet.hyperlauncher.components.HyperSearchBar
 import com.ashmeet.hyperlauncher.components.layout.ScreenLayout
 import com.ashmeet.hyperlauncher.components.list.FileListItem
+import com.ashmeet.hyperlauncher.screens.settings.preferences.SingleChoiceDialog
 import com.ashmeet.hyperlauncher.screens.settings.preferences.TextInputDialog
+import com.ashmeet.hyperlauncher.screens.settings.preferences.TextViewerDialog
 import com.ashmeet.hyperlauncher.theme.PojavTheme
+import com.ashmeet.hyperlauncher.utils.FileOperationUtils
 import com.ashmeet.hyperlauncher.utils.Tools
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
+import kotlinx.coroutines.delay
+import net.kdt.pojavlaunch.instances.Instance
 import net.kdt.pojavlaunch.instances.Instances
 import net.kdt.pojavlaunch.progresskeeper.ProgressKeeper
 import org.apache.commons.io.FileUtils
@@ -95,7 +101,7 @@ fun InstanceDirectoryScreen(
 @Composable
 fun InstanceDirectoryContent(
     instanceRoot: File?,
-    selectedInstance: net.kdt.pojavlaunch.instances.Instance?,
+    selectedInstance: Instance?,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
@@ -107,6 +113,13 @@ fun InstanceDirectoryContent(
     var showNewFolderDialog by remember { mutableStateOf(false) }
     var fileToRename by remember { mutableStateOf<File?>(null) }
     var fileToDelete by remember { mutableStateOf<File?>(null) }
+    var fileToCompress by remember { mutableStateOf<File?>(null) }
+    var showCompressDialog by remember { mutableStateOf(false) }
+    var fileToView by remember { mutableStateOf<File?>(null) }
+    var showTextViewerDialog by remember { mutableStateOf(false) }
+
+    var clipboardFile by remember { mutableStateOf<File?>(null) }
+    var isCutOperation by remember { mutableStateOf(false) }
 
     var searchQuery by remember { mutableStateOf("") }
     val searchTextFieldState = rememberTextFieldState(searchQuery)
@@ -294,6 +307,101 @@ fun InstanceDirectoryContent(
         )
     }
 
+    if (showCompressDialog && fileToCompress != null) {
+        val target = fileToCompress!!
+        var compressName by remember { mutableStateOf(target.nameWithoutExtension) }
+        var showNameDialogInternal by remember { mutableStateOf(true) }
+
+        if (showNameDialogInternal) {
+            TextInputDialog(
+                title = translatedText("Compress Name"),
+                initialValue = compressName,
+                onConfirm = { name ->
+                    compressName = name
+                    showNameDialogInternal = false
+                },
+                onDismiss = {
+                    showCompressDialog = false
+                    fileToCompress = null
+                }
+            )
+        } else {
+            SingleChoiceDialog(
+                title = translatedText("Compress Format"),
+                options = listOf("ZIP", "7z"),
+                optionValues = listOf("zip", "7z"),
+                selectedValue = "zip",
+                onValueChange = { type ->
+                    showCompressDialog = false
+                    PojavApplication.sExecutorService.execute {
+                        try {
+                            val dest = File(target.parentFile, "$compressName.$type")
+                            if (type == "zip") {
+                                FileOperationUtils.compressZip(target, dest)
+                            } else {
+                                FileOperationUtils.compress7z(target, dest)
+                            }
+                            currentDir?.let { loadFiles(it) }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                },
+                onDismiss = {
+                    showCompressDialog = false
+                    fileToCompress = null
+                }
+            )
+        }
+    }
+
+    if (showTextViewerDialog && fileToView != null) {
+        val target = fileToView!!
+        var content by remember { mutableStateOf("") }
+        var isReading by remember { mutableStateOf(true) }
+
+        LaunchedEffect(target) {
+            isReading = true
+            PojavApplication.sExecutorService.execute {
+                try {
+                    content = target.readText()
+                    isReading = false
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    isReading = false
+                }
+            }
+        }
+
+        if (isReading) {
+            HyperAlertDialog(
+                onDismissRequest = { showTextViewerDialog = false },
+                title = { Text(translatedText("Reading...")) },
+                text = { LoadingIndicator() },
+                confirmText = "Cancel",
+                onConfirm = { showTextViewerDialog = false }
+            )
+        } else {
+            TextViewerDialog(
+                title = target.name,
+                content = content,
+                onSave = { newContent ->
+                    PojavApplication.sExecutorService.execute {
+                        try {
+                            target.writeText(newContent)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                },
+                onDismiss = {
+                    showTextViewerDialog = false
+                    fileToView = null
+                }
+            )
+        }
+    }
+
     val filteredFiles = remember(files, searchQuery) {
         if (searchQuery.isBlank()) files
         else files.filter { it.name.contains(searchQuery, ignoreCase = true) }
@@ -324,6 +432,34 @@ fun InstanceDirectoryContent(
         },
         isSearchActive = isSearchActive,
         fabMenuContent = { onDismiss ->
+            if (clipboardFile != null) {
+                FloatingActionButtonMenuItem(
+                    onClick = {
+                        onDismiss()
+                        val source = clipboardFile!!
+                        val destDir = currentDir ?: return@FloatingActionButtonMenuItem
+                        val destFile = File(destDir, source.name)
+                        
+                        PojavApplication.sExecutorService.execute {
+                            try {
+                                if (isCutOperation) {
+                                    FileOperationUtils.move(source, destFile)
+                                    clipboardFile = null
+                                } else {
+                                    FileOperationUtils.copy(source, destFile)
+                                }
+                                loadFiles(destDir)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+                    },
+                    icon = { Icon(Icons.Rounded.ContentPaste, contentDescription = null) },
+                    text = { Text(text = translatedText(if (isCutOperation) "Move Here" else "Copy Here")) },
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                )
+            }
             FloatingActionButtonMenuItem(
                 onClick = {
                     onDismiss()
@@ -361,7 +497,7 @@ fun InstanceDirectoryContent(
             ) { active ->
                 if (active) {
                     LaunchedEffect(Unit) {
-                        kotlinx.coroutines.delay(200.milliseconds)
+                        delay(200.milliseconds)
                         focusRequester.requestFocus()
                         keyboardController?.show()
                     }
@@ -471,11 +607,29 @@ fun InstanceDirectoryContent(
                                     searchTextFieldState.edit { replace(0, length, "") }
                                     isSearchActive = false
                                 } else {
-                                    Tools.openPath(context, file, false)
+                                    val ext = file.extension.lowercase()
+                                    if (ext == "txt" || ext == "log" || ext == "json" || ext == "properties" || ext == "cfg" || ext == "toml") {
+                                        fileToView = file
+                                        showTextViewerDialog = true
+                                    } else {
+                                        Tools.openPath(context, file, false)
+                                    }
                                 }
                             },
                             onDelete = { fileToDelete = file },
                             onRename = { fileToRename = file },
+                            onCopy = {
+                                clipboardFile = file
+                                isCutOperation = false
+                            },
+                            onMove = {
+                                clipboardFile = file
+                                isCutOperation = true
+                            },
+                            onCompress = {
+                                fileToCompress = file
+                                showCompressDialog = true
+                            },
                             onOpenInFiles = {
                                 Tools.openPath(context, file, false)
                             },
@@ -499,4 +653,3 @@ fun InstanceDirectoryScreenPreview() {
         )
     }
 }
-
