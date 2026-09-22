@@ -96,6 +96,31 @@ object RendererCompatUtil {
     }
 
     @JvmStatic
+    fun getCompatibleDrivers(context: Context): RenderersList {
+        val driverIds = ArrayList<String>()
+        val driverNames = ArrayList<String>()
+
+        driverIds.add("default")
+        driverNames.add("Default")
+
+        for (plugin in NativePluginManager.getPlugins()) {
+            val driverId = plugin.driverName
+            if (driverId != null && !driverIds.contains(driverId)) {
+                driverIds.add(driverId)
+                val displayName = plugin.displayName ?: ("FCL: $driverId")
+                val pluginName = plugin.name
+                if (pluginName != null) {
+                    driverNames.add("$displayName (from $pluginName plugin)")
+                } else {
+                    driverNames.add(displayName)
+                }
+            }
+        }
+
+        return RenderersList(driverIds, driverNames.toTypedArray())
+    }
+
+    @JvmStatic
     fun checkRendererCompatible(context: Context, rendererName: String): Boolean {
         return getCompatibleRenderers(context).rendererIds.contains(rendererName)
     }

@@ -140,6 +140,13 @@
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="This application is intended to run a 3rd-party piece of software which cannot be managed using the activity's saved instance state. This service is used for background persistence of this piece of software."/>
         </service>
+
+        <meta-data
+            android:name="fclPlugin"
+            android:value="true" />
+        <meta-data
+            android:name="driver"
+            android:value="${driver}" />
     </application>
     <queries>
         <package android:name="git.mojo.ffmpeg"/>

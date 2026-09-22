@@ -6,6 +6,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Architecture
 import androidx.compose.material.icons.filled.AspectRatio
 import androidx.compose.material.icons.filled.Brush
+import androidx.compose.material.icons.filled.Download
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Layers
@@ -36,6 +39,7 @@ import androidx.compose.material.icons.filled.Settings
 import com.ashmeet.hyperlauncher.utils.RendererCompatUtil
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
+import androidx.core.net.toUri
 
 @Composable
 fun VideoSettingsScreen(
@@ -57,18 +61,27 @@ fun VideoSettingsScreen(
     var zinkPreferSystemDriver by remember { mutableStateOf(LauncherPreferences.PREF_ZINK_PREFER_SYSTEM_DRIVER) }
     var zinkForceLegacy by remember { mutableStateOf(LauncherPreferences.PREF_ZINK_FORCE_LEGACY) }
     var dynamicOrientation by remember { mutableStateOf(LauncherPreferences.PREF_DYNAMIC_ORIENTATION) }
+    var driver by remember { mutableStateOf(LauncherPreferences.PREF_DRIVER) }
     var showRendererDialog by remember { mutableStateOf(false) }
     var showBackendDialog by remember { mutableStateOf(false) }
+    var showDriverDialog by remember { mutableStateOf(false) }
+
+    val compatibleRenderers = remember(context) { RendererCompatUtil.getCompatibleRenderers(context) }
+    val compatibleDrivers = remember(context) { RendererCompatUtil.getCompatibleDrivers(context) }
 
     SettingsScreenWrapper(
         title = translatedText(stringResource(R.string.preference_category_video)),
         onBack = onBack,
         addTopGap = true
     ) {
-        val compatibleRenderers = remember(context) { RendererCompatUtil.getCompatibleRenderers(context) }
         val rendererDisplayName = remember(renderer, compatibleRenderers) {
             val index = compatibleRenderers.rendererIds.indexOf(renderer)
             if (index != -1) compatibleRenderers.rendererDisplayNames[index] else renderer
+        }
+
+        val driverDisplayName = remember(driver, compatibleDrivers) {
+            val index = compatibleDrivers.rendererIds.indexOf(driver)
+            if (index != -1) compatibleDrivers.rendererDisplayNames[index] else driver
         }
 
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -77,7 +90,28 @@ fun VideoSettingsScreen(
                     title = translatedText(stringResource(R.string.mcl_setting_category_renderer)),
                     summary = rendererDisplayName,
                     icon = Icons.Default.Brush,
+                    trailingIcon = Icons.Default.Download,
+                    onTrailingIconClick = {
+                        val intent = Intent(Intent.ACTION_VIEW,
+                            "https://github.com/ZalithLauncher/RendererPlugin".toUri())
+                        context.startActivity(intent)
+                    },
                     onClick = { showRendererDialog = true }
+                )
+            }
+
+            SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
+                SettingsActionItem(
+                    title = translatedText("Vulkan Driver"),
+                    summary = driverDisplayName,
+                    icon = Icons.Default.Architecture,
+                    trailingIcon = Icons.Default.Download,
+                    onTrailingIconClick = {
+                        val intent = Intent(Intent.ACTION_VIEW,
+                            "https://github.com/FCL-Team/FCLDriverPlugin/releases/".toUri())
+                        context.startActivity(intent)
+                    },
+                    onClick = { showDriverDialog = true }
                 )
             }
 
@@ -304,6 +338,21 @@ fun VideoSettingsScreen(
                 LauncherPreferences.loadPreferences(context)
             },
             onDismiss = { showBackendDialog = false }
+        )
+    }
+
+    if (showDriverDialog) {
+        SingleChoiceDialog(
+            title = translatedText("Vulkan Driver"),
+            options = compatibleDrivers.rendererDisplayNames.toList(),
+            optionValues = compatibleDrivers.rendererIds,
+            selectedValue = driver,
+            onValueChange = { newValue ->
+                driver = newValue
+                LauncherPreferences.prefs.edit { putString("driver", newValue) }
+                LauncherPreferences.loadPreferences(context)
+            },
+            onDismiss = { showDriverDialog = false }
         )
     }
 }

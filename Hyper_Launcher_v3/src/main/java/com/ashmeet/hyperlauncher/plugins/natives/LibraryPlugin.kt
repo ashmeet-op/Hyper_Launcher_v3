@@ -25,6 +25,7 @@ class LibraryPlugin private constructor(
         const val METADATA_FCL_POJAV_ENV = "pojavEnv"
         const val METADATA_FCL_MIN_MC_VER = "minMCVer"
         const val METADATA_FCL_MAX_MC_VER = "maxMCVer"
+        const val METADATA_FCL_DRIVER = "driver"
         const val METADATA_POJAV_PLUGIN_TYPE = "net.kdt.pojavlaunch.PLUGIN_TYPE"
         const val METADATA_POJAV_PLUGIN_LIBS = "net.kdt.pojavlaunch.PLUGIN_LIBS"
         const val ID_ANGLE_PLUGIN = "git.mojo.angle"

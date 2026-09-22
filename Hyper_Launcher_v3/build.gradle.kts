@@ -80,6 +80,8 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
         resValue("string", "curseforge_api_key", getCFApiKey())
         resValue("string", "group_id", "git.artdeell")
 
+        manifestPlaceholders["driver"] = "default"
+
         ndk {
             abiFilters.addAll(setOf("armeabi-v7a", "arm64-v8a"))
         }

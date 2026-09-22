@@ -165,6 +165,8 @@ fun SettingsActionItem(
     iconPainter: Painter? = null,
     enabled: Boolean = true,
     warningTooltip: String? = null,
+    trailingIcon: ImageVector? = null,
+    onTrailingIconClick: (() -> Unit)? = null,
     tintIcon: Boolean = true,
     onClick: () -> Unit
 ) {
@@ -216,6 +218,19 @@ fun SettingsActionItem(
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))
+        }
+
+        if (trailingIcon != null) {
+            IconButton(
+                onClick = { onTrailingIconClick?.invoke() },
+                enabled = enabled
+            ) {
+                Icon(
+                    imageVector = trailingIcon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
         }
     }
 }

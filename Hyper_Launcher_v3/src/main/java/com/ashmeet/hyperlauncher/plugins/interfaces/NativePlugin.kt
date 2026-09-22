@@ -7,6 +7,8 @@ interface NativePlugin {
         get() = null
     val rendererName: String?
         get() = null
+    val driverName: String?
+        get() = null
     val displayName: String?
         get() = null
 

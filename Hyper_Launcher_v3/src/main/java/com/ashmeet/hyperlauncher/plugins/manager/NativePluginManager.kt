@@ -89,6 +89,7 @@ object NativePluginManager {
             val pojavEnv = getMetadataString(metaData, LibraryPlugin.METADATA_FCL_POJAV_ENV)
             val vzh = getMetadataString(metaData, LibraryPlugin.METADATA_FCL_DESCRIPTION)
             val rendererNameMetadata = getMetadataString(metaData, LibraryPlugin.METADATA_FCL_RENDERER)
+            val driverNameMetadata = getMetadataString(metaData, LibraryPlugin.METADATA_FCL_DRIVER)
             val minVerStr = getMetadataString(metaData, LibraryPlugin.METADATA_FCL_MIN_MC_VER)
             val maxVerStr = getMetadataString(metaData, LibraryPlugin.METADATA_FCL_MAX_MC_VER)
 
@@ -115,6 +116,9 @@ object NativePluginManager {
 
                 override val rendererName: String?
                     get() = rendererNameMetadata
+
+                override val driverName: String?
+                    get() = driverNameMetadata
 
                 override val displayName: String?
                     get() = vzh
@@ -193,6 +197,9 @@ object NativePluginManager {
             val pluginRenderer = plugin.rendererName
             if (pluginRenderer != null && pluginRenderer != LauncherPreferences.PREF_RENDERER) continue
 
+            val pluginDriver = plugin.driverName
+            if (pluginDriver != null && pluginDriver != LauncherPreferences.PREF_DRIVER) continue
+
             for (path in plugin.getPaths()) {
                 if (sb.isNotEmpty()) {
                     sb.append(":")
@@ -213,6 +220,9 @@ object NativePluginManager {
 
             val pluginRenderer = plugin.rendererName
             if (pluginRenderer != null && pluginRenderer != LauncherPreferences.PREF_RENDERER) continue
+
+            val pluginDriver = plugin.driverName
+            if (pluginDriver != null && pluginDriver != LauncherPreferences.PREF_DRIVER) continue
 
             env.putAll(plugin.getJVMEnv())
         }
