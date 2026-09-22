@@ -212,6 +212,7 @@ fun TextInputDialog(
 fun PointerHotspotPickerDialog(
     title: String,
     imagePath: String?,
+    shapeId: Int = 0,
     initialX: Float,
     initialY: Float,
     onConfirm: (Float, Float) -> Unit,
@@ -246,7 +247,7 @@ fun PointerHotspotPickerDialog(
                         )
                     } else {
                         Icon(
-                            painter = painterResource(id = R.drawable.img_mouse_pointer_arrow),
+                            painter = painterResource(id = getDefaultCursorDrawable(shapeId)),
                             contentDescription = null,
                             modifier = Modifier.fillMaxSize(),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant

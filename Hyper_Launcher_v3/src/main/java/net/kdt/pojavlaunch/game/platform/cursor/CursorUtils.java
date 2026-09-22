@@ -111,8 +111,8 @@ public class CursorUtils {
 
         int hotX, hotY;
         if (customHotX != -1 && customHotY != -1) {
-            hotX = (int) (customHotX * scale);
-            hotY = (int) (customHotY * scale);
+            hotX = (int) (bitmap.getWidth() * (customHotX / 100f));
+            hotY = (int) (bitmap.getHeight() * (customHotY / 100f));
         } else {
             if (shapeName == 1 || shapeName == 2 || shapeName == 4 || shapeName == 5 || shapeName == 6 || shapeName == 7) {
                 hotX = bitmap.getWidth() / 2;

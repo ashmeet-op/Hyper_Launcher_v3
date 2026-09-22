@@ -82,6 +82,8 @@ fun CursorPreferenceItem(
     title: String,
     shapeId: Int,
     imagePath: String?,
+    hotspotX: Float = -1f,
+    hotspotY: Float = -1f,
     onPickImage: () -> Unit,
     onAdjustHotspot: () -> Unit,
     onReset: () -> Unit
@@ -119,9 +121,12 @@ fun CursorPreferenceItem(
         Spacer(modifier = Modifier.width(16.dp))
 
         Column(modifier = Modifier.weight(1f)) {
+            val hotspotSummary = if (hotspotX != -1f && hotspotY != -1f) {
+                " (Hotspot: ${hotspotX.toInt()}, ${hotspotY.toInt()})"
+            } else ""
             TitleAndSummary(
                 title = title,
-                summary = if (imagePath != null) translatedText("Custom active") else translatedText("Default active")
+                summary = (if (imagePath != null) translatedText("Custom active") else translatedText("Default active")) + hotspotSummary
             )
         }
 
@@ -129,10 +134,8 @@ fun CursorPreferenceItem(
             Icon(Icons.Rounded.AddCircleOutline, contentDescription = translatedText("Change image"), tint = MaterialTheme.colorScheme.onSurface)
         }
 
-        if (imagePath != null) {
-            IconButton(onClick = onAdjustHotspot) {
-                Icon(Icons.Rounded.DragIndicator, contentDescription = translatedText("Adjust hotspot"), tint = MaterialTheme.colorScheme.onSurface)
-            }
+        IconButton(onClick = onAdjustHotspot) {
+            Icon(Icons.Rounded.DragIndicator, contentDescription = translatedText("Adjust hotspot"), tint = MaterialTheme.colorScheme.onSurface)
         }
 
         IconButton(onClick = onReset) {

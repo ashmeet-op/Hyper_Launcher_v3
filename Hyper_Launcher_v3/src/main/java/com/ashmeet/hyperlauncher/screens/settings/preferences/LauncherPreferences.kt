@@ -180,6 +180,9 @@ object LauncherPreferences {
     var PREF_THEME = "system"
 
     @JvmField
+    var PREF_THEME_TYPE = "tonal"
+
+    @JvmField
     var PREF_LANGUAGE = "en"
 
     @JvmField
@@ -390,6 +393,7 @@ object LauncherPreferences {
         PREF_SHOW_MEMORY_WARNING_DIALOG = pref.getBoolean("showMemoryWarning", true)
         PREF_SCREEN_TRANSITION = pref.getString("screen_transition", "bounce") ?: "none"
         PREF_THEME = pref.getString("app_theme", "system") ?: "system"
+        PREF_THEME_TYPE = pref.getString("app_theme_type", "tonal") ?: "tonal"
         PREF_LANGUAGE = pref.getString("app_language", "en") ?: "en"
         PREF_CUSTOM_THEME = pref.getBoolean("app_custom_theme", false)
 

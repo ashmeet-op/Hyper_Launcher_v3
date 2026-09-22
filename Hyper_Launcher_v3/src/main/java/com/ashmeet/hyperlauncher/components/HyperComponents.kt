@@ -194,7 +194,7 @@ fun HyperSearchBar(
         interactionSource = interactionSource,
         shape = SearchBarDefaults.inputFieldShape,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = containerColor,
+            focusedContainerColor = Color.Transparent,
             unfocusedContainerColor = containerColor,
             focusedBorderColor = MaterialTheme.colorScheme.primary,
             unfocusedBorderColor = Color.Transparent,

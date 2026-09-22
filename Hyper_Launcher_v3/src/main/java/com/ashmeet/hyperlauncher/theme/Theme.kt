@@ -33,6 +33,9 @@ fun PojavTheme(
     var themePref by remember {
         mutableStateOf(if (isInPreview) "system" else LauncherPreferences.PREF_THEME)
     }
+    var themeType by remember {
+        mutableStateOf(if (isInPreview) "tonal" else LauncherPreferences.PREF_THEME_TYPE)
+    }
     var isCustomTheme by remember {
         mutableStateOf(if (isInPreview) false else LauncherPreferences.PREF_CUSTOM_THEME)
     }
@@ -45,6 +48,7 @@ fun PojavTheme(
             val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
                 when (key) {
                     "app_theme" -> themePref = LauncherPreferences.prefs.getString("app_theme", "system") ?: "system"
+                    "app_theme_type" -> themeType = LauncherPreferences.prefs.getString("app_theme_type", "tonal") ?: "tonal"
                     "app_custom_theme" -> isCustomTheme = LauncherPreferences.prefs.getBoolean("app_custom_theme", false)
                     "app_theme_color" -> themeColor = LauncherPreferences.prefs.getInt("app_theme_color", 0xFF3F51B5.toInt())
                 }
@@ -69,7 +73,7 @@ fun PojavTheme(
     }
 
     val colorScheme = when {
-        isCustomTheme -> generateCustomColorScheme(primaryColor, isDark)
+        isCustomTheme -> generateCustomColorScheme(primaryColor, isDark, themeType)
         themePref == "dynamic" && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }

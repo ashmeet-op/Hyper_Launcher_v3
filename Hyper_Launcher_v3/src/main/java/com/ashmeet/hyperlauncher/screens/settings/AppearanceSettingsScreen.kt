@@ -75,6 +75,7 @@ fun AppearanceSettingsScreen(
 ) {
     var screenTransition by remember { mutableStateOf(LauncherPreferences.PREF_SCREEN_TRANSITION) }
     var appTheme by remember { mutableStateOf(LauncherPreferences.PREF_THEME) }
+    var appThemeType by remember { mutableStateOf(LauncherPreferences.PREF_THEME_TYPE) }
     var appLanguage by remember { mutableStateOf(LauncherPreferences.PREF_LANGUAGE) }
     var isCustomTheme by remember { mutableStateOf(LauncherPreferences.PREF_CUSTOM_THEME) }
     var themeColor by remember { mutableIntStateOf(LauncherPreferences.PREF_THEME_COLOR) }
@@ -220,6 +221,7 @@ fun AppearanceSettingsScreen(
 
     var showTransitionDialog by remember { mutableStateOf(false) }
     var showThemeDialog by remember { mutableStateOf(false) }
+    var showThemeTypeDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showHotspotDialog by remember { mutableStateOf(false) }
 
@@ -241,6 +243,19 @@ fun AppearanceSettingsScreen(
             "dark" -> translatedText(stringResource(R.string.preference_app_theme_dark))
             "dynamic" -> translatedText(stringResource(R.string.preference_app_theme_dynamic))
             else -> id
+        }
+    }
+
+    val themeTypeOptions = listOf("tonal", "vibrant", "tertiary", "monochrome", "neutral", "content")
+    val themeTypeOptionNames = themeTypeOptions.map { id ->
+        when (id) {
+            "tonal" -> translatedText("Tonal")
+            "vibrant" -> translatedText("Vibrant")
+            "tertiary" -> translatedText("Tertiary")
+            "monochrome" -> translatedText("Monochrome")
+            "neutral" -> translatedText("Neutral")
+            "content" -> translatedText("Content")
+            else -> id.replaceFirstChar { it.uppercase() }
         }
     }
 
@@ -272,6 +287,15 @@ fun AppearanceSettingsScreen(
                     summary = themeOptionNames[themeOptions.indexOf(appTheme).coerceAtLeast(0)],
                     icon = Icons.Default.Palette,
                     onClick = { showThemeDialog = true }
+                )
+            }
+
+            SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
+                SettingsActionItem(
+                    title = translatedText("Theme Type"),
+                    summary = themeTypeOptionNames[themeTypeOptions.indexOf(appThemeType).coerceAtLeast(0)],
+                    icon = Icons.Rounded.ColorLens,
+                    onClick = { showThemeTypeDialog = true }
                 )
             }
 
@@ -714,7 +738,7 @@ fun AppearanceSettingsScreen(
             SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
                 SettingsActionItem(
                     title = translatedText("Adjust Hotspot"),
-                    summary = translatedText("Set the point where clicks occur"),
+                    summary = translatedText("Set the point where clicks occur") + " (${pointerHotspotX.toInt()}, ${pointerHotspotY.toInt()})",
                     icon = Icons.Rounded.DragIndicator,
                     onClick = { showHotspotDialog = true }
                 )
@@ -754,6 +778,8 @@ fun AppearanceSettingsScreen(
                         title = translatedText(cursorInfo.name),
                         shapeId = cursorInfo.shapeId,
                         imagePath = pointerPaths[cursorInfo.shapeId],
+                        hotspotX = pointerHotspots[cursorInfo.shapeId]?.first ?: -1f,
+                        hotspotY = pointerHotspots[cursorInfo.shapeId]?.second ?: -1f,
                         onPickImage = {
                             pendingCursorShape = cursorInfo.shapeId
                             individualPointerLauncher.launch("image/*")
@@ -781,6 +807,21 @@ fun AppearanceSettingsScreen(
                     LauncherPreferences.loadPreferences(context)
                 },
                 onDismiss = { showThemeDialog = false }
+            )
+        }
+
+        if (showThemeTypeDialog) {
+            SingleChoiceDialog(
+                title = translatedText("Theme Type"),
+                options = themeTypeOptionNames,
+                optionValues = themeTypeOptions,
+                selectedValue = appThemeType,
+                onValueChange = { newValue ->
+                    appThemeType = newValue
+                    LauncherPreferences.prefs.edit { putString("app_theme_type", newValue) }
+                    LauncherPreferences.loadPreferences(context)
+                },
+                onDismiss = { showThemeTypeDialog = false }
             )
         }
 
@@ -822,6 +863,7 @@ fun AppearanceSettingsScreen(
             PointerHotspotPickerDialog(
                 title = translatedText("Adjust Hotspot"),
                 imagePath = if (isGeneral) pointerIconPath else pointerPaths[shape],
+                shapeId = if (isGeneral) 0 else shape,
                 initialX = if (isGeneral) pointerHotspotX else pointerHotspots[shape]?.first ?: -1f,
                 initialY = if (isGeneral) pointerHotspotY else pointerHotspots[shape]?.second ?: -1f,
                 onConfirm = { x, y ->
