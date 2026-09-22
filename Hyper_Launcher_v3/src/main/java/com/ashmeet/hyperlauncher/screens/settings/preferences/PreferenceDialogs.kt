@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -70,35 +71,45 @@ fun SingleChoiceDialog(
         onDismissRequest = onDismiss,
         title = { Text(text = translatedText(title)) },
         text = {
-            LazyColumn {
-                items(options.size) { index ->
-                    val value = optionValues[index]
-                    val label = options[index]
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                tempValue = value
-                            }
-                            .padding(vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = value == tempValue,
-                            onClick = null
-                        )
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Text(text = label, style = MaterialTheme.typography.bodyLarge)
+            Column {
+                LazyColumn(modifier = Modifier.weight(1f, fill = false)) {
+                    items(options.size) { index ->
+                        val value = optionValues[index]
+                        val label = options[index]
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    tempValue = value
+                                }
+                                .padding(vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = value == tempValue,
+                                onClick = null
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Text(text = label, style = MaterialTheme.typography.bodyLarge)
+                        }
                     }
+                }
+                if (tempValue == "mobileglues") {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Warning: MobileGlues does not support 26.3. Please switch to LTW.",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             }
         },
-        confirmText = stringResource(android.R.string.ok),
+        confirmText = "ok",
         onConfirm = {
             onValueChange(tempValue)
             onDismiss()
         },
-        dismissText = stringResource(android.R.string.cancel),
+        dismissText = "cancel",
         onDismiss = onDismiss
     )
 }

@@ -442,6 +442,13 @@ fun InstanceDirectoryContent(
                         
                         PojavApplication.sExecutorService.execute {
                             try {
+                                if (destFile.exists()) {
+                                    if (destFile.isDirectory) {
+                                        FileUtils.deleteDirectory(destFile)
+                                    } else {
+                                        destFile.delete()
+                                    }
+                                }
                                 if (isCutOperation) {
                                     FileOperationUtils.move(source, destFile)
                                     clipboardFile = null

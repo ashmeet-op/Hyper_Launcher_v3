@@ -231,9 +231,9 @@ fun SideRail(
     ) {
         Spacer(modifier = Modifier.weight(1f))
 
-        val secondaryColor = MaterialTheme.colorScheme.secondary
+        val secondaryColor = MaterialTheme.colorScheme.primary
         val surfaceColor = MaterialTheme.colorScheme.surface
-        val onSecondaryColor = MaterialTheme.colorScheme.onSecondary
+        val onSecondaryColor = MaterialTheme.colorScheme.onPrimary
         val onSurfaceColor = MaterialTheme.colorScheme.onSurface
 
         val density = LocalDensity.current
