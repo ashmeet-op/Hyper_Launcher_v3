@@ -13,14 +13,14 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Description
@@ -39,6 +39,9 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailDefaults
+import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleFloatingActionButton
 import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
 import androidx.compose.runtime.Composable
@@ -49,6 +52,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
@@ -72,113 +76,107 @@ fun SideNavigationRail(
     isExport: Boolean = false
 ) {
     NavigationRail(
-        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
-        contentColor = MaterialTheme.colorScheme.onSurface,
+        containerColor = NavigationRailDefaults.ContainerColor,
         windowInsets = WindowInsets(0.dp),
         modifier = Modifier
             .fillMaxHeight()
-            .width(240.dp),
-        header = {
-            Column(horizontalAlignment = Alignment.Start) {
-                SidebarRailButton(
-                    icon = Icons.Rounded.Close,
-                    label = translatedText(stringResource(R.string.close)),
-                    onClick = { onAction(-1) },
-                    isExpanded = true
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-        }
     ) {
         Column(
             modifier = Modifier
-                .padding(horizontal = 12.dp)
+                .fillMaxHeight()
                 .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.Start
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            NavigationRailItem(
+                selected = false,
+                onClick = { onAction(-1) },
+                icon = { Icon(imageVector = Icons.Rounded.ArrowBackIosNew, contentDescription = null , Modifier.rotate(180f)) },
+                label = { Text(translatedText(stringResource(R.string.close))) }
+            )
+            Spacer(modifier = Modifier.height(20.dp))
             if (isEditor) {
-                SidebarRailButton(
-                    icon = Icons.Rounded.Add,
-                    label = translatedText(stringResource(R.string.customctrl_addbutton)),
+                NavigationRailItem(
+                    selected = false,
                     onClick = { onAction(0) },
-                    isExpanded = true
+                    icon = { Icon(imageVector = Icons.Rounded.Add, contentDescription = null) },
+                    label = { Text(translatedText(stringResource(R.string.customctrl_addbutton))) }
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                SidebarRailButton(
-                    icon = Icons.Rounded.Search,
-                    label = translatedText(stringResource(R.string.customctrl_addbutton_drawer)),
+                NavigationRailItem(
+                    selected = false,
                     onClick = { onAction(1) },
-                    isExpanded = true
+                    icon = { Icon(imageVector = Icons.Rounded.Search, contentDescription = null) },
+                    label = { Text(translatedText(stringResource(R.string.customctrl_addbutton_drawer))) }
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                SidebarRailButton(
-                    icon = Icons.Rounded.VideogameAsset,
-                    label = translatedText(stringResource(R.string.customctrl_addbutton_joystick)),
+                NavigationRailItem(
+                    selected = false,
                     onClick = { onAction(2) },
-                    isExpanded = true
+                    icon = { Icon(imageVector = Icons.Rounded.VideogameAsset, contentDescription = null) },
+                    label = { Text(translatedText(stringResource(R.string.customctrl_addbutton_joystick))) }
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                SidebarRailButton(
-                    icon = Icons.Rounded.Refresh,
-                    label = translatedText(stringResource(R.string.global_load)),
+                NavigationRailItem(
+                    selected = false,
                     onClick = { onAction(3) },
-                    isExpanded = true
+                    icon = { Icon(imageVector = Icons.Rounded.Refresh, contentDescription = null) },
+                    label = { Text(translatedText(stringResource(R.string.global_load))) }
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                SidebarRailButton(
-                    icon = Icons.Rounded.Description,
-                    label = translatedText(stringResource(R.string.global_save)),
+                NavigationRailItem(
+                    selected = false,
                     onClick = { onAction(4) },
-                    isExpanded = true
+                    icon = { Icon(imageVector = Icons.Rounded.Description, contentDescription = null) },
+                    label = { Text(translatedText(stringResource(R.string.global_save))) }
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                SidebarRailButton(
-                    icon = Icons.Rounded.Settings,
-                    label = translatedText(stringResource(R.string.customctrl_selectdefault)),
+                NavigationRailItem(
+                    selected = false,
                     onClick = { onAction(5) },
-                    isExpanded = true
+                    icon = { Icon(imageVector = Icons.Rounded.Settings, contentDescription = null) },
+                    label = { Text(translatedText(stringResource(R.string.customctrl_selectdefault))) }
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                SidebarRailButton(
-                    icon = if (isExport) Icons.Rounded.Share else Icons.Rounded.Close,
-                    label = stringResource(if (isExport) R.string.customctrl_export else R.string.customctrl_editor_exit),
+                NavigationRailItem(
+                    selected = false,
                     onClick = { onAction(6) },
-                    isExpanded = true
+                    icon = { Icon(imageVector = if (isExport) Icons.Rounded.Share else Icons.Rounded.Close, contentDescription = null) },
+                    label = { Text(stringResource(if (isExport) R.string.customctrl_export else R.string.customctrl_editor_exit)) }
                 )
             } else {
-                SidebarRailButton(
-                    icon = Icons.Rounded.Close,
-                    label = translatedText(stringResource(R.string.control_forceclose)),
+                NavigationRailItem(
+                    selected = false,
                     onClick = { onAction(0) },
-                    isExpanded = true
+                    icon = { Icon(imageVector = Icons.Rounded.Close, contentDescription = null) },
+                    label = { Text(translatedText(stringResource(R.string.control_forceclose))) }
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                SidebarRailButton(
-                    icon = Icons.Rounded.Description,
-                    label = translatedText(stringResource(R.string.control_viewout)),
+                NavigationRailItem(
+                    selected = false,
                     onClick = { onAction(1) },
-                    isExpanded = true
+                    icon = { Icon(imageVector = Icons.Rounded.Description, contentDescription = null) },
+                    label = { Text(translatedText(stringResource(R.string.control_viewout))) }
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                SidebarRailButton(
-                    icon = Icons.Rounded.Keyboard,
-                    label = translatedText(stringResource(R.string.control_customkey)),
+                NavigationRailItem(
+                    selected = false,
                     onClick = { onAction(2) },
-                    isExpanded = true
+                    icon = { Icon(imageVector = Icons.Rounded.Keyboard, contentDescription = null) },
+                    label = { Text(translatedText(stringResource(R.string.control_customkey))) }
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                SidebarRailButton(
-                    icon = Icons.Rounded.Settings,
-                    label = translatedText(stringResource(R.string.quick_setting_title)),
+                NavigationRailItem(
+                    selected = false,
                     onClick = { onAction(3) },
-                    isExpanded = true
+                    icon = { Icon(imageVector = Icons.Rounded.Settings, contentDescription = null) },
+                    label = { Text(translatedText(stringResource(R.string.quick_setting_title))) }
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                SidebarRailButton(
-                    icon = Icons.Rounded.Build,
-                    label = translatedText(stringResource(R.string.mcl_option_customcontrol)),
+                NavigationRailItem(
+                    selected = false,
                     onClick = { onAction(4) },
-                    isExpanded = true
+                    icon = { Icon(imageVector = Icons.Rounded.Build, contentDescription = null) },
+                    label = { Text(translatedText(stringResource(R.string.mcl_option_customcontrol))) }
                 )
             }
         }
@@ -222,12 +220,17 @@ fun SideRail(
         windowInsets = WindowInsets(0.dp),
         modifier = Modifier.fillMaxHeight(),
         header = {
-            SidebarRailButton(
-                icon = Icons.AutoMirrored.Rounded.ArrowBack,
-                label = "Back",
-                onClick = onBack
-            )
+            IconButton(
+                onClick = onBack,
+                modifier = Modifier.size(56.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                    contentDescription = "Back"
+                )
+            }
         }
+
     ) {
         Spacer(modifier = Modifier.weight(1f))
 
