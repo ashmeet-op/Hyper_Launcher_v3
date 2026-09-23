@@ -61,11 +61,7 @@ public interface ControlInterface extends View.OnLongClickListener, PlatformGrab
     void cloneButton();
 
     default void setVisible(boolean isVisible) {
-        setVisible(isVisible, false);
-    }
-
-    default void setVisible(boolean isVisible, boolean force) {
-        if(force || getProperties().isHideable)
+        if(getProperties().isHideable)
             getControlView().setVisibility(isVisible ? VISIBLE : GONE);
     }
 
@@ -80,13 +76,8 @@ public interface ControlInterface extends View.OnLongClickListener, PlatformGrab
     @Override
     default void onGrabState(boolean isGrabbing) {
         if (getControlLayoutParent() == null || getControlLayoutParent().getModifiable()) return; // Disable when edited
-        boolean layoutVisible = getControlLayoutParent().areControlVisible();
-        boolean hardwareHide = getControlLayoutParent().isHardwareHide();
-
-        boolean targetVisible = ((getProperties().displayInGame && isGrabbing) || (getProperties().displayInMenu && !isGrabbing))
-                && layoutVisible;
-
-        setVisible(targetVisible, hardwareHide);
+        setVisible(((getProperties().displayInGame && isGrabbing) || (getProperties().displayInMenu && !isGrabbing))
+                && getControlLayoutParent().areControlVisible());
     }
 
     default ControlLayout getControlLayoutParent() {

@@ -22,7 +22,6 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.kdt.pickafile.FileListView;
 import com.kdt.pickafile.FileSelectedListener;
@@ -60,7 +59,6 @@ public class ControlLayout extends FrameLayout {
 	private boolean mModifiable = false;
 	private boolean mIsModified;
 	private boolean mControlVisible = false;
-	private boolean mIsHardwareHide = false;
 
 	private float mButtonsOpacity = 1.0f;
 
@@ -93,17 +91,17 @@ public class ControlLayout extends FrameLayout {
 
 	public void loadLayout(String jsonPath) throws IOException, JsonSyntaxException {
 		Point size = new Point(getWidth(), getHeight());
-        try {
-            CustomControls layout = LayoutConverter.loadAndConvertIfNecessary(size, jsonPath);
-            loadLayout(layout);
-            updateLoadedFileName(jsonPath);
-        }catch (IOException | JsonSyntaxException e) {
-            // Load an empty layout on exception to avoid breakage when adding buttons in the editor
-            CustomControls customControls = new CustomControls();
-            customControls.mLayoutBitmaps = LayoutBitmaps.createEmpty();
-            loadLayout(customControls);
-            throw e;
-        }
+		try {
+			CustomControls layout = LayoutConverter.loadAndConvertIfNecessary(size, jsonPath);
+			loadLayout(layout);
+			updateLoadedFileName(jsonPath);
+		}catch (IOException | JsonSyntaxException e) {
+			// Load an empty layout on exception to avoid breakage when adding buttons in the editor
+			CustomControls customControls = new CustomControls();
+			customControls.mLayoutBitmaps = LayoutBitmaps.createEmpty();
+			loadLayout(customControls);
+			throw e;
+		}
 	}
 
 	public void loadLayout(CustomControls controlLayout) {
@@ -130,7 +128,7 @@ public class ControlLayout extends FrameLayout {
 		if (controlLayout == null) return;
 
 		mLayout = controlLayout;
-		
+
 
 		// Joystick(s) first, to workaround the touch dispatch
 		for(ControlJoystickData joystick : mLayout.mJoystickDataList){
@@ -264,7 +262,7 @@ public class ControlLayout extends FrameLayout {
 
 	public void toggleControlVisible(){
 		mControlVisible = !mControlVisible;
-		setControlVisible(mControlVisible, true, false);
+		setControlVisible(mControlVisible);
 	}
 
 	public float getLayoutScale(){
@@ -276,37 +274,12 @@ public class ControlLayout extends FrameLayout {
 	}
 
 	public void setControlVisible(boolean isVisible) {
-		setControlVisible(isVisible, false, false);
-	}
-
-	public void setControlVisible(boolean isVisible, boolean animate, boolean force) {
 		if (mModifiable) return; // Not using on custom controls activity
 
 		mControlVisible = isVisible;
-		if (force) mIsHardwareHide = !isVisible;
-
 		for(ControlInterface button : getButtonChildren()){
-            // Avoid going through the JNI each time.
-            boolean targetVisibility = ((button.getProperties().displayInGame && Platform.isGrabbing()) || (button.getProperties().displayInMenu && !Platform.isGrabbing())) && isVisible;
-			float targetAlpha = targetVisibility ? button.getProperties().opacity * mButtonsOpacity : 0f;
-
-			if (animate) {
-				if (targetVisibility && button.getControlView().getVisibility() != VISIBLE) {
-					button.getControlView().setAlpha(0f);
-					button.setVisible(true, force);
-				}
-				button.getControlView().animate()
-						.alpha(targetAlpha)
-						.setDuration(300)
-						.withEndAction(() -> {
-							if (!targetVisibility) button.setVisible(false, force);
-						})
-						.start();
-			} else {
-				button.getControlView().animate().cancel();
-				button.setVisible(targetVisibility, force);
-				button.getControlView().setAlpha(targetAlpha);
-			}
+			// Avoid going through the JNI each time.
+			button.setVisible(((button.getProperties().displayInGame && Platform.isGrabbing()) || (button.getProperties().displayInMenu && !Platform.isGrabbing())) && isVisible);
 		}
 	}
 
@@ -343,15 +316,15 @@ public class ControlLayout extends FrameLayout {
 		requestLayout();
 	}
 
-    @Override
-    public void onViewRemoved(View child) {
-        super.onViewRemoved(child);
-        if(child instanceof ControlInterface && mControlDialog != null){
-            mControlDialog.disappear(false);
-        }
-    }
+	@Override
+	public void onViewRemoved(View child) {
+		super.onViewRemoved(child);
+		if(child instanceof ControlInterface && mControlDialog != null){
+			mControlDialog.disappear(false);
+		}
+	}
 
-    /**
+	/**
 	 * Load the layout if needed, and pass down the burden of filling values
 	 * to the button at hand.
 	 */
@@ -443,12 +416,12 @@ public class ControlLayout extends FrameLayout {
 		}
 	}
 
-    @RequiresApi(30)
-    private boolean isKeyboardShown() {
-        WindowInsets windowInsets = getRootWindowInsets();
-        Insets imeInsets = windowInsets.getInsets(WindowInsets.Type.ime());
-        return imeInsets.bottom != 0 || imeInsets.left != 0 || imeInsets.top != 0 || imeInsets.right != 0;
-    }
+	@RequiresApi(30)
+	private boolean isKeyboardShown() {
+		WindowInsets windowInsets = getRootWindowInsets();
+		Insets imeInsets = windowInsets.getInsets(WindowInsets.Type.ime());
+		return imeInsets.bottom != 0 || imeInsets.left != 0 || imeInsets.top != 0 || imeInsets.right != 0;
+	}
 
 	@SuppressLint("ClickableViewAccessibility")
 	@Override
@@ -457,18 +430,18 @@ public class ControlLayout extends FrameLayout {
 			return true;
 		InputMethodManager imm = (InputMethodManager) getContext().getSystemService(INPUT_METHOD_SERVICE);
 
-        boolean isKeyboardHidden;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            boolean keyboardShown = isKeyboardShown();
-            isKeyboardHidden = !keyboardShown;
-            if(keyboardShown) imm.hideSoftInputFromWindow(getWindowToken(), 0);
-        }else {
-            // When the input window cannot be hidden (meaning it's already hidden), it returns false
-            // Docs don't seem to suggest that this is the case anymore. But it is on a10 and i
-            // don't want to mess with the way insets are done on a10
-            isKeyboardHidden = !imm.hideSoftInputFromWindow(getWindowToken(), 0);
-        }
-        if(isKeyboardHidden){
+		boolean isKeyboardHidden;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+			boolean keyboardShown = isKeyboardShown();
+			isKeyboardHidden = !keyboardShown;
+			if(keyboardShown) imm.hideSoftInputFromWindow(getWindowToken(), 0);
+		}else {
+			// When the input window cannot be hidden (meaning it's already hidden), it returns false
+			// Docs don't seem to suggest that this is the case anymore. But it is on a10 and i
+			// don't want to mess with the way insets are done on a10
+			isKeyboardHidden = !imm.hideSoftInputFromWindow(getWindowToken(), 0);
+		}
+		if(isKeyboardHidden){
 			if(mControlDialog.disappearLayer()){
 				mActionRow.setFollowedButton(null);
 				mHandleView.hide();
@@ -547,7 +520,7 @@ public class ControlLayout extends FrameLayout {
 		return jsonPath;
 	}
 
-	class OnClickExitListener implements OnClickListener {
+	class OnClickExitListener implements View.OnClickListener {
 		private final AlertDialog mDialog;
 		private final EditText mEditText;
 		private final EditorExitable mListener;
@@ -582,7 +555,7 @@ public class ControlLayout extends FrameLayout {
 		edit.setSingleLine();
 		edit.setText(mLayoutFileName);
 
-		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
+		com.google.android.material.dialog.MaterialAlertDialogBuilder builder = new com.google.android.material.dialog.MaterialAlertDialogBuilder(context);
 		builder.setTitle(R.string.global_save);
 		builder.setView(edit);
 		builder.setPositiveButton(android.R.string.ok, null);
@@ -599,7 +572,7 @@ public class ControlLayout extends FrameLayout {
 	}
 
 	public void openLoadDialog() {
-		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+		com.google.android.material.dialog.MaterialAlertDialogBuilder builder = new com.google.android.material.dialog.MaterialAlertDialogBuilder(getContext());
 		builder.setTitle(R.string.global_load);
 		builder.setPositiveButton(android.R.string.cancel, null);
 
@@ -624,7 +597,7 @@ public class ControlLayout extends FrameLayout {
 	}
 
 	public void openSetDefaultDialog() {
-		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+		com.google.android.material.dialog.MaterialAlertDialogBuilder builder = new com.google.android.material.dialog.MaterialAlertDialogBuilder(getContext());
 		builder.setTitle(R.string.customctrl_selectdefault);
 		builder.setPositiveButton(android.R.string.cancel, null);
 
@@ -649,7 +622,7 @@ public class ControlLayout extends FrameLayout {
 	}
 
 	public void openExitDialog(EditorExitable exitListener) {
-		MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+		com.google.android.material.dialog.MaterialAlertDialogBuilder builder = new com.google.android.material.dialog.MaterialAlertDialogBuilder(getContext());
 		builder.setTitle(R.string.customctrl_editor_exit_title);
 		builder.setMessage(R.string.customctrl_editor_exit_msg);
 		builder.setPositiveButton(R.string.global_yes, (d,w)->exitListener.exitEditor());
@@ -744,10 +717,6 @@ public class ControlLayout extends FrameLayout {
 
 	public boolean areControlVisible(){
 		return mControlVisible;
-	}
-
-	public boolean isHardwareHide() {
-		return mIsHardwareHide;
 	}
 
 	public LayoutBitmaps getBitmaps() {
