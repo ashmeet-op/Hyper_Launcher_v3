@@ -193,7 +193,7 @@
     <string name="customctrl_button_opacity">Button Opacity</string>
 
     <string name="customctrl_addbutton">Add button</string>
-    <string name="customctrl_addbutton_drawer">Add button drawer</string>
+    <string name="customctrl_addbutton_drawer">Add drawer</string>
     <string name="customctrl_addbutton_joystick">Add joystick</string>
     <string name="customctrl_addsubbutton">Add sub-button</string>
 

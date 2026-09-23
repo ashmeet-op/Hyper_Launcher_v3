@@ -37,14 +37,7 @@ fun ImportControlScreen(
     var fileName by remember { mutableStateOf(initialFileName) }
 
     PojavTheme {
-        Box(modifier = Modifier.fillMaxSize()) {
-
-            Image(
-                painter = painterResource(id = R.drawable.ic_setting_sign_in_background),
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
+        Box(modifier = Modifier.fillMaxSize() .background(MaterialTheme.colorScheme.background)) {
 
             Box(
                 modifier = Modifier
@@ -57,12 +50,6 @@ fun ImportControlScreen(
                     .padding(24.dp)
             ) {
                 Column(horizontalAlignment = Alignment.Start) {
-                    Text(
-                        text = translatedText("File name:"),
-                        style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
-                    )
-
                     HyperOutlinedTextField(
                         value = fileName,
                         onValueChange = { fileName = it },

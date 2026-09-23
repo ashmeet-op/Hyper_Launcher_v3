@@ -85,6 +85,7 @@ fun SideNavigationRail(
         Column(
             modifier = Modifier
                 .fillMaxHeight()
+                .width(110.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
