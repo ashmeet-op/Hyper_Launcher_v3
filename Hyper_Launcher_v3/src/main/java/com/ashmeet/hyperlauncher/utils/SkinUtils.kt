@@ -12,6 +12,7 @@ import androidx.compose.ui.platform.LocalContext
 import coil.imageLoader
 import coil.request.ImageRequest
 import com.ashmeet.hyperlauncher.skin.model.SkinModelType
+import com.ashmeet.hyperlauncher.utils.skin.SkinLoader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.kdt.pojavlaunch.authenticator.AuthType
@@ -202,7 +203,13 @@ object SkinUtils {
         val context = LocalContext.current
         val stableKey = "${account?.profileId}_${account?.skinPath}_${account?.username}_2D"
         return produceState(initialValue = null, stableKey) {
-            value = renderHead2D(context, account)
+            if (account != null) {
+                val skinUrl = getSkinUrl(account)
+                val skinBitmap = getSkinBitmap(context, skinUrl)
+                value = SkinLoader.getAvatarBitmap(context, account, 128, skinBitmap)
+            } else {
+                value = renderHead2D(context, account)
+            }
         }
     }
 
