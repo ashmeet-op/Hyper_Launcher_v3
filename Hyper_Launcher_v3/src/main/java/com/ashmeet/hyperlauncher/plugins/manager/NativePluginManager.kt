@@ -2,6 +2,7 @@ package com.ashmeet.hyperlauncher.plugins.manager
 
 import android.content.Context
 import android.os.Bundle
+import android.system.Os
 import android.util.Log
 import com.ashmeet.hyperlauncher.plugins.interfaces.NativePlugin
 import com.ashmeet.hyperlauncher.plugins.natives.LibraryPlugin
@@ -162,10 +163,15 @@ object NativePluginManager {
     }
 
     private fun createPthreadShim(destDir: File) {
-        val shim = File(destDir, "libpthread.so.0")
-        if (shim.exists()) return
+        val sysLibDirs = arrayOf(
+            "/system/lib64",
+            "/system/lib",
+            "/apex/com.android.runtime/lib64/bionic",
+            "/apex/com.android.runtime/lib/bionic",
+            "/system/lib64/bootstrap",
+            "/system/lib/bootstrap"
+        )
 
-        val sysLibDirs = arrayOf("/system/lib64", "/system/lib", "/apex/com.android.runtime/lib64/bionic", "/apex/com.android.runtime/lib/bionic")
         var sourcePthread: File? = null
         for (dir in sysLibDirs) {
             val f = File(dir, "libpthread.so")
@@ -175,13 +181,33 @@ object NativePluginManager {
             }
         }
 
-        if (sourcePthread != null) {
-            try {
-                android.system.Os.symlink(sourcePthread.absolutePath, shim.absolutePath)
-                Log.i("jrelog", "Created libpthread.so.0 shim (symlink)")
-            } catch (e: Exception) {
-                Log.e("jrelog", "Failed to create libpthread.so.0 shim", e)
+        if (sourcePthread == null) {
+            for (dir in sysLibDirs) {
+                val f = File(dir, "libc.so")
+                if (f.exists()) {
+                    sourcePthread = f
+                    break
+                }
             }
+        }
+
+        if (sourcePthread != null) {
+            val shimNames = arrayOf("libpthread.so.0", "libpthread.so")
+            for (shimName in shimNames) {
+                val shim = File(destDir, shimName)
+                try {
+                    shim.delete()
+                } catch (_: Exception) {}
+
+                try {
+                    Os.symlink(sourcePthread.absolutePath, shim.absolutePath)
+                    Log.i(TAG, "Created $shimName shim -> ${sourcePthread.absolutePath}")
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to create $shimName shim", e)
+                }
+            }
+        } else {
+            Log.e(TAG, "Could not find libc.so or libpthread.so to create pthread shim")
         }
     }
 
