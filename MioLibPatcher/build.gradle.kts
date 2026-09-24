@@ -7,7 +7,9 @@ group = "com.mio"
 
 dependencies {
     implementation("org.javassist:javassist:3.30.2-GA")
-    testImplementation("org.junit.jupiter:junit-jupiter:6.1.3")
+    //noinspection NewerVersionAvailable
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 java {
@@ -18,6 +20,7 @@ java {
 
 tasks.test {
     useJUnitPlatform()
+    jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
 }
 
 tasks.jar {

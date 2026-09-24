@@ -21,14 +21,7 @@ public class MixinTransformer implements BaseTransformer {
                     @Override
                     public void edit(NewExpr e) throws CannotCompileException {
                         if (e.getClassName().equals("org.spongepowered.asm.mixin.transformer.MixinInfo")) {
-                            e.replace(
-                                "try {" +
-                                "    $_ = $proceed($$);" +
-                                "} catch (Throwable t) {" +
-                                "    System.err.println(\"[MioLibPatcher] ERROR creating MixinInfo for \" + $3 + \": \" + t.getMessage());" +
-                                "    $_ = null;" +
-                                "}"
-                            );
+                            e.replace("$_ = com.mio.libpatcher.transformer.MixinTransformer.createMixinInfo($1, $2, $3, $4, $5);");
                         }
                     }
 

@@ -3,7 +3,6 @@ package com.mio.libpatcher.transformer;
 import com.mio.libpatcher.util.LogUtil;
 import javassist.ClassPool;
 import javassist.CtClass;
-import javassist.CtConstructor;
 import javassist.CtMethod;
 import javassist.bytecode.MethodInfo;
 import javassist.bytecode.MethodParametersAttribute;
