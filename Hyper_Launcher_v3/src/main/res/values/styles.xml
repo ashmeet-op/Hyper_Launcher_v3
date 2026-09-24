@@ -10,6 +10,7 @@
         <!-- Primary colors -->
         <item name="colorPrimary">@color/minebutton_color</item>
         <item name="colorOnPrimary">@color/minebutton_text_color</item>
+        <item name="colorControlActivated">?attr/colorPrimary</item>
 
         <!-- Text colors -->
         <item name="android:textColorPrimary">@color/primary_text</item>

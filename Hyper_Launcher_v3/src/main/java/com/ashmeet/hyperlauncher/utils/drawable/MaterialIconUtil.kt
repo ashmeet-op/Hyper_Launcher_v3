@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.ashmeet.hyperlauncher.theme.ThemeUtils
 
 object MaterialIconUtil {
     const val ICON_SETTINGS = 1
@@ -32,15 +33,13 @@ object MaterialIconUtil {
         return FolderIconDrawable(context)
     }
 
-    private class FileIconDrawable(context: Context) : Drawable() {
+    private class FileIconDrawable(private val context: Context) : Drawable() {
         private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            val typedArray = context.obtainStyledAttributes(intArrayOf(android.R.attr.colorControlActivated))
-            color = typedArray.getColor(0, 0xFF888888.toInt())
-            typedArray.recycle()
             style = Paint.Style.STROKE
             strokeWidth = 4f
         }
         override fun draw(canvas: Canvas) {
+            paint.color = ThemeUtils.getThemePrimaryColor(context)
             val b = bounds
             val w = b.width().toFloat()
             val h = b.height().toFloat()
@@ -53,14 +52,12 @@ object MaterialIconUtil {
         override fun getIntrinsicHeight(): Int = 48
     }
 
-    private class FolderIconDrawable(context: Context) : Drawable() {
+    private class FolderIconDrawable(private val context: Context) : Drawable() {
         private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            val typedArray = context.obtainStyledAttributes(intArrayOf(android.R.attr.colorControlActivated))
-            color = typedArray.getColor(0, 0xFF42A5F5.toInt())
-            typedArray.recycle()
             style = Paint.Style.FILL
         }
         override fun draw(canvas: Canvas) {
+            paint.color = ThemeUtils.getThemePrimaryColor(context)
             val b = bounds
             val w = b.width().toFloat()
             val h = b.height().toFloat()
@@ -91,16 +88,14 @@ object MaterialIconUtil {
         }
     }
 
-    private class ResizeHandleDrawable(context: Context) : Drawable() {
+    private class ResizeHandleDrawable(private val context: Context) : Drawable() {
         private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            val typedArray = context.obtainStyledAttributes(intArrayOf(android.R.attr.colorControlActivated))
-            color = typedArray.getColor(0, 0xFF00FF00.toInt())
-            typedArray.recycle()
             style = Paint.Style.FILL
         }
         private val path = Path()
 
         override fun draw(canvas: Canvas) {
+            paint.color = ThemeUtils.getThemePrimaryColor(context)
             val b = bounds
             path.reset()
             path.moveTo(b.right.toFloat(), b.top.toFloat())

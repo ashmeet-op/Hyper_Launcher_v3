@@ -51,12 +51,8 @@ public interface BaseTransformer extends ClassFileTransformer {
         CtClass clazz = null;
         try {
             clazz = pool.makeClass(new ByteArrayInputStream(classfileBuffer));
-            for (CtMethod method : clazz.getDeclaredMethods()) {
-                MethodInfo methodInfo = method.getMethodInfo();
-                methodInfo.removeAttribute(MethodParametersAttribute.tag);
-            }
-            for (CtConstructor constructor : clazz.getDeclaredConstructors()) {
-                MethodInfo methodInfo = constructor.getMethodInfo();
+            for (Object methodInfoObj : clazz.getClassFile().getMethods()) {
+                MethodInfo methodInfo = (MethodInfo) methodInfoObj;
                 methodInfo.removeAttribute(MethodParametersAttribute.tag);
             }
             transform(clazz, loader);
