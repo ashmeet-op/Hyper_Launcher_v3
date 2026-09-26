@@ -279,6 +279,9 @@ class AssetTaskRegistrar(private val project: Project) {
             from(jarTargetDir)
             into(assetTargetDir)
             dependsOn(":${targetProject.name}:jar")
+            doLast {
+                writeVersion(assetTargetDir)
+            }
         }
 
         dependsOnAssetTask(copyTask)

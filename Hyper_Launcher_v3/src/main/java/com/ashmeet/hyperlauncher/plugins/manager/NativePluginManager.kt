@@ -212,19 +212,32 @@ object NativePluginManager {
     }
 
     @JvmStatic
-    fun getRuntimeLibraryPath(): String = getRuntimeLibraryPath(null)
+    fun getAllLibraryPaths(): List<String> {
+        val paths = mutableListOf<String>()
+        for (plugin in sPlugins) {
+            paths.addAll(plugin.getPaths())
+        }
+        return paths
+    }
 
     @JvmStatic
-    fun getRuntimeLibraryPath(mcVersion: String?): String {
+    @JvmOverloads
+    fun getRuntimeLibraryPath(
+        mcVersion: String? = null,
+        activeRenderer: String? = null,
+        activeDriver: String? = null
+    ): String {
+        val targetRenderer = activeRenderer ?: LauncherPreferences.PREF_RENDERER
+        val targetDriver = activeDriver ?: LauncherPreferences.PREF_DRIVER
         val sb = StringBuilder()
         for (plugin in sPlugins) {
             if (mcVersion != null && !plugin.supportsVersion(mcVersion)) continue
 
             val pluginRenderer = plugin.rendererName
-            if (pluginRenderer != null && pluginRenderer != LauncherPreferences.PREF_RENDERER) continue
+            if (pluginRenderer != null && pluginRenderer != targetRenderer) continue
 
             val pluginDriver = plugin.driverName
-            if (pluginDriver != null && pluginDriver != LauncherPreferences.PREF_DRIVER) continue
+            if (pluginDriver != null && pluginDriver != targetDriver) continue
 
             for (path in plugin.getPaths()) {
                 if (sb.isNotEmpty()) {
@@ -235,20 +248,25 @@ object NativePluginManager {
         }
         return sb.toString()
     }
-    @JvmStatic
-    fun getRuntimeJVMEnv(): Map<String, String> = getRuntimeJVMEnv(null)
 
     @JvmStatic
-    fun getRuntimeJVMEnv(mcVersion: String?): Map<String, String> {
+    @JvmOverloads
+    fun getRuntimeJVMEnv(
+        mcVersion: String? = null,
+        activeRenderer: String? = null,
+        activeDriver: String? = null
+    ): Map<String, String> {
+        val targetRenderer = activeRenderer ?: LauncherPreferences.PREF_RENDERER
+        val targetDriver = activeDriver ?: LauncherPreferences.PREF_DRIVER
         val env = HashMap<String, String>()
         for (plugin in sPlugins) {
             if (mcVersion != null && !plugin.supportsVersion(mcVersion)) continue
 
             val pluginRenderer = plugin.rendererName
-            if (pluginRenderer != null && pluginRenderer != LauncherPreferences.PREF_RENDERER) continue
+            if (pluginRenderer != null && pluginRenderer != targetRenderer) continue
 
             val pluginDriver = plugin.driverName
-            if (pluginDriver != null && pluginDriver != LauncherPreferences.PREF_DRIVER) continue
+            if (pluginDriver != null && pluginDriver != targetDriver) continue
 
             env.putAll(plugin.getJVMEnv())
         }

@@ -182,7 +182,7 @@ public class GameRunner {
         JVersionList.Version versionInfo = Tools.getVersionInfo(versionId);
 
         // Switch renderer to GL4ES when running a compat context version on LTW or MobileGlues
-        boolean isModernWrapper = rendererName.equals("opengles3_ltw") || rendererName.equals("mobileglues") || rendererName.contains(":");
+        boolean isModernWrapper = rendererName.equals("opengles3_ltw") || rendererName.equals("mobileglues");
         if(isCompatContext(versionInfo) && !hasAngelica(gamedir) && isModernWrapper) {
             instance.renderer = rendererName = "opengles2";
             instance.write();
@@ -202,7 +202,7 @@ public class GameRunner {
         }
         RendererCompatUtil.releaseRenderersCache();
 
-        isModernWrapper = rendererName.equals("opengles3_ltw") || rendererName.equals("mobileglues") || rendererName.contains(":");
+        isModernWrapper = rendererName.equals("opengles3_ltw") || rendererName.equals("mobileglues");
 
         if(isModernWrapper && checkRenderDistance(versionInfo, gamedir)) {
             if(showDialog(activity, R.string.ltw_render_distance_warning_msg)) return;

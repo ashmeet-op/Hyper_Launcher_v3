@@ -21,7 +21,7 @@ public class SableRapierLibTransformer implements BaseTransformer {
 
         // If there is no set path, this transform is useless, assume there is another method mixin
         // and disable this transform so we don't break mods that provide rapier natives.
-        if (System.getProperty("miolibpatcher.sablerapier_path") == null) return;
+        if (System.getProperty("sable_rapier_path") == null) return;
         CtMethod loadLibraryMethod = clazz.getDeclaredMethod("loadLibrary");
 
         loadLibraryMethod.instrument(new ExprEditor() {
@@ -32,7 +32,7 @@ public class SableRapierLibTransformer implements BaseTransformer {
 
                     m.replace(
                             "{ " +
-                                    "   String libPath = java.lang.System.getProperty(\"miolibpatcher.sablerapier_path\");" +
+                                    "   String libPath = java.lang.System.getProperty(\"sable_rapier_path\");" +
                                     "   if (libPath != null) {" +
                                     "       java.lang.System.load(new java.io.File(libPath).getAbsolutePath());" +
                                     "   } else {" +

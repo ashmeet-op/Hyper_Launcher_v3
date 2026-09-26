@@ -11,6 +11,9 @@ public class LogUtil {
         out.println("[MioLibPatcher/INFO]: " + str);
     }
 
+    public static void error(String str) {
+        out.println("[MioLibPatcher/ERROR]: " + str);
+    }
 
     public static void error(String str, Throwable e) {
         out.println("[MioLibPatcher/ERROR]: " + str);

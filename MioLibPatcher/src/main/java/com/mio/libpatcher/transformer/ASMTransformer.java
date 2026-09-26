@@ -3,8 +3,6 @@ package com.mio.libpatcher.transformer;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mio.libpatcher.util.LogUtil;
-
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtConstructor;
@@ -19,11 +17,30 @@ import javassist.bytecode.Opcode;
  */
 public class ASMTransformer implements BaseTransformer {
 
-    private static Boolean isASM504Result;
+    private final boolean asm504Enabled;
 
+    /**
+     * 补丁默认关闭，仅当启动器显式指定 -Dmiolibpatcher.asmBackport=true 时启用。
+     * 在构造器（premain 阶段）读取系统属性并缓存结果；transform 回调路径禁止任何
+     * 类加载/探测操作（回调发生在 JVM 定义类的过程中，曾因 Class.forName 重入触发
+     * ClassCircularityError，见 49e4a6e 回归）。
+     */
+    public ASMTransformer() {
+        asm504Enabled = Boolean.parseBoolean(System.getProperty("miolibpatcher.asmBackport", "false"));
+    }
+
+    /**
+     * @return Exhaustive list of all 5 visitor classes in ASM 5.0.4
+     */
     @Override
     public List<String> getTargetClassNames() {
         List<String> list = new ArrayList<>();
+        /*
+        可选补丁：ASM 5.0.4 覆盖版（forge 未自带）中 visitor 构造器会拒绝旧版本传入的非法
+        Opcode，回退兼容旧版本模组的错误用法（如 Applied Energistics 1）。
+        默认关闭，仅当启动器显式指定 -Dmiolibpatcher.asmBackport=true 时启用。
+         */
+        if (!asm504Enabled) return list;
         list.add("org.objectweb.asm.ClassVisitor");
         list.add("org.objectweb.asm.MethodVisitor");
         list.add("org.objectweb.asm.FieldVisitor");
@@ -32,18 +49,34 @@ public class ASMTransformer implements BaseTransformer {
         return list;
     }
 
+    /**
+     * WARNING: Should only be used on ASM 5.0.4
+     * Enable it via -Dmiolibpatcher.asmBackport=true (disabled by default).
+     * @throws CannotCompileException If used on the wrong class.
+     */
     @Override
-    public void transform(CtClass clazz) throws Throwable {
-        // This should not be called anymore if we use the loader version, but keeping it for safety
-    }
-
-    @Override
-    public void transform(CtClass clazz, ClassLoader loader) throws CannotCompileException {
-        if (!isASM504(loader)) return;
-
+    public void transform(CtClass clazz) throws CannotCompileException {
+        if (!asm504Enabled) return;
         for (CtConstructor ctor : clazz.getDeclaredConstructors()) {
             if (!ctor.isClassInitializer()) {
                 CodeIterator it = ctor.getMethodInfo().getCodeAttribute().iterator();
+                // This is a bit janky, but it works for all five classes without manually
+                // setting their Java source bodies.
+                /*
+                   What this does:
+                     public ClassVisitor(final int api, final ClassVisitor cv) {
+                        if (api != Opcodes.ASM4) {
+                            throw new IllegalArgumentException(); // NOPs this part
+                        }
+                        this.api = api;
+                        this.cv = cv; // This is unique to ClassVisitor
+                     }
+                   "throw new IllegalArgumentException()" compiles to this bytecode:
+                     new
+                     dup
+                     invokespecial
+                     athrow
+                 */
                 while (it.hasNext()) {
                     try {
                         int pos = it.next();
@@ -59,6 +92,9 @@ public class ASMTransformer implements BaseTransformer {
                         int athrow = it.next();
                         if (it.byteAt(athrow) != Opcode.ATHROW) continue;
 
+
+                        // NOP the entire four instructions.
+                        // I checked, we can assume at least this much of all five classes.
                         for (int i = pos; i < athrow + 1; ++i) {
                             it.writeByte(Opcode.NOP, i);
                         }
@@ -71,38 +107,6 @@ public class ASMTransformer implements BaseTransformer {
                     }
                 }
             }
-        }
-    }
-
-    private boolean isASM504(ClassLoader loader) {
-        String override = System.getProperty("miolibpatcher.asmBackport");
-        if (override != null) {
-            return Boolean.parseBoolean(override);
-        }
-        if (isASM504Result != null) {
-            return isASM504Result;
-        }
-        
-        Boolean result = detectASM504(loader);
-        if (result != null) {
-            isASM504Result = result;
-        }
-        return isASM504Result != null && isASM504Result;
-    }
-
-    private static Boolean detectASM504(ClassLoader loader) {
-        try {
-            Class<?> asmClass = Class.forName("org.objectweb.asm.ClassReader", false, loader);
-            Package asmPackage = asmClass.getPackage();
-            if (asmPackage == null) return null;
-            String implVersion = asmPackage.getImplementationVersion();
-            if (implVersion == null) return null;
-            return "5.0.4".equals(implVersion);
-        } catch (ClassNotFoundException e) {
-            return null; // Not found yet
-        } catch (Exception e) {
-            LogUtil.info("Unable to get ASM version info, ASMTransformer patch will be skipped: " + e);
-            return false;
         }
     }
 }

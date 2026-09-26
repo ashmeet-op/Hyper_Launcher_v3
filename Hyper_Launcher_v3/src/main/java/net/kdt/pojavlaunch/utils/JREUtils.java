@@ -148,7 +148,7 @@ public class JREUtils {
         // Init mesa renderers
         MesaUtils.initEnvironment(context, renderer, envMap);
 
-        String pluginPaths = NativePluginManager.getRuntimeLibraryPath();
+        String pluginPaths = NativePluginManager.getRuntimeLibraryPath(null, renderer, null);
         String mainLibPath = Tools.NATIVE_LIB_DIR;
         if (!pluginPaths.isEmpty()) {
             mainLibPath = pluginPaths + ":" + mainLibPath;

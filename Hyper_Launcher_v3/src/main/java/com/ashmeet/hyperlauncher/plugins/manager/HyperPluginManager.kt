@@ -34,7 +34,6 @@ object HyperPluginManager {
 
         setupLibraryPaths(javaArgList, versionId, mcVersion)
         applyPluginEnvironment(javaArgList, mcVersion)
-        applyMioLibPatcher(javaArgList)
         prepareNatives(activity, javaArgList, mcVersion)
     }
 

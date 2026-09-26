@@ -29,13 +29,9 @@ object RendererCompatUtil {
         val file = File(Tools.NATIVE_LIB_DIR, name)
         if (file.exists()) return file.absolutePath
 
-        val pluginPaths = NativePluginManager.getRuntimeLibraryPath()
-
-        if (pluginPaths.isNotEmpty()) {
-            for (path in pluginPaths.split(":").toTypedArray()) {
-                val pFile = File(path, name)
-                if (pFile.exists()) return pFile.absolutePath
-            }
+        for (path in NativePluginManager.getAllLibraryPaths()) {
+            val pFile = File(path, name)
+            if (pFile.exists()) return pFile.absolutePath
         }
         return null
     }
@@ -151,9 +147,9 @@ object RendererCompatUtil {
                         Log.e("RENDER_LIBRARY", "Failed to System.load provider: $providerPath", e)
                     }
                 }
-                renderLibrary = parts[1]
+                renderLibrary = findNativeLibraryPath(parts[1]) ?: parts[1]
             } else if (parts.size == 2) {
-                renderLibrary = parts[1]
+                renderLibrary = findNativeLibraryPath(parts[1]) ?: parts[1]
             } else {
                 renderLibrary = "libgl4es_114.so"
             }

@@ -26,13 +26,14 @@ MioLibPatcher 在类加载时对指定类进行字节码转换，目前包含以
 | `foundry.veil.impl.client.imgui.VeilImGuiImpl`                                                                                                                                                                                         | 禁用 ImGui 路径设置                                                             |
 | `imgui.moulberry92.ImGui`                                                                                                                                                                                                              | ImGui 原生库支持从系统属性指定路径/文件名加载                                                |
 | `org.lwjgl.openal.ALC10`                                                                                                                                                                                                               | 可选：替换 `alcGetCurrentContext` 实现（需系统属性 `miolibpatcher.alc10=true`）         |
-| `org.objectweb.asm.*`（5 个 visitor 类）                                                                                                                                                                                                   | 可选：ASM 5.0.4 api 校验后门（修复 Applied Energistics 1，见下文说明）                     |
+| `org.objectweb.asm.*`（5 个 visitor 类）                                                                                                                                                                                                   | 可选：移除 visitor 构造器的 api 版本校验（修复 Applied Energistics 1，见下文说明）                     |
 
 ### 特殊说明
 
-- **ASM 补丁**：仅针对 ASM 5.0.4 生效，会移除 visitor 构造器的 `IllegalArgumentException` 校验。默认自动检测 ASM
-  版本；也可通过系统属性 `miolibpatcher.asmBackport=true/false` 由启动器强制指定。该补丁会影响游戏中所有使用 ASM 5.0.4
-  的模组，请谨慎启用。
+- **ASM 补丁**：移除 visitor 构造器的 `IllegalArgumentException` api 版本校验（修复 Applied Energistics 1
+  等模组对旧 ASM 的错误用法）。**默认关闭**，仅当启动器通过系统属性
+  `miolibpatcher.asmBackport=true` 显式启用时生效。补丁不检测 ASM 版本，会对游戏实际加载的 ASM 生效，
+  其字节码改写仅针对 ASM 5.0.4 验证，其他版本可能受未知影响，请谨慎启用。
 - **ALC10 补丁**：默认关闭，需通过系统属性 `miolibpatcher.alc10=true` 显式启用。
 
 ## 使用方法
@@ -75,7 +76,7 @@ jattach <pid> load instrument=false MioLibPatcher.jar
 | `imgui.library.name`        | ImGui 原生库文件名                                                         |
 | `miolibpatcher.alc10`       | `true` 时启用 ALC10 补丁，默认 `false`                                       |
 | `miolibpatcher.sablerapier` | `true`/`false` 强制指定是否启用 Rapier 补丁；未设置时自动检测 `sable_rapier_path` 是否已设置 |
-| `miolibpatcher.asmBackport` | `true`/`false` 强制指定是否启用 ASM 补丁；不设置时自动检测 ASM 5.0.4                    |
+| `miolibpatcher.asmBackport` | `true`（不区分大小写）时启用 ASM 补丁，默认关闭 |
 
 ## 开发
 

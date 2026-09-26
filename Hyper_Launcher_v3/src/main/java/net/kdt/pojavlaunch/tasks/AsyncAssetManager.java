@@ -190,7 +190,7 @@ public class AsyncAssetManager {
 
         boolean needsUpdate = installedVersion == null || !installedVersion.equals(builtinVersion);
         
-        // Even if the version matches, check if the files actually exist and are not empty
+        // Even if the version matches, check if the files actually exist and are not empty or size-mismatched
         if (!needsUpdate && fileList != null) {
             for (String fileName : fileList) {
                 if (fileName.equals("version")) continue;
@@ -200,6 +200,14 @@ public class AsyncAssetManager {
                     Log.w("AssetUnpacker", "Component file " + fileName + " is missing or empty, forcing re-unpack");
                     break;
                 }
+                try (InputStream is = am.open(componentSource + "/" + fileName)) {
+                    long assetSize = is.available();
+                    if (assetSize > 0 && f.length() != assetSize) {
+                        needsUpdate = true;
+                        Log.w("AssetUnpacker", "Component file " + fileName + " size mismatch (installed: " + f.length() + ", asset: " + assetSize + "), forcing re-unpack");
+                        break;
+                    }
+                } catch (IOException ignored) {}
             }
         }
 
@@ -235,7 +243,7 @@ public class AsyncAssetManager {
         try {
             String gameDirPath = gamedir.getAbsolutePath();
             Tools.copyAssetFile(context, "options.txt", gameDirPath, false);
-        }catch (IOException e) {
+        } catch (IOException e) {
             Tools.showError(context, e);
         }
     }

@@ -53,7 +53,6 @@ public class MainAgent {
         List<BaseTransformer> transformers = new ArrayList<>();
         transformers.add(new TTSTransformer());
         transformers.add(new LibraryTransformer());
-        transformers.add(new PlatformTransformer());
         transformers.add(new SystemInfoTransformer());
         transformers.add(new RandomPatchesTransformer());
         transformers.add(new ProcessorIdentifierTransformer());
@@ -66,11 +65,9 @@ public class MainAgent {
         transformers.add(new SableRapierLibTransformer());
         transformers.add(new VeilImGuiTransformer());
         transformers.add(new AxiomTransformer());
-        transformers.add(new MixinTransformer());
         transformers.add(new ALC10Transformer());
         transformers.add(new ASMTransformer());
         transformers.add(new SmoothFontTransformer());
-        transformers.add(new PhysXTransformer());
         return transformers;
     }
 

@@ -26,15 +26,15 @@ MioLibPatcher transforms target classes at class-load time. Currently it include
 | `foundry.veil.impl.client.imgui.VeilImGuiImpl`                                                                                                                                                                                             | Disables ImGui path setting                                                                                                                                        |
 | `imgui.moulberry92.ImGui`                                                                                                                                                                                                                  | ImGui native library can be loaded from a path/file name given by system properties                                                                                |
 | `org.lwjgl.openal.ALC10`                                                                                                                                                                                                                   | Optional: replaces `alcGetCurrentContext` (requires `miolibpatcher.alc10=true`)                                                                                    |
-| `org.objectweb.asm.*` (5 visitor classes)                                                                                                                                                                                                  | Optional: ASM 5.0.4 api-check backport (fixes Applied Energistics 1, see below)                                                                                    |
-| `de.fabmax.physxjni.*` / `de.fabmax.physxandroid.*` / `physx.*`                                                                                                                                                                            | Redirects native library loading (System.load/Runtime.load) to `sable_rapier_path`                                                                                 |
+| `org.objectweb.asm.*` (5 visitor classes)                                                                                                                                                                                                  | Optional: removes the api version check in visitor constructors (fixes Applied Energistics 1, see below)                                                                                    |
 
 ### Notes
 
-- **ASM patch**: Only takes effect on ASM 5.0.4; it removes the `IllegalArgumentException` check in visitor
-  constructors. By default the ASM version is auto-detected. Launchers can force the decision via the system property
-  `miolibpatcher.asmBackport=true/false`. The patch affects every mod using ASM 5.0.4 in the game, so enable it with
-  care.
+- **ASM patch**: Removes the `IllegalArgumentException` api version check in visitor constructors (fixes mods that
+  misuse older ASM APIs, such as Applied Energistics 1). **Disabled by default**; enable it explicitly with
+  `miolibpatcher.asmBackport=true`. The patch does not detect the ASM version and applies to whatever ASM the game
+  actually loads; its bytecode rewrite is only verified against ASM 5.0.4, so other ASM versions may be affected in
+  unexpected ways. Enable it with care.
 - **ALC10 patch**: Disabled by default; enable it explicitly with `miolibpatcher.alc10=true`.
 
 ## Usage
@@ -79,7 +79,7 @@ registered transformers at load time.
 | `imgui.library.name`        | File name of the ImGui native library                                                            |
 | `miolibpatcher.alc10`       | `true` enables the ALC10 patch, default `false`                                                  |
 | `miolibpatcher.sablerapier` | `true`/`false` forces the Rapier patch on/off; when unset, detects if `sable_rapier_path` is set |
-| `miolibpatcher.asmBackport` | `true`/`false` forces the ASM patch on/off; when unset, ASM 5.0.4 is auto-detected               |
+| `miolibpatcher.asmBackport` | `true` (case-insensitive) enables the ASM patch; disabled by default |
 
 ## Development
 

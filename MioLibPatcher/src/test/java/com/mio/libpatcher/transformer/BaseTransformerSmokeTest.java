@@ -179,14 +179,14 @@ class BaseTransformerSmokeTest {
 
     @Test
     void asm() throws Exception {
-        // 测试环境无 asm 依赖，isASM504 应返回 false 并安全跳过
+        // 补丁默认关闭，transform 应安全跳过
         CtClass cc = ClassPool.getDefault().makeClass("org.objectweb.asm.ClassVisitor");
         assertTransformSucceeds(new ASMTransformer(), cc);
     }
 
     @Test
     void asmWithPropertyOverride() throws Exception {
-        // 启动器可通过系统属性强制启用补丁，即使没有 asm 依赖也应安全执行
+        // 启动器可通过系统属性显式启用补丁，此时应安全执行
         System.setProperty("miolibpatcher.asmBackport", "true");
         try {
             CtClass cc = ClassPool.getDefault().makeClass("org.objectweb.asm.ClassVisitor");

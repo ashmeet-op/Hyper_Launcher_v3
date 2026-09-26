@@ -3,9 +3,6 @@ package com.mio.libpatcher.transformer;
 import com.mio.libpatcher.util.LogUtil;
 import javassist.ClassPool;
 import javassist.CtClass;
-import javassist.CtMethod;
-import javassist.bytecode.MethodInfo;
-import javassist.bytecode.MethodParametersAttribute;
 
 import java.io.ByteArrayInputStream;
 import java.lang.instrument.ClassFileTransformer;
@@ -37,10 +34,6 @@ public interface BaseTransformer extends ClassFileTransformer {
 
     void transform(CtClass clazz) throws Throwable;
 
-    default void transform(CtClass clazz, ClassLoader loader) throws Throwable {
-        transform(clazz);
-    }
-
     @Override
     default byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         if (!isTargetClass(className)) {
@@ -50,11 +43,7 @@ public interface BaseTransformer extends ClassFileTransformer {
         CtClass clazz = null;
         try {
             clazz = pool.makeClass(new ByteArrayInputStream(classfileBuffer));
-            for (Object methodInfoObj : clazz.getClassFile().getMethods()) {
-                MethodInfo methodInfo = (MethodInfo) methodInfoObj;
-                methodInfo.removeAttribute(MethodParametersAttribute.tag);
-            }
-            transform(clazz, loader);
+            transform(clazz);
             return clazz.toBytecode();
         } catch (Throwable e) {
             LogUtil.error("Failed to transform class: " + className, e);

@@ -5,26 +5,23 @@ plugins {
 group = "com.mio"
 
 
+
 dependencies {
-    implementation("org.javassist:javassist:3.30.2-GA")
-    //noinspection NewerVersionAvailable
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    implementation("org.javassist:javassist:3.29.2-GA")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
 }
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(8))
     }
 }
 
 tasks.test {
     useJUnitPlatform()
-    jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
 }
 
 tasks.jar {
-    archiveFileName.set("MioLibPatcher.jar")
     manifest {
         attributes(
             "Manifest-Version" to "1.0",
