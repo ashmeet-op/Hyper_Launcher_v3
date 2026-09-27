@@ -1,6 +1,7 @@
 package net.kdt.pojavlaunch.utils;
 
 import com.ashmeet.hyperlauncher.utils.Tools;
+import com.google.gson.stream.JsonReader;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,8 +29,10 @@ public class JSONUtils {
     }
 
     public static <T> T readFromStream(InputStream file, Class<T> clazs) throws IOException {
-        try(InputStreamReader streamReader = new InputStreamReader(file)) {
-            return Tools.GLOBAL_GSON.fromJson(streamReader, clazs);
+        try(InputStreamReader streamReader = new InputStreamReader(file);
+            JsonReader jsonReader = new JsonReader(streamReader)) {
+            jsonReader.setLenient(true);
+            return Tools.GLOBAL_GSON.fromJson(jsonReader, clazs);
         }
     }
 
@@ -41,8 +44,10 @@ public class JSONUtils {
 
     public static <T> T readFromFile(File file, Class<T> clazs) throws IOException {
         try(FileInputStream fileInputStream = new FileInputStream(file);
-            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream)) {
-            return Tools.GLOBAL_GSON.fromJson(inputStreamReader, clazs);
+            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
+            JsonReader jsonReader = new JsonReader(inputStreamReader)) {
+            jsonReader.setLenient(true);
+            return Tools.GLOBAL_GSON.fromJson(jsonReader, clazs);
         }
     }
 }

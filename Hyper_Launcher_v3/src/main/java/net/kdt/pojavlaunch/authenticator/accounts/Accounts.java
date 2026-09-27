@@ -49,11 +49,17 @@ public class Accounts {
 	}
 
 	private static Account loadAccount(File source) {
+		if (source == null || !source.exists() || source.length() == 0) {
+			if (source != null && source.exists() && source.length() == 0) {
+				boolean ignored = source.delete();
+			}
+			return null;
+		}
 		Account acc;
 		try {
 			acc = JSONUtils.readFromFile(source, Account.class);
-		}catch (Exception e) {
-			Log.w("Accounts", "Failed to load account", e);
+		} catch (Exception e) {
+			Log.w("Accounts", "Failed to load account from file: " + source.getName(), e);
 			return null;
 		}
         if(acc == null) return null;

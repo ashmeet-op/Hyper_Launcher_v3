@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.BitmapFactory
 import android.util.AttributeSet
-import android.view.Choreographer
 import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
@@ -41,8 +40,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.edit
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import net.kdt.pojavlaunch.CallbackBridge
 import java.io.File
 import kotlin.math.abs
+import kotlin.time.Duration.Companion.milliseconds
 
 open class DrawerPullButton @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
@@ -66,25 +74,28 @@ open class DrawerPullButton @JvmOverloads constructor(
     private var widthAnimator: ValueAnimator? = null
 
     private var fpsValue by mutableIntStateOf(0)
-    private var frameCount = 0
-    private var lastTime = 0L
+    private var fpsJob: Job? = null
 
-    private val frameCallback = object : Choreographer.FrameCallback {
-        override fun doFrame(frameTimeNanos: Long) {
-            val currentTime = frameTimeNanos / 1_000_000
-            if (lastTime == 0L) {
-                lastTime = currentTime
-            }
-            frameCount++
-            if (currentTime - lastTime >= 1000) {
-                fpsValue = frameCount
-                frameCount = 0
-                lastTime = currentTime
-            }
-            if (isAttachedToWindow && showFps) {
-                Choreographer.getInstance().postFrameCallback(this)
+    private fun startFpsTracker() {
+        stopFpsTracker()
+        fpsJob = CoroutineScope(Dispatchers.Main).launch {
+            while (isActive && showFps) {
+                val nativeFps = withContext(Dispatchers.IO) {
+                    try {
+                        CallbackBridge.nativeGetFps()
+                    } catch (_: Throwable) {
+                        0
+                    }
+                }
+                fpsValue = nativeFps
+                delay(1000.milliseconds)
             }
         }
+    }
+
+    private fun stopFpsTracker() {
+        fpsJob?.cancel()
+        fpsJob = null
     }
 
     private val prefListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
@@ -132,13 +143,13 @@ open class DrawerPullButton @JvmOverloads constructor(
         }
 
         if (showFps) {
-            Choreographer.getInstance().postFrameCallback(frameCallback)
+            startFpsTracker()
         }
     }
 
     override fun onDetachedFromWindow() {
         LauncherPreferences.prefs.unregisterOnSharedPreferenceChangeListener(prefListener)
-        Choreographer.getInstance().removeFrameCallback(frameCallback)
+        stopFpsTracker()
         widthAnimator?.cancel()
         super.onDetachedFromWindow()
     }
@@ -153,10 +164,10 @@ open class DrawerPullButton @JvmOverloads constructor(
         val oldShowFps = showFps
         showFps = LauncherPreferences.PREF_SHOW_FPS
         if (showFps && !oldShowFps) {
-            Choreographer.getInstance().postFrameCallback(frameCallback)
+            startFpsTracker()
             animateWidth(1.5f)
         } else if (!showFps && oldShowFps) {
-            Choreographer.getInstance().removeFrameCallback(frameCallback)
+            stopFpsTracker()
             animateWidth(1.0f)
         } else if (showFps == oldShowFps) {
             val target = if (showFps) 1.5f else 1.0f

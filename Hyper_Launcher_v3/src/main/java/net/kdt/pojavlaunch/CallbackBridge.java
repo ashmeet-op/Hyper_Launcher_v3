@@ -131,6 +131,7 @@ public class CallbackBridge {
     }
 
     public static native void minibridgeInit();
+    public static native int nativeGetFps();
 
     static {
         System.loadLibrary("pojavexec");
