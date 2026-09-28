@@ -86,7 +86,12 @@ public abstract class ForgelikeUtils {
 
     public InstanceInstaller createInstaller(String fullVersion) throws IOException {
         String downloadUrl = getInstallerUrl(fullVersion);
-        String hash = DownloadUtils.downloadString(downloadUrl + ".sha1");
+        String hash = null;
+        try {
+            hash = DownloadUtils.downloadString(downloadUrl + ".sha1");
+        } catch (IOException e) {
+            Log.w("ForgelikeUtils", "Failed to download SHA1 for " + downloadUrl + ", proceeding without SHA1 check");
+        }
         File installerLocation = new File(Tools.DIR_CACHE, mCachePrefix + "-installer-" + fullVersion + ".jar");
         InstanceInstaller instanceInstaller = new InstanceInstaller();
         instanceInstaller.commandLineArgs = List.of("-Duser.language=en", "-Duser.country=US", "-javaagent:"+Tools.DIR_DATA+"/forge_installer/forge_installer.jar");

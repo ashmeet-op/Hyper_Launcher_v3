@@ -24,6 +24,7 @@ import com.ashmeet.hyperlauncher.fragments.auth.AuthHostFragment
 import com.ashmeet.hyperlauncher.fragments.home.MainMenuFragment
 import com.ashmeet.hyperlauncher.fragments.installer.ContentInstallerFragment
 import com.ashmeet.hyperlauncher.fragments.instances.InstanceDirectoryFragment
+import com.ashmeet.hyperlauncher.fragments.recorder.RecordingsGalleryFragment
 import com.ashmeet.hyperlauncher.fragments.settings.LauncherPreferenceFragment
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.utils.ShortcutUtils
@@ -120,6 +121,16 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
         }
     }
 
+    /* Listener for the recordings gallery button */
+    private val mRecordingsGalleryButtonListener = View.OnClickListener {
+        val manager = supportFragmentManager
+        if (manager.isStateSaved) return@OnClickListener
+        val fragment = manager.findFragmentById(R.id.container_fragment)
+        if (fragment is MainMenuFragment) {
+            Tools.swapFragment(this, RecordingsGalleryFragment::class.java, RecordingsGalleryFragment.TAG, null)
+        }
+    }
+
     private val mLaunchGameListener = ExtraListener<Boolean> { _, _ ->
         if (ProgressKeeper.getTaskCount() > 0) {
             Toast.makeText(this, R.string.tasks_ongoing, Toast.LENGTH_LONG).show()
@@ -181,6 +192,7 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
             { mSettingButtonListener.onClick(null) },
             { mContentInstallerButtonListener.onClick(null) },
             { mInstanceDirectoryButtonListener.onClick(null) },
+            { mRecordingsGalleryButtonListener.onClick(null) },
             object : LauncherComposeHelper.OnFragmentViewCreatedListener {
                 override fun onCreated(view: FrameLayout) {
                     val fm = supportFragmentManager

@@ -32,6 +32,18 @@ import net.kdt.pojavlaunch.game.platform.input.PlatformGrabListener;
 import net.kdt.pojavlaunch.game.platform.Platform;
 
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.view.PixelCopy;
+import android.view.SurfaceView;
+import android.view.TextureView;
+
+import com.ashmeet.hyperlauncher.recorder.SurfaceRecorderHook;
 import net.kdt.pojavlaunch.render.SurfaceProvider;
 import net.kdt.pojavlaunch.render.SurfaceViewSurfaceProvider;
 import net.kdt.pojavlaunch.render.TextureViewSurfaceProvider;
@@ -60,6 +72,9 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
     /* View holding the surface, either a SurfaceView or a TextureView */
     View mSurface;
     GameCursorView mCursorView;
+
+    private Bitmap mRecorderBitmap = null;
+    private final Paint mRecorderPaint = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG);
 
     private final InGameEventProcessor mIngameProcessor = new InGameEventProcessor(this, mSensitivityFactor);
     private final InGUIEventProcessor mInGUIProcessor = new InGUIEventProcessor(this);
@@ -392,5 +407,144 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
 
     public double getCursorRatioY() {
         return cursorRatioY;
+    }
+
+    private HandlerThread mRecorderThread;
+    private Handler mRecorderHandler;
+    private volatile boolean mIsRecordingCaptureActive = false;
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        SurfaceRecorderHook.setRecorderSurfaceListener(this::updateRecorderCapture);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        SurfaceRecorderHook.setRecorderSurfaceListener(null);
+        stopRecorderCaptureLoop();
+        super.onDetachedFromWindow();
+    }
+
+    private void updateRecorderCapture(Surface targetSurface, int width, int height) {
+        if (targetSurface != null && targetSurface.isValid()) {
+            startRecorderCaptureLoop(targetSurface, width, height);
+        } else {
+            stopRecorderCaptureLoop();
+        }
+    }
+
+    private void startRecorderCaptureLoop(final Surface targetSurface, final int targetWidth, final int targetHeight) {
+        stopRecorderCaptureLoop();
+
+        mIsRecordingCaptureActive = true;
+        if (mRecorderThread == null) {
+            mRecorderThread = new HandlerThread("GameViewRecorderThread");
+            mRecorderThread.start();
+            mRecorderHandler = new Handler(mRecorderThread.getLooper());
+        }
+
+        final Runnable captureRunnable = new Runnable() {
+            @SuppressLint("ObsoleteSdkInt")
+            @Override
+            public void run() {
+                if (!mIsRecordingCaptureActive || targetSurface == null || !targetSurface.isValid() || mSurface == null) {
+                    return;
+                }
+
+                try {
+                    if (mSurface instanceof SurfaceView) {
+                        SurfaceView sv = (SurfaceView) mSurface;
+                        if (sv.getHolder() != null && sv.getHolder().getSurface() != null && sv.getHolder().getSurface().isValid()) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                int w = sv.getWidth() > 0 ? sv.getWidth() : (targetWidth > 0 ? targetWidth : 1280);
+                                int h = sv.getHeight() > 0 ? sv.getHeight() : (targetHeight > 0 ? targetHeight : 720);
+                                if (mRecorderBitmap == null || mRecorderBitmap.getWidth() != w || mRecorderBitmap.getHeight() != h) {
+                                    if (mRecorderBitmap != null) {
+                                        mRecorderBitmap.recycle();
+                                    }
+                                    mRecorderBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+                                }
+                                PixelCopy.request(sv, mRecorderBitmap, copyResult -> {
+                                    if (copyResult == PixelCopy.SUCCESS && mRecorderBitmap != null) {
+                                        try {
+                                            mRecorderBitmap.setHasAlpha(false);
+                                            Canvas canvas;
+                                            //noinspection ConstantValue
+                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                                canvas = targetSurface.lockHardwareCanvas();
+                                            } else {
+                                                canvas = targetSurface.lockCanvas(null);
+                                            }
+                                            if (canvas != null) {
+                                                canvas.drawColor(Color.BLACK);
+                                                canvas.drawBitmap(mRecorderBitmap, null, new Rect(0, 0, canvas.getWidth(), canvas.getHeight()), mRecorderPaint);
+                                                targetSurface.unlockCanvasAndPost(canvas);
+                                            }
+                                        } catch (Exception e) {
+                                            Log.e("GameViewRecorder", "Error rendering frame to surface", e);
+                                        }
+                                    }
+                                    scheduleNextFrame();
+                                }, mRecorderHandler);
+                                return;
+                            }
+                        }
+                    } else if (mSurface instanceof TextureView) {
+                        TextureView tv = (TextureView) mSurface;
+                        if (tv.isAvailable()) {
+                            Bitmap bitmap = tv.getBitmap();
+                            if (bitmap != null) {
+                                try {
+                                    bitmap.setHasAlpha(false);
+                                    Canvas canvas;
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                        canvas = targetSurface.lockHardwareCanvas();
+                                    } else {
+                                        canvas = targetSurface.lockCanvas(null);
+                                    }
+                                    if (canvas != null) {
+                                        canvas.drawColor(Color.BLACK);
+                                        canvas.drawBitmap(bitmap, null, new Rect(0, 0, canvas.getWidth(), canvas.getHeight()), mRecorderPaint);
+                                        targetSurface.unlockCanvasAndPost(canvas);
+                                    }
+                                } catch (Exception e) {
+                                    Log.e("GameViewRecorder", "Error rendering TextureView frame", e);
+                                }
+                                bitmap.recycle();
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.e("GameViewRecorder", "Capture frame error: " + e.getMessage());
+                }
+
+                scheduleNextFrame();
+            }
+
+            private void scheduleNextFrame() {
+                if (mIsRecordingCaptureActive && mRecorderHandler != null) {
+                    mRecorderHandler.postDelayed(this, 16);
+                }
+            }
+        };
+
+        mRecorderHandler.post(captureRunnable);
+    }
+
+    private void stopRecorderCaptureLoop() {
+        mIsRecordingCaptureActive = false;
+        if (mRecorderHandler != null) {
+            mRecorderHandler.removeCallbacksAndMessages(null);
+            mRecorderHandler = null;
+        }
+        if (mRecorderThread != null) {
+            mRecorderThread.quitSafely();
+            mRecorderThread = null;
+        }
+        if (mRecorderBitmap != null) {
+            mRecorderBitmap.recycle();
+            mRecorderBitmap = null;
+        }
     }
 }

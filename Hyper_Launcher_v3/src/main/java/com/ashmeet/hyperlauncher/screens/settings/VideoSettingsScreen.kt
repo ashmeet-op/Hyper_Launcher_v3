@@ -37,8 +37,11 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSwitchItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SingleChoiceDialog
 import androidx.compose.material.icons.filled.Settings
 import com.ashmeet.hyperlauncher.utils.RendererCompatUtil
+import com.ashmeet.hyperlauncher.utils.Tools
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
+import net.kdt.pojavlaunch.instances.Instances
+import net.kdt.pojavlaunch.utils.MCOptionUtils
 import androidx.core.net.toUri
 
 @Composable
@@ -336,6 +339,13 @@ fun VideoSettingsScreen(
                 graphicsBackend = newValue
                 LauncherPreferences.prefs.edit { putString("preferredGraphicsBackend", newValue) }
                 LauncherPreferences.loadPreferences(context)
+                val selectedInstance = Instances.loadSelectedInstance()
+                val gameDir = selectedInstance?.gameDirectory?.absolutePath ?: Tools.DIR_GAME_NEW
+                if (gameDir != null) {
+                    MCOptionUtils.load(gameDir)
+                    MCOptionUtils.set("preferredGraphicsBackend", newValue)
+                    MCOptionUtils.save()
+                }
             },
             onDismiss = { showBackendDialog = false }
         )

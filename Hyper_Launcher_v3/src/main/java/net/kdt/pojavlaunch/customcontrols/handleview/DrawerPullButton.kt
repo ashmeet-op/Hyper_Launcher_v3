@@ -10,19 +10,28 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Icon
@@ -39,6 +48,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.edit
+import com.ashmeet.hyperlauncher.recorder.RecordingManager
+import com.ashmeet.hyperlauncher.recorder.RecordingState
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -214,6 +225,31 @@ open class DrawerPullButton @JvmOverloads constructor(
         showFps: Boolean,
         fpsValue: Int
     ) {
+        val recordingState by RecordingManager.recordingState.collectAsState()
+        val isRecording = recordingState is RecordingState.Recording
+        val durationSec = (recordingState as? RecordingState.Recording)?.durationSeconds ?: 0L
+
+        LaunchedEffect(isRecording, showFps) {
+            val target = when {
+                isRecording && showFps -> 2.4f
+                isRecording && !showFps -> 1.8f
+                !isRecording && showFps -> 1.5f
+                else -> 1.0f
+            }
+            animateWidth(target)
+        }
+
+        val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+        val pulseAlpha by infiniteTransition.animateFloat(
+            initialValue = 0.3f,
+            targetValue = 1.0f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(800),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "pulseAlpha"
+        )
+
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -230,7 +266,9 @@ open class DrawerPullButton @JvmOverloads constructor(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxSize(0.85f)
+                modifier = Modifier
+                    .fillMaxSize(0.85f)
+                    .padding(horizontal = 4.dp)
             ) {
                 val customBitmap = remember(iconPath) {
                     iconPath?.let { path ->
@@ -247,11 +285,11 @@ open class DrawerPullButton @JvmOverloads constructor(
                 }
 
                 if (customBitmap != null) {
-                    androidx.compose.foundation.Image(
+                    Image(
                         bitmap = customBitmap.asImageBitmap(),
                         contentDescription = null,
                         modifier = Modifier
-                            .size(if (showFps) 24.dp else 28.dp)
+                            .size(if (showFps || isRecording) 20.dp else 28.dp)
                             .alpha(iconOpacity / 100f)
                     )
                 } else {
@@ -259,10 +297,35 @@ open class DrawerPullButton @JvmOverloads constructor(
                         imageVector = Icons.Rounded.Settings,
                         contentDescription = null,
                         modifier = Modifier
-                            .size(if (showFps) 24.dp else 28.dp)
+                            .size(if (showFps || isRecording) 20.dp else 28.dp)
                             .alpha(iconOpacity / 100f),
                         tint = Color.White
                     )
+                }
+
+                AnimatedVisibility(
+                    visible = isRecording,
+                    enter = fadeIn() + expandHorizontally(),
+                    exit = fadeOut() + shrinkHorizontally()
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(start = 4.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .clip(CircleShape)
+                                .background(Color.Red.copy(alpha = pulseAlpha))
+                        )
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(
+                            text = RecordingManager.formatDuration(durationSec),
+                            color = Color.Red,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
 
                 AnimatedVisibility(
@@ -270,10 +333,12 @@ open class DrawerPullButton @JvmOverloads constructor(
                     enter = fadeIn() + expandHorizontally(),
                     exit = fadeOut() + shrinkHorizontally()
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Spacer(modifier = Modifier.width(4.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(start = 4.dp)
+                    ) {
                         Text(
-                            text = fpsValue.toString(),
+                            text = "${fpsValue}FPS",
                             color = Color.White,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,

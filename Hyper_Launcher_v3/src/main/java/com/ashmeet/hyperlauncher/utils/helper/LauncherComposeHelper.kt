@@ -98,9 +98,17 @@ object LauncherComposeHelper {
         onSettingsClick: Runnable,
         onContentInstallerClick: Runnable,
         onInstanceDirectoryClick: Runnable,
+        onRecordingsGalleryClick: Runnable,
         onFragmentViewCreated: OnFragmentViewCreatedListener
     ) {
-        LauncherMainComposeHelper.setContent(activity, onSettingsClick, onContentInstallerClick, onInstanceDirectoryClick, onFragmentViewCreated)
+        LauncherMainComposeHelper.setContent(
+            activity,
+            onSettingsClick,
+            onContentInstallerClick,
+            onInstanceDirectoryClick,
+            onRecordingsGalleryClick,
+            onFragmentViewCreated
+        )
     }
 
     @JvmStatic

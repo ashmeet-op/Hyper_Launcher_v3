@@ -30,6 +30,7 @@ object LauncherMainComposeHelper {
         onSettingsClick: Runnable,
         onContentInstallerClick: Runnable,
         onInstanceDirectoryClick: Runnable,
+        onRecordingsGalleryClick: Runnable,
         onFragmentViewCreated: LauncherComposeHelper.OnFragmentViewCreatedListener
     ) {
         val composeView = ComposeView(activity).apply {
@@ -42,6 +43,7 @@ object LauncherMainComposeHelper {
                         onSettingsClick = { onSettingsClick.run() },
                         onContentInstallerClick = { onContentInstallerClick.run() },
                         onInstanceDirectoryClick = { onInstanceDirectoryClick.run() },
+                        onRecordingsGalleryClick = { onRecordingsGalleryClick.run() },
                         onFragmentViewCreated = { onFragmentViewCreated.onCreated(it) }
                     )
                 }

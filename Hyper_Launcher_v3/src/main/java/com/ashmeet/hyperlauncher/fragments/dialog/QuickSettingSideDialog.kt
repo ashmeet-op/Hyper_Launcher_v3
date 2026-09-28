@@ -22,6 +22,10 @@ import androidx.compose.material.icons.rounded.Keyboard
 import androidx.compose.material.icons.rounded.Mouse
 import androidx.compose.material.icons.rounded.ScreenRotation
 import androidx.compose.material.icons.rounded.Tune
+import androidx.compose.material.icons.rounded.Videocam
+import androidx.compose.runtime.collectAsState
+import com.ashmeet.hyperlauncher.recorder.RecordingManager
+import com.ashmeet.hyperlauncher.recorder.RecordingState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -445,6 +449,26 @@ private fun QuickSettingContent(
                         }
                     }
                     3 -> {
+                        val recordingState by RecordingManager.recordingState.collectAsState()
+                        val isRecording = recordingState is RecordingState.Recording
+                        val durationSec = (recordingState as? RecordingState.Recording)?.durationSeconds ?: 0L
+
+                        DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
+                            DialogActionItem(
+                                title = if (isRecording) {
+                                    translatedText("Stop Recording (${RecordingManager.formatDuration(durationSec)})")
+                                } else {
+                                    translatedText("Start Game Surface Recording")
+                                },
+                                icon = Icons.Rounded.Videocam,
+                                onClick = {
+                                    RecordingManager.toggleRecording(context)
+                                }
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
                         DialogCard(position = CardPosition.SINGLE, useSurface = true, delayIndex = cardIndex++) {
                             DialogSwitchItem(
                                 title = translatedText("Enable Volume Key Controls"),

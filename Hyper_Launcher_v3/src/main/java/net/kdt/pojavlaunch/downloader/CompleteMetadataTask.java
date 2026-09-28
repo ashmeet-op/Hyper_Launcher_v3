@@ -41,7 +41,7 @@ public class CompleteMetadataTask extends DownloaderTask {
         try {
             mMetadata.sha1Hash = mDownloader.downloadString(new URL(mMetadata.url + ".sha1"));
         }catch (IOException e) {
-            Log.i("CompleteMetadataTask", "Failed to get server hash for "+mMetadata.path.getName(), e);
+            Log.i("CompleteMetadataTask", "Failed to get server hash for "+mMetadata.path.getName() + ": " + e.getMessage());
         }
     }
 

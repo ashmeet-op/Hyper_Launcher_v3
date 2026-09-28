@@ -172,12 +172,18 @@ public class Downloader {
 
     protected String downloadString(URL url) throws IOException {
         HttpURLConnection connection = openConnection(url);
-        int length = connection.getContentLength();
-        if(length < 0) length = 32;
-        try(ByteArrayOutputStream outputStream = new ByteArrayOutputStream(length)) {
-            downloadToStream(connection, outputStream, null);
-            return new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
-        }finally {
+        try {
+            int responseCode = connection.getResponseCode();
+            if (responseCode >= 400) {
+                throw new IOException("Server returned HTTP " + responseCode + " for " + url);
+            }
+            int length = connection.getContentLength();
+            if(length < 0) length = 32;
+            try(ByteArrayOutputStream outputStream = new ByteArrayOutputStream(length)) {
+                downloadToStream(connection, outputStream, null);
+                return new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
+            }
+        } finally {
             connection.disconnect();
         }
     }

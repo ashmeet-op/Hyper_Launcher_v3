@@ -13,8 +13,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Folder
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -22,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +42,8 @@ import androidx.compose.ui.zIndex
 import com.ashmeet.hyperlauncher.components.layout.LauncherBackground
 import com.ashmeet.hyperlauncher.components.layout.ProgressLayout
 import com.ashmeet.hyperlauncher.components.spinner.AccountSpinnerCompose
+import com.ashmeet.hyperlauncher.recorder.RecordingManager
+import com.ashmeet.hyperlauncher.recorder.RecordingState
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.utils.drawable.MaterialIconUtil
@@ -53,11 +59,15 @@ fun PojavLauncherScreen(
     onSettingsClick: () -> Unit,
     onContentInstallerClick: () -> Unit,
     onInstanceDirectoryClick: () -> Unit,
+    onRecordingsGalleryClick: () -> Unit,
     onFragmentViewCreated: (FrameLayout) -> Unit
 ) {
     var taskCount by remember { mutableIntStateOf(ProgressKeeper.getTaskCount()) }
     var launcherBgPath by remember { mutableStateOf(LauncherPreferences.PREF_LAUNCHER_BACKGROUND_PATH) }
     var launcherBlurredElementsEnabled by remember { mutableStateOf(LauncherPreferences.PREF_BLURRED_ELEMENTS_ENABLED) }
+
+    val recordingState by RecordingManager.recordingState.collectAsState()
+    val isRecording = recordingState is RecordingState.Recording
 
     DisposableEffect(Unit) {
         val listener = TaskCountListener { count ->
@@ -121,6 +131,8 @@ fun PojavLauncherScreen(
                         modifier = Modifier
                             .align(Alignment.CenterEnd)
                     ) {
+                        
+
                         if (isFileManagerVisible) {
                             IconButton(
                                 onClick = onContentInstallerClick,
@@ -132,7 +144,7 @@ fun PojavLauncherScreen(
                                     tint = MaterialTheme.colorScheme.onSurface
                                 )
                             }
-
+                           
                             IconButton(
                                 onClick = onInstanceDirectoryClick,
                                 modifier = Modifier.size(56.dp)
@@ -143,7 +155,28 @@ fun PojavLauncherScreen(
                                     tint = MaterialTheme.colorScheme.onSurface
                                 )
                             }
+
+                            IconButton(
+                                onClick = onRecordingsGalleryClick,
+                                modifier = Modifier.size(56.dp)
+                            ) {
+                                BadgedBox(
+                                    badge = {
+                                        if (isRecording) {
+                                            Badge(containerColor = Color.Red)
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Videocam,
+                                        contentDescription = translatedText("Recordings Gallery"),
+                                        tint = if (isRecording) Color.Red else MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                            }
+
                         }
+
 
                         IconButton(
                             onClick = onSettingsClick,
@@ -199,6 +232,7 @@ fun PojavLauncherScreenPreview() {
             onSettingsClick = {},
             onContentInstallerClick = {},
             onInstanceDirectoryClick = {},
+            onRecordingsGalleryClick = {},
             onFragmentViewCreated = {}
         )
     }
@@ -214,6 +248,7 @@ fun PojavLauncherScreenHiddenPreview() {
             onSettingsClick = {},
             onContentInstallerClick = {},
             onInstanceDirectoryClick = {},
+            onRecordingsGalleryClick = {},
             onFragmentViewCreated = {}
         )
     }
