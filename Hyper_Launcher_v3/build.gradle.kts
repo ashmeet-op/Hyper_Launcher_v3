@@ -1,5 +1,6 @@
 @file:Suppress("AvoidApplyPluginMethod")
 
+import com.android.build.api.variant.FilterConfiguration
 import de.undercouch.gradle.tasks.download.Download
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
@@ -75,7 +76,7 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
             ?: 5
         versionCode = propVersionCode
 
-        versionName = if (hyperVersionSuffix.isNullOrBlank()) hyperVersionNumber else "$hyperVersionNumber-$hyperVersionSuffix"
+        versionName = if (hyperVersionSuffix.isBlank()) hyperVersionNumber else "$hyperVersionNumber-$hyperVersionSuffix"
         multiDexEnabled = false
         resValue("string", "curseforge_api_key", getCFApiKey())
         resValue("string", "group_id", "git.artdeell")
@@ -83,7 +84,7 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
         manifestPlaceholders["driver"] = "default"
 
         ndk {
-            abiFilters.addAll(setOf("armeabi-v7a", "arm64-v8a"))
+            abiFilters.addAll(setOf("armeabi-v7a", "arm64-v8a", "x86_64"))
         }
 
         @Suppress("UnstableApiUsage")
@@ -91,6 +92,15 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
             cmake {
                 arguments("-DCMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=16384")
             }
+        }
+    }
+
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("armeabi-v7a", "arm64-v8a", "x86_64")
+            isUniversalApk = true
         }
     }
 
@@ -324,7 +334,9 @@ androidComponents.onVariants { variant ->
     registrar.setVariant(variant)
 
     variant.outputs.forEach { output ->
-        output.outputFileName.set(output.versionName.map { "hyper_launcher-$it.apk" })
+        val abiFilter = output.filters.find { it.filterType == FilterConfiguration.FilterType.ABI }?.identifier
+        val archSuffix = if (abiFilter != null) "-$abiFilter" else ""
+        output.outputFileName.set(output.versionName.map { "hyper_launcher-$it$archSuffix.apk" })
     }
 
     registrar.projectJarDependency(project(":forge_installer"), "components/forge_installer")
@@ -358,7 +370,7 @@ dependencies {
     implementation("androidx.viewpager2:viewpager2:1.1.0")
     implementation("androidx.annotation:annotation:1.10.0")
     implementation("androidx.constraintlayout:constraintlayout:2.2.2")
-    implementation("androidx.compose.material3:material3:1.5.0-alpha28")
+    implementation("androidx.compose.material3:material3:1.5.0-alpha29")
 
     implementation("com.github.duanhong169:checkerboarddrawable:1.0.2")
     implementation("com.github.PojavLauncherTeam:portrait-sdp:ed33e89cbc")

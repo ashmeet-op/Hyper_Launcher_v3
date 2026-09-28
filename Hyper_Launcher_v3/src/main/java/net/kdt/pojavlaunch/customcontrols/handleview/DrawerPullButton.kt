@@ -176,15 +176,19 @@ open class DrawerPullButton @JvmOverloads constructor(
         showFps = LauncherPreferences.PREF_SHOW_FPS
         if (showFps && !oldShowFps) {
             startFpsTracker()
-            animateWidth(1.5f)
         } else if (!showFps && oldShowFps) {
             stopFpsTracker()
-            animateWidth(1.0f)
-        } else if (showFps == oldShowFps) {
-            val target = if (showFps) 1.5f else 1.0f
-            if (widthMultiplier != target) {
-                animateWidth(target)
-            }
+        }
+
+        val fpsExtra = when {
+            !showFps -> 0.0f
+            fpsValue >= 1000 -> 0.45f
+            fpsValue >= 100 -> 0.25f
+            else -> 0.0f
+        }
+        val target = if (showFps) 1.5f + fpsExtra else 1.0f
+        if (widthMultiplier != target) {
+            animateWidth(target)
         }
 
         requestLayout()
@@ -229,11 +233,17 @@ open class DrawerPullButton @JvmOverloads constructor(
         val isRecording = recordingState is RecordingState.Recording
         val durationSec = (recordingState as? RecordingState.Recording)?.durationSeconds ?: 0L
 
-        LaunchedEffect(isRecording, showFps) {
+        LaunchedEffect(isRecording, showFps, fpsValue) {
+            val fpsExtra = when {
+                !showFps -> 0.0f
+                fpsValue >= 1000 -> 0.45f
+                fpsValue >= 100 -> 0.25f
+                else -> 0.0f
+            }
             val target = when {
-                isRecording && showFps -> 2.4f
+                isRecording && showFps -> 2.4f + fpsExtra
                 isRecording && !showFps -> 1.8f
-                !isRecording && showFps -> 1.5f
+                !isRecording && showFps -> 1.5f + fpsExtra
                 else -> 1.0f
             }
             animateWidth(target)
@@ -323,7 +333,9 @@ open class DrawerPullButton @JvmOverloads constructor(
                             text = RecordingManager.formatDuration(durationSec),
                             color = Color.Red,
                             fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            softWrap = false
                         )
                     }
                 }
@@ -338,10 +350,12 @@ open class DrawerPullButton @JvmOverloads constructor(
                         modifier = Modifier.padding(start = 4.dp)
                     ) {
                         Text(
-                            text = "${fpsValue}FPS",
+                            text = " $fpsValue Fps",
                             color = Color.White,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            softWrap = false,
                             modifier = Modifier.alpha(iconOpacity / 100f)
                         )
                     }

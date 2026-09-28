@@ -13,9 +13,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Folder
+import androidx.compose.material.icons.rounded.Videocam
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
@@ -168,7 +168,7 @@ fun PojavLauncherScreen(
                                     }
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.Videocam,
+                                        imageVector = Icons.Rounded.Videocam,
                                         contentDescription = translatedText("Recordings Gallery"),
                                         tint = if (isRecording) Color.Red else MaterialTheme.colorScheme.onSurface
                                     )
