@@ -13,7 +13,6 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "2.4.20"
 }
 
-apply(from = rootProject.file("gradle/prefab_bypass.gradle"))
 
 val localProperties = Properties()
 val localPropertiesFile = project.file("local.properties")
@@ -381,8 +380,9 @@ dependencies {
 
     implementation("org.tukaani:xz:1.12")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
-    implementation("com.bytedance:bytehook:1.1.2")
-    implementation("com.bytedance.android:shadowhook:2.0.1")
+    implementation("com.bytedance:bytehook:1.1.2") {
+        exclude(group = "com.bytedance.android", module = "shadowhook")
+    }
 
     implementation("com.github.MojoLauncher:alsoft-android-aar:f369161d5f")
 

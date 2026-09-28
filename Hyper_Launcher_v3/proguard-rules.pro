@@ -78,6 +78,10 @@
 -keep class com.github.luben.zstd.** { *; }
 -dontwarn com.github.luben.zstd.**
 
+# ByteHook / ShadowHook
+-dontwarn com.bytedance.shadowhook.**
+-keep class com.bytedance.android.bytehook.** { *; }
+
 # Prevent enum obfuscation for Gson compatibility
 -keepclassmembers enum * { *; }
 
