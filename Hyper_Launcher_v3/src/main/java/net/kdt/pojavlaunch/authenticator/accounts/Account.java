@@ -25,8 +25,8 @@ import java.net.URL;
 @Keep
 public class Account {
     public transient File mSaveLocation;
-    public String accessToken = "0"; // access token
-    public String profileId = "00000000-0000-0000-0000-000000000000"; // profile UUID, for obtaining skin
+    public String accessToken = "0";
+    public String profileId = "00000000-0000-0000-0000-000000000000";
     public String username = "Steve";
     public AuthType authType = AuthType.LOCAL;
     public boolean isMicrosoft = false;
@@ -54,18 +54,18 @@ public class Account {
             Log.i("SkinLoader", "Updating skin face...");
             File skinFile = getSkinFaceFile();
             File skinFile3D = getSkinFaceFile3D();
-            
-            // Streaming it directly breaks on some devices
+
+
             byte[] skinBytes = IOUtils.toByteArray(new URL(skinFaceUrl));
             Bitmap skinBitmap = BitmapFactory.decodeByteArray(skinBytes, 0, skinBytes.length);
             if(skinBitmap == null) {
                 mIsUpdatingSkin = false;
                 return;
             }
-            
+
             SkinHeadRenderer renderer = new SkinHeadRenderer();
-            
-            // Render 2D
+
+
             Bitmap skinFace = renderer.render2D(100, skinBitmap);
             if(skinFace != null) {
                 try(FileOutputStream fileOutputStream = new FileOutputStream(skinFile)) {
@@ -73,8 +73,8 @@ public class Account {
                 }
                 skinFace.recycle();
             }
-            
-            // Render 3D
+
+
             Bitmap skinFace3D = renderer.render(100, skinBitmap);
             if(skinFace3D != null) {
                 try(FileOutputStream fileOutputStream = new FileOutputStream(skinFile3D)) {
@@ -82,12 +82,12 @@ public class Account {
                 }
                 skinFace3D.recycle();
             }
-            
+
             skinBitmap.recycle();
             Log.i("SkinLoader", "Update skin face success");
         } catch (IOException e) {
-            // Skin refresh limit, no internet connection, etc...
-            // Simply ignore updating skin face
+
+
             Log.w("SkinLoader", "Could not update skin face", e);
         } finally {
             mIsUpdatingSkin = false;
@@ -97,7 +97,7 @@ public class Account {
     public boolean isLocal(){
         return accessToken.equals("0");
     }
-    
+
     public void save() throws IOException {
         FileUtils.ensureParentDirectory(mSaveLocation);
         JSONUtils.writeToFile(mSaveLocation, this);

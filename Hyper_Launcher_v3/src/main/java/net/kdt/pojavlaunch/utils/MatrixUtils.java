@@ -7,33 +7,17 @@ import android.graphics.RectF;
 @SuppressWarnings("unused")
 public class MatrixUtils {
 
-    /**
-     * Transform the coordinates of the RectF using the supplied Matrix, and write the result back into
-     * the RectF
-     * @param inOutRect the RectF for this operation
-     * @param transformMatrix the Matrix for transforming the Rect.
-     */
+
     public static void transformRect(Rect inOutRect, Matrix transformMatrix) {
         transformRect(inOutRect, inOutRect, transformMatrix);
     }
 
-    /**
-     * Transform the coordinates of the RectF using the supplied Matrix, and write the result back into
-     * the RectF
-     * @param inOutRect the RectF for this operation
-     * @param transformMatrix the Matrix for transforming the Rect.
-     */
+
     public static void transformRect(RectF inOutRect, Matrix transformMatrix) {
         transformRect(inOutRect, inOutRect, transformMatrix);
     }
 
-    /**
-     * Transform the coordinates of the input RectF using the supplied Matrix, and write the result
-     * into the output Rect
-     * @param inRect the input RectF for this operation
-     * @param outRect the output Rect for this operation
-     * @param transformMatrix the Matrix for transforming the Rect.
-     */
+
     public static void transformRect(RectF inRect, Rect outRect, Matrix transformMatrix) {
         float[] inOutDecodeRect = createInOutDecodeRect(transformMatrix);
         if(inOutDecodeRect == null) return;
@@ -42,13 +26,7 @@ public class MatrixUtils {
         readOutputRect(inOutDecodeRect, outRect);
     }
 
-    /**
-     * Transform the coordinates of the input Rect using the supplied Matrix, and write the result
-     * into the output RectF
-     * @param inRect the input Rect for this operation
-     * @param outRect the output RectF for this operation
-     * @param transformMatrix the Matrix for transforming the Rect.
-     */
+
     public static void transformRect(Rect inRect, RectF outRect, Matrix transformMatrix) {
         float[] inOutDecodeRect = createInOutDecodeRect(transformMatrix);
         if(inOutDecodeRect == null) return;
@@ -57,13 +35,7 @@ public class MatrixUtils {
         readOutputRect(inOutDecodeRect, outRect);
     }
 
-    /**
-     * Transform the coordinates of the input Rect using the supplied Matrix, and write the result
-     * into the output Rect
-     * @param inRect the input Rect for this operation
-     * @param outRect the output Rect for this operation
-     * @param transformMatrix the Matrix for transforming the Rect.
-     */
+
     public static void transformRect(Rect inRect, Rect outRect, Matrix transformMatrix) {
         float[] inOutDecodeRect = createInOutDecodeRect(transformMatrix);
         if(inOutDecodeRect == null) return;
@@ -72,13 +44,7 @@ public class MatrixUtils {
         readOutputRect(inOutDecodeRect, outRect);
     }
 
-    /**
-     * Transform the coordinates of the input RectF using the supplied Matrix, and write the result
-     * into the output RectF
-     * @param inRect the input RectF for this operation
-     * @param outRect the output RectF for this operation
-     * @param transformMatrix the Matrix for transforming the Rect.
-     */
+
     public static void transformRect(RectF inRect, RectF outRect, Matrix transformMatrix) {
         float[] inOutDecodeRect = createInOutDecodeRect(transformMatrix);
         if(inOutDecodeRect == null) return;
@@ -87,8 +53,8 @@ public class MatrixUtils {
         readOutputRect(inOutDecodeRect, outRect);
     }
 
-    // The group of functions below are used as building blocks of the transformRect() functions
-    // in order to not repeat the same exact code a lot of times.
+
+
     private static void writeInputRect(float[] inOutDecodeRect, RectF inRect) {
         inOutDecodeRect[0] = inRect.left;
         inOutDecodeRect[1] = inRect.top;
@@ -119,8 +85,8 @@ public class MatrixUtils {
 
     private static float[] createInOutDecodeRect(Matrix transformMatrix) {
         if(transformMatrix.isIdentity()) return null;
-        // We need an array of 8 floats because each point is two floats,
-        // we need to transform two points and we need to have a separated input and output
+
+
         return new float[8];
     }
 
@@ -128,14 +94,7 @@ public class MatrixUtils {
         transformMatrix.mapPoints(inOutDecodeRect, 4, inOutDecodeRect, 0, 2);
     }
 
-    /**
-     * Invert the source matrix, and write the result into the destination matrix.
-     * Android's integrated Matrix.invert() has some unexpected conditions when the matrix
-     * can't be inverted, and in that case the method inverts the matrix by hand.
-     * @param source Source matrix
-     * @param destination The inverse of the source matrix
-     * @throws IllegalArgumentException when the matrix is not invertible
-     */
+
     public static void inverse(Matrix source, Matrix destination) throws IllegalArgumentException {
         if(source.invert(destination)) return;
         float[] matrix = new float[9];
@@ -144,7 +103,7 @@ public class MatrixUtils {
         destination.setValues(matrix);
     }
 
-    // This was made by ChatGPT and i have no clue what's happening here, but it works so eh
+
     private static void inverseMatrix(float[] matrix) {
         float determinant = matrix[0] * (matrix[4] * matrix[8] - matrix[5] * matrix[7])
                 - matrix[1] * (matrix[3] * matrix[8] - matrix[5] * matrix[6])

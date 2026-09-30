@@ -146,8 +146,8 @@ open class DrawerPullButton @JvmOverloads constructor(
         super.onAttachedToWindow()
         LauncherPreferences.prefs.registerOnSharedPreferenceChangeListener(prefListener)
         updateAppearance()
-        
-        // Load saved position
+
+
         if (LauncherPreferences.PREF_DRAWER_PULL_POS_X != -1f && LauncherPreferences.PREF_DRAWER_PULL_POS_Y != -1f) {
             x = LauncherPreferences.PREF_DRAWER_PULL_POS_X
             y = LauncherPreferences.PREF_DRAWER_PULL_POS_Y
@@ -171,7 +171,7 @@ open class DrawerPullButton @JvmOverloads constructor(
         iconOpacity = LauncherPreferences.PREF_DRAWER_PULL_ICON_OPACITY
         showBackground = LauncherPreferences.PREF_DRAWER_PULL_BACKGROUND
         iconPath = LauncherPreferences.PREF_DRAWER_PULL_ICON_PATH
-        
+
         val oldShowFps = showFps
         showFps = LauncherPreferences.PREF_SHOW_FPS
         if (showFps && !oldShowFps) {
@@ -210,10 +210,10 @@ open class DrawerPullButton @JvmOverloads constructor(
         val dm = resources.displayMetrics
         val dpSize = (25 + (pullSizePerc - 10) * (35f / 90f))
         val size = (dpSize * dm.density).toInt()
-        
+
         val width = (size * widthMultiplier).toInt()
         val height = size
-        
+
         val newWidthSpec = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY)
         val newHeightSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
         super.onMeasure(newWidthSpec, newHeightSpec)
@@ -386,7 +386,7 @@ open class DrawerPullButton @JvmOverloads constructor(
             MotionEvent.ACTION_MOVE -> {
                 val dx = event.rawX - mInitialTouchX
                 val dy = event.rawY - mInitialTouchY
-                
+
                 if (abs(dx) > 10 || abs(dy) > 10) {
                     x = mInitialX + dx
                     y = mInitialY + dy
@@ -413,7 +413,7 @@ open class DrawerPullButton @JvmOverloads constructor(
     open fun savePosition() {
         LauncherPreferences.PREF_DRAWER_PULL_POS_X = x
         LauncherPreferences.PREF_DRAWER_PULL_POS_Y = y
-        
+
         LauncherPreferences.prefs.edit {
             putFloat("drawer_pull_pos_x", x)
             putFloat("drawer_pull_pos_y", y)
@@ -422,7 +422,7 @@ open class DrawerPullButton @JvmOverloads constructor(
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
-        // Only set initial position if not currently being moved
+
         if (!mHasMoved && LauncherPreferences.PREF_DRAWER_PULL_POS_X != -1f && LauncherPreferences.PREF_DRAWER_PULL_POS_Y != -1f) {
             x = LauncherPreferences.PREF_DRAWER_PULL_POS_X
             y = LauncherPreferences.PREF_DRAWER_PULL_POS_Y

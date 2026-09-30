@@ -35,18 +35,18 @@ public class LayoutConverter {
             JSONObject layoutJobj = new JSONObject(jsonLayoutData);
 
             if (!layoutJobj.has("version")) {
-                // Fixed conversion, layout object is completely rebuilt
+
                 return LayoutConverter.convertV1Layout(size, layoutJobj);
             }
 
             int version = layoutJobj.getInt("version");
             if(version == 2) {
-                // Almost-fixed conversion due to data structure changes
+
                 return LayoutConverter.convertV2Layout(size, layoutJobj);
             }
 
-            // On version 3 and above, the data structure is pretty much fixed. Changes were
-            // only made to fix bugs or improve scalability.
+
+
 
             CustomControls layout = Tools.GLOBAL_GSON.fromJson(jsonLayoutData, CustomControls.class);
 
@@ -71,14 +71,11 @@ public class LayoutConverter {
     }
 
 
-    /**
-     * Normalize the layout to v8 from v6/7. An issue from the joystick height and position has to be fixed.
-     * @param layout The layout object to upgrade
-     */
+
     public static void convertV6_7Layout(CustomControls layout) {
         for (ControlJoystickData data : layout.mJoystickDataList) {
             if (data.getHeight() > data.getWidth()) {
-                // Make the size square, adjust the dynamic position related to height
+
                 float ratio = data.getHeight() / data.getWidth();
 
                 data.dynamicX = data.dynamicX.replace("${height}", "(" + ratio + " * ${height})");
@@ -90,9 +87,7 @@ public class LayoutConverter {
         layout.version = 8;
     }
 
-    /**
-     * Normalize the layout to v6 from v3/4: The stroke width is no longer dependant on the button size
-     */
+
     private static void convertV3_4Layout(CustomControls layout) {
         for (ControlData data : layout.mControlDataList) {
             convertStrokeWidth(data);
@@ -109,7 +104,7 @@ public class LayoutConverter {
 
     private static CustomControls convertV2Layout(Point size, JSONObject oldLayoutJson) throws JSONException {
         CustomControls layout = Tools.GLOBAL_GSON.fromJson(oldLayoutJson.toString(), CustomControls.class);
-        assert layout.mJoystickDataList == null || layout.mJoystickDataList.isEmpty(); // Joysticks shouldn't be in v2 layouts
+        assert layout.mJoystickDataList == null || layout.mJoystickDataList.isEmpty();
         JSONArray layoutMainArray = oldLayoutJson.getJSONArray("mControlDataList");
         layout.mControlDataList = new ArrayList<>(layoutMainArray.length());
         for (int i = 0; i < layoutMainArray.length(); i++) {
@@ -214,9 +209,7 @@ public class LayoutConverter {
         return empty;
     }
 
-    /**
-     * Upgrade v8 layout to v9. Switched button keycodes from GLFW to Android
-     */
+
     private static void convertV8Layout(CustomControls layout) {
         if(layout.mControlDataList != null){
             for(ControlData data : layout.mControlDataList){
@@ -253,9 +246,7 @@ public class LayoutConverter {
         data.strokeWidth = Tools.pxToDp(computeStrokeWidth(data.strokeWidth, data.getWidth(), data.getHeight()));
     }
 
-    /**
-     * Convert a size percentage into a px size, used by older layout versions
-     */
+
     static int computeStrokeWidth(float widthInPercent, float width, float height) {
         float maxSize = Math.max(width, height);
         return (int) ((maxSize / 2) * (widthInPercent / 100));

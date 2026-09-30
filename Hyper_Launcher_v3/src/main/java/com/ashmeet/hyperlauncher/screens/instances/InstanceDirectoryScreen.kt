@@ -439,7 +439,7 @@ fun InstanceDirectoryContent(
                         val source = clipboardFile!!
                         val destDir = currentDir ?: return@FloatingActionButtonMenuItem
                         val destFile = File(destDir, source.name)
-                        
+
                         PojavApplication.sExecutorService.execute {
                             try {
                                 if (destFile.exists()) {

@@ -43,10 +43,7 @@ public class CommonLoginUtils {
         }
     }
 
-    /**
-     * @param data A series a strings: key1, value1, key2, value2...
-     * @return the data converted as a form string for a POST request
-     */
+
     public static String convertToFormData(String... data) throws UnsupportedEncodingException {
         StringBuilder builder = new StringBuilder();
         for(int i=0; i<data.length; i+=2){

@@ -43,12 +43,7 @@ import java.util.Map;
 
 
 public class GameRunner {
-    /**
-     * Optimization mods based on Sodium can mitigate the render distance issue. Check if Sodium
-     * or its derivative is currently installed to skip the render distance check.
-     * @param gameDir current game directory
-     * @return whether sodium or a sodium-based mod is installed
-     */
+
     private static boolean hasSodium(File gameDir) {
         File modsDir = new File(gameDir, "mods");
         File[] mods = modsDir.listFiles(file -> file.isFile() && file.getName().endsWith(".jar"));
@@ -62,11 +57,7 @@ public class GameRunner {
         return false;
     }
 
-    /**
-     * Check if Angelica is currently installed to allow usage of LTW
-     * @param gameDir current game directory
-     * @return whether Angelica is installed
-     */
+
     private static boolean hasAngelica(File gameDir) {
         File modsDir = new File(gameDir, "mods");
         File[] mods = modsDir.listFiles(file -> file.isFile() && file.getName().endsWith(".jar"));
@@ -78,24 +69,14 @@ public class GameRunner {
         return false;
     }
 
-    /**
-     * Initialize OpenGL and do checks to see if the GPU of the device is affected by the render
-     * distance issue.
 
-     * Currently only checks whether the user has an Adreno GPU capable of OpenGL ES 3.
-
-     * This issue is caused by a very severe limit on the amount of GL buffer names that could be allocated
-     * by the Adreno properietary GLES driver.
-
-     * @return whether the GPU is affected by the Large Thin Wrapper render distance issue on vanilla
-     */
 
     private static boolean affectedByRenderDistanceIssue(JVersionList.Version version) {
         if(LauncherPreferences.PREF_USE_ANGLE) return false;
         GLInfoUtils.GLInfo info = GLInfoUtils.getGlInfo();
         return info.isAdreno() &&
                 info.glesMajorVersion >= 3 &&
-                // 1.21.5 fixes the RD issue, released on March 25, 2025
+
                 DateUtils.dateBefore(DateUtils.getOriginalReleaseDate(version), 2025, 2, 25);
     }
 
@@ -108,8 +89,8 @@ public class GameRunner {
             Log.e("Tools", "Failed to load config", e);
         }
         int renderDistance = GameOptionsUtils.parseIntDefault(MCOptionUtils.get("renderDistance"),12);
-        // 7 is the render distance "magic number" above which MC creates too many buffers
-        // for Adreno's OpenGL ES implementation
+
+
         return renderDistance > 7;
     }
 
@@ -118,7 +99,7 @@ public class GameRunner {
     }
 
     private static boolean isCompatContext(JVersionList.Version version) {
-        // Day before the release date of 21w10a, the first OpenGL 3 Core Minecraft version
+
         return DateUtils.dateBefore(DateUtils.getOriginalReleaseDate(version), 2021, 3, 9);
     }
 
@@ -130,7 +111,7 @@ public class GameRunner {
         return LifecycleAwareAlertDialog.haltOnDialog(activity.getLifecycle(), activity, dialogCreator);
     }
 
-    // Autoswitch to a modern renderer if supported, otherwise - crash with resId dialog message. Returns renderer strings if succeeded
+
     private static String switchModernRenderer(RendererCompatUtil.RenderersList supported, Instance instance, AppCompatActivity activity, int resId) throws InterruptedException, IOException {
         String targetRenderer;
         if (supported.rendererIds.contains("mobileglues")) {
@@ -173,15 +154,15 @@ public class GameRunner {
                             .setPositiveButton(android.R.string.ok, (d, w)->{});
 
             if(LifecycleAwareAlertDialog.haltOnDialog(activity.getLifecycle(), activity, dialogCreator)) {
-                return; // If the dialog's lifecycle has ended, return without
-                // actually launching the game, thus giving us the opportunity
-                // to start after the activity is shown again
+                return;
+
+
             }
         }
         File gamedir = instance.getGameDirectory();
         JVersionList.Version versionInfo = Tools.getVersionInfo(versionId);
 
-        // Switch renderer to GL4ES when running a compat context version on LTW or MobileGlues
+
         boolean isModernWrapper = rendererName.equals("opengles3_ltw") || rendererName.equals("mobileglues");
         if(isCompatContext(versionInfo) && !hasAngelica(gamedir) && isModernWrapper) {
             instance.renderer = rendererName = "opengles2";
@@ -190,13 +171,13 @@ public class GameRunner {
 
         boolean isGl4es = rendererName.equals("opengles2");
         RendererCompatUtil.RenderersList supportedRenderers = RendererCompatUtil.getCompatibleRenderers(activity);
-        
-        // Block Sodium from running with GL4ES on 1.17+
+
+
         if(!isCompatContext(versionInfo) && isGl4es && hasSodium(gamedir)) {
             rendererName = switchModernRenderer(supportedRenderers, instance, activity, R.string.compat_sodium_not_supported);
         }
 
-        // Switch renderer to a modern one when running 1.21.5
+
         if(!isGl4esCompatible(versionInfo) && isGl4es) {
             rendererName = switchModernRenderer(supportedRenderers, instance, activity, R.string.compat_version_not_supported);
         }
@@ -206,7 +187,7 @@ public class GameRunner {
 
         if(isModernWrapper && checkRenderDistance(versionInfo, gamedir)) {
             if(showDialog(activity, R.string.ltw_render_distance_warning_msg)) return;
-            // If the code goes here, it means that the user clicked "OK". Fix the render distance.
+
             try {
                 MCOptionUtils.set("renderDistance", "7");
                 MCOptionUtils.save();
@@ -226,11 +207,11 @@ public class GameRunner {
 
         Runtime runtime = MultiRTUtils.forceReread(pickRuntime(instance, requiredJavaVersion));
 
-        // Pre-process specific files
+
         disableSplash(gamedir);
         List<String> launchArgs = getMoJsonClientArgs(account, versionInfo, gamedir);
 
-        // Select the appropriate openGL version
+
         OldVersionsUtils.selectOpenGlVersion(versionInfo);
 
         ArrayList<String> launchClassPath = new ArrayList<>(classpath.length);
@@ -292,7 +273,7 @@ public class GameRunner {
                     playerSkin,
                     null
             );
-            
+
             String injectorPath = Tools.DIR_DATA + "/authlib-injector/authlib-injector.jar";
             File injectorJar = new File(injectorPath);
 
@@ -375,7 +356,7 @@ public class GameRunner {
     private static void addAuthlibInjectorArgs(List<String> javaArgList, Account account) {
         String injectorUrl = account.authType.injectorUrl;
         if(injectorUrl == null) return;
-        
+
         String injectorPath = Tools.DIR_DATA + "/authlib-injector/authlib-injector.jar";
         File injectorJar = new File(injectorPath);
 
@@ -393,7 +374,7 @@ public class GameRunner {
 
     private static List<String> getMoJsonJvmArgs(String versionName) {
         JVersionList.Version versionInfo = Tools.getVersionInfo(versionName, true);
-        // Parse Forge 1.17+ additional JVM Arguments
+
         if (versionInfo.inheritsFrom == null || versionInfo.arguments == null || versionInfo.arguments.jvm == null) {
             return Collections.emptyList();
         }
@@ -409,7 +390,7 @@ public class GameRunner {
             for (Object arg : versionInfo.arguments.jvm) {
                 if (arg instanceof String) {
                     clientVmArgs.add((String) arg);
-                } //TODO: implement (?maybe?)
+                }
             }
         }
         return JSONUtils.insertJSONValueList(clientVmArgs, varArgMap);
@@ -424,16 +405,16 @@ public class GameRunner {
 
         String userType = "mojang";
         Date creationDate = DateUtils.getOriginalReleaseDate(versionInfo);
-        // Minecraft 22w43a which adds chat reporting (and signing) was released on
-        // 26th October 2022. So, if the date is not before that (meaning it is equal or higher)
-        // change the userType to MSA to fix the missing signature
+
+
+
         if(!DateUtils.dateBefore(creationDate, 2022, 9, 26)) {
             userType = "msa";
         }
 
 
         Map<String, String> varArgMap = new ArrayMap<>();
-        varArgMap.put("auth_session", profile.accessToken); // For legacy versions of MC
+        varArgMap.put("auth_session", profile.accessToken);
         varArgMap.put("auth_access_token", profile.accessToken);
         varArgMap.put("auth_player_name", username);
         varArgMap.put("auth_uuid", profile.profileId.replace("-", ""));
@@ -449,11 +430,11 @@ public class GameRunner {
 
         List<String> clientArgs = new ArrayList<>();
         if (versionInfo.arguments != null && versionInfo.arguments.game != null) {
-            // Support Minecraft 1.13+
+
             for (Object arg : versionInfo.arguments.game) {
                 if (arg instanceof String) {
                     clientArgs.add((String) arg);
-                } //TODO: implement else clause
+                }
             }
         }
         if(versionInfo.minecraftArguments != null){

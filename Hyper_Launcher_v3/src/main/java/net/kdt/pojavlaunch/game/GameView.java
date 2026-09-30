@@ -56,20 +56,18 @@ import static net.kdt.pojavlaunch.game.platform.Platform.PLATFORM;
 
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 
-/**
- * Class dealing with showing minecraft surface and taking inputs to dispatch them to minecraft
- */
+
 public class GameView extends FrameLayout implements PlatformGrabListener, SurfaceProvider.SurfaceCallback {
 
-    /* Sensitivity, adjusted according to screen size */
+
     private final double mSensitivityFactor = (1.4 * (1080f/ Tools.getDisplayMetrics((Activity) getContext()).heightPixels));
 
     private final SurfaceProvider mSurfaceProvider = LauncherPreferences.PREF_USE_ALTERNATE_SURFACE ? new SurfaceViewSurfaceProvider() : new TextureViewSurfaceProvider();
     private boolean mRefreshOnly = true;
-    /* Surface ready listener, used by the activity to launch minecraft */
+
     SurfaceReadyListener mSurfaceReadyListener = null;
     final Object mSurfaceReadyListenerLock = new Object();
-    /* View holding the surface, either a SurfaceView or a TextureView */
+
     View mSurface;
     GameCursorView mCursorView;
 
@@ -95,7 +93,7 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
         Platform.addGrabListener(this);
     }
 
-    // This is required to actually get the CursorView object
+
     @Override
     public void onFinishInflate(){
         super.onFinishInflate();
@@ -109,10 +107,7 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
         mPointerCapture = new AndroidPointerCapture(mCursorView, this);
     }
 
-    /** Initialize the view and all its settings
-     * @param isAlreadyRunning set to true to tell the view that the game is already running
-     *                         (only updates the window without calling the start listener)
-     */
+
     public void start(boolean isAlreadyRunning) {
         if (Tools.isAndroid8OrHigher()) setUpPointerCapture();
         mInGUIProcessor.setAbstractTouchpad(mCursorView);
@@ -123,16 +118,13 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
         this.requestFocus();
     }
 
-    /**
-     * The touch event for both grabbed an non-grabbed mouse state on the touch screen
-     * Does not cover the virtual mouse touchpad
-     */
+
     @Override
     @SuppressWarnings("accessibility")
     public boolean onTouchEvent(MotionEvent e) {
-        // Kinda need to send this back to the layout
+
         if(((ControlLayout)getParent()).getModifiable()) return false;
-        // Looking for a mouse to handle, won't have an effect if no mouse exists.
+
         for (int i = 0; i < e.getPointerCount(); i++) {
             int toolType = e.getToolType(i);
             if(toolType == MotionEvent.TOOL_TYPE_MOUSE) {
@@ -143,17 +135,17 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
                 }
             }else if(toolType != MotionEvent.TOOL_TYPE_STYLUS) continue;
 
-            // Mouse found
-            // Avoid going through the JNI each time.
+
+
             if(Platform.isGrabbing()) return false;
             Platform.cursorX = e.getX(i) / cursorRatioX;
             Platform.cursorY = e.getY(i) / cursorRatioY;
             Platform.sendCursorPosition();
-            return true; //mouse event handled successfully
+            return true;
         }
         if (mIngameProcessor == null || mInGUIProcessor == null) return true;
         boolean ret = mCurrentTouchProcessor.processTouchEvent(e);
-        // Keep cursor on screen if panning with IME inset
+
         if(LauncherPreferences.PREF_KEYBOARD_AUTOPANNING && GameActivity.mImeHeight > 0){
             int translationY = Tools.getTranslationFromCursorY(
                     (int) (Platform.cursorY * cursorRatioY + 100),
@@ -161,8 +153,8 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
                     GameActivity.mImeHeight,
                     0
             );
-            // If the view was force panned (KeyboardPan keycode) apply an animation instead of immediate override
-            // This fixes weird jumps when the user moves the cursor first time after pressing that keycode
+
+
             if(GameActivity.mForcedPanningHeight != 0) {
                 mSurface.animate().setDuration(100).translationY(-translationY).start();
                 mCursorView.animate().setDuration(100).translationY(-translationY).start();
@@ -175,9 +167,7 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
         return ret;
     }
 
-    /**
-     * The event for mouse/joystick movements
-     */
+
     @SuppressLint("NewApi")
     @Override
     public boolean dispatchGenericMotionEvent(MotionEvent event) {
@@ -192,14 +182,14 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
 
         for(int i = 0; i < event.getPointerCount(); i++) {
             if(event.getToolType(i) != MotionEvent.TOOL_TYPE_MOUSE && event.getToolType(i) != MotionEvent.TOOL_TYPE_STYLUS ) continue;
-            // Mouse found
+
             mouseCursorIndex = i;
             break;
         }
-        if(mouseCursorIndex == -1) return false; // we cant consoom that, theres no mice!
+        if(mouseCursorIndex == -1) return false;
 
-        // Make sure we grabbed the mouse if necessary
-        // Avoid going through the JNI each time.
+
+
         updateGrabState(Platform.isGrabbing());
 
         switch(event.getActionMasked()) {
@@ -218,11 +208,11 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
         }
     }
 
-    /** The event for keyboard/ gamepad button inputs */
-    public boolean processKeyEvent(KeyEvent event) {
-        //Log.i("KeyEvent", event.toString());
 
-        //Filtering useless events by order of probability
+    public boolean processKeyEvent(KeyEvent event) {
+
+
+
         int eventKeycode = event.getKeyCode();
         if(eventKeycode == KeyEvent.KEYCODE_UNKNOWN) return true;
 
@@ -243,20 +233,20 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
         if(event.getRepeatCount() != 0) return true;
         int action = event.getAction();
         if(action == KeyEvent.ACTION_MULTIPLE) return true;
-        // Ignore the cancelled up events. They occur when the user switches layouts.
-        // In accordance with https://developer.android.com/reference/android/view/KeyEvent#FLAG_CANCELED
+
+
         if(action == KeyEvent.ACTION_UP &&
                 (event.getFlags() & KeyEvent.FLAG_CANCELED) != 0) return true;
 
-        //Sometimes, key events comes from SOME keys of the software keyboard
-        //Even weirder, is is unknown why a key or another is selected to trigger a keyEvent
+
+
         if((event.getFlags() & KeyEvent.FLAG_SOFT_KEYBOARD) == KeyEvent.FLAG_SOFT_KEYBOARD){
-            if(eventKeycode == KeyEvent.KEYCODE_ENTER) return true; //We already listen to it.
+            if(eventKeycode == KeyEvent.KEYCODE_ENTER) return true;
             touchCharInput.dispatchKeyEvent(event);
             return true;
         }
 
-        //Sometimes, key events may come from the mouse
+
         if(event.getDevice() != null
                 && ( (event.getSource() & InputDevice.SOURCE_MOUSE_RELATIVE) == InputDevice.SOURCE_MOUSE_RELATIVE
                 ||   (event.getSource() & InputDevice.SOURCE_MOUSE) == InputDevice.SOURCE_MOUSE)  ){
@@ -279,24 +269,24 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
         if(PLATFORM.sendKeyEvent(eventKeycode, action == KeyEvent.ACTION_DOWN ? 1 : 0, CallbackBridge.getCurrentMods(), codepoint))
             return true;
 
-        // Some events will be generated an infinite number of times when no consumed
+
         return (event.getFlags() & KeyEvent.FLAG_FALLBACK) == KeyEvent.FLAG_FALLBACK;
     }
 
-    /** Called when the size need to be set at any point during the surface lifecycle **/
+
     public void refreshSize(){
         refreshSize(false);
     }
 
-    /** Same as refreshSize, but allows you to force an immediate size update **/
+
     public void refreshSize(boolean immediate) {
         if(isInLayout() && !immediate) {
             post(this::refreshSize);
             return;
         }
-        // Use the width and height of the View instead of display dimensions to avoid
-        // getting squiched/stretched due to inconsistencies between the layout and
-        // screen dimensions.
+
+
+
         int newWidth = Tools.getDisplayFriendlyRes(getWidth(), LauncherPreferences.PREF_SCALE_FACTOR);
         int newHeight = Tools.getDisplayFriendlyRes(getHeight(), LauncherPreferences.PREF_SCALE_FACTOR);
         if (newHeight < 1 || newWidth < 1) {
@@ -306,8 +296,8 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
         windowWidth = newWidth;
         windowHeight = newHeight;
 
-        // Update cursor ratio values
-        // Mouse events are sent in the full view coordinate space, the game accepts them only in the window space
+
+
         this.cursorRatioX = (double) getWidth() / windowWidth;
         this.cursorRatioY = (double) getHeight() / windowHeight;
 
@@ -321,11 +311,11 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
     }
 
     private void realStart(){
-        // Initial size set. Request immedate refresh, otherwise the initial width and height for the game
-        // may be broken/unknown.
+
+
         refreshSize(true);
 
-        //Load Minecraft options:
+
         MCOptionUtils.set("fullscreen", "false");
         MCOptionUtils.set("overrideWidth", String.valueOf(windowWidth));
         MCOptionUtils.set("overrideHeight", String.valueOf(windowHeight));
@@ -334,7 +324,7 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
 
         new Thread(() -> {
             try {
-                // Wait until the listener is attached
+
                 synchronized(mSurfaceReadyListenerLock) {
                     if(mSurfaceReadyListener == null) mSurfaceReadyListenerLock.wait();
                 }
@@ -384,7 +374,7 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
             PLATFORM.surfaceDestroyed();
     }
 
-    /** A small interface called when the listener is ready for the first time */
+
     public interface SurfaceReadyListener {
         void isReady();
     }
@@ -470,7 +460,7 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
                                         try {
                                             mRecorderBitmap.setHasAlpha(false);
                                             Canvas canvas;
-                                            //noinspection ConstantValue
+
                                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                                 canvas = targetSurface.lockHardwareCanvas();
                                             } else {

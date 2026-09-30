@@ -20,22 +20,13 @@ public class DownloadMirror {
             "https://bmclapi2.bangbang93.com/assets"
     };
 
-    /**
-     * Download a file with the current mirror (or no mirror)
-     * @param downloadClass Class of the download. Can either be DOWNLOAD_CLASS_LIBRARIES,
-     *                      DOWNLOAD_CLASS_METADATA or DOWNLOAD_CLASS_ASSETS
-     * @param urlInput The original (Mojang) URL for the download
-     * @param outputFile The output file for the download
-     */
+
     public static void downloadFileMirrored(int downloadClass, String urlInput, File outputFile) throws IOException {
         DownloadUtils.downloadFile(getMirrorMapping(downloadClass, urlInput),
                     outputFile);
     }
 
-    /**
-     * Check if the current download source is a mirror and not an official source.
-     * @return true if the source is a mirror, false otherwise
-     */
+
     public static boolean isMirrored() {
         return !LauncherPreferences.PREF_DOWNLOAD_SOURCE.equals("default");
     }
@@ -49,15 +40,9 @@ public class DownloadMirror {
         }
     }
 
-    //TODO make use of this
 
-    /**
-     * Get the transformed URL for downloading a file through a mirror.
-     * @param downloadClass the download class (one of the constants above)
-     * @param mojangUrl the original URL
-     * @return the transformed URL
-     * @throws MalformedURLException if the URL isn't formatted correctly
-     */
+
+
     public static String getMirrorMapping(int downloadClass, String mojangUrl) throws MalformedURLException {
         if(downloadClass == DOWNLOAD_CLASS_NONE) return mojangUrl;
         String[] mirrorSettings = getMirrorSettings();

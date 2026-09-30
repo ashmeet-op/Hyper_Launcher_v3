@@ -35,12 +35,7 @@ public class InstanceIconProvider {
         sStaticIcons.put("optifine", R.drawable.img_loader_optifine);
     }
 
-    /**
-     * Fetch an icon from the cache, or load it if it's not cached.
-     * @param resources the Resources object, used for creating drawables
-     * @param instance the instance
-     * @return an icon drawable
-     */
+
     public static @NonNull Drawable fetchIcon(Resources resources, @NonNull DisplayInstance instance) {
         checkUiMode(resources);
         int identityHashCode = System.identityHashCode(instance);
@@ -54,11 +49,7 @@ public class InstanceIconProvider {
         return fetchStaticIcon(resources, identityHashCode, instance.icon);
     }
 
-    /**
-     * Drop an icon from the icon cache. When dropped, it's Drawable will be re-read from the
-     * instance icon file (or re-fetched from the static cache)
-     * @param key the instance
-     */
+
     public static void dropIcon(@NonNull Instance key) {
         sIconCache.remove(System.identityHashCode(key));
     }
@@ -121,11 +112,7 @@ public class InstanceIconProvider {
         return iconResource;
     }
 
-    /**
-     * Check whether the icon under the specified name is a static icon available in the provider.
-     * @param name static icon name to check
-     * @return whether the icon is available or not
-     */
+
     public static boolean hasStaticIcon(String name) {
         return sStaticIcons.containsKey(name);
     }

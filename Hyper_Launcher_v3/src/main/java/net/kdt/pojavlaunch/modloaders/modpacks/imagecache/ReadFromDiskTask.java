@@ -42,7 +42,7 @@ public class ReadFromDiskTask implements Runnable {
             if(bitmap != null) {
                 Tools.runOnUiThread(()->{
                     if(taskCancelled()) {
-                        bitmap.recycle(); // do not leak the bitmap if the task got cancelled right at the end
+                        bitmap.recycle();
                         return;
                     }
                     imageReceiver.onImageAvailable(bitmap);
@@ -51,7 +51,7 @@ public class ReadFromDiskTask implements Runnable {
             }
         }
         if(iconCache.cachePath.canWrite() &&
-                !taskCancelled()) { // don't run the download task if the task got canceled
+                !taskCancelled()) {
             runDownloadTask();
         }
     }

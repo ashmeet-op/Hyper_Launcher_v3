@@ -1,8 +1,6 @@
 package net.kdt.pojavlaunch.tasks;
 
-/**
- * A simple class to calculate the average Internet speed using a simple moving average.
- */
+
 public class SpeedCalculator {
     private long mLastMillis;
     private long mLastBytes;
@@ -27,11 +25,7 @@ public class SpeedCalculator {
         return (mSum + (dLength / 2d)) / dLength;
     }
 
-    /**
-     * Update the current amount of bytes downloaded.
-     * @param bytes the new amount of bytes downloaded
-     * @return the current download speed in bytes per second
-     */
+
     public double feed(long bytes) {
         long millis = System.currentTimeMillis();
         long deltaBytes = bytes - mLastBytes;

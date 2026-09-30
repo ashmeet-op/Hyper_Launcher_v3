@@ -40,7 +40,7 @@ public class ControlButton extends TextView implements ControlInterface {
     protected ControlData mProperties;
     private final ControlLayout mControlLayout;
 
-    /* Cache value from the ControlData radius for drawing purposes */
+
     private float mComputedRadius;
     private boolean mHasBitmap;
 
@@ -53,12 +53,12 @@ public class ControlButton extends TextView implements ControlInterface {
         setAllCaps(LauncherPreferences.PREF_BUTTON_ALL_CAPS);
         setTextColor(Color.WHITE);
         setPadding(4, 4, 4, 4);
-        setTextSize(14); // Nullify the default size setting
-        setOutlineProvider(null); // Disable shadow casting, removing one drawing pass
+        setTextSize(14);
+        setOutlineProvider(null);
 
-        //setOnLongClickListener(this);
 
-        //When a button is created, the width/height has yet to be processed to fit the scaling.
+
+
         setProperties(preProcessProperties(properties, layout));
 
         injectBehaviors();
@@ -82,7 +82,7 @@ public class ControlButton extends TextView implements ControlInterface {
         mComputedRadius = ControlInterface.super.computeCornerRadius(mProperties.cornerRadius);
         setBackgroundTintList(null);
         if (mProperties.isToggle) {
-            //For the toggle layer
+
             final TypedValue value = new TypedValue();
             getContext().getTheme().resolveAttribute(R.attr.colorAccent, value, true);
             mRectPaint.setColor(value.data);
@@ -108,14 +108,14 @@ public class ControlButton extends TextView implements ControlInterface {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        // Bitmap uses a tint list, so don't do any custom rendering
+
         if(mHasBitmap || !isActivated()) return;
         canvas.drawRoundRect(0, 0, getWidth(), getHeight(), mComputedRadius, mComputedRadius, mRectPaint);
     }
 
     @Override
     public boolean isActivated() {
-        // Any possible side effects?
+
         return super.isActivated() || (mProperties.isToggle && mIsToggled);
     }
 
@@ -123,7 +123,7 @@ public class ControlButton extends TextView implements ControlInterface {
         editControlPopup.setCurrentlyEditedButton(this);
     }
 
-    /** Add another instance of the ControlButton to the parent layout */
+
     public void cloneButton(){
         ControlData cloneData = new ControlData(getProperties());
         cloneData.dynamicX = "0.5 * ${screen_width}";
@@ -131,7 +131,7 @@ public class ControlButton extends TextView implements ControlInterface {
         ((ControlLayout) getParent()).addControlButton(cloneData);
     }
 
-    /** Remove any trace of this button from the layout */
+
     public void removeButton() {
         ControlLayout parent = getControlLayoutParent();
         if(parent == null) return;
@@ -160,11 +160,11 @@ public class ControlButton extends TextView implements ControlInterface {
         int action = event.getActionMasked();
         switch (action) {
             case MotionEvent.ACTION_MOVE:
-            case MotionEvent.ACTION_UP: // 1
-            case MotionEvent.ACTION_CANCEL: // 3
-            case MotionEvent.ACTION_POINTER_UP: // 6
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+            case MotionEvent.ACTION_POINTER_UP:
                 if(properties.passThruEnabled){
-                    //Send the event to be taken as a mouse action
+
                     View gameSurface = getControlLayoutParent().getGameSurface();
                     if(gameSurface != null) gameSurface.dispatchTouchEvent(event);
                 }
@@ -177,13 +177,13 @@ public class ControlButton extends TextView implements ControlInterface {
         }
 
         switch (action){
-            case MotionEvent.ACTION_DOWN: // 0
-            case MotionEvent.ACTION_POINTER_DOWN: // 5
+            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_POINTER_DOWN:
                 handlePressed();
                 break;
-            case MotionEvent.ACTION_UP: // 1
-            case MotionEvent.ACTION_CANCEL: // 3
-            case MotionEvent.ACTION_POINTER_UP: // 6
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+            case MotionEvent.ACTION_POINTER_UP:
                 handleReleased();
                 break;
             default:
@@ -197,7 +197,7 @@ public class ControlButton extends TextView implements ControlInterface {
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean triggerToggle(){
-        //returns true a the toggle system is triggered
+
         if(mProperties.isToggle){
             mIsToggled = !mIsToggled;
             invalidate();

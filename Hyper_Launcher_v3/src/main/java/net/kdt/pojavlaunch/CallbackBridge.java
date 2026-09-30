@@ -119,7 +119,7 @@ public class CallbackBridge {
         });
     }
 
-    @SuppressWarnings("unused") //TODO: actually use it
+    @SuppressWarnings("unused")
     public static void openPath(String path) {
         ContextExecutor.executeActivity(ctx->{
             try {

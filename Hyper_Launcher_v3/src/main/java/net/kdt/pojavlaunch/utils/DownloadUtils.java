@@ -24,7 +24,7 @@ public class DownloadUtils {
     public static void download(URL url, OutputStream os) throws IOException {
         InputStream is = null;
         try {
-            // System.out.println("Connecting: " + url.toString());
+
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestProperty("User-Agent", USER_AGENT);
             conn.setConnectTimeout(10000);
@@ -101,9 +101,9 @@ public class DownloadUtils {
             }
         }
         String urlContent = DownloadUtils.downloadString(url);
-        // if we download the file and fail parsing it, we will yeet outta there
-        // and not cache the unparseable sting. We will return this after trying to save the downloaded
-        // string into cache
+
+
+
         T parseResult = parseCallback.process(urlContent);
 
         boolean tryWriteCache;
@@ -137,9 +137,9 @@ public class DownloadUtils {
     }
 
     public static <T> T ensureSha1(File outputFile, @Nullable String sha1, Callable<T> downloadFunction) throws IOException {
-        // Skip if needed
+
         if(sha1 == null) {
-            // If the file exists and we don't know it's SHA1, don't try to redownload it.
+
             if(outputFile.exists()) return null;
             else return downloadFile(downloadFunction);
         }
@@ -156,11 +156,7 @@ public class DownloadUtils {
         return result;
     }
 
-    /**
-     * Get the content length for a given URL.
-     * @param url the URL to get the length for
-     * @return the length in bytes or -1 if not available
-     */
+
     public static long getContentLength(String url) {
         try {
             HttpURLConnection urlConnection = (HttpURLConnection) new URL(url).openConnection();

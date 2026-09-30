@@ -28,7 +28,7 @@ public class MCOptionUtils {
     private static FileObserver sFileObserver;
     private static String sOptionFolderPath = null;
     public interface MCOptionListener {
-        /** Called when an option is changed. Don't know which one though */
+
         void onOptionChanged();
     }
 
@@ -42,7 +42,7 @@ public class MCOptionUtils {
     public static void load(@NonNull String folderPath) {
         File optionFile = new File(folderPath + "/options.txt");
         if(!optionFile.exists()) {
-            try { // Needed for new instances I guess  :think:
+            try {
                 optionFile.createNewFile();
             } catch (IOException e) { e.printStackTrace(); }
         }
@@ -51,7 +51,7 @@ public class MCOptionUtils {
             sOptionFolderPath = folderPath;
             setupFileObserver();
         }
-        sOptionFolderPath = folderPath; // Yeah I know, it may be redundant
+        sOptionFolderPath = folderPath;
 
         sParameterMap.clear();
 
@@ -76,7 +76,7 @@ public class MCOptionUtils {
         sParameterMap.put(key,value);
     }
 
-    /** Set an array of String, instead of a simple value. Not supported on all options */
+
     public static void set(String key, List<String> values){
         sParameterMap.put(key, values.toString());
     }
@@ -85,14 +85,14 @@ public class MCOptionUtils {
         return sParameterMap.get(key);
     }
 
-    /** @return A list of values from an array stored as a string */
+
     public static List<String> getAsList(String key){
         String value = get(key);
 
-        // Fallback if the value doesn't exist
+
         if (value == null) return new ArrayList<>();
 
-        // Remove the edges
+
         value = value.replace("[", "").replace("]", "");
         if (value.isEmpty()) return new ArrayList<>();
 
@@ -116,7 +116,7 @@ public class MCOptionUtils {
         }
     }
 
-    /** @return The stored Minecraft GUI scale, also auto-computed if on auto-mode or improper setting */
+
     public static int getMcScale() {
         String str = MCOptionUtils.get("guiScale");
         int guiScale = (str == null ? 0 :Integer.parseInt(str));
@@ -129,8 +129,7 @@ public class MCOptionUtils {
         return guiScale;
     }
 
-    /** Add a file observer to reload options on file change
-     * Listeners get notified of the change */
+
     private static void setupFileObserver(){
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
             sFileObserver = new FileObserver(new File(sOptionFolderPath + "/options.txt"), FileObserver.MODIFY) {
@@ -153,7 +152,7 @@ public class MCOptionUtils {
         sFileObserver.startWatching();
     }
 
-    /** Notify the option listeners */
+
     public static void notifyListeners(){
         for(WeakReference<MCOptionListener> weakReference : sOptionListeners){
             MCOptionListener optionListener = weakReference.get();
@@ -163,7 +162,7 @@ public class MCOptionUtils {
         }
     }
 
-    /** Add an option listener, notice how we don't have a reference to it */
+
     public static void addMCOptionListener(MCOptionListener listener){
         sOptionListeners.add(new WeakReference<>(listener));
     }

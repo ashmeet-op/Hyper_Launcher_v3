@@ -44,7 +44,7 @@ public class ModrinthApi implements ModpackApi{
     public SearchResult searchMod(SearchFilters searchFilters, SearchResult previousPageResult) {
         ModrinthSearchResult modrinthSearchResult = (ModrinthSearchResult) previousPageResult;
 
-        // Fixes an issue where the offset being equal or greater than total_hits is ignored
+
         if (modrinthSearchResult != null && modrinthSearchResult.previousOffset >= modrinthSearchResult.totalResultCount) {
             ModrinthSearchResult emptyResult = new ModrinthSearchResult();
             emptyResult.results = new ModItem[0];
@@ -54,7 +54,7 @@ public class ModrinthApi implements ModpackApi{
         }
 
 
-        // Build the facets filters
+
         HashMap<String, Object> params = new HashMap<>();
         StringBuilder facetString = new StringBuilder();
         facetString.append("[");
@@ -109,7 +109,7 @@ public class ModrinthApi implements ModpackApi{
             names[i] = version.get("name").getAsString();
             mcNames[i] = version.get("game_versions").getAsJsonArray().get(0).getAsString();
             urls[i] = version.get("files").getAsJsonArray().get(0).getAsJsonObject().get("url").getAsString();
-            // Assume there may not be hashes, in case the API changes
+
             JsonObject hashesMap = version.getAsJsonArray("files").get(0).getAsJsonObject()
                     .get("hashes").getAsJsonObject();
             if(hashesMap == null || hashesMap.get("sha1") == null){
@@ -125,7 +125,7 @@ public class ModrinthApi implements ModpackApi{
 
     @Override
     public LoaderInstaller installModpack(ModDetail modDetail, int selectedVersion) throws IOException{
-        //TODO considering only modpacks for now
+
         return ModpackInstaller.downloadModpack(modDetail, selectedVersion, this::installMrpack);
     }
 
@@ -148,7 +148,7 @@ public class ModrinthApi implements ModpackApi{
         } else if((modLoaderVersion = dependencies.get("neoforge")) != null) {
             return new ForgelikeLoaderInstaller(ForgelikeUtils.NEOFORGE_UTILS, mcVersion, modLoaderVersion);
         } else if(dependencies.size() == 1) {
-            // "Vanilla" pack. Possibly GT:NH, let's try to detect lwjgl3ify
+
             File lwjgl3ifyJar = Lwjgl3ifyUtils.detectLwjgl3ifyJar(installDestination);
             if(lwjgl3ifyJar != null) return new Lwjgl3ifyLoaderInstaller(lwjgl3ifyJar);
             return new NoneLoaderInstaller(mcVersion);
@@ -192,7 +192,7 @@ public class ModrinthApi implements ModpackApi{
                 if(!targetPath.getAbsolutePath().startsWith(absoluteInstancePath)) throw new IOException("Bad path!");
                 FileUtils.ensureParentDirectory(targetPath);
                 taskMetadatas.add(new TaskMetadata(
-                        targetPath, new URL(file.downloads[0]), // TODO source selection
+                        targetPath, new URL(file.downloads[0]),
                         file.fileSize, file.hashes.sha1,
                         DownloadMirror.DOWNLOAD_CLASS_NONE
                 ));

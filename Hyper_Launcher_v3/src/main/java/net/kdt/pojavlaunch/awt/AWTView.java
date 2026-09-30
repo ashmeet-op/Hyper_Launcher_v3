@@ -25,9 +25,7 @@ public class AWTView extends SurfaceView implements SurfaceHolder.Callback {
         post(this::refreshSize);
     }
 
-    /**
-     * Make the view fit the proper aspect ratio of the surface
-     */
+
     private void refreshSize() {
         ViewGroup.LayoutParams layoutParams = getLayoutParams();
 

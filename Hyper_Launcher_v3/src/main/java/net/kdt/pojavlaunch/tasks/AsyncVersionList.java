@@ -11,7 +11,7 @@ import net.kdt.pojavlaunch.utils.DownloadUtils;
 
 import java.io.IOException;
 
-/** Class getting the version list, and that's all really */
+
 public class AsyncVersionList {
     private static final int MAX_RETRIES = 5;
 
@@ -45,7 +45,7 @@ public class AsyncVersionList {
         sExecutorService.execute(() -> getVersionListAsync(listener, 0));
     }
 
-    /** Basic listener, acting as a callback */
+
     public interface VersionDoneListener{
         void onVersionDone(JVersionList versions);
     }

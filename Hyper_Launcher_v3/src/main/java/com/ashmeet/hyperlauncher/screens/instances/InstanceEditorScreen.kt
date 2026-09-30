@@ -180,7 +180,7 @@ fun InstanceEditorScreen(
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 SettingsCard(position = CardPosition.TOP, useSurface = true) {
                     val corruptText = translatedText(stringResource(R.string.multirt_runtime_corrupt))
-                    val currentSummary = selectedRuntime?.let { 
+                    val currentSummary = selectedRuntime?.let {
                         if (it.name == "auto") {
                             translatedText(stringResource(R.string.multirt_auto))
                         } else if (it.name == "<Default>") {
@@ -277,7 +277,7 @@ fun InstanceEditorScreen(
 
         if (showRuntimeDialog) {
             val corruptText = translatedText(stringResource(R.string.multirt_runtime_corrupt))
-            val runtimeOptions = runtimes.map { 
+            val runtimeOptions = runtimes.map {
                 if (it.name == "auto") {
                     translatedText(stringResource(R.string.multirt_auto))
                 } else if (it.name == "<Default>") {

@@ -83,13 +83,13 @@ public class CropperUtils {
         });
     }
 
-    // Fixes the chin that the dialog has on my huawei fon
+
     private static void fixDialogHeight(AlertDialog dialog) {
         Window dialogWindow = dialog.getWindow();
         if(dialogWindow != null)
             dialogWindow.setLayout(
-                    WindowManager.LayoutParams.MATCH_PARENT, // width
-                    WindowManager.LayoutParams.WRAP_CONTENT  // height
+                    WindowManager.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT
             );
     }
 
@@ -120,13 +120,13 @@ public class CropperUtils {
                 cropBehaviour.setRegionDecoder(regionDecoder);
                 return cropBehaviour;
             }catch (IOException e) {
-                // Catch IOE here to detect the case when BitmapRegionDecoder does not support this image format.
-                // If it does not, we will just have to load the bitmap in full resolution using BitmapFactory.
+
+
                 Log.w("CropperUtils", "Failed to load image into BitmapRegionDecoder", e);
             }
         }
-        // We can safely re-open the stream here as ACTION_OPEN_DOCUMENT grants us long-term access
-        // to the file that we have picked.
+
+
         try (InputStream inputStream = contentResolver.openInputStream(selectedUri)) {
             if(inputStream == null) return null;
 
@@ -136,7 +136,7 @@ public class CropperUtils {
             options.inSampleSize = calculateInSampleSize(options, 2048, 2048);
             options.inJustDecodeBounds = false;
 
-            // Re-open again for actual decode
+
             try (InputStream innerInput = contentResolver.openInputStream(selectedUri)) {
                 Bitmap originalBitmap = BitmapFactory.decodeStream(innerInput, null, options);
                 if(originalBitmap == null) throw new IOException("Image format not supported");

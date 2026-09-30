@@ -8,7 +8,7 @@ import net.kdt.pojavlaunch.game.platform.Platform;
 public class DefaultDataProvider implements GamepadDataProvider {
     public static final DefaultDataProvider INSTANCE = new DefaultDataProvider();
 
-    // Cannot instantiate this class publicly
+
     private DefaultDataProvider() {}
 
     @Override
@@ -24,7 +24,7 @@ public class DefaultDataProvider implements GamepadDataProvider {
 
     @Override
     public boolean isGrabbing() {
-        // Avoid going through the JNI each time.
+
         return Platform.isGrabbing();
     }
 

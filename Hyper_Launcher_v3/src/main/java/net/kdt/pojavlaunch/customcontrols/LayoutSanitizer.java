@@ -5,7 +5,7 @@ import java.util.List;
 
 public class LayoutSanitizer {
 
-    // Maybe add more conditions here later?
+
     private static boolean isValidFormula(String formula) {
         return !formula.contains("Infinity") && !formula.contains("NaN");
     }
@@ -38,12 +38,7 @@ public class LayoutSanitizer {
         return madeChanges;
     }
 
-    /**
-     * Check all buttons in a control layout and ensure they're sane (contain values valid enough
-     * to be displayed properly). Removes any buttons deemed not sane.
-     * @param controls the original control layout.
-     * @return whether the sanitization process made any changes to the layout
-     */
+
     public static boolean sanitizeLayout(CustomControls controls) {
         boolean madeChanges = sanitizeList(controls.mControlDataList);
         if(sanitizeList(controls.mDrawerDataList)) madeChanges = true;

@@ -16,7 +16,7 @@ public class DownloadFileTask extends DownloaderTask implements BytesCopiedListe
     }
 
     private void performRetry(int attempt, boolean rangeAllowed) throws IOException{
-        mDownloader.addSize(-mBytesDownloaded.get()); // It will get readded again on next tryDownload() if range is allowed
+        mDownloader.addSize(-mBytesDownloaded.get());
         tryDownload(attempt + 1, rangeAllowed);
     }
 

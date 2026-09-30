@@ -21,11 +21,11 @@ import java.util.Arrays;
 
 
 public class GyroControl implements SensorEventListener, PlatformGrabListener {
-    /* How much distance has to be moved before taking into account the gyro */
+
     private static final float SINGLE_AXIS_LOW_PASS_THRESHOLD = 0.00113F;
     private static final float MULTI_AXIS_LOW_PASS_THRESHOLD = 0.0013F;
-    // Warmup period of 2 since the first read from the sensor seems to produce a bogus value,
-    // which creates a far too large of a difference on the Y axis once actual sensor data comes in
+
+
     private static final int ROTATION_VECTOR_WARMUP_PERIOD = 2;
 
     private final WindowManager mWindowManager;
@@ -35,7 +35,7 @@ public class GyroControl implements SensorEventListener, PlatformGrabListener {
     private final OrientationCorrectionListener mCorrectionListener;
     private boolean mShouldHandleEvents;
     private int mWarmup;
-    private float xFactor; // -1 or 1 depending on device orientation
+    private float xFactor;
     private float yFactor;
     private boolean mSwapXY;
 
@@ -44,7 +44,7 @@ public class GyroControl implements SensorEventListener, PlatformGrabListener {
     private final float[] mAngleDifference = new float[3];
 
 
-    /* Used to average the last values, if smoothing is enabled */
+
     private final float[][] mAngleBuffer = new float[
             LauncherPreferences.PREF_GYRO_SMOOTHING ? 2 : 1
             ][3];
@@ -55,7 +55,7 @@ public class GyroControl implements SensorEventListener, PlatformGrabListener {
     private float yAverage = 0;
     private int mHistoryIndex = -1;
 
-    /* Store the gyro movement under the threshold */
+
     private float mStoredX = 0;
     private float mStoredY = 0;
 
@@ -73,7 +73,7 @@ public class GyroControl implements SensorEventListener, PlatformGrabListener {
         mWarmup = ROTATION_VECTOR_WARMUP_PERIOD;
         mSensorManager.registerListener(this, mSensor, 1000 * LauncherPreferences.PREF_GYRO_SAMPLE_RATE);
         mCorrectionListener.enable();
-        // Avoid going through the JNI each time.
+
         mShouldHandleEvents = Platform.isGrabbing();
         Platform.addGrabListener(this);
     }
@@ -89,12 +89,12 @@ public class GyroControl implements SensorEventListener, PlatformGrabListener {
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         if (!mShouldHandleEvents) return;
-        // Copy the old array content
+
         System.arraycopy(mCurrentRotation, 0, mPreviousRotation, 0, 16);
         SensorManager.getRotationMatrixFromVector(mCurrentRotation, sensorEvent.values);
 
 
-        if(mWarmup > 0){  // Setup initial position
+        if(mWarmup > 0){
             mWarmup--;
             return;
         }
@@ -135,7 +135,7 @@ public class GyroControl implements SensorEventListener, PlatformGrabListener {
         }
     }
 
-    /** Update the axis mapping in accordance to activity rotation, used for initial rotation */
+
     public void updateOrientation(){
         int rotation = mWindowManager.getDefaultDisplay().getRotation();
         mSurfaceRotation = rotation;
@@ -176,10 +176,7 @@ public class GyroControl implements SensorEventListener, PlatformGrabListener {
     }
 
 
-    /**
-     * Compute the moving average of the gyroscope to reduce jitter
-     * @param newAngleDifference The new angle difference
-     */
+
     private void damperValue(float[] newAngleDifference){
         mHistoryIndex ++;
         if(mHistoryIndex >= mAngleBuffer.length) mHistoryIndex = 0;
@@ -192,12 +189,12 @@ public class GyroControl implements SensorEventListener, PlatformGrabListener {
         xTotal += mAngleBuffer[mHistoryIndex][1];
         yTotal += mAngleBuffer[mHistoryIndex][2];
 
-        // compute the moving average
+
         xAverage = xTotal / mAngleBuffer.length;
         yAverage = yTotal / mAngleBuffer.length;
     }
 
-    /** Reset the moving average data */
+
     private void resetDamper(){
         mHistoryIndex = -1;
         xTotal = 0;
@@ -217,12 +214,12 @@ public class GyroControl implements SensorEventListener, PlatformGrabListener {
 
         @Override
         public void onOrientationChanged(int i) {
-            // Force to wait to be in game before setting factors
-            // Theoretically, one could use the whole interface in portrait...
+
+
             if(!mShouldHandleEvents) return;
 
             if(i == OrientationEventListener.ORIENTATION_UNKNOWN) {
-                return; //change nothing
+                return;
             }
 
 

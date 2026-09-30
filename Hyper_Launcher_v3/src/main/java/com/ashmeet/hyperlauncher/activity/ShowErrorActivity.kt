@@ -60,12 +60,7 @@ class ShowErrorActivity : BaseActivity() {
     companion object {
         private const val ERROR_ACTIVITY_REMOTE_TASK = "remoteTask"
 
-        /**
-         * Install remote dialog handling onto a dialog. This should be used when the dialog is planned to be presented
-         * through Tools.showError or Tools.showErrorRemote as a Throwable implementing a ContextExecutorTask.
-         * @param callerActivity the activity provided by the ContextExecutorTask.executeWithActivity
-         * @param builder the alert dialog builder.
-         */
+
         @JvmStatic
         fun installRemoteDialogHandling(callerActivity: Activity, builder: MaterialAlertDialogBuilder) {
             if (callerActivity is ShowErrorActivity) {

@@ -36,8 +36,8 @@ public class JREUtils {
             public void run() {
                 try {
                     if (logcatPb == null) {
-                        // No filtering by tag anymore as that relied on incorrect log levels set in log.h
-                        logcatPb = new ProcessBuilder().command("logcat", /* "-G", "1mb", */ "-v", "brief", "-s", "jrelog", "LIBGL", "NativeInput").redirectErrorStream(true);
+
+                        logcatPb = new ProcessBuilder().command("logcat",  "-v", "brief", "-s", "jrelog", "LIBGL", "NativeInput").redirectErrorStream(true);
                     }
 
                     Log.i("jrelog-logcat","Clearing logcat");
@@ -78,14 +78,14 @@ public class JREUtils {
         BufferedReader reader = new BufferedReader(new FileReader(customEnvFile));
         String line;
         while ((line = reader.readLine()) != null) {
-            // Not use split() as only split first one
+
             int index = line.indexOf("=");
             envMap.put(line.substring(0, index), line.substring(index + 1));
         }
         reader.close();
     }
 
-    // Sets up ANGLE driver environment
+
     public static void setupAngleEnv(Context ctx, Map<String, String> envMap) {
         if (!LauncherPreferences.PREF_USE_ANGLE) return;
         LibraryPlugin angle = LibraryPlugin.discoverPlugin(ctx, LibraryPlugin.ID_ANGLE_PLUGIN);
@@ -108,13 +108,13 @@ public class JREUtils {
         Map<String, String> envMap = new ArrayMap<>();
         envMap.put("LIBGL_MIPMAP", "3");
 
-        // Prevent OptiFine (and other error-reporting stuff in Minecraft) from balooning the log
+
         envMap.put("LIBGL_NOERROR", "1");
 
-        // On certain GLES drivers, overloading default functions shader hack fails, so disable it
+
         envMap.put("LIBGL_NOINTOVLHACK", "1");
 
-        // Fix white color on banner and sheep, since GL4ES 1.1.5
+
         envMap.put("LIBGL_NORMALIZE", "1");
 
         if(PREF_DUMP_SHADERS)
@@ -122,7 +122,7 @@ public class JREUtils {
         if(PREF_VSYNC_IN_ZINK)
             envMap.put("POJAV_VSYNC_IN_ZINK", "1");
 
-        // The OPEN GL version is changed according
+
         String glVersion = (String) ExtraCore.getValue(ExtraConstants.OPEN_GL_VERSION);
         if (renderer.contains(":") && getDetectedVersion() >= 3) {
             glVersion = "3";
@@ -136,7 +136,7 @@ public class JREUtils {
         envMap.put("force_glsl_extensions_warn", "true");
         envMap.put("allow_higher_compat_version", "true");
         envMap.put("allow_glsl_extension_directive_midshader", "true");
-        // This is currently required for YSM mod to function
+
         File modRuntimeDir = new File(Tools.DIR_CACHE, "app_runtime_mod");
         if (!modRuntimeDir.exists()) {
             modRuntimeDir.mkdirs();
@@ -145,7 +145,7 @@ public class JREUtils {
 
         setupAngleEnv(context, envMap);
         setupFfmpegEnv(context, envMap);
-        // Init mesa renderers
+
         MesaUtils.initEnvironment(context, renderer, envMap);
 
         String pluginPaths = NativePluginManager.getRuntimeLibraryPath(null, renderer, null);
@@ -164,7 +164,7 @@ public class JREUtils {
         }
 
         if(LauncherPreferences.PREF_FREEDRENO_SYSMEM) {
-            // We could also apply the FD_MESA_DEBUG only if freedreno is active but why making things complicated?
+
             Logger.appendToLog("Will use sysmem rendering for Turnip/Freedreno");
             envMap.put("FD_MESA_DEBUG", "sysmem");
             envMap.put("TU_DEBUG", "sysmem");
@@ -184,30 +184,23 @@ public class JREUtils {
 
     public static void launchJavaVM(final AppCompatActivity activity, final Runtime runtime, File gameDirectory, final List<String> JVMArgs, final String userArgsString) throws Throwable {
 
-        // Force LWJGL to use the Freetype library intended for it, instead of using the one
-        // that we ship with Java (since it may be older than what's needed)
-        //
+
+
+
         Tools.fullyExit();
     }
 
-    /**
-     * Parse and separate java arguments in a user friendly fashion
-     * It supports multi line and absence of spaces between arguments
-     * The function also supports auto-removal of improper arguments, although it may miss some.
-     *
-     * @param args The un-parsed argument list.
-     * @return Parsed args as an ArrayList
-     */
+
     public static ArrayList<String> parseJavaArguments(String args){
         ArrayList<String> parsedArguments = new ArrayList<>(0);
         args = args.trim().replace(" ", "");
-        //For each prefixes, we separate args.
+
         String[] separators = new String[]{"-XX:-","-XX:+", "-XX:","--", "-D", "-X", "-javaagent:", "-verbose"};
         for(String prefix : separators){
             while (true){
                 int start = args.indexOf(prefix);
                 if(start == -1) break;
-                //Get the end of the current argument by checking the nearest separator
+
                 int end = -1;
                 for(String separator: separators){
                     int tempEnd = args.indexOf(separator, start + prefix.length());
@@ -218,19 +211,19 @@ public class JREUtils {
                     }
                     end = Math.min(end, tempEnd);
                 }
-                //Fallback
+
                 if(end == -1) end = args.length();
 
-                //Extract it
+
                 String parsedSubString = args.substring(start, end);
                 args = args.replace(parsedSubString, "");
 
-                //Check if two args aren't bundled together by mistake
+
                 if(parsedSubString.indexOf('=') == parsedSubString.lastIndexOf('=')) {
                     int arraySize = parsedArguments.size();
                     if(arraySize > 0){
                         String lastString = parsedArguments.get(arraySize - 1);
-                        // Looking for list elements
+
                         if(lastString.charAt(lastString.length() - 1) == ',' ||
                                 parsedSubString.contains(",")){
                             parsedArguments.set(arraySize - 1, lastString + parsedSubString);

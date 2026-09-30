@@ -13,7 +13,7 @@ import net.ashmeet.hyperlauncher.R
 fun generateCustomColorScheme(primary: Color, isDark: Boolean, themeType: String = "tonal"): ColorScheme {
     val hsv = FloatArray(3)
     android.graphics.Color.colorToHSV(primary.toArgb(), hsv)
-    
+
     var hue = hsv[0]
     var satMult = 1.0f
     var valMult = 1.0f

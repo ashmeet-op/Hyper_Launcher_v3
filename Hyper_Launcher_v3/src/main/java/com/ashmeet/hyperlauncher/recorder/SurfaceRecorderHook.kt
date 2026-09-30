@@ -5,14 +5,7 @@ import android.view.Surface
 import net.kdt.pojavlaunch.game.platform.Platform
 import java.lang.reflect.Method
 
-/**
- * SurfaceRecorderHook provides native/surface-level binding for recording
- * strictly the Minecraft game surface (SurfaceView / ANativeWindow / EGL Surface).
- *
- * It bridges MediaRecorder's input Surface directly into the native rendering stream,
- * guaranteeing 0 overlay elements (touch controls, drawer, system UI) bleed into
- * the recorded stream.
- */
+
 object SurfaceRecorderHook {
     private const val TAG = "SurfaceRecorderHook"
 

@@ -8,9 +8,7 @@ import net.kdt.pojavlaunch.game.platform.input.PlatformGamepad;
 import git.mojo.sdl.SDLControllerManager;
 
 
-/**
- * SDL3 Gamepad implementation
- */
+
 public class SDLGamepad implements PlatformGamepad {
     @Override
     public void sendKeyEvent(KeyEvent event) {

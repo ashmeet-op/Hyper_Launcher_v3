@@ -17,9 +17,7 @@ import net.kdt.pojavlaunch.game.platform.cursor.PlatformCursor;
 import net.kdt.pojavlaunch.game.platform.cursor.PlatformCursorImplementor;
 
 
-/**
- * A view that draws the platform cursor on the screen
- */
+
 public class GameCursorView extends View implements PlatformCursorImplementor {
     private final Paint customCursorPaint = new Paint();
     private final Drawable cursorDrawable;

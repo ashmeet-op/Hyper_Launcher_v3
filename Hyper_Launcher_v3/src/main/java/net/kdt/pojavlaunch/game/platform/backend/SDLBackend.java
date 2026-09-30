@@ -16,9 +16,7 @@ import git.mojo.sdl.SDLCursor;
 import net.kdt.pojavlaunch.game.platform.cursor.PlatformCursor;
 import net.kdt.pojavlaunch.game.platform.cursor.CursorUtils;
 
-/**
- * SDL3 Platform implementation
- */
+
 public class SDLBackend implements PlatformBackend {
 
     public SDLBackend() {
@@ -35,14 +33,14 @@ public class SDLBackend implements PlatformBackend {
             public void onSystemCursorChange(int systemCursorID) {
                 int shape = -1;
                 switch (systemCursorID) {
-                    case 0: shape = 0; break; // DEFAULT -> ARROW
-                    case 1: shape = 1; break; // TEXT -> IBEAM
-                    case 3: shape = 2; break; // CROSSHAIR -> CROSSHAIR
-                    case 7: shape = 4; break; // WE_RESIZE -> RESIZE_EW
-                    case 8: shape = 5; break; // NS_RESIZE -> RESIZE_NS
-                    case 9: shape = 6; break; // ALL_RESIZE -> RESIZE_MOVE
-                    case 10: shape = 7; break; // NO -> NOT_ALLOWED
-                    case 11: shape = 3; break; // HAND -> LINK
+                    case 0: shape = 0; break;
+                    case 1: shape = 1; break;
+                    case 3: shape = 2; break;
+                    case 7: shape = 4; break;
+                    case 8: shape = 5; break;
+                    case 9: shape = 6; break;
+                    case 10: shape = 7; break;
+                    case 11: shape = 3; break;
                 }
                 if (shape != -1) {
                     PlatformCursor cursor = CursorUtils.loadStandardCursor(Platform.getCursorImplementor().getImplementorContext(), shape);
@@ -77,7 +75,7 @@ public class SDLBackend implements PlatformBackend {
         if (SDLActivity.getNativeSurface() != null) SDLActivity.onNativeSurfaceDestroyed();
         SDLActivity.setNativeSurface(surface);
         SDLActivity.onNativeSurfaceCreated();
-        this.surfaceUpdated(); // Update initial size
+        this.surfaceUpdated();
         SDLActivity.onNativeSurfaceChanged();
     }
 
@@ -99,7 +97,7 @@ public class SDLBackend implements PlatformBackend {
     public void sendMousePosition() {
         SDLActivity.onNativeMouse(0, MotionEvent.ACTION_MOVE, (float) Platform.cursorX, (float) Platform.cursorY, Platform.isGrabbing());
         if (Platform.isGrabbing()) {
-            // SDL in relative mode expects these to be reset to 0, or it will freak out (classic:tm: way)
+
             Platform.cursorX = 0;
             Platform.cursorY = 0;
         }

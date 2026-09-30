@@ -1,4 +1,4 @@
-//package name is changed cuz of some JNI issues, DONT TOUCH IT!
+
 @file:Suppress("PackageDirectoryMismatch")
 
 package net.kdt.pojavlaunch
@@ -24,7 +24,7 @@ import kotlin.system.exitProcess
 @Keep
 class ExitActivity : AppCompatActivity() {
 
-    @SuppressLint("StringFormatInvalid") // invalid on some translations but valid on most, cant fix that atm
+    @SuppressLint("StringFormatInvalid")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         var code = -1
@@ -63,7 +63,7 @@ class ExitActivity : AppCompatActivity() {
 
     companion object {
         @JvmStatic
-        @Suppress("unused") // used by native jre_launcher_new
+        @Suppress("unused")
         fun showExitMessage(ctx: Context?, code: Int, isSignal: Boolean) {
             if (!isSignal && code == 0) {
                 ctx?.let { Tools.restartLauncherActivity(it) }

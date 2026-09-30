@@ -14,9 +14,7 @@ import androidx.core.math.MathUtils;
 import net.ashmeet.hyperlauncher.R;
 import net.kdt.pojavlaunch.customcontrols.buttons.ControlInterface;
 
-/**
- * Layout floating around a Control Button, displaying contextual actions
- */
+
 public class ActionRow extends LinearLayout {
 
     public static final int SIDE_LEFT = 0x0;
@@ -48,7 +46,7 @@ public class ActionRow extends LinearLayout {
     private View mFollowedView = null;
     private final int mSide = SIDE_AUTO;
 
-    /** Add action buttons and configure them */
+
     private void init(){
         hide();
         setTranslationZ(11);
@@ -63,7 +61,7 @@ public class ActionRow extends LinearLayout {
         actionButtons[1] = new CloneButton(getContext());
         actionButtons[2] = new AddSubButton(getContext());
 
-        // This is not pretty code, don't do this.
+
         for(ActionButtonInterface buttonInterface: actionButtons){
             View button = ((View)(buttonInterface));
             addView(button, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1F));
@@ -116,12 +114,12 @@ public class ActionRow extends LinearLayout {
     }
 
     private int pickSide(){
-        if(mFollowedView == null) return mSide; //Value should not matter
+        if(mFollowedView == null) return mSide;
 
         if(mSide != SIDE_AUTO) return mSide;
-        //TODO improve the "algo"
+
         ViewGroup parent = ((ViewGroup) mFollowedView.getParent());
-        if(parent == null) return mSide;//Value should not matter
+        if(parent == null) return mSide;
 
         int side = SIDE_TOP;
         float futurePos = getYPosition(side);

@@ -49,7 +49,7 @@ public class OptiFineDownloadTask implements MoJsonExtras.DoneListener {
     }
 
     public boolean downloadGame(String gameVersion) {
-        // the string is always normalized
+
         JVersionList.Version versionMeta = MoJsonExtras.getListedVersion(gameVersion);
         if(versionMeta == null) return false;
         try {

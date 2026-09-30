@@ -132,7 +132,7 @@ fun ProjectDetailsSidebar(
                 }
             }
 
-            // Version Info Section
+
             if (versions.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
@@ -144,7 +144,7 @@ fun ProjectDetailsSidebar(
                 SettingsCard(position = CardPosition.SINGLE, useSurface = true) {
                     Column {
                         val latestVersion = versions.firstOrNull()?.name ?: "Unknown"
-                        
+
                         SettingsActionItem(
                             title = translatedText("Latest Version"),
                             summary = latestVersion,
@@ -155,7 +155,7 @@ fun ProjectDetailsSidebar(
                 }
             }
 
-            // Links Section
+
             val links = remember(project) {
                 listOfNotNull(
                     project.websiteUrl?.let { "Website" to it to Icons.Rounded.Language },

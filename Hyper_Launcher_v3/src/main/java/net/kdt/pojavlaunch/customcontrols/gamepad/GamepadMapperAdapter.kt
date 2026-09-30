@@ -35,7 +35,7 @@ class GamepadMapperAdapter(context: Context) : RecyclerView.Adapter<GamepadMappe
     private fun createRebinderMap() {
         mSimulatedGamepadMap = GamepadMap()
         val list = mutableListOf<RebinderButton>()
-        
+
         mSimulatedGamepadMap.BUTTON_A = RebinderButton(R.drawable.button_a, R.string.controller_button_a).also { list.add(it) }
         mSimulatedGamepadMap.BUTTON_B = RebinderButton(R.drawable.button_b, R.string.controller_button_b).also { list.add(it) }
         mSimulatedGamepadMap.BUTTON_X = RebinderButton(R.drawable.button_x, R.string.controller_button_x).also { list.add(it) }
@@ -56,7 +56,7 @@ class GamepadMapperAdapter(context: Context) : RecyclerView.Adapter<GamepadMappe
         mSimulatedGamepadMap.DPAD_DOWN = RebinderButton(R.drawable.dpad_down, R.string.controller_dpad_down).also { list.add(it) }
         mSimulatedGamepadMap.DPAD_RIGHT = RebinderButton(R.drawable.dpad_right, R.string.controller_dpad_right).also { list.add(it) }
         mSimulatedGamepadMap.DPAD_LEFT = RebinderButton(R.drawable.dpad_left, R.string.controller_dpad_left).also { list.add(it) }
-        
+
         mRebinderButtons = list.toTypedArray()
     }
 

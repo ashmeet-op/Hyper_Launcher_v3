@@ -25,7 +25,7 @@ object ModrinthService {
     ): List<ModrinthProject> = withContext(Dispatchers.IO) {
         val params = hashMapOf<String, Any>()
         val facets = mutableListOf<String>()
-        
+
         val typeStr = when(type) {
             ContentInstallerType.MODS -> "mod"
             ContentInstallerType.MODPACKS -> "modpack"
@@ -34,20 +34,20 @@ object ModrinthService {
             ContentInstallerType.WORLDS -> "world"
         }
         facets.add("[\"project_type:$typeStr\"]")
-        
+
         if (!mcVersion.isNullOrEmpty()) {
             facets.add("[\"versions:$mcVersion\"]")
         }
-        
+
         val shouldApplyLoader = type == ContentInstallerType.MODS || type == ContentInstallerType.MODPACKS
         if (shouldApplyLoader && !loader.isNullOrEmpty()) {
             facets.add("[\"categories:$loader\"]")
         }
-        
+
         if (facets.isNotEmpty()) {
             params["facets"] = "[" + facets.joinToString(",") + "]"
         }
-        
+
         params["query"] = query
         params["limit"] = 50
         params["index"] = "relevance"
@@ -75,7 +75,7 @@ object ModrinthService {
             val files = v.getAsJsonArray("files")
             val primaryFile = (0 until files.size())
                 .map { i -> files.get(i).asJsonObject }
-                .firstOrNull { f -> f.has("primary") && f.get("primary").asBoolean } 
+                .firstOrNull { f -> f.has("primary") && f.get("primary").asBoolean }
                 ?: files.get(0).asJsonObject
 
             ModrinthVersion(

@@ -17,7 +17,7 @@ import java.util.regex.Pattern
 object CurseForgeService {
     private const val CURSEFORGE_API = "https://api.curseforge.com/v1"
     private const val MCIM_CURSEFORGE_API = "https://mod.mcimirror.top/curseforge/v1"
-    
+
     private const val CURSEFORGE_MC_GAME_ID = 432
     private const val CURSEFORGE_MODPACK_CLASS_ID = 4471
     private const val CURSEFORGE_MOD_CLASS_ID = 6
@@ -26,19 +26,11 @@ object CurseForgeService {
     private const val CURSEFORGE_CUSTOMIZATION_CLASS_ID = 4546
     private const val SORT_RELEVANCE = 1
     private val sMcVersionPattern = Pattern.compile("([0-9]+)\\.([0-9]+)\\.?([0-9]+)?")
-    
+
     private var apiHandler: ApiHandler? = null
     private var useMirror = false
 
-    /**
-     * CurseForge Mod Loader Types
-     * 1 = Forge
-     * 2 = Cauldron
-     * 3 = LiteLoader
-     * 4 = Fabric
-     * 5 = Quilt
-     * 6 = NeoForge
-     */
+
     private fun getModLoaderTypeCode(loader: String?): Int? {
         if (loader == null) return null
         return when (loader.lowercase()) {
@@ -75,7 +67,7 @@ object CurseForgeService {
         index: Int = 0
     ): List<ModrinthProject> = withContext(Dispatchers.IO) {
         val handler = getHandler()
-        
+
         val params = hashMapOf<String, Any>()
         params["gameId"] = CURSEFORGE_MC_GAME_ID
         params["classId"] = when (type) {
@@ -92,15 +84,15 @@ object CurseForgeService {
         params["sortOrder"] = "desc"
         params["index"] = index
         params["pageSize"] = 50
-        
+
         if (!mcVersion.isNullOrEmpty()) {
             params["gameVersion"] = mcVersion
         }
-        
+
         getModLoaderTypeCode(loader)?.let {
             params["modLoaderType"] = it
         }
-        
+
         val response = handler.get("mods/search", params, JsonObject::class.java) ?: return@withContext emptyList()
         val data = response.getAsJsonArray("data") ?: return@withContext emptyList()
 
@@ -110,7 +102,7 @@ object CurseForgeService {
                 if (item.get("status").asInt != 4) {
                 }
             }
-            
+
             ModrinthProject(
                 id = item.get("id").asString,
                 title = item.get("name").asString,
@@ -125,10 +117,10 @@ object CurseForgeService {
         val handler = getHandler()
         val response = handler.get("mods/$projectId", JsonObject::class.java) ?: return@withContext null
         val data = response.getAsJsonObject("data") ?: return@withContext null
-        
+
         val screenshots = data.getAsJsonArray("screenshots") ?: null
-        val gallery = screenshots?.map { 
-            it.asJsonObject.get("url").asString 
+        val gallery = screenshots?.map {
+            it.asJsonObject.get("url").asString
         } ?: emptyList()
 
         val linksObj = data.getAsJsonObject("links")
@@ -155,10 +147,10 @@ object CurseForgeService {
         val handler = getHandler()
         val body = hashMapOf<String, Any>()
         body["modIds"] = modIds
-        
+
         val response = handler.post("mods", body as Any, JsonObject::class.java) ?: return@withContext emptyList()
         val data = response.getAsJsonArray("data") ?: return@withContext emptyList()
-        
+
         data.map {
             val item = it.asJsonObject
             ModrinthProject(
@@ -173,7 +165,7 @@ object CurseForgeService {
 
     suspend fun getProjectVersions(projectId: String): List<ModrinthVersion> = withContext(Dispatchers.IO) {
         val handler = getHandler()
-        
+
         val params = hashMapOf<String, Any>()
         params["pageSize"] = 50
 
@@ -183,10 +175,10 @@ object CurseForgeService {
         data.mapNotNull {
             val file = it.asJsonObject
             if (file.has("isServerPack") && !file.get("isServerPack").isJsonNull && file.get("isServerPack").asBoolean) return@mapNotNull null
-            
+
             val gameVersions = file.getAsJsonArray("gameVersions")?.map { gv -> gv.asString } ?: emptyList()
             val mcVersions = gameVersions.filter { gv -> sMcVersionPattern.matcher(gv).matches() }
-            val loaders = gameVersions.filter { gv -> !sMcVersionPattern.matcher(gv).matches() && 
+            val loaders = gameVersions.filter { gv -> !sMcVersionPattern.matcher(gv).matches() &&
                 (gv.equals("fabric", true) || gv.equals("forge", true) || gv.equals("quilt", true) || gv.equals("neoforge", true)) }
 
             val downloadUrl = getDownloadUrl(projectId, file) ?: return@mapNotNull null
@@ -206,8 +198,8 @@ object CurseForgeService {
                 dependencies = file.getAsJsonArray("dependencies")?.mapNotNull { dep ->
                     val d = dep.asJsonObject
                     val relationType = d.get("relationType").asInt
-                    if (relationType == 5) return@mapNotNull null // Incompatible
-                    
+                    if (relationType == 5) return@mapNotNull null
+
                     ModDependency(
                         projectId = d.get("modId").asString,
                         versionId = null,
@@ -229,21 +221,21 @@ object CurseForgeService {
     private suspend fun getDownloadUrl(projectId: String, fileMetadata: JsonObject): String? = withContext(Dispatchers.IO) {
         val handler = getHandler()
         val fileId = fileMetadata.get("id").asString
-        
-        // If downloadUrl is already in the metadata, use it
+
+
         if (fileMetadata.has("downloadUrl") && !fileMetadata.get("downloadUrl").isJsonNull) {
             val url = fileMetadata.get("downloadUrl").asString
             if (url.isNotBlank()) return@withContext url
         }
 
-        // Try to get download URL from API
+
         val response = handler.get("mods/$projectId/files/$fileId/download-url", JsonObject::class.java)
         val data = response?.get("data")
         if (data != null && !data.isJsonNull) {
             return@withContext data.asString
         }
-        
-        // Fallback to edge link if possible
+
+
         val fileName = fileMetadata.get("fileName").asString
         val fileIdLong = fileId.toLong()
         String.format("https://edge.forgecdn.net/files/%s/%s/%s", fileIdLong / 1000, fileIdLong % 1000, fileName)

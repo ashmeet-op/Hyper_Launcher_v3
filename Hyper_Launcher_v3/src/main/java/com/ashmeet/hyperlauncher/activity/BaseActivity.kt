@@ -25,7 +25,7 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Edge-to-edge should be enabled before super.onCreate
+
         if (shouldEnableEdgeToEdge() || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM)) {
             enableEdgeToEdge(
                 statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
@@ -48,9 +48,7 @@ abstract class BaseActivity : AppCompatActivity() {
         Tools.getDisplayMetrics(this)
     }
 
-    /**
-     * Applies the orientation based on preference.
-     */
+
     open fun updateOrientation() {
         requestedOrientation = if (PREF_DYNAMIC_ORIENTATION) {
             ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
@@ -59,9 +57,7 @@ abstract class BaseActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Applies the system bar configuration (visibility and behavior) using modern APIs.
-     */
+
     private fun applySystemBarConfiguration() {
         val isFullscreen = setFullscreen()
         val isEdgeToEdge = shouldEnableEdgeToEdge()
@@ -72,7 +68,7 @@ abstract class BaseActivity : AppCompatActivity() {
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
         if (hideBars) {
-            // Hide navigation bars (and status bars if in fullscreen mode)
+
             var types = WindowInsetsCompat.Type.navigationBars()
             if (isFullscreen) {
                 types = types or WindowInsetsCompat.Type.statusBars()
@@ -82,12 +78,12 @@ abstract class BaseActivity : AppCompatActivity() {
             controller.show(WindowInsetsCompat.Type.systemBars())
         }
 
-        // Call Tools.setInsetsMode to handle complex padding/background logic (InsetBackground)
-        // and legacy fallbacks for older Android versions.
+
+
         Tools.setInsetsMode(this, hideBars, shouldIgnoreNotch())
     }
 
-    /** @return Whether the activity should be set as a fullscreen one */
+
     open fun setFullscreen(): Boolean {
         return PREF_FULLSCREEN_LAUNCHER
     }
@@ -100,18 +96,18 @@ abstract class BaseActivity : AppCompatActivity() {
 
     override fun onPostResume() {
         super.onPostResume()
-        // Re-apply configuration to ensure bars stay hidden after returning to the activity
+
         applySystemBarConfiguration()
         updateOrientation()
         Tools.getDisplayMetrics(this)
     }
 
-    /** @return Whether the notch should be ignored */
+
     protected open fun shouldIgnoreNotch(): Boolean {
         return PREF_IGNORE_NOTCH
     }
 
-    /** @return Whether the activity should enable Edge-to-Edge */
+
     protected open fun shouldEnableEdgeToEdge(): Boolean {
         return PREF_FULLSCREEN_LAUNCHER
     }

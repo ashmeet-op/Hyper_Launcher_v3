@@ -103,7 +103,7 @@ class TestStorageActivity : BaseActivity() {
             startActivity(Intent(this, MissingStorageActivity::class.java))
             return
         }
-        //Initialize constants (implicitly) and preferences after we confirm that we have storage.
+
         LauncherPreferences.loadPreferences(this)
         AsyncAssetManager.unpackComponents(this)
         AsyncAssetManager.unpackSingleFiles(this)
@@ -119,11 +119,11 @@ class TestStorageActivity : BaseActivity() {
     companion object {
         @JvmStatic
         fun isStorageAllowed(context: Context): Boolean {
-            //Getting the permission status
+
             val result1 = ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
             val result2 = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)
 
-            //If permission is granted returning true
+
             return result1 == PackageManager.PERMISSION_GRANTED &&
                     result2 == PackageManager.PERMISSION_GRANTED
         }

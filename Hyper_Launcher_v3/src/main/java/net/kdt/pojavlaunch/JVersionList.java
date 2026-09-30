@@ -5,7 +5,7 @@ import java.util.*;
 import net.kdt.pojavlaunch.value.*;
 
 @Keep
-@SuppressWarnings("unused") // all unused fields here are parts of JSON structures
+@SuppressWarnings("unused")
 public class JVersionList {
     public Map<String, String> latest;
     public Version[] versions;
@@ -18,7 +18,7 @@ public class JVersionList {
 
     @Keep
     public static class Version extends FileProperties {
-        // Since 1.13, so it's one of ways to check
+
         public Arguments arguments;
         public AssetIndex assetIndex;
 
@@ -39,7 +39,7 @@ public class JVersionList {
     public static class JavaVersionInfo {
         public String component;
         public int majorVersion;
-        public int version; // parameter used by LabyMod 4
+        public int version;
     }
     @Keep
     public static class LoggingConfig {
@@ -52,7 +52,7 @@ public class JVersionList {
             public String type;
         }
     }
-    // Since 1.13
+
     @Keep
     public static class Arguments {
         public Object[] game;
@@ -63,7 +63,7 @@ public class JVersionList {
             public MoJsonRule[] rules;
             public String value;
 
-            // TLauncher styled argument...
+
             public String[] values;
         }
     }

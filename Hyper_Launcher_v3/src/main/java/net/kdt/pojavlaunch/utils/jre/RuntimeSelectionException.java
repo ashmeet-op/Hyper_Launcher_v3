@@ -14,7 +14,7 @@ import net.ashmeet.hyperlauncher.R;
 import org.jetbrains.annotations.UnknownNullability;
 
 public class RuntimeSelectionException extends Exception implements ContextExecutorTask {
-    // Do not change. Android really hates when this value changes for some reason.
+
     private static final long serialVersionUID = -7482301619612640658L;
     public static final int RUNTIME_STATE_INSTALLATION_FAILED = 0;
     public static final int RUNTIME_STATE_SELECTION_FAILED = 1;

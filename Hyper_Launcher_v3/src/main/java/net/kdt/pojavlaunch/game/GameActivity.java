@@ -131,7 +131,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
         MCOptionUtils.load(instance.getGameDirectory().getAbsolutePath());
 
         Intent gameServiceIntent = new Intent(this, GameService.class);
-        // Start the service a bit early
+
         ContextCompat.startForegroundService(this, gameServiceIntent);
         initLayout();
 
@@ -139,19 +139,19 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
 
         mGyroControl = new GyroControl(this);
 
-        // Enabling this on TextureView results in a broken white result
+
         if(PREF_USE_ALTERNATE_SURFACE) getWindow().setBackgroundDrawable(null);
         else getWindow().setBackgroundDrawable(new ColorDrawable(Color.BLACK));
 
-        // Set the sustained performance mode for available APIs
+
         getWindow().setSustainedPerformanceMode(PREF_SUSTAINED_PERFORMANCE);
 
-        // This is required on Android 10 for the insets listener
-        // https://issuetracker.google.com/issues/266331465
+
+
         boolean androidCompat = Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q;
         if(androidCompat)
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        // Make keyboard pan the activity so the user sees what they're typing
+
         ViewCompat.setOnApplyWindowInsetsListener(getWindow().getDecorView(), (view, insets) -> {
             if(launcherGLView.mSurface == null)
                 return insets;
@@ -164,7 +164,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
                 animCursor.translationY(0).start();
                 mImeHeight = 0;
                 if(androidCompat) {
-                    // AndroidX keeps SystemUI visible for some reason after IME session
+
                     view.postDelayed(() -> {
                         WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(getWindow(), view);
                         if (controller != null) {
@@ -179,7 +179,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
                 return insets;
             mImeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
             int translationY;
-            // Auto-panning (if keyboardPan wasn't clicked)
+
             if(mForcedPanningHeight == 0) {
                 translationY = Tools.getTranslationFromCursorY(
                         (int)(Platform.cursorY * launcherGLView.getCursorRatioY() + 100),
@@ -194,15 +194,15 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
             return insets;
         });
 
-        // Recompute the gui scale when options are changed
+
         MCOptionUtils.MCOptionListener optionListener = MCOptionUtils::getMcScale;
         MCOptionUtils.addMCOptionListener(optionListener);
         mControlLayout.setModifiable(false);
 
-        // Set the activity for the executor. Must do this here, or else Tools.showErrorRemote() may not
-        // execute the correct method
+
+
         ContextExecutor.setActivity(this);
-        //Now, attach to the service. The game will only start when this happens, to make sure that we know the right state.
+
         bindService(gameServiceIntent, this, 0);
     }
 
@@ -227,7 +227,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
                 mControlLayout,
                 loggerView,
                 launcherGLView,
-                true, // hostViews = true
+                true,
                 isOpen -> kotlin.Unit.INSTANCE,
                 controller -> { mDrawerController = controller; return kotlin.Unit.INSTANCE; },
                 action -> { onAction(action); return kotlin.Unit.INSTANCE; }
@@ -285,7 +285,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
     private void onAction(int action) {
         if (isInEditor) {
             switch (action) {
-                case -1: // Close
+                case -1:
                     break;
                 case 0: mControlLayout.addControlButton(new ControlData("New")); break;
                 case 1: mControlLayout.addDrawer(new ControlDrawerData()); break;
@@ -308,7 +308,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
 
     private void loadControls() {
         try {
-            // Load keys
+
             mControlLayout.loadLayout(instance.getLaunchControls());
         } catch(IOException e) {
             try {
@@ -325,14 +325,14 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
 
     @Override
     public void onAttachedToWindow() {
-        // Post to get the correct display dimensions after layout.
+
         mControlLayout.post(()->{
             Tools.getDisplayMetrics(this);
             loadControls();
         });
     }
 
-    /** Boilerplate binding */
+
     private void bindValues(){
         mControlLayout = new ControlLayout(this);
         mControlLayout.setId(R.id.main_control_layout);
@@ -376,7 +376,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
         mHotbarView.setId(R.id.hotbar_view);
         mHotbarView.setLayoutParams(new FrameLayout.LayoutParams(0, 0));
 
-        // Setup hierarchy in ControlLayout
+
         mControlLayout.addView(launcherGLView);
         mControlLayout.addView(touchCharInput);
         mControlLayout.addView(mHotbarView);
@@ -400,7 +400,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
     protected void onPause() {
         ContextExecutor.clearActivity();
         mGyroControl.disable();
-        // Avoid going through the JNI each time.
+
         if (Platform.isGrabbing()){
             CallbackBridge.sendKeyPress(KeyEvent.KEYCODE_ESCAPE);
         }
@@ -434,13 +434,13 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
         super.onConfigurationChanged(newConfig);
 
         if(mGyroControl != null) mGyroControl.updateOrientation();
-        // Layout resize is practically guaranteed on a configuration change, and `onConfigurationChanged`
-        // does not implicitly start a layout. So, request a layout and expect the screen dimensions to be valid after the]
-        // post.
+
+
+
         if(mControlLayout == null) return;
         mControlLayout.requestLayout();
         mControlLayout.post(()->{
-            // Child of mControlLayout, so refreshing size here is correct
+
             launcherGLView.refreshSize();
             mControlLayout.refreshControlButtonPositions();
         });
@@ -450,7 +450,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
     protected void onPostResume() {
         super.onPostResume();
         if(mLoadingScreen != null && !(PLATFORM instanceof DummyBackend)) hideLoadingScreen();
-        if(launcherGLView != null)  // Useful when backing out of the app
+        if(launcherGLView != null)
             Tools.MAIN_HANDLER.postDelayed(() -> launcherGLView.refreshSize(), 500);
     }
 
@@ -459,9 +459,9 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
-            // Reload PREF_DEFAULTCTRL_PATH
-            // If the storage root got unmounted/unreadable we won't be able to load the file anyway,
-            // and MissingStorageActivity will be started.
+
+
+
             if(!Tools.checkStorageRoot(this)) return;
             LauncherPreferences.loadPreferences(getApplicationContext());
             try {
@@ -484,7 +484,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
         Tools.printLauncherInfo(versionId, instance.getLaunchArgs(), renderer, this);
         JREUtils.redirectAndPrintJRELog();
         GameRunner.launchGame(this, account, instance, versionId, classpath, renderer);
-        //Note that we actually stall in the above function, even if the game crashes. But let's be safe.
+
         Tools.runOnUiThread(()-> mServiceBinder.isActive = false);
     }
 
@@ -504,7 +504,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
                 mControlLayout,
                 loggerView,
                 launcherGLView,
-                true, // hostViews = true
+                true,
                 isOpen -> kotlin.Unit.INSTANCE,
                 controller -> { mDrawerController = controller; return kotlin.Unit.INSTANCE; },
                 action -> { onAction(action); return kotlin.Unit.INSTANCE; }
@@ -542,8 +542,8 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
 
                 @Override
                 public void onShowFpsChanged() {
-                    // The preference is updated in the dialog,
-                    // and GameScreen.kt listens for changes.
+
+
                 }
 
                 @Override
@@ -566,7 +566,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
     }
 
     public static void toggleMouse(Context ctx) {
-        // Avoid going through the JNI each time.
+
         if (Platform.isGrabbing()) return;
         GameCursorView cursorView = Tools.getWeakReference(weakCursor);
         if(cursorView == null) return;
@@ -598,7 +598,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
         boolean handleEvent;
         if(!(handleEvent = launcherGLView.processKeyEvent(event))) {
             if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && !touchCharInput.isEnabled()) {
-                if(event.getAction() != KeyEvent.ACTION_UP) return true; // We eat it anyway
+                if(event.getAction() != KeyEvent.ACTION_UP) return true;
                 CallbackBridge.sendKeyPress(KeyEvent.KEYCODE_ESCAPE);
                 return true;
             }
@@ -646,7 +646,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
                 mControlLayout,
                 loggerView,
                 launcherGLView,
-                true, // hostViews = true
+                true,
                 isOpen -> kotlin.Unit.INSTANCE,
                 controller -> { mDrawerController = controller; return kotlin.Unit.INSTANCE; },
                 action -> { onAction(action); return kotlin.Unit.INSTANCE; }
@@ -666,17 +666,14 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
 
     }
 
-    /*
-     * Android 14 (or some devices, at least) seems to dispatch the captured mouse events as trackball events
-     * due to a bug(?) somewhere(????)
-     */
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     private boolean checkCaptureDispatchConditions(MotionEvent event) {
         int eventSource = event.getSource();
-        // On my device, the mouse sends events as a relative mouse device.
-        // Not comparing with == here because apparently `eventSource` is a mask that can
-        // sometimes indicate multiple sources, like in the case of InputDevice.SOURCE_TOUCHPAD
-        // (which is *also* an InputDevice.SOURCE_MOUSE when controlling a cursor)
+
+
+
+
         return (eventSource & InputDevice.SOURCE_MOUSE_RELATIVE) != 0 ||
                 (eventSource & InputDevice.SOURCE_MOUSE) != 0;
     }

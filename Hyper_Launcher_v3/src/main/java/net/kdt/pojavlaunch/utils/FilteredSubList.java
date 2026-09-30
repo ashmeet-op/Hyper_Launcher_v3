@@ -10,13 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-/**
- * Provide a "mostly immutable" view to a "mother" list, by reference.
- * The difference from List.sublist() is:
- *  - the ability to apply a FILTER on listGeneration
- *  - "immutability", you can't add elements to the list from here, but it is backed by the real list.
- * @param <E>
- */
+
 public class FilteredSubList<E> extends AbstractList<E> implements List<E> {
 
     private final ArrayList<E> mArrayList;
@@ -34,7 +28,7 @@ public class FilteredSubList<E> extends AbstractList<E> implements List<E> {
                 mArrayList.add(item);
             }
         }
-        // Should we trim ?
+
         mArrayList.trimToSize();
     }
 
@@ -99,7 +93,7 @@ public class FilteredSubList<E> extends AbstractList<E> implements List<E> {
 
 
 
-    // Predicate is API 24+, so micro backport
+
     public interface BasicPredicate<E> {
         boolean test(E item);
     }

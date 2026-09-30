@@ -58,12 +58,12 @@ public class GameService extends Service {
         } else {
             startForeground(NotificationUtils.NOTIFICATION_ID_GAME_SERVICE, notification);
         }
-        return START_NOT_STICKY; // non-sticky so android wont try restarting the game after the user uses the "Quit" button
+        return START_NOT_STICKY;
     }
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
-        //At this point in time  only the game runs and the user poofed the window, time to die
+
         stopSelf();
         Process.killProcess(Process.myPid());
     }

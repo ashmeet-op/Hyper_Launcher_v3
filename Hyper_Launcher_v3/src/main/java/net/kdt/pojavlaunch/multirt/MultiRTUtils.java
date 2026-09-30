@@ -100,7 +100,7 @@ public class MultiRTUtils {
             if(!ftIn.renameTo(ftOut)) throw new IOException("Failed to rename freetype");
         }
 
-        // Refresh libraries
+
         copyDummyNativeLib("libawt_xawt.so", libDir);
     }
 
@@ -203,11 +203,7 @@ public class MultiRTUtils {
         return returnRuntime;
     }
 
-    /**
-     * Unpacks all .pack files into .jar Serves only for java 8, as java 9 brought project jigsaw
-     * @param nativeLibraryDir The native lib path, required to execute the unpack200 binary
-     * @param runtimePath The path to the runtime to walk into
-     */
+
     private static void unpack200(String nativeLibraryDir, String runtimePath) {
 
         File basePath = new File(runtimePath);
@@ -247,7 +243,7 @@ public class MultiRTUtils {
         byte[] buffer = new byte[8192];
         try(TarArchiveInputStream tarIn = new TarArchiveInputStream(new XZCompressorInputStream(tarFileInputStream))) {
             TarArchiveEntry tarEntry;
-            // tarIn is a TarArchiveInputStream
+
             while ((tarEntry = tarIn.getNextTarEntry()) != null) {
 
                 final String tarEntryName = tarEntry.getName();
@@ -257,8 +253,8 @@ public class MultiRTUtils {
                 net.kdt.pojavlaunch.utils.FileUtils.ensureParentDirectory(destPath);
                 if (tarEntry.isSymbolicLink()) {
                     try {
-                        // android.system.Os
-                        // Libcore one support all Android versions
+
+
                         Os.symlink(tarEntry.getName(), tarEntry.getLinkName());
                     } catch (Throwable e) {
                         Log.e("MultiRT", e.toString());

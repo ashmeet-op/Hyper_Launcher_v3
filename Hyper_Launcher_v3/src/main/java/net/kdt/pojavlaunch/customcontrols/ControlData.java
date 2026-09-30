@@ -44,30 +44,24 @@ public class ControlData {
         buildConversionMap();
     }
 
-    // Internal usage only
+
     public transient boolean isHideable;
-    /**
-     * Both fields below are dynamic position data, auto updates
-     * X and Y position, unlike the original one which uses fixed
-     * position, so it does not provide auto-location when a control
-     * is made on a small device, then import the control to a
-     * bigger device or vice versa.
-     */
+
     public String dynamicX, dynamicY;
     public boolean isToggle, passThruEnabled;
     public String name;
-    public int[] keycodes;      //Should store up to 4 keys
-    public float opacity;       //Alpha value from 0 to 1;
+    public int[] keycodes;
+    public float opacity;
     public int bgColor;
     public int strokeColor;
-    public float strokeWidth;     // Dp instead of % now
-    public float cornerRadius;  //0-100%
+    public float strokeWidth;
+    public float cornerRadius;
     public boolean isSwipeable;
     public boolean displayInGame;
     public boolean displayInMenu;
     public String bitmapTag;
-    private float width;         //Dp instead of Px now
-    private float height;        //Dp instead of Px now
+    private float width;
+    private float height;
 
     public ControlData() {
         this("button");
@@ -133,7 +127,7 @@ public class ControlData {
         this.bitmapTag = bitmapTag;
     }
 
-    //Deep copy constructor
+
     public ControlData(ControlData controlData) {
         this(
                 controlData.name,
@@ -200,9 +194,7 @@ public class ControlData {
         return inflatedArray;
     }
 
-    /**
-     * Create a builder, keep a weak reference to it to use it with all views on first inflation
-     */
+
     private static void buildExpressionBuilder() {
         ExpressionBuilder expressionBuilder = new ExpressionBuilder("1 + 1")
                 .function(new Function("dp", 1) {
@@ -220,22 +212,15 @@ public class ControlData {
         builder = new WeakReference<>(expressionBuilder);
     }
 
-    /**
-     * wrapper for the WeakReference to the expressionField.
-     *
-     * @param stringExpression the expression to set.
-     */
+
     private static void setExpression(String stringExpression) {
         if (builder.get() == null) buildExpressionBuilder();
         builder.get().expression(stringExpression);
     }
 
-    /**
-     * Build a shared conversion map without the ControlData dependent values
-     * You need to set the view dependent values before using it.
-     */
+
     private static void buildConversionMap() {
-        // Values in the map below may be always changed
+
         ArrayMap<String, String> keyValueMap = new ArrayMap<>(10);
         keyValueMap.put("top", "0");
         keyValueMap.put("left", "0");
@@ -252,10 +237,10 @@ public class ControlData {
     }
 
     public float insertDynamicPos(String dynamicPos, int w, int h) {
-        // Insert value to ${variable}
+
         String insertedPos = JSONUtils.insertSingleJSONValue(dynamicPos, fillConversionMap(w, h));
 
-        // Calculate, because the dynamic position contains some math equations
+
         return calculate(insertedPos);
     }
 
@@ -268,7 +253,7 @@ public class ControlData {
         return false;
     }
 
-    //Getters || setters (with conversion for ease of use)
+
     public float getWidth() {
         return Tools.dpToPx(width);
     }
@@ -285,12 +270,7 @@ public class ControlData {
         height = Tools.pxToDp(heightInPx);
     }
 
-    /**
-     * Fill the conversionMap with controlData dependent values.
-     * The returned valueMap should NOT be kept in memory.
-     *
-     * @return the valueMap to use.
-     */
+
     private Map<String, String> fillConversionMap(int w, int h) {
         ArrayMap<String, String> valueMap = conversionMap.get();
         if (valueMap == null) {

@@ -1,7 +1,8 @@
 package com.ashmeet.hyperlauncher.screens.launcher
 
 import android.content.SharedPreferences
-import android.widget.FrameLayout
+import android.view.ViewGroup
+import androidx.fragment.app.FragmentContainerView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -60,7 +61,7 @@ fun PojavLauncherScreen(
     onContentInstallerClick: () -> Unit,
     onInstanceDirectoryClick: () -> Unit,
     onRecordingsGalleryClick: () -> Unit,
-    onFragmentViewCreated: (FrameLayout) -> Unit
+    onFragmentViewCreated: (ViewGroup) -> Unit
 ) {
     var taskCount by remember { mutableIntStateOf(ProgressKeeper.getTaskCount()) }
     var launcherBgPath by remember { mutableStateOf(LauncherPreferences.PREF_LAUNCHER_BACKGROUND_PATH) }
@@ -131,7 +132,7 @@ fun PojavLauncherScreen(
                         modifier = Modifier
                             .align(Alignment.CenterEnd)
                     ) {
-                        
+
 
                         if (isFileManagerVisible) {
                             IconButton(
@@ -144,7 +145,7 @@ fun PojavLauncherScreen(
                                     tint = MaterialTheme.colorScheme.onSurface
                                 )
                             }
-                           
+
                             IconButton(
                                 onClick = onInstanceDirectoryClick,
                                 modifier = Modifier.size(56.dp)
@@ -204,7 +205,7 @@ fun PojavLauncherScreen(
                 Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                     AndroidView(
                         factory = { context ->
-                            FrameLayout(context).apply {
+                            FragmentContainerView(context).apply {
                                 id = R.id.container_fragment
                                 onFragmentViewCreated(this)
                             }

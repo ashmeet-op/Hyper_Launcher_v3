@@ -10,7 +10,7 @@ public class AWTBridge {
     private static Runnable enableRunnable;
     private static boolean windowCreated = false;
 
-    @SuppressWarnings("unused") // Used from native
+    @SuppressWarnings("unused")
     public static void queryClipboardString() {
         Tools.runOnUiThread(() -> {
             String text = Platform.getClipboard().getClipboardString();
@@ -18,19 +18,19 @@ public class AWTBridge {
         });
     }
 
-    @SuppressWarnings("unused") // Used from native
+    @SuppressWarnings("unused")
     public static void putClipboardString(String data) {
         Tools.runOnUiThread(() -> {
             Platform.getClipboard().setClipboardString(data);
         });
     }
 
-    @SuppressWarnings("unused") // Used from native
+    @SuppressWarnings("unused")
     public static void openLink(String data) {
         CallbackBridge.openLink(data);
     }
 
-    @SuppressWarnings("unused") // Used from native
+    @SuppressWarnings("unused")
     public static void notifyWindowOpened() {
         if(enableRunnable == null) return;
         if(windowCreated) return;

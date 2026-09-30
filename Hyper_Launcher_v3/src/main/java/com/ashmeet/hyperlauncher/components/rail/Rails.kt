@@ -304,7 +304,7 @@ fun SideRail(
                                 horizontalAlignment = Alignment.Start,
                                 button = { Box(Modifier.size(0.dp)) }
                             ) {
-                                fabMenuContent { 
+                                fabMenuContent {
                                     innerVisible = false
                                 }
                             }

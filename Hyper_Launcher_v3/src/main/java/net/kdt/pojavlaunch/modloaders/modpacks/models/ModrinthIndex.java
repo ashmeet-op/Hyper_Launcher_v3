@@ -8,9 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.Map;
 
-/**
- * POJO to represent the modrinth index inside mrpacks
- */
+
 public class ModrinthIndex {
 
 

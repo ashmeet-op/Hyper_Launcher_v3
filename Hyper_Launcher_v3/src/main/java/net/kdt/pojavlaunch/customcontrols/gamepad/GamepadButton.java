@@ -1,8 +1,6 @@
 package net.kdt.pojavlaunch.customcontrols.gamepad;
 
-/**
- *  This class corresponds to a button that does exist on the gamepad
- */
+
 public class GamepadButton extends GamepadEmulatedButton {
     public boolean isToggleable = false;
     private boolean mIsToggled = false;

@@ -20,24 +20,19 @@ import com.ashmeet.hyperlauncher.utils.Tools;
 import java.io.File;
 import java.io.IOException;
 
-/**
- * A class for migrating data from other launcher installations
- */
+
 public class DataMigrator {
     private final Uri uri;
     private final Activity activity;
     private double progress;
-    private static final int MIN_FREE_SPACE = 2048; // required free space in megabytes
+    private static final int MIN_FREE_SPACE = 2048;
     private static final String[] TREE_PROJECTION = {
                 DocumentsContract.Document.COLUMN_DISPLAY_NAME,
                 DocumentsContract.Document.COLUMN_MIME_TYPE,
                 DocumentsContract.Document.COLUMN_DOCUMENT_ID,
                 DocumentsContract.Document.COLUMN_SIZE
     };
-    /** Initialize data migrator
-     * @param activity App activity
-     * @param uri Uri to the external root directory of the source installation (i.e. /sdcard/Android/data/git.artdeell.../). Must have "files" subdir
-     */
+
     public DataMigrator(Activity activity, Uri uri){
         this.activity = activity;
         this.uri = uri;
@@ -49,8 +44,8 @@ public class DataMigrator {
     }
 
     private Uri getFilesUri(Uri uri){
-        // Extract files subdirectory not to confuse copyFileTree
-        // Actually it shouldn't confuse anymore, but we copy files directly into "files" subdir already
+
+
         String[] projection = {DocumentsContract.Document.COLUMN_DOCUMENT_ID};
         String[] to = {"files"};
         Cursor cursor = activity.getContentResolver().query(uri, projection, null, to, null);
@@ -87,7 +82,7 @@ public class DataMigrator {
     }
 
     private Uri resolveSourceUri(Uri treeUri) {
-        // Look for MJLaunch first, then Mojo
+
         String[] targets = {"git.artdeell.mjlaunch", "git.artdeell.mojo"};
         for (String target : targets) {
             Uri found = findChild(treeUri, target);
@@ -106,7 +101,7 @@ public class DataMigrator {
         } catch (Exception ignored) {
         }
 
-        // Fallback: iterate children if selectionArgs query is not supported by the provider
+
         Uri childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(uri, DocumentsContract.getDocumentId(uri));
         try (Cursor cursor = activity.getContentResolver().query(childrenUri, TREE_PROJECTION, null, null, null)) {
             if (cursor != null) {
@@ -123,18 +118,16 @@ public class DataMigrator {
         return null;
     }
 
-    /**
-     * Migrate data from other MojoLauncher installations.
-    */
+
     public void migrateData(){
         String authority = uri.getAuthority();
         if(authority == null) return;
-        // Shouldn't allow importing from any non-Mojo app
+
         if(!authority.contains(activity.getString(R.string.group_id)) && !"com.android.externalstorage.documents".equals(authority)) {
             Toast.makeText(activity, R.string.migration_progress_foreign, Toast.LENGTH_LONG).show();
             return;
         }
-        // also shouldn't allow importing from self
+
         if(authority.equals(activity.getString(R.string.storageProviderAuthorities))){
             Toast.makeText(activity, R.string.migration_progress_self, Toast.LENGTH_LONG).show();
             return;
@@ -142,16 +135,16 @@ public class DataMigrator {
         sExecutorService.submit(this::executeMigrate);
     }
 
-    // Copy a file tree into the home directory
-    // The progress bar here works easy & dumb: each entry is a portion of initial 100 percents
-    // Each file will increment the progress by this portion, each directory will receive the portion
-    // to further divide it by files/folders amount in this directory
-    // both files in the end will increment the progress bar by the portion this call received
-    // Folder1(100%)
-    //          -> Folder2(50%), File2(50%)
-    //                  -> Folder3(25%), File3(25%)
-    //                          -> (File4(12,5%), File5(12,5%)
-    // Surprisingly no LLM model told me about this algorithm lol
+
+
+
+
+
+
+
+
+
+
     private void copyFileTree(Activity activity, Uri source, File dest, double progressPortion) throws IOException {
         ContentResolver cr = activity.getContentResolver();
         try(Cursor cursor = cr.query(source, TREE_PROJECTION, null, null, null)) {
@@ -167,13 +160,13 @@ public class DataMigrator {
                 Uri child = DocumentsContract.buildChildDocumentsUriUsingTree(source, id);
                 if (type.equals(DocumentsContract.Document.MIME_TYPE_DIR)) {
                     File destDir = new File(dest, file);
-                    // Prevent instance collisions
+
                     if(destDir.exists() && dest.getName().equals("instances"))
                         continue;
                     if (!destDir.exists()) destDir.mkdirs();
                     copyFileTree(activity, child, destDir, step);
                 }
-                // Assuming file
+
                 else {
                     final String destFileName;
                     if (file.equals("mojo_instance.json") || file.equals("mj_instance.json")) {
@@ -182,8 +175,8 @@ public class DataMigrator {
                         destFileName = file;
                     }
                     File destFile = new File(dest, destFileName);
-                    // Ignore files with the same size
-                    // I mean this check may trigger for non-equal files, but this is designed only for clean import anyway
+
+
                     if(destFile.length() == size) continue;
                     Tools.write(cr.openInputStream(child), destFile);
                 }

@@ -5,9 +5,7 @@ import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
 
-/**
- * Contains cursor data and the draw method
- */
+
 public class CursorContainer {
     private final Drawable drawable;
     private final int xHotspot;

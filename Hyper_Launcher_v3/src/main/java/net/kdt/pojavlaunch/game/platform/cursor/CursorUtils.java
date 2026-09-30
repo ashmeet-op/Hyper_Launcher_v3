@@ -21,42 +21,42 @@ public class CursorUtils {
         int customHotY = -1;
 
         switch (shapeName) {
-            case 0: // ARROW
+            case 0:
                 customPath = LauncherPreferences.PREF_POINTER_ICON_PATH_ARROW;
                 customHotX = LauncherPreferences.PREF_POINTER_HOTSPOT_X_ARROW;
                 customHotY = LauncherPreferences.PREF_POINTER_HOTSPOT_Y_ARROW;
                 break;
-            case 1: // IBEAM
+            case 1:
                 customPath = LauncherPreferences.PREF_POINTER_ICON_PATH_IBEAM;
                 customHotX = LauncherPreferences.PREF_POINTER_HOTSPOT_X_IBEAM;
                 customHotY = LauncherPreferences.PREF_POINTER_HOTSPOT_Y_IBEAM;
                 break;
-            case 2: // CROSSHAIR
+            case 2:
                 customPath = LauncherPreferences.PREF_POINTER_ICON_PATH_CROSSHAIR;
                 customHotX = LauncherPreferences.PREF_POINTER_HOTSPOT_X_CROSSHAIR;
                 customHotY = LauncherPreferences.PREF_POINTER_HOTSPOT_Y_CROSSHAIR;
                 break;
-            case 3: // HAND / LINK
+            case 3:
                 customPath = LauncherPreferences.PREF_POINTER_ICON_PATH_HAND;
                 customHotX = LauncherPreferences.PREF_POINTER_HOTSPOT_X_HAND;
                 customHotY = LauncherPreferences.PREF_POINTER_HOTSPOT_Y_HAND;
                 break;
-            case 4: // HRESIZE / SIZEWE
+            case 4:
                 customPath = LauncherPreferences.PREF_POINTER_ICON_PATH_HRESIZE;
                 customHotX = LauncherPreferences.PREF_POINTER_HOTSPOT_X_HRESIZE;
                 customHotY = LauncherPreferences.PREF_POINTER_HOTSPOT_Y_HRESIZE;
                 break;
-            case 5: // VRESIZE / SIZENS
+            case 5:
                 customPath = LauncherPreferences.PREF_POINTER_ICON_PATH_VRESIZE;
                 customHotX = LauncherPreferences.PREF_POINTER_HOTSPOT_X_VRESIZE;
                 customHotY = LauncherPreferences.PREF_POINTER_HOTSPOT_Y_VRESIZE;
                 break;
-            case 6: // SIZEALL / MOVE
+            case 6:
                 customPath = LauncherPreferences.PREF_POINTER_ICON_PATH_ALL_RESIZE;
                 customHotX = LauncherPreferences.PREF_POINTER_HOTSPOT_X_ALL_RESIZE;
                 customHotY = LauncherPreferences.PREF_POINTER_HOTSPOT_Y_ALL_RESIZE;
                 break;
-            case 7: // NOT_ALLOWED
+            case 7:
                 customPath = LauncherPreferences.PREF_POINTER_ICON_PATH_NOT_ALLOWED;
                 customHotX = LauncherPreferences.PREF_POINTER_HOTSPOT_X_NOT_ALLOWED;
                 customHotY = LauncherPreferences.PREF_POINTER_HOTSPOT_Y_NOT_ALLOWED;

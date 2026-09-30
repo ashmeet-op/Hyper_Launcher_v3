@@ -97,9 +97,9 @@ public class BTADownloadTask implements Runnable {
         Tools.write(jsonFile, btaJson);
     }
 
-    // BTA doesn't have SHA1 checksums in its repositories, so the user may try to reinstall it
-    // if it didn't work due to a broken download. So, for reinstalls like that to work,
-    // we need to delete the old client jar to force the download of a new one.
+
+
+
     private void removeOldClient() throws IOException{
         File btaClientPath = new File(Tools.DIR_HOME_LIBRARY, String.format("bta-client/bta-client-%1$s.jar", mBtaVersion.versionName));
         if(btaClientPath.exists() && !btaClientPath.delete())

@@ -33,18 +33,18 @@ public class CustomControls {
 		this.mJoystickDataList = mJoystickDataList;
 		this.scaledAt = 100f;
 	}
-	
-	// Generate default control
-	// Here for historical reasons
-	// Just admire it idk
+
+
+
+
 	@SuppressWarnings("unused")
 	public CustomControls(Context ctx) {
 		this();
-		this.mControlDataList.add(new ControlData(ControlData.getSpecialButtons()[0])); // Keyboard
-		this.mControlDataList.add(new ControlData(ControlData.getSpecialButtons()[1])); // GUI
-		this.mControlDataList.add(new ControlData(ControlData.getSpecialButtons()[2])); // Primary Mouse mControlDataList
-		this.mControlDataList.add(new ControlData(ControlData.getSpecialButtons()[3])); // Secondary Mouse mControlDataList
-		this.mControlDataList.add(new ControlData(ControlData.getSpecialButtons()[4])); // Virtual mouse toggle
+		this.mControlDataList.add(new ControlData(ControlData.getSpecialButtons()[0]));
+		this.mControlDataList.add(new ControlData(ControlData.getSpecialButtons()[1]));
+		this.mControlDataList.add(new ControlData(ControlData.getSpecialButtons()[2]));
+		this.mControlDataList.add(new ControlData(ControlData.getSpecialButtons()[3]));
+		this.mControlDataList.add(new ControlData(ControlData.getSpecialButtons()[4]));
 
 		this.mControlDataList.add(new ControlData(ctx, R.string.control_debug, new int[]{KeyEvent.KEYCODE_F3}, "${margin}", "${margin}", false));
 		this.mControlDataList.add(new ControlData(ctx, R.string.control_chat, new int[]{KeyEvent.KEYCODE_T}, "${margin} * 2 + ${width}", "${margin}", false));
@@ -57,18 +57,18 @@ public class CustomControls {
 		this.mControlDataList.add(new ControlData(ctx, R.string.control_right, new int[]{KeyEvent.KEYCODE_D}, "${margin} * 3 + ${width} * 2", "${bottom} - ${margin} * 2 - ${height}", true));
 
 		this.mControlDataList.add(new ControlData(ctx, R.string.control_inventory, new int[]{KeyEvent.KEYCODE_E}, "${margin} * 3 + ${width} * 2", "${bottom} - ${margin}", true));
-        
+
         ControlData shiftData = new ControlData(ctx, R.string.control_shift, new int[]{KeyEvent.KEYCODE_SHIFT_LEFT}, "${margin} * 2 + ${width}", "${screen_height} - ${margin} * 2 - ${height} * 2", true);
 		shiftData.isToggle = true;
 		this.mControlDataList.add(shiftData);
 		this.mControlDataList.add(new ControlData(ctx, R.string.control_jump, new int[]{KeyEvent.KEYCODE_SPACE}, "${right} - ${margin} * 2 - ${width}", "${bottom} - ${margin} * 2 - ${height}", true));
 
-		//The default controls are conform to the V3
+
 		version = 9;
 	}
 
 	public void save(String path) throws IOException {
-		//Current version is the V3.2 so the version as to be marked as 8 !
+
 		version = 9;
 		String jsonControls = Tools.GLOBAL_GSON.toJson(this);
 		try(FileOutputStream fileOutputStream = new FileOutputStream(path)) {

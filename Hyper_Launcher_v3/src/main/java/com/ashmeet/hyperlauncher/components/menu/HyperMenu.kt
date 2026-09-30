@@ -138,7 +138,7 @@ fun <T> HyperSpinner(
             modifier = Modifier.width(IntrinsicSize.Max)
         ) {
             val scrollState = rememberScrollState()
-            
+
             Surface(
                 modifier = Modifier
                     .heightIn(max = 300.dp)
@@ -194,10 +194,7 @@ fun <T> HyperSpinner(
     }
 }
 
-/**
- * A reusable TextField component that opens a DropdownMenu with grouped items.
- * Uses [DropdownMenuGroup] for organizational clarity.
- */
+
 @Composable
 fun <T> HyperGroupedDropdownTextField(
     label: String,
@@ -283,7 +280,7 @@ fun <T> HyperGroupedDropdownTextField(
                     Column(modifier = Modifier.fillMaxWidth()) {
                         val groupList = groupedItems.toList()
                         val groupInteractionSource = remember { MutableInteractionSource() }
-                        
+
                         groupList.fastForEachIndexed { index, (groupLabel, items) ->
                             val shapes = MenuDefaults.groupShape(index, groupList.size)
                             val stableShapes = remember(shapes) {

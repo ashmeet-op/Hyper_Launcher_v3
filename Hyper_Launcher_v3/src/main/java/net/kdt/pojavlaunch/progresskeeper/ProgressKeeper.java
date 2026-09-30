@@ -77,7 +77,7 @@ public class ProgressKeeper {
         } else {
             listener.onProgressEnded();
         }
-        
+
         List<ProgressListener> listenerList = sProgressListeners.get(progressRecord);
         if (listenerList == null) {
             synchronized (sListenerLock) {
@@ -111,12 +111,7 @@ public class ProgressKeeper {
         sTaskCountListeners.remove(listener);
     }
 
-    /**
-     * Waits until all tasks are done and runs the runnable, or if there were no pending process remaining
-     * The runnable runs from the thread that updated the task count last, and it might be the UI thread,
-     * so don't put long-running processes in it
-     * @param runnable the runnable to run when no tasks are remaining
-     */
+
     public static void waitUntilDone(final Runnable runnable) {
         if (getTaskCount() == 0) {
             runnable.run();

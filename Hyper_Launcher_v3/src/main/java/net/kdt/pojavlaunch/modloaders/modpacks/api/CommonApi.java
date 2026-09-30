@@ -21,9 +21,7 @@ import java.util.concurrent.Future;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-/**
- * Group all apis under the same umbrella, as another layer of abstraction
- */
+
 public class CommonApi implements ModpackApi {
 
     private final ModpackApi mCurseforgeApi;
@@ -48,7 +46,7 @@ public class CommonApi implements ModpackApi {
     @Override
     public SearchResult searchMod(SearchFilters searchFilters, SearchResult previousPageResult) {
         CommonApiSearchResult commonApiSearchResult = (CommonApiSearchResult) previousPageResult;
-        // If there are no previous page results, create a new array. Otherwise, use the one from the previous page
+
         SearchResult[] results = commonApiSearchResult == null ?
                 new SearchResult[mModpackApis.length] : commonApiSearchResult.searchResults;
 
@@ -56,12 +54,12 @@ public class CommonApi implements ModpackApi {
 
         Future<?>[] futures = new Future<?>[mModpackApis.length];
         for(int i = 0; i < mModpackApis.length; i++) {
-            // If there is an array and its length is zero, this means that we've exhausted the results for this
-            // search query and we don't need to actually do the search
+
+
             if(results[i] != null && results[i].results.length == 0) continue;
-            // If the previous page result is not null (aka the arrays aren't fresh)
-            // and the previous result is null, it means that na error has occured on the previous
-            // page. We lost contingency anyway, so don't bother requesting.
+
+
+
             if(previousPageResult != null && results[i] == null) continue;
             futures[i] = PojavApplication.sExecutorService.submit(new ApiDownloadTask(i, searchFilters,
                     results[i]));
@@ -72,7 +70,7 @@ public class CommonApi implements ModpackApi {
             return null;
         }
         boolean hasSuccessful = false;
-        // Count up all the results
+
         for(int i = 0; i < mModpackApis.length; i++) {
             Future<?> future = futures[i];
             if(future == null) continue;
@@ -90,14 +88,14 @@ public class CommonApi implements ModpackApi {
         if(!hasSuccessful) {
             return null;
         }
-        // Then build an array with all the mods
+
         ArrayList<ModItem[]> filteredResults = new ArrayList<>(results.length);
 
-        // Sanitize returned values
+
         for(SearchResult result : results) {
             if(result == null) continue;
             ModItem[] searchResults = result.results;
-            // If the length is zero, we don't need to perform needless copies
+
             if(searchResults.length == 0) continue;
             filteredResults.add(searchResults);
         }
@@ -106,7 +104,7 @@ public class CommonApi implements ModpackApi {
 
         ModItem[] concatenatedItems = buildFusedResponse(filteredResults);
         if(Thread.interrupted()) return null;
-        // Recycle or create new search result
+
         if(commonApiSearchResult == null) commonApiSearchResult = new CommonApiSearchResult();
         commonApiSearchResult.searchResults = results;
         commonApiSearchResult.totalResultCount = totalSize;
@@ -162,17 +160,17 @@ public class CommonApi implements ModpackApi {
             if (curseforge != null) {
                 return CommonApi.PACK_CURSEFORGE;
             }
-            return CommonApi.PACK_UNDEFINED; // return this if no modpack was detected
+            return CommonApi.PACK_UNDEFINED;
         } catch (Exception e) {
             return -1;
         }
     }
 
-    /** Fuse the arrays in a way that's fair for every endpoint */
+
     private ModItem[] buildFusedResponse(List<ModItem[]> modMatrix){
         int totalSize = 0;
 
-        // Calculate the total size of the merged array
+
         for (ModItem[] array : modMatrix) {
             totalSize += array.length;
         }
@@ -182,14 +180,14 @@ public class CommonApi implements ModpackApi {
         int mergedIndex = 0;
         int maxLength = 0;
 
-        // Find the maximum length of arrays
+
         for (ModItem[] array : modMatrix) {
             if (array.length > maxLength) {
                 maxLength = array.length;
             }
         }
 
-        // Populate the merged array
+
         for (int i = 0; i < maxLength; i++) {
             for (ModItem[] matrix : modMatrix) {
                 if (i < matrix.length) {

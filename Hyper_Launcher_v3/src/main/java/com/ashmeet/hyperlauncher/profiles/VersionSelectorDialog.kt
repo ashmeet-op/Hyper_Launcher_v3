@@ -11,7 +11,7 @@ object VersionSelectorDialog {
         if (context is FragmentActivity) {
             activity = context
         }
-        
+
         if (activity == null) return
 
         val dialog = VersionSelectorDialogFragment()

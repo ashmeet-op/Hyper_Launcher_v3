@@ -51,7 +51,7 @@ public class ApiHandler {
         return postFullUrl(additionalHeaders, baseUrl + "/" + endpoint, query, body, responseClass);
     }
 
-    //Make a get request and return the response as a raw string;
+
     public static String getRaw(String url) {
         return getRaw(null, url);
     }

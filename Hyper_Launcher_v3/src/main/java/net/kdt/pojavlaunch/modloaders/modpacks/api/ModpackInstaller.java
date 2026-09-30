@@ -24,11 +24,11 @@ import java.util.concurrent.Callable;
 public class ModpackInstaller {
 
     public static LoaderInstaller installModpack(String modpackName, String title, File modpackFile, String icon, InstallFunction installFunction) throws IOException {
-        // Build a new minecraft instance, folder first
+
         LoaderInstaller loaderInstaller;
         Instance instance = Instances.createInstance(i-> i.name = title, modpackName.substring(0, Math.min(16,modpackName.length())));
         try {
-            // Install the modpack
+
             loaderInstaller = installFunction.installModpack(modpackFile, instance.getGameDirectory());
 
             if(loaderInstaller == null) throw new IOException("Unknown modpack mod loader information");

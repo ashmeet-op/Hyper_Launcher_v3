@@ -10,9 +10,7 @@ import net.kdt.pojavlaunch.game.platform.input.PlatformGamepad;
 import fr.spse.gamepad_remapper.GamepadHandler;
 import fr.spse.gamepad_remapper.RemapperManager;
 
-/**
- * Generic gamepad implementation (a {@link Gamepad} wrapper). Emulates keyboard/mouse input from gamepad events.
- */
+
 public class GenericGamepad implements PlatformGamepad {
     private final Context mContext;
     private final RemapperManager mRemapperManager;

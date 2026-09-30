@@ -95,7 +95,7 @@ object Tools {
     @JvmField
     var NATIVE_LIB_DIR: String? = null
     @JvmField
-    var DIR_DATA: String? = null // Initialized later to get context
+    var DIR_DATA: String? = null
     @JvmField
     var DIR_CACHE: File? = null
     @JvmField
@@ -103,7 +103,7 @@ object Tools {
     @JvmField
     var DEVICE_ARCHITECTURE = 0
 
-    // New since 3.3.1
+
     @JvmField
     var DIR_ACCOUNT_NEW: String? = null
     @JvmField
@@ -131,7 +131,7 @@ object Tools {
     @JvmField
     val WAIT_OBJECT = Any()
 
-    // Note: this should *NOT* be used for positioning and sizing things on the screen
+
     @JvmField
     var currentDisplayMetrics: DisplayMetrics? = null
 
@@ -174,7 +174,7 @@ object Tools {
             if (sourceSHA != null) {
                 sha1Dst.equals(sourceSHA, ignoreCase = true)
             } else {
-                true // fake match
+                true
             }
         } catch (e: IOException) {
             Log.i("SHA1", "Fake-matching a hash due to a read error", e)
@@ -303,7 +303,7 @@ object Tools {
             setLegacyFullscreen(insetView, finalNoSystemBars)
             return
         }
-        
+
         if (SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             WindowCompat.setDecorFitsSystemWindows(window, false)
         }
@@ -311,7 +311,7 @@ object Tools {
         val insetsController = window.insetsController
         if (insetsController != null) {
             insetsController.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            if (finalNoSystemBars) insetsController.hide(WindowInsets.Type.systemBars()) 
+            if (finalNoSystemBars) insetsController.hide(WindowInsets.Type.systemBars())
             else insetsController.show(WindowInsets.Type.systemBars())
         }
 
@@ -679,7 +679,7 @@ object Tools {
                 } catch (e: IOException) {
                     throw RuntimeException("Can't find the source version for $versionName (req version=${customVer.inheritsFrom})", e)
                 }
-                
+
                 insertSafety(
                     inheritsVer, customVer,
                     "assetIndex", "assets", "id",
@@ -868,9 +868,9 @@ object Tools {
 
     @JvmStatic
     fun swapFragment(
-        fragmentActivity: FragmentActivity, 
+        fragmentActivity: FragmentActivity,
         fragmentClass: Class<out Fragment>,
-        fragmentTag: String?, 
+        fragmentTag: String?,
         bundle: Bundle?
     ) {
         val transaction = fragmentActivity.supportFragmentManager.beginTransaction()

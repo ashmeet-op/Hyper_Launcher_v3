@@ -19,7 +19,7 @@ public class JSONUtils {
         }
         return args;
     }
-    
+
     public static String insertSingleJSONValue(String value, Map<String, String> keyValueMap) {
         String valueInserted = value;
         for (Map.Entry<String, String> keyValue : keyValueMap.entrySet()) {

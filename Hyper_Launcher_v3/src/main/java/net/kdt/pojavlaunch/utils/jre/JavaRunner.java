@@ -29,7 +29,7 @@ import java.util.TimeZone;
 public class JavaRunner {
 
     private static boolean getCacioJavaArgs(List<String> javaArgList, boolean isJava8) {
-        // Caciocavallo config AWT-enabled version
+
         javaArgList.add("-Djava.awt.headless=false");
         javaArgList.add("-Dpojav.path.native=" + Tools.NATIVE_LIB_DIR);
         javaArgList.add("-Dpojav.nativedir=" + Tools.NATIVE_LIB_DIR);
@@ -91,11 +91,7 @@ public class JavaRunner {
         return cacioClasspath;
     }
 
-    /**
-     *  Gives an argument list filled with both the user args
-     *  and the auto-generated ones (eg. the window resolution).
-     * @return A list filled with args.
-     */
+
     private static List<String> getJavaArgs(String runtimeHome, List<String> userArguments) {
         String resolvFile;
         resolvFile = new File(Tools.DIR_DATA,"resolv.conf").getAbsolutePath();
@@ -121,15 +117,15 @@ public class JavaRunner {
                 "-Dorg.lwjgl.spvc.libname=spirv-cross-c-shared",
                 "-Dorg.lwjgl.sdl.libname=" + new File(Tools.NATIVE_LIB_DIR, "libSDL3.so").getAbsolutePath(),
                 "-Dorg.lwjgl.system.allocator=system",
-                //LWJGL 3 DEBUG FLAGS
-                //"-Dorg.lwjgl.util.Debug=true",
-                //"-Dorg.lwjgl.util.DebugFunctions=true",
-                //"-Dorg.lwjgl.util.DebugLoader=true",
+
+
+
+
                 "-Dext.net.resolvPath=" +resolvFile,
-                "-Dlog4j2.formatMsgNoLookups=true", //Log4j RCE mitigation
-                "-Dfml.earlyprogresswindow=false", //Forge 1.14+ workaround
+                "-Dlog4j2.formatMsgNoLookups=true",
+                "-Dfml.earlyprogresswindow=false",
                 "-Dloader.disable_forked_guis=true",
-                "-Djdk.lang.Process.launchMechanism=FORK" // Default is POSIX_SPAWN which requires starting jspawnhelper, which doesn't work on Android
+                "-Djdk.lang.Process.launchMechanism=FORK"
         ));
         List<String> additionalArguments = new ArrayList<>();
         for(String arg : overridableArguments) {
@@ -147,7 +143,7 @@ public class JavaRunner {
                 Log.i("ArgProcessor","Arg skipped: "+arg);
         }
 
-        //Add all the arguments
+
         userArguments.addAll(additionalArguments);
         return userArguments;
     }
@@ -180,10 +176,10 @@ public class JavaRunner {
     }
 
     private static void relocateLdLibPath(File vmPath, List<String> extraDirs) {
-        // Java directory layout:
-        // .../server/libjvm.so
-        // .../libjava.so
-        // and so on. Hotspot itself relies on this we also rely on this.
+
+
+
+
         File vmDir = Objects.requireNonNull(vmPath.getParentFile());
         File libsDir = Objects.requireNonNull(vmDir.getParentFile());
         StringBuilder libPathBuilder =  new StringBuilder()
@@ -256,21 +252,13 @@ public class JavaRunner {
     private static void addx86SignalWorkaround(List<String> args) {
         if(Build.VERSION.SDK_INT != 23) return;
         if(Architecture.getDeviceArchitecture() != Architecture.ARCH_X86) return;
-        // On Marshmallow x86, something related to signal handling is broken inside of ART/sigchain library
-        // is broken, causing unclaimed signals to be sent into the sigchain. This drops the whole launcher into an abort.
-        // Enabling -Xrs prevents the VM from sending those signals (
+
+
+
         args.add("-Xrs");
     }
 
-    /**
-     * Start the Java(tm) Virtual Machine.
-     * @param runtime the Runtime that we're starting.
-     * @param vmArgs the command line parameters for the virtual machine
-     * @param classpathEntries the absolute path for each classpath entry
-     * @param mainClass the application main class
-     * @param applicationArgs the application arguments
-     * @throws VMLoadException if an error occurred during VM loading
-     */
+
     public static void startJvm(Runtime runtime, List<String> vmArgs, List<String> classpathEntries, String mainClass, List<String> applicationArgs) throws VMLoadException{
         File runtimeHomeDir = MultiRTUtils.getRuntimeHome(runtime.name);
         File vmPath = findVmPath(runtimeHomeDir, runtime.arch);
@@ -297,7 +285,7 @@ public class JavaRunner {
         }
         runtimeArgs.add(classpathBuilder.toString());
 
-        //JREUtils.initializeHooks();
+
 
         setImmutableEnvVars(runtimeHomeDir);
         relocateLdLibPath(vmPath, null);

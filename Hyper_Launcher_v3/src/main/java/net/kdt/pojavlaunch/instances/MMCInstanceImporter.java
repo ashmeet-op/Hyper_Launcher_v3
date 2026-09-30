@@ -31,7 +31,7 @@ public class MMCInstanceImporter {
     private static ZipEntry findEntry(ZipFile zip, String name) {
         ZipEntry entry = zip.getEntry(name);
         if (entry != null) return entry;
-        
+
         java.util.Enumeration<? extends ZipEntry> entries = zip.entries();
         while (entries.hasMoreElements()) {
             ZipEntry e = entries.nextElement();
@@ -78,7 +78,7 @@ public class MMCInstanceImporter {
             }
 
             if (mcVersion == null) {
-                // Fallback attempt to find version in config
+
                 mcVersion = config.get("IntendedVersion");
                 if (mcVersion == null) mcVersion = "1.20.1";
             }
@@ -92,17 +92,17 @@ public class MMCInstanceImporter {
                 i.versionId = finalLoaderInstaller != null ? finalLoaderInstaller.getVersionId() : finalMcVersion;
             }, "mmc");
 
-            // Extract game files
+
             String dotMinecraft = rootPath + ".minecraft/";
             if (zip.getEntry(dotMinecraft) == null) {
                 dotMinecraft = rootPath + "minecraft/";
             }
-            
+
             if (zip.getEntry(dotMinecraft) != null) {
                 ZipUtils.zipExtract(zip, dotMinecraft, instance.getGameDirectory());
             } else {
-                // If neither exists, just extract the whole root into game directory?
-                // MMC format expects .minecraft or minecraft usually.
+
+
                 Log.w("MMCImporter", "No .minecraft or minecraft folder found in MMC instance");
             }
 

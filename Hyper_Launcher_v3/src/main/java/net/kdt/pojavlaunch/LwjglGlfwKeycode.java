@@ -1,41 +1,15 @@
-// Keycodes from https://github.com/glfw/glfw/blob/master/include/GLFW/glfw3.h
 
-/*-************************************************************************
- * GLFW 3.4 - www.glfw.org
- * A library for OpenGL, window and input
- *------------------------------------------------------------------------
- * Copyright (c) 2002-2006 Marcus Geelnard
- * Copyright (c) 2006-2019 Camilla Löwy <elmindreda@glfw.org>
- *
- * This software is provided 'as-is', without any express or implied
- * warranty. In no event will the authors be held liable for any damages
- * arising from the use of this software.
- *
- * Permission is granted to anyone to use this software for any purpose,
- * including commercial applications, and to alter it and redistribute it
- * freely, subject to the following restrictions:
- *
- * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software. If you use this software
- *    in a product, an acknowledgment in the product documentation would
- *    be appreciated but is not required.
- *
- * 2. Altered source versions must be plainly marked as such, and must not
- *    be misrepresented as being the original software.
- *
- * 3. This notice may not be removed or altered from any source
- *    distribution.
- *
- *************************************************************************/
+
+
 
 package net.kdt.pojavlaunch;
 
 @SuppressWarnings("unused")
 public class LwjglGlfwKeycode {
-    /** The unknown key. */
-    public static final short GLFW_KEY_UNKNOWN = 0; // should be -1
 
-    /** Printable keys. */
+    public static final short GLFW_KEY_UNKNOWN = 0;
+
+
     public static final short
     GLFW_KEY_SPACE         = 32,
     GLFW_KEY_APOSTROPHE    = 39,
@@ -88,7 +62,7 @@ public class LwjglGlfwKeycode {
     GLFW_KEY_WORLD_1       = 161,
     GLFW_KEY_WORLD_2       = 162;
 
-    /** Function keys. */
+
     public static final short
     GLFW_KEY_ESCAPE        = 256,
     GLFW_KEY_ENTER         = 257,
@@ -162,26 +136,26 @@ public class LwjglGlfwKeycode {
     GLFW_KEY_MENU          = 348,
     GLFW_KEY_LAST          = GLFW_KEY_MENU;
 
-    /** If this bit is set one or more Shift keys were held down. */
+
     public static final int GLFW_MOD_SHIFT = 0x1;
 
-    /** If this bit is set one or more Control keys were held down. */
+
     public static final int GLFW_MOD_CONTROL = 0x2;
 
-    /** If this bit is set one or more Alt keys were held down. */
+
     public static final int GLFW_MOD_ALT = 0x4;
 
-    /** If this bit is set one or more Super keys were held down. */
+
     public static final int GLFW_MOD_SUPER = 0x8;
 
-    /** If this bit is set the Caps Lock key is enabled and the LOCK_KEY_MODS input mode is set. */
+
     public static final int GLFW_MOD_CAPS_LOCK = 0x10;
 
-    /** If this bit is set the Num Lock key is enabled and the LOCK_KEY_MODS input mode is set. */
+
     public static final int GLFW_MOD_NUM_LOCK = 0x20;
 
 
-    /** Mouse buttons. See <a target="_blank" href="http://www.glfw.org/docs/latest/input.html#input_mouse_button">mouse button input</a> for how these are used. */
+
     public static final short
     GLFW_MOUSE_BUTTON_1      = 0,
     GLFW_MOUSE_BUTTON_2      = 1,

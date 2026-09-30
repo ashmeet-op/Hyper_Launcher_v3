@@ -6,7 +6,7 @@ import net.kdt.pojavlaunch.CallbackBridge;
 
 import git.artdeell.dnbootstrap.glfw.GLFW;
 
-/** Sends keys via the CallBackBridge */
+
 public class LwjglCharSender implements CharacterSenderStrategy {
     @Override
     public void sendBackspace() {

@@ -15,14 +15,14 @@ public class AWTBackend implements PlatformBackend {
     @Override
     public void surfaceCreated(Surface surface) {
         Platform.grabStateChanged(false);
-        // AWT requires us to manually draw on the screen
+
         AWTBridge.nativeBeginRendering(surface, CallbackBridge.windowWidth, CallbackBridge.windowHeight);
     }
 
     @Override
     public void surfaceUpdated() {
         AWTBridge.nativeResize(CallbackBridge.windowWidth, CallbackBridge.windowHeight);
-        // There's no need of updating AWT Surface... for now
+
     }
 
     @Override
@@ -57,7 +57,7 @@ public class AWTBackend implements PlatformBackend {
 
     @Override
     public void sendScrollEvent(double x, double y) {
-        // Unsupported
+
     }
 
     @Override
@@ -72,11 +72,11 @@ public class AWTBackend implements PlatformBackend {
 
     @Override
     public void setHovered(boolean hovered) {
-        // Unsupported
+
     }
 
     @Override
     public void setVisible(boolean visible) {
-        // Unsupported
+
     }
 }

@@ -56,7 +56,7 @@ public class ControlDrawer extends ControlButton {
         }
     }
 
-    //Syncing stuff
+
     private void alignButtons(){
         if(buttons == null) return;
         if(drawerData.orientation == ControlDrawerData.Orientation.FREE) return;
@@ -104,12 +104,7 @@ public class ControlDrawer extends ControlButton {
         resizeButtons();
     }
 
-    /**
-     * Check whether or not the button passed as a parameter belongs to this drawer.
-     *
-     * @param button The button to look for
-     * @return Whether the button is in the buttons list of the drawer.
-     */
+
     public boolean containsChild(ControlInterface button){
         for(ControlButton childButton : buttons){
             if (childButton == button) return true;
@@ -140,8 +135,8 @@ public class ControlDrawer extends ControlButton {
     public boolean onTouchEvent(MotionEvent event) {
         if(!getControlLayoutParent().getModifiable()){
             switch (event.getActionMasked()){
-                case MotionEvent.ACTION_UP: // 1
-                case MotionEvent.ACTION_POINTER_UP: // 6
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_POINTER_UP:
                     switchButtonVisibility();
                     break;
             }
@@ -176,7 +171,7 @@ public class ControlDrawer extends ControlButton {
         return result && !containsChild(button);
     }
 
-    //Getters
+
     public ControlDrawerData getDrawerData() {
         return drawerData;
     }

@@ -61,8 +61,8 @@ public class MoJsonDownloader extends Downloader {
     private LinkedHashSet<File> mClassPath;
     private SubstitutionMap mSubstitutionMap;
 
-    private File mSourceJarFile; // The source client JAR picked during the inheritance process
-    private File mTargetJarFile; // The destination client JAR to which the source will be copied to.
+    private File mSourceJarFile;
+    private File mTargetJarFile;
     private String mVersionName;
 
     public MoJsonDownloader() {
@@ -77,24 +77,18 @@ public class MoJsonDownloader extends Downloader {
         });
     }
 
-    /**
-     * Start the game version download process on the global executor service.
-     * @param assetManager AssetManager, used for automatic installation of JRE 17 if needed
-     * @param version The JMinecraftVersionList.Version from the version list, if available
-     * @param realVersion The version ID (necessary)
-     * @param listener The download status listener
-     */
+
     public void start(@Nullable AssetManager assetManager, @Nullable JVersionList.Version version,
-                      @NonNull String realVersion, // this was there for a reason
+                      @NonNull String realVersion,
                       @NonNull MoJsonExtras.DoneListener listener) {
         sExecutorService.execute(() -> {
             try {
                 downloadGame(assetManager, version, realVersion);
                 listener.onDownloadDone(mClassPath.toArray(new File[0]));
             } catch(JsonParseException e) {
-                listener.onDownloadFailed(e); // Handled separately from the general case because it subclasses RuntimeException. Ugh.
+                listener.onDownloadFailed(e);
             } catch(RuntimeException e) {
-                throw e; // log fatal errors to Google Play
+                throw e;
             } catch (Exception e) {
                 listener.onDownloadFailed(e);
             }
@@ -102,16 +96,10 @@ public class MoJsonDownloader extends Downloader {
         });
     }
 
-    /**
-     * Download the game version.
-     * @param assetManager AssetManager, used for automatic installation of JRE 17 if needed
-     * @param verInfo The JMinecraftVersionList.Version from the version list, if available
-     * @param versionName The version ID (necessary)
-     * @throws Exception when an exception occurs in the function body or in any of the downloading threads.
-     */
+
     private void downloadGame(AssetManager assetManager, JVersionList.Version verInfo, String versionName) throws Exception {
-        // Put up a dummy progress line, for the activity to start the service and do all the other necessary
-        // work to keep the launcher alive. We will replace this line when we will start downloading stuff.
+
+
         ProgressLayout.setProgress(ProgressLayout.DOWNLOAD_GAME, 0, R.string.newdl_starting);
 
         mTargetJarFile = createGameJarPath(versionName);
@@ -130,7 +118,7 @@ public class MoJsonDownloader extends Downloader {
         mClassPath = new LinkedHashSet<>(downloadLibCount);
         growDownloadList(downloadLibCount);
         for(DependentLibrary dependentLibrary : mAllLibraries.values()) {
-            // Special handling for JNA Android natives
+
             if(dependentLibrary.name.startsWith("net.java.dev.jna:jna:") && !dependentLibrary.replaced) {
                 scheduleAarDownload(Tools.MAVEN_CENTRAL, dependentLibrary);
             }
@@ -162,11 +150,7 @@ public class MoJsonDownloader extends Downloader {
         return new File(Tools.DIR_HOME_VERSION, versionId + File.separator + versionId + ".jar");
     }
 
-    /**
-     * Ensure that there is a copy of the client JAR file in the version folder, if a copy is
-     * needed.
-     * @throws IOException if the copy fails
-     */
+
     private void ensureJarFileCopy() throws IOException {
         if(mSourceJarFile == null) return;
         if(mSourceJarFile.equals(mTargetJarFile)) return;
@@ -228,21 +212,14 @@ public class MoJsonDownloader extends Downloader {
         });
         return Tools.GLOBAL_GSON.fromJson(Tools.read(targetFile), JAssets.class);
     }
-    
+
     private ClientInfo getClientInfo(JVersionList.Version verInfo) {
         Map<String, ClientInfo> downloads = verInfo.downloads;
         if(downloads == null) return null;
         return downloads.get("client");
     }
 
-    /**
-     * Download (if necessary) and process a version's metadata, scheduling all downloads that this
-     * version needs.
-     * @param assetManager AssetManager, used for automatic installation of JRE 17 if needed
-     * @param verInfo The JMinecraftVersionList.Version from the version list, if available
-     * @param versionName The version ID (necessary)
-     * @throws IOException if the download of any of the metadata files fails
-     */
+
     private void downloadAndProcessMetadata(AssetManager assetManager, JVersionList.Version verInfo, String versionName) throws IOException, MirrorTamperedException, RuntimeSelectionException, JsonParseException {
         File versionJsonFile;
         if(verInfo != null) versionJsonFile = downloadGameJson(verInfo);
@@ -259,7 +236,7 @@ public class MoJsonDownloader extends Downloader {
 
         if(Tools.isValidString(verInfo.inheritsFrom)) {
             JVersionList.Version inheritedVersion = MoJsonExtras.getListedVersion(verInfo.inheritsFrom);
-            // Infinite inheritance !?! :noway:
+
             downloadAndProcessMetadata(assetManager, inheritedVersion, verInfo.inheritsFrom);
         }
 
@@ -288,13 +265,7 @@ public class MoJsonDownloader extends Downloader {
         mScheduledDownloadTasks.add(taskMetadata);
     }
 
-    /**
-     * Schedule the download of an AAR library containing the required natives, for later extraction
-     * and adding to the library path.
-     * @param baseRepository the source Maven repository to download from.
-     * @param dependentLibrary the DependentLibrary to get the path from
-     * @throws IOException in case if download scheduling fails.
-     */
+
     private void scheduleAarDownload(String baseRepository, DependentLibrary dependentLibrary) throws IOException {
         String path = MavenNameUtils.mavenNameToAarPath(dependentLibrary.name);
         String downloadUrl = baseRepository + path;
@@ -389,12 +360,12 @@ public class MoJsonDownloader extends Downloader {
             }
 
             String libraryTrimmedName = MavenNameUtils.mavenBaseName(dependentLibrary.name);
-            // Move the more recent library to the front of the list
+
             mAllLibraries.remove(libraryTrimmedName);
             mAllLibraries.put(libraryTrimmedName, dependentLibrary);
         }
     }
-    
+
     private void scheduleAssetDownloads(JAssets assets) throws IOException {
         Map<String, JAssetInfo> assetObjects = assets.objects;
         if(assetObjects == null) return;
@@ -443,7 +414,7 @@ public class MoJsonDownloader extends Downloader {
                 clientInfo.sha1,
                 clientInfo.size
         );
-        // Store the path of the JAR to copy it into our new version folder later.
+
         mSourceJarFile = clientJar;
     }
 }

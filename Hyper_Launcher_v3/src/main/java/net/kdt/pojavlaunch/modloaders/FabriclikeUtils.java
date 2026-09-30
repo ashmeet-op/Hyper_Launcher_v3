@@ -106,7 +106,7 @@ public class FabriclikeUtils {
             }
             FabricVersion fabricVersion = new FabricVersion();
             fabricVersion.version = jsonObject.getString("version");
-            //Quilt has a skill issue and does not say which versions are stable or not
+
             if(jsonObject.has("stable")) {
                 fabricVersion.stable = jsonObject.getBoolean("stable");
             } else {

@@ -17,7 +17,7 @@ class FatalErrorActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         val extras = intent.extras
         if (extras == null) {
             finish()
@@ -42,7 +42,7 @@ class FatalErrorActivity : AppCompatActivity() {
             getString(R.string.error_fatal),
             finalLogs,
             {
-                // Sharing stack trace instead of log file here
+
                 val intent = Intent(Intent.ACTION_SEND)
                 intent.type = "text/plain"
                 intent.putExtra(Intent.EXTRA_TEXT, finalLogs)

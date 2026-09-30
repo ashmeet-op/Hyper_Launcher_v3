@@ -9,20 +9,15 @@ public class GamepadMap {
 
     public static final short MOUSE_SCROLL_DOWN = -1;
     public static final short MOUSE_SCROLL_UP = -2;
-    // Made mouse keycodes their own specials because managing special keycodes above 0
-    // proved to be complicated
+
+
     public static final short MOUSE_LEFT = -3;
     public static final short MOUSE_MIDDLE = -4;
     public static final short MOUSE_RIGHT = -5;
-    // Workaround, because GLFW_KEY_UNKNOWN and GLFW_MOUSE_BUTTON_LEFT are both 0
+
     public static final short UNSPECIFIED = -6;
 
-    /*
-    This class is just here to store the mapping
-    can be modified to create re-mappable controls I guess
 
-    Be warned, you should define ALL keys if you want to avoid a non defined exception
-   */
 
     public GamepadButton BUTTON_A, BUTTON_B, BUTTON_X, BUTTON_Y, BUTTON_START, BUTTON_SELECT,
                          TRIGGER_RIGHT, TRIGGER_LEFT, SHOULDER_RIGHT, SHOULDER_LEFT, THUMBSTICK_RIGHT,
@@ -30,9 +25,7 @@ public class GamepadMap {
 
     public GamepadEmulatedButton DIRECTION_FORWARD, DIRECTION_BACKWARD, DIRECTION_RIGHT, DIRECTION_LEFT;
 
-    /*
-     * Sets all buttons to a not pressed state, sending an input if needed
-     */
+
     public void resetPressedState(){
         BUTTON_A.resetButtonState();
         BUTTON_B.resetButtonState();
@@ -89,9 +82,7 @@ public class GamepadMap {
         return gamepadMap;
     }
 
-    /*
-     * Returns a pre-done mapping used when the mouse is grabbed by the game.
-     */
+
     public static GamepadMap getDefaultGameMap(){
         GamepadMap gameMap = GamepadMap.createEmptyMap();
 
@@ -106,9 +97,9 @@ public class GamepadMap {
         gameMap.DIRECTION_LEFT.keycodes[0] = KeyEvent.KEYCODE_A;
 
         gameMap.DPAD_UP.keycodes[0] = KeyEvent.KEYCODE_SHIFT_LEFT;
-        gameMap.DPAD_DOWN.keycodes[0] = KeyEvent.KEYCODE_O;    //For mods ?
-        gameMap.DPAD_RIGHT.keycodes[0] = KeyEvent.KEYCODE_K;   //For mods ?
-        gameMap.DPAD_LEFT.keycodes[0] = KeyEvent.KEYCODE_J;    //For mods ?
+        gameMap.DPAD_DOWN.keycodes[0] = KeyEvent.KEYCODE_O;
+        gameMap.DPAD_RIGHT.keycodes[0] = KeyEvent.KEYCODE_K;
+        gameMap.DPAD_LEFT.keycodes[0] = KeyEvent.KEYCODE_J;
 
         gameMap.SHOULDER_LEFT.keycodes[0] = GamepadMap.MOUSE_SCROLL_UP;
         gameMap.SHOULDER_RIGHT.keycodes[0] = GamepadMap.MOUSE_SCROLL_DOWN;
@@ -126,9 +117,7 @@ public class GamepadMap {
         return gameMap;
     }
 
-    /*
-     * Returns a pre-done mapping used when the mouse is NOT grabbed by the game.
-     */
+
     public static GamepadMap getDefaultMenuMap(){
         GamepadMap menuMap = GamepadMap.createEmptyMap();
 
@@ -150,9 +139,9 @@ public class GamepadMap {
             keycodes[0] = keycodes[1] = keycodes[2] = keycodes[3] = GamepadMap.MOUSE_SCROLL_DOWN;
         }
 
-        menuMap.DPAD_DOWN.keycodes[0] = KeyEvent.KEYCODE_O; //For mods ?
-        menuMap.DPAD_RIGHT.keycodes[0] = KeyEvent.KEYCODE_K; //For mods ?
-        menuMap.DPAD_LEFT.keycodes[0] = KeyEvent.KEYCODE_J; //For mods ?
+        menuMap.DPAD_DOWN.keycodes[0] = KeyEvent.KEYCODE_O;
+        menuMap.DPAD_RIGHT.keycodes[0] = KeyEvent.KEYCODE_K;
+        menuMap.DPAD_LEFT.keycodes[0] = KeyEvent.KEYCODE_J;
 
         menuMap.SHOULDER_LEFT.keycodes[0] = GamepadMap.MOUSE_SCROLL_UP;
         menuMap.SHOULDER_RIGHT.keycodes[0] = GamepadMap.MOUSE_SCROLL_DOWN;
@@ -162,9 +151,7 @@ public class GamepadMap {
         return menuMap;
     }
 
-    /*
-     * Returns all GamepadEmulatedButtons of the controller key map.
-     */
+
     public GamepadEmulatedButton[] getButtons(){
         return new GamepadEmulatedButton[]{ BUTTON_A, BUTTON_B, BUTTON_X, BUTTON_Y,
                                     BUTTON_SELECT, BUTTON_START,
@@ -176,9 +163,7 @@ public class GamepadMap {
                                     DIRECTION_LEFT, DIRECTION_RIGHT};
     }
 
-    /*
-     * Returns an pre-initialized GamepadMap with only empty keycodes
-     */
+
     @SuppressWarnings("unused") public static GamepadMap createEmptyMap(){
         GamepadMap emptyMap = createAndInitializeButtons();
         for(GamepadEmulatedButton button : emptyMap.getButtons())

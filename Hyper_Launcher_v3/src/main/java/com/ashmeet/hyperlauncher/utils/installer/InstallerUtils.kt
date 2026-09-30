@@ -37,16 +37,16 @@ fun cleanMcVersion(version: String?): String {
         .replace(Regex("-neoforge-.*", RegexOption.IGNORE_CASE), "")
         .replace(Regex("-OptiFine_.*", RegexOption.IGNORE_CASE), "")
         .replace(Regex(" OptiFine .*", RegexOption.IGNORE_CASE), "")
-        .replace(Regex(" \\(.*\\)"), "") // Remove anything in parentheses
+        .replace(Regex(" \\(.*\\)"), "")
         .trim()
-    
-    // Extract base version if it's still dirty (e.g. 1.20.1-somethingelse)
+
+
     val baseVersionRegex = Regex("""1\.\d+(\.\d+)*""")
     val match = baseVersionRegex.find(cleaned)
     if (match != null) {
         cleaned = match.value
     } else {
-        // Handle snapshots like 23w14a
+
         val snapshotRegex = Regex("""\d+w\d+[a-z]""")
         val snapshotMatch = snapshotRegex.find(cleaned)
         if (snapshotMatch != null) {

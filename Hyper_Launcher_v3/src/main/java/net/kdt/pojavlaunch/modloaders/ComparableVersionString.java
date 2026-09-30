@@ -34,10 +34,7 @@ public class ComparableVersionString implements Comparable<ComparableVersionStri
         return original;
     }
 
-    /**
-     * @return the original but if the patch was .0 it will not include it, e.g.
-     *         "1.20.0" -> "1.20"
-     */
+
     public String getProper() {
         if(!this.isValid) return original;
 

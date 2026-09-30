@@ -46,17 +46,12 @@ public class Instance extends DisplayInstance {
         }
     }
 
-    /**
-     * Write the current contents of the instance to persistent storage.
-     * @throws IOException in case of write errors
-     */
+
     public void write() throws IOException {
         JSONUtils.writeToFile(Instances.metadataLocation(mInstanceRoot), this);
     }
 
-    /**
-     * Try to write the contents of the instance, ignore any exceptions
-     */
+
     public void maybeWrite() {
         try {
             write();
@@ -65,21 +60,17 @@ public class Instance extends DisplayInstance {
         }
     }
 
-    /**
-     * Encode the Bitmap as the new profile icon with required encoding settings.
-     * @param bitmap the target bitmap
-     * @throws IOException in case of errors while storing the icon
-     */
+
     public void encodeNewIcon(Bitmap bitmap) throws IOException {
         try(FileOutputStream fileOutputStream = new FileOutputStream(getInstanceIconLocation())) {
             bitmap.compress(
                     Build.VERSION.SDK_INT < Build.VERSION_CODES.R ?
-                            // On Android < 30, there was no distinction between "lossy" and "lossless",
-                            // and the type is picked by the quality parameter. We set the quality to 60.
-                            // so it should be lossy,
+
+
+
                             Bitmap.CompressFormat.WEBP:
-                            // On Android >= 30, we can explicitly specify that we want lossy compression
-                            // with the visual quality of 60.
+
+
                             Bitmap.CompressFormat.WEBP_LOSSY,
                     60,
                     fileOutputStream

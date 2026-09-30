@@ -13,7 +13,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import org.jetbrains.annotations.UnknownNullability;
 
 public class MirrorTamperedException extends Exception implements ContextExecutorTask {
-    // Do not change. Android really hates when this value changes for some reason.
+
     private static final long serialVersionUID = -7482301619612640658L;
     @Override
     public void executeWithActivity(Activity activity) {

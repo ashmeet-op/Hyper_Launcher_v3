@@ -53,7 +53,7 @@ public class MoJsonRule {
         }
 
         public boolean matches() {
-            // TODO: version matching
+
             return propertyMatches(name, "linux") &&
                     propertyMatches(arch, Architecture.archAsString(Architecture.getDeviceArchitecture())) &&
                     version == null;

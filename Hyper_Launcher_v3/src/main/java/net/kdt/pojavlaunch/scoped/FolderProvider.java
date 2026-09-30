@@ -32,17 +32,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * A document provider for the Storage Access Framework which exposes the files in the
- * $HOME/ directory to other apps.
- * <p/>
- * Note that this replaces providing an activity matching the ACTION_GET_CONTENT intent:
- * <p/>
- * "A document provider and ACTION_GET_CONTENT should be considered mutually exclusive. If you
- * support both of them simultaneously, your app will appear twice in the system picker UI,
- * offering two different ways of accessing your stored data. This would be confusing for users."
- * - <a href="http://developer.android.com/guide/topics/providers/document-provider.html#43">...</a>
- */
+
 public class FolderProvider extends DocumentsProvider {
 
     private static final String ALL_MIME_TYPES = "*/*";
@@ -53,8 +43,8 @@ public class FolderProvider extends DocumentsProvider {
 
     private String mStorageProviderAuthortiy;
 
-    // The default columns to return information about a root if no specific
-    // columns are requested in a query.
+
+
     private static final String[] DEFAULT_ROOT_PROJECTION = new String[]{
         Root.COLUMN_ROOT_ID,
         Root.COLUMN_MIME_TYPES,
@@ -66,8 +56,8 @@ public class FolderProvider extends DocumentsProvider {
         Root.COLUMN_AVAILABLE_BYTES
     };
 
-    // The default columns to return information about a document if no specific
-    // columns are requested in a query.
+
+
     private static final String[] DEFAULT_DOCUMENT_PROJECTION = new String[]{
         Document.COLUMN_DOCUMENT_ID,
         Document.COLUMN_MIME_TYPE,
@@ -103,7 +93,7 @@ public class FolderProvider extends DocumentsProvider {
     public Cursor queryDocument(String documentId, String[] projection) throws FileNotFoundException {
         final MatrixCursor result = new MatrixCursor(projection != null ? projection : DEFAULT_DOCUMENT_PROJECTION);
         if(!Tools.checkFileValidness(this, null)){
-            // Future-proofing in case if we implement realtime file watching
+
             result.setNotificationUri(mContentResolver, createUriForDocId(documentId));
             includeFile(result, documentId, null);
         }
@@ -120,7 +110,7 @@ public class FolderProvider extends DocumentsProvider {
             for (File file : children) {
                 includeFile(result, null, file);
             }
-            // Set the notification URI as that's what the "Files" app will be listening to in case of file deletion
+
             result.setNotificationUri(mContentResolver, createUriForDocId(parentDocumentId));
         }
         return result;
@@ -174,7 +164,7 @@ public class FolderProvider extends DocumentsProvider {
         } catch (IOException e) {
             throw new FileNotFoundException("Failed to create document with id " + newFile.getPath());
         }
-        // Notify the file manager that the parent directory has changed
+
         notifyChange(createUriForDocId(parentDocumentId));
         return newFile.getPath();
     }
@@ -220,7 +210,7 @@ public class FolderProvider extends DocumentsProvider {
                 throw new FileNotFoundException("Failed to delete document with id " + documentId);
             }
         }
-        // Notify the file manager that the parent directory has changed
+
         notifyChange(createUriForFile(file.getParentFile()));
     }
 
@@ -236,18 +226,18 @@ public class FolderProvider extends DocumentsProvider {
         final MatrixCursor result = new MatrixCursor(projection != null ? projection : DEFAULT_DOCUMENT_PROJECTION);
         final File parent = getFileForDocId(rootId);
 
-        // This example implementation searches file names for the query and doesn't rank search
-        // results, so we can stop as soon as we find a sufficient number of matches.  Other
-        // implementations might rank results and use other data about files, rather than the file
-        // name, to produce a match.
+
+
+
+
         final LinkedList<File> pending = new LinkedList<>();
         pending.add(parent);
 
         final int MAX_SEARCH_RESULTS = 50;
         while (!pending.isEmpty() && result.getCount() < MAX_SEARCH_RESULTS) {
             final File file = pending.removeFirst();
-            // Avoid directories outside the $HOME directory linked with symlinks (to avoid e.g. search
-            // through the whole SD card).
+
+
             boolean isInsideHome;
             try {
                 isInsideHome = file.getCanonicalPath().startsWith(Tools.DIR_GAME_HOME);
@@ -274,19 +264,12 @@ public class FolderProvider extends DocumentsProvider {
         return documentId.startsWith(parentDocumentId);
     }
 
-    /**
-     * Get the document id given a file. This document id must be consistent across time as other
-     * applications may save the ID and use it to reference documents later.
-     * <p/>
-     * The reverse of @{link #getFileForDocId}.
-     */
+
     private static String getDocIdForFile(File file) {
         return file.getAbsolutePath();
     }
 
-    /**
-     * Get the file given a document id (the reverse of {@link #getDocIdForFile(File)}).
-     */
+
     private static File getFileForDocId(String docId) throws FileNotFoundException {
         final File f = new File(docId);
         if (!f.exists()) throw new FileNotFoundException(f.getAbsolutePath() + " not found");
@@ -308,13 +291,7 @@ public class FolderProvider extends DocumentsProvider {
         }
     }
 
-    /**
-     * Add a representation of a file to a cursor.
-     *
-     * @param result the cursor to modify
-     * @param docId  the document ID representing the desired file (may be null if given file)
-     * @param file   the File object representing the desired file (may be null if given docID)
-     */
+
     private void includeFile(MatrixCursor result, String docId, File file)
         throws FileNotFoundException {
         if (docId == null) {
@@ -330,7 +307,7 @@ public class FolderProvider extends DocumentsProvider {
             flags |= Document.FLAG_SUPPORTS_WRITE;
         }
         File parent = file.getParentFile();
-        if(parent != null) { // Only fails in one case: when the parent is /, which you can't delete.
+        if(parent != null) {
             if(parent.canWrite()) flags |= Document.FLAG_SUPPORTS_DELETE;
         }
 

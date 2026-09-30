@@ -46,13 +46,13 @@ class RTRecyclerViewAdapter : RecyclerView.Adapter<RTRecyclerViewAdapter.RTViewH
     inner class RTViewHolder(val composeView: ComposeView) : RecyclerView.ViewHolder(composeView) {
         fun bindRuntime(runtime: Runtime, pos: Int) {
             val isCompatible = runtime.versionString != null && Tools.DEVICE_ARCHITECTURE == Architecture.archAsInt(runtime.arch)
-            
+
             val javaName = if (isCompatible) {
                 runtime.name.replace(".tar.xz", "").replace("-", " ")
             } else {
                 runtime.name
             }
-            
+
             val javaVersion = when {
                 runtime.versionString == null -> composeView.context.getString(R.string.multirt_runtime_corrupt)
                 !isCompatible -> composeView.context.getString(R.string.multirt_runtime_incompatiblearch, runtime.arch)

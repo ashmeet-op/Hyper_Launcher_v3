@@ -7,9 +7,7 @@ import android.content.Context;
 import git.artdeell.dnbootstrap.glfw.GLFWClipboard;
 import git.mojo.sdl.SDLClipboard;
 
-/**
- * Android clipboard implementation for GLFW/SDL
- */
+
 public class AndroidClipboard implements GLFWClipboard, SDLClipboard {
     private final ClipboardManager mClipboardManager;
 
@@ -17,11 +15,7 @@ public class AndroidClipboard implements GLFWClipboard, SDLClipboard {
         mClipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
     }
 
-    /**
-     * Get clipboard contents
-     *
-     * @return content String
-     */
+
     @Override
     public String getClipboardString() {
         if (!mClipboardManager.hasPrimaryClip()) return null;
@@ -33,11 +27,7 @@ public class AndroidClipboard implements GLFWClipboard, SDLClipboard {
         return text.toString();
     }
 
-    /**
-     * Set clipboard contents
-     *
-     * @param content content String
-     */
+
     @Override
     public void setClipboardString(String content) {
         mClipboardManager.setPrimaryClip(ClipData.newPlainText("HL Paste", content));

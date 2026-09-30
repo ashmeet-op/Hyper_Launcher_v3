@@ -10,16 +10,16 @@ import java.util.Arrays;
 public class KeycodeUtils {
     private static final int KEYCODE_COUNT = 108;
     private static final int[] sAndroidKeycodes = new int[KEYCODE_COUNT];
-    private static String[] androidKeyNameArray; /* = new String[androidKeycodes.length]; */
+    private static String[] androidKeyNameArray;
     private static int mTmpCount = 0;
 
     static {
         add(KeyEvent.KEYCODE_UNKNOWN);
-        // Escape key
+
         add(KeyEvent.KEYCODE_BACK);
 
-        // 0-9 keys
-        add(KeyEvent.KEYCODE_0); //7
+
+        add(KeyEvent.KEYCODE_0);
         add(KeyEvent.KEYCODE_1);
         add(KeyEvent.KEYCODE_2);
         add(KeyEvent.KEYCODE_3);
@@ -28,21 +28,21 @@ public class KeycodeUtils {
         add(KeyEvent.KEYCODE_6);
         add(KeyEvent.KEYCODE_7);
         add(KeyEvent.KEYCODE_8);
-        add(KeyEvent.KEYCODE_9); //16
+        add(KeyEvent.KEYCODE_9);
 
         add(KeyEvent.KEYCODE_POUND);
 
-        // Arrow keys
-        add(KeyEvent.KEYCODE_DPAD_UP); //19
+
+        add(KeyEvent.KEYCODE_DPAD_UP);
         add(KeyEvent.KEYCODE_DPAD_DOWN);
         add(KeyEvent.KEYCODE_DPAD_LEFT);
-        add(KeyEvent.KEYCODE_DPAD_RIGHT); //22
+        add(KeyEvent.KEYCODE_DPAD_RIGHT);
 
         add(KeyEvent.KEYCODE_VOLUME_UP);
         add(KeyEvent.KEYCODE_VOLUME_DOWN);
 
-        // A-Z keys
-        add(KeyEvent.KEYCODE_A); //29
+
+        add(KeyEvent.KEYCODE_A);
         add(KeyEvent.KEYCODE_B);
         add(KeyEvent.KEYCODE_C);
         add(KeyEvent.KEYCODE_D);
@@ -67,44 +67,44 @@ public class KeycodeUtils {
         add(KeyEvent.KEYCODE_W);
         add(KeyEvent.KEYCODE_X);
         add(KeyEvent.KEYCODE_Y);
-        add(KeyEvent.KEYCODE_Z); //54
+        add(KeyEvent.KEYCODE_Z);
 
 
         add(KeyEvent.KEYCODE_COMMA);
         add(KeyEvent.KEYCODE_PERIOD);
 
-        // Alt keys
+
         add(KeyEvent.KEYCODE_ALT_LEFT);
         add(KeyEvent.KEYCODE_ALT_RIGHT);
 
-        // Shift keys
+
         add(KeyEvent.KEYCODE_SHIFT_LEFT);
         add(KeyEvent.KEYCODE_SHIFT_RIGHT);
 
         add(KeyEvent.KEYCODE_TAB);
         add(KeyEvent.KEYCODE_SPACE);
-        add(KeyEvent.KEYCODE_ENTER); //66
-        add(KeyEvent.KEYCODE_DEL); // Backspace
+        add(KeyEvent.KEYCODE_ENTER);
+        add(KeyEvent.KEYCODE_DEL);
         add(KeyEvent.KEYCODE_GRAVE);
         add(KeyEvent.KEYCODE_MINUS);
         add(KeyEvent.KEYCODE_EQUALS);
         add(KeyEvent.KEYCODE_LEFT_BRACKET);
         add(KeyEvent.KEYCODE_RIGHT_BRACKET);
         add(KeyEvent.KEYCODE_BACKSLASH);
-        add(KeyEvent.KEYCODE_SEMICOLON); //74
+        add(KeyEvent.KEYCODE_SEMICOLON);
         add(KeyEvent.KEYCODE_APOSTROPHE);
-        add(KeyEvent.KEYCODE_SLASH); //76
+        add(KeyEvent.KEYCODE_SLASH);
         add(KeyEvent.KEYCODE_AT);
 
         add(KeyEvent.KEYCODE_PLUS);
 
-        // Page keys
-        add(KeyEvent.KEYCODE_PAGE_UP); //92
+
+        add(KeyEvent.KEYCODE_PAGE_UP);
         add(KeyEvent.KEYCODE_PAGE_DOWN);
 
         add(KeyEvent.KEYCODE_ESCAPE);
 
-        // Control keys
+
         add(KeyEvent.KEYCODE_CTRL_LEFT);
         add(KeyEvent.KEYCODE_CTRL_RIGHT);
 
@@ -115,8 +115,8 @@ public class KeycodeUtils {
         add(KeyEvent.KEYCODE_INSERT);
 
 
-        // Fn keys
-        add(KeyEvent.KEYCODE_F1); //131
+
+        add(KeyEvent.KEYCODE_F1);
         add(KeyEvent.KEYCODE_F2);
         add(KeyEvent.KEYCODE_F3);
         add(KeyEvent.KEYCODE_F4);
@@ -127,10 +127,10 @@ public class KeycodeUtils {
         add(KeyEvent.KEYCODE_F9);
         add(KeyEvent.KEYCODE_F10);
         add(KeyEvent.KEYCODE_F11);
-        add(KeyEvent.KEYCODE_F12); //142
+        add(KeyEvent.KEYCODE_F12);
 
-        // Num keys
-        add(KeyEvent.KEYCODE_NUM_LOCK); //143
+
+        add(KeyEvent.KEYCODE_NUM_LOCK);
         add(KeyEvent.KEYCODE_NUMPAD_0);
         add(KeyEvent.KEYCODE_NUMPAD_1);
         add(KeyEvent.KEYCODE_NUMPAD_2);
@@ -148,7 +148,7 @@ public class KeycodeUtils {
         add(KeyEvent.KEYCODE_NUMPAD_DOT);
         add(KeyEvent.KEYCODE_NUMPAD_COMMA);
         add(KeyEvent.KEYCODE_NUMPAD_ENTER);
-        add(KeyEvent.KEYCODE_NUMPAD_EQUALS); //161
+        add(KeyEvent.KEYCODE_NUMPAD_EQUALS);
 
 
     }
@@ -165,7 +165,7 @@ public class KeycodeUtils {
 
 
     public static void execKeyIndex(int index) {
-        //Send a quick key press.
+
         CallbackBridge.sendKeyPress(getValueByIndex(index));
     }
 
@@ -174,9 +174,9 @@ public class KeycodeUtils {
     }
 
 
-    /** @return the index at which the key is in the array, searching binary */
+
     public static int getIndexByValue(int lwjglKey) {
-        //You should avoid using this function on performance critical areas
+
         int ret = Arrays.binarySearch(sAndroidKeycodes, lwjglKey);
         if(ret < 1) return 0;
         return ret;

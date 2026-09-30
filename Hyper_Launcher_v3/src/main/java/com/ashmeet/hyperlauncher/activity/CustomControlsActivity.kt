@@ -48,7 +48,7 @@ class CustomControlsActivity : BaseActivity(), EditorExitable, CropperUtils.Crop
                 3 -> mControlLayout.openLoadDialog()
                 4 -> mControlLayout.openSaveDialog(this)
                 5 -> mControlLayout.openSetDefaultDialog()
-                6 -> { // Saving the currently shown control
+                6 -> {
                     try {
                         val contentUri = DocumentsContract.buildDocumentUri(
                             getString(R.string.storageProviderAuthorities),

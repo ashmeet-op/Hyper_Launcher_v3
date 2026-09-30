@@ -27,7 +27,7 @@ public class CropperView extends View {
     private float mHighlightThickness;
     private float mLastDistance = -1f;
     private float mSelectionPadding;
-    private float mAspectRatio = 1f; // w/h
+    private float mAspectRatio = 1f;
     private int mLastTrackedPointer;
     private Paint mSelectionPaint;
     private CropperBehaviour mCropperBehaviour = CropperBehaviour.DUMMY;
@@ -58,8 +58,8 @@ public class CropperView extends View {
         mSelectionPaint = new Paint();
         mSelectionPaint.setColor(Color.DKGRAY);
         mSelectionPaint.setStrokeWidth(mHighlightThickness);
-        // Divide the thickness by 2 since we will be needing only half of it for
-        // rect highlight correction.
+
+
         mHighlightThickness /= 2;
         mSelectionPaint.setStyle(Paint.Style.STROKE);
     }
@@ -69,8 +69,8 @@ public class CropperView extends View {
         float x1 = event.getX(0);
         float y1 = event.getY(0);
         if(event.getPointerCount() > 1) {
-            // More than 1 pointer = pinching
-            // Compute the distance and zoom the image with it
+
+
             float x2 = event.getX(1);
             float y2 = event.getY(1);
             float deltaXSquared = (x2 - x1) * (x2 - x1);
@@ -94,36 +94,36 @@ public class CropperView extends View {
             mLastDistance = distance;
             return true;
         } else {
-            // Reset lastDistance as it's fairly reliable to assume that when
-            // there's less than 2 pointers on the screen, the zoom gesture is over
+
+
             mLastDistance = -1f;
         }
 
-        // When not pinching, pan around. Simultaneous panning and zooming proved to be confusing in my testing.
-        // Lots of code there to allow seamless finger changing while panning.
+
+
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 mLastTouchX = x1;
                 mLastTouchY = y1;
-                // Remember the pointer index from the start of the gesture.
-                // We will be tracking it for the rest of the gesture unless it gets released.
+
+
                 mLastTrackedPointer = event.getPointerId(0);
                 break;
             case MotionEvent.ACTION_MOVE:
-                // Fond the pointer we should be tracking
+
                 int trackedIndex = findPointerIndex(event, mLastTrackedPointer);
-                // By default, we query the X/Y coordinates of pointer index 0. If our tracked
-                // pointer is no longer at index 0 and is still tracked, overwrite the coordinates
-                // with the expected ones
+
+
+
                 if(trackedIndex > 0) {
                     x1 = event.getX(trackedIndex);
                     y1 = event.getY(trackedIndex);
                 }
                 if(trackedIndex != -1) {
-                    // If we still track out current pointer, pan the image by the movement delta
+
                     mCropperBehaviour.pan(x1 - mLastTouchX, y1 - mLastTouchY);
                 } else {
-                    // Otherwise, mark the new tracked pointer without panning.
+
                     mLastTrackedPointer = event.getPointerId(0);
                 }
                 mLastTouchX = x1;
@@ -141,7 +141,7 @@ public class CropperView extends View {
         canvas.drawRect(mSelectionHighlight, mSelectionPaint);
     }
 
-    @SuppressWarnings("ClickableViewAccessibility") // the view is not clickable
+    @SuppressWarnings("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         return dispatchGenericMotionEvent(event);
@@ -158,8 +158,8 @@ public class CropperView extends View {
     protected void onSizeChanged(int w, int h, int oldW, int oldH) {
         super.onSizeChanged(w, h, oldW, oldH);
         int lesserDimension = (int)(Math.min(w, h) - mSelectionPadding);
-        // Calculate the corners of the new selection frame. It should always appear at the center of the view.
-        // Accounts for the aspect ratio.
+
+
         int targetWidth = lesserDimension;
         int centerShiftX = (w - lesserDimension) / 2;
         int targetHeight = lesserDimension;
@@ -177,9 +177,9 @@ public class CropperView extends View {
         mSelectionRect.right = centerShiftX + targetWidth;
         mSelectionRect.bottom = centerShiftY + targetHeight;
         mCropperBehaviour.onSelectionRectUpdated();
-        // Adjust the selection highlight rectangle to be bigger than the selection area
-        // by the highlight thickness, to make sure that the entire inside of the selection highlight
-        // will fit into the image
+
+
+
         mSelectionHighlight.left = mSelectionRect.left - mHighlightThickness;
         mSelectionHighlight.top = mSelectionRect.top + mHighlightThickness;
         mSelectionHighlight.right = mSelectionRect.right + mHighlightThickness;
@@ -191,7 +191,7 @@ public class CropperView extends View {
         int widthMode = MeasureSpec.getMode(widthSpec), widthSize = MeasureSpec.getSize(widthSpec);
         int heightMode = MeasureSpec.getMode(heightSpec), heightSize = MeasureSpec.getSize(heightSpec);
         if (widthMode == MeasureSpec.EXACTLY && heightMode == MeasureSpec.EXACTLY) {
-            // No leeway. Size to spec.
+
             setMeasuredDimension(widthSize, heightSize);
             return;
         }

@@ -9,7 +9,7 @@ import android.os.Bundle
 import android.system.Os
 import android.util.Log
 import android.view.View
-import android.widget.FrameLayout
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
@@ -57,7 +57,7 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
     private var mNotificationManager: NotificationManager? = null
     private lateinit var mRequestPermissionLauncher: ActivityResultLauncher<String>
 
-    /* Allows to switch from one button "type" to another */
+
     private val mFragmentCallbackListener = object : FragmentManager.FragmentLifecycleCallbacks() {
         override fun onFragmentResumed(fm: FragmentManager, f: Fragment) {
             val isMain = f is MainMenuFragment
@@ -69,26 +69,26 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
         }
     }
 
-    /* Listener for the back button in settings */
+
     private val mBackPreferenceListener = ExtraListener<String> { _, value ->
         if (value == "true") onBackPressedDispatcher.onBackPressed()
         false
     }
 
-    /* Listener for the auth method selection screen */
+
     private val mSelectAuthMethod = ExtraListener<Boolean> { _, value ->
-        // The "false" value is used to stop auth method selection
+
         val manager = supportFragmentManager
         if (!value || manager.isStateSaved) return@ExtraListener false
         val fragment = manager.findFragmentById(R.id.container_fragment)
-        // Allow starting the add account only from the main menu, should it be moved to fragment itself ?
+
         if (fragment !is MainMenuFragment) return@ExtraListener false
 
         Tools.swapFragment(this, AuthHostFragment::class.java, AuthHostFragment.TAG, null)
         false
     }
 
-    /* Listener for the settings fragment */
+
     private val mSettingButtonListener = View.OnClickListener {
         val manager = supportFragmentManager
         if (manager.isStateSaved) return@OnClickListener
@@ -96,12 +96,12 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
         if (fragment is MainMenuFragment) {
             Tools.swapFragment(this, LauncherPreferenceFragment::class.java, SETTING_FRAGMENT_TAG, null)
         } else {
-            // The setting button doubles as a home button now
+
             Tools.backToMainMenu(this)
         }
     }
 
-    /* Listener for the instance directory button */
+
     private val mInstanceDirectoryButtonListener = View.OnClickListener {
         val manager = supportFragmentManager
         if (manager.isStateSaved) return@OnClickListener
@@ -111,7 +111,7 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
         }
     }
 
-    /* Listener for the content installer button */
+
     private val mContentInstallerButtonListener = View.OnClickListener {
         val manager = supportFragmentManager
         if (manager.isStateSaved) return@OnClickListener
@@ -121,7 +121,7 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
         }
     }
 
-    /* Listener for the recordings gallery button */
+
     private val mRecordingsGalleryButtonListener = View.OnClickListener {
         val manager = supportFragmentManager
         if (manager.isStateSaved) return@OnClickListener
@@ -171,8 +171,8 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
     }
 
     private val mDoubleLaunchPreventionListener = TaskCountListener { taskCount ->
-        // Hide the notification that starts the game if there are tasks executing.
-        // Prevents the user from trying to launch the game with tasks ongoing.
+
+
         if (taskCount > 0) {
             Tools.runOnUiThread {
                 mNotificationManager?.cancel(NotificationUtils.NOTIFICATION_ID_GAME_START)
@@ -194,16 +194,12 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
             { mInstanceDirectoryButtonListener.onClick(null) },
             { mRecordingsGalleryButtonListener.onClick(null) },
             object : LauncherComposeHelper.OnFragmentViewCreatedListener {
-                override fun onCreated(view: FrameLayout) {
+                override fun onCreated(view: ViewGroup) {
                     val fm = supportFragmentManager
                     val f = fm.findFragmentById(R.id.container_fragment)
                     if (f == null) {
                         fm.beginTransaction()
                             .replace(R.id.container_fragment, MainMenuFragment::class.java, null, MainMenuFragment.TAG)
-                            .commitAllowingStateLoss()
-                    } else {
-                        fm.beginTransaction()
-                            .replace(R.id.container_fragment, f)
                             .commitAllowingStateLoss()
                     }
                 }
@@ -212,13 +208,17 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (supportFragmentManager.backStackEntryCount > 0 && findViewById<View>(R.id.container_fragment) == null) {
-                    Log.w("LauncherActivity", "onBackPressed: container not ready, ignoring")
-                    return
+                if (supportFragmentManager.backStackEntryCount > 0) {
+                    if (findViewById<View>(R.id.container_fragment) == null) {
+                        Log.w("LauncherActivity", "onBackPressed: container not ready, ignoring")
+                        return
+                    }
+                    supportFragmentManager.popBackStack()
+                } else {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                    isEnabled = true
                 }
-                isEnabled = false
-                onBackPressedDispatcher.onBackPressed()
-                isEnabled = true
             }
         })
 

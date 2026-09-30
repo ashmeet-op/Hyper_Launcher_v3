@@ -115,10 +115,7 @@ public class Instances {
         return instanceRoot;
     }
 
-    /**
-     * Set the currently selected instance and save it in user preferences
-     * @param instance new selected instance
-     */
+
     public static void setSelectedInstance(DisplayInstance instance) {
         LauncherPreferences.getPrefs().edit()
                 .putString(
@@ -127,20 +124,14 @@ public class Instances {
                 ).apply();
     }
 
-    /**
-     * Remove the instance. This also removes its data storage folder.
-     * @param instance the Instance to remove
-     * @throws IOException in case of errors during directory removal
-     */
+
     public static void removeInstance(Instance instance) throws IOException {
         File instanceDirectory = instance.mInstanceRoot;
         if(instanceDirectory == null) return;
         org.apache.commons.io.FileUtils.deleteDirectory(instanceDirectory);
     }
 
-    /**
-     * Create a new instance intended for first-time launcher users.
-     */
+
     private static void createFirstTimeInstance() throws IOException {
         internalCreateInstance((instance)-> {
             instance.name = "1.12.2";
@@ -149,10 +140,7 @@ public class Instances {
         }, null);
     }
 
-    /**
-     * Create a new instance based on a default template.
-     * @return the new instance
-     */
+
     public static Instance createDefaultInstance() throws IOException {
         return createInstance((instance)-> {
             instance.sharedData = true;
@@ -160,10 +148,7 @@ public class Instances {
         }, null);
     }
 
-    /**
-     * Create an instance without attempting to load the instance list first. Only use this
-     * method during initialization.
-     */
+
     private static Instance internalCreateInstance(InstanceSetter instanceSetter, String namePrefix) throws IOException{
         File root = findNewInstanceRoot(namePrefix);
         FileUtils.ensureDirectory(root);
@@ -174,22 +159,12 @@ public class Instances {
         return instance;
     }
 
-    /**
-     * Create a new instance with defaults set by user
-     * @param instanceSetter setter function called to set user parameters
-     * @param namePrefix a name prefix (for the user to easily distinguish installed instances)
-     * @return the created instance
-     * @throws IOException if directory creation/instance writing fails
-     */
+
     public static Instance createInstance(InstanceSetter instanceSetter, String namePrefix) throws IOException {
         return internalCreateInstance(instanceSetter, namePrefix);
     }
 
-    /**
-     * Load the currently selected instance. Note that this method must not be used along with any code
-     * which uses getImmutableInstanceList()
-     * @return currently selected instance
-     */
+
     public static Instance loadSelectedInstance() {
         File selectedInstanceLocation = selectedInstanceLocation();
         Instance instance = read(selectedInstanceLocation, Instance.class);

@@ -19,7 +19,7 @@ public class Runtime {
         this.arch = arch;
         this.javaVersion = javaVersion;
     }
-    
+
 
 
     @Override

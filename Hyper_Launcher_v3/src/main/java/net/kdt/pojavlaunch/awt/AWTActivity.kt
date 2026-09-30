@@ -43,8 +43,8 @@ class AWTActivity : BaseActivity() {
 
     private var mIsTrusted = false
     private lateinit var mGestureDetector: GestureDetector
-    
-    // States for Compose
+
+
     private var isMouseEnabled by mutableStateOf(false)
     private var isLoggerVisible by mutableStateOf(false)
     private var mousePosition by mutableStateOf(Offset.Zero)
@@ -79,7 +79,7 @@ class AWTActivity : BaseActivity() {
                 onOpenLogOutput = { isLoggerVisible = true },
                 onToggleVirtualMouse = { enabled ->
                     isMouseEnabled = enabled
-                    Toast.makeText(this, 
+                    Toast.makeText(this,
                         if (enabled) R.string.control_mouseon else R.string.control_mouseoff,
                         Toast.LENGTH_SHORT).show()
                 },
@@ -134,7 +134,7 @@ class AWTActivity : BaseActivity() {
         val action = event.actionMasked
         val x = event.x
         val y = event.y
-        
+
         var mouseX = mousePosition.x
         var mouseY = mousePosition.y
 
@@ -300,7 +300,7 @@ class AWTActivity : BaseActivity() {
                 jarFile.getInputStream(entry).use { it.read(bytes) }
                 val buffer = ByteBuffer.wrap(bytes)
                 if (buffer.int != 0xCAFEBABE.toInt()) return -1
-                buffer.short // minor
+                buffer.short
                 val major = buffer.short
                 return classVersionToJavaVersion(major.toInt())
             }

@@ -7,9 +7,6 @@ public abstract class AcquireableTaskMetadata extends TaskMetadata {
         super(null, null, mirrorType);
     }
 
-    /**
-     * Fill the missing fields of this AcquireableTaskMetadata (by, for example, performing an API request)
-     * @throws IOException if metadata acquisition failed
-     */
+
     public abstract void acquireMetadata() throws IOException;
 }

@@ -11,13 +11,11 @@ import com.ashmeet.hyperlauncher.utils.DateUtils;
 
 import java.util.Date;
 
-/** Class here to help with various stuff to help run lower versions smoothly */
+
 public class OldVersionsUtils {
-    /** Lower minecraft versions fare better with opengl 1
-     * @param version The version about to be launched
-     */
+
     public static void selectOpenGlVersion(JVersionList.Version version){
-        // 1309989600 is 2011-07-07  2011-07-07T22:00:00+00:00
+
         String creationTime = version.time;
         if(!Tools.isValidString(creationTime)){
             ExtraCore.setValue(ExtraConstants.OPEN_GL_VERSION, "2");

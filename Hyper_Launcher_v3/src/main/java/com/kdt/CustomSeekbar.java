@@ -11,9 +11,7 @@ import androidx.annotation.Nullable;
 
 import net.ashmeet.hyperlauncher.R;
 
-/**
- * Seekbar with ability to handle ranges and increments
- */
+
 @SuppressLint("AppCompatCustomView")
 public class CustomSeekbar extends SeekBar {
     private int mMin = 0;
@@ -21,9 +19,9 @@ public class CustomSeekbar extends SeekBar {
     private SeekBar.OnSeekBarChangeListener mListener;
 
     private final OnSeekBarChangeListener mInternalListener = new OnSeekBarChangeListener() {
-        /** When using increments, this flag is used to prevent double calls to the listener */
+
         private boolean internalChanges = false;
-        /** Store the previous progress to prevent double calls with increments */
+
         private int previousProgress = 0;
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -40,7 +38,7 @@ public class CustomSeekbar extends SeekBar {
                 }
             }
 
-            // Forces the thumb to snap to the increment
+
             setProgress(progress);
             internalChanges = false;
         }
@@ -113,14 +111,12 @@ public class CustomSeekbar extends SeekBar {
             super.setMin(0);
         }
         mMin = min;
-        //todo perform something to update the progress ?
+
     }
 
 
 
-    /**
-     * Wrapper to allow for a listener to be set around the internal listener
-     */
+
     @Override
     public void setOnSeekBarChangeListener(OnSeekBarChangeListener l) {
         mListener = l;
@@ -136,8 +132,8 @@ public class CustomSeekbar extends SeekBar {
             setRange(min, super.getMax());
         }
 
-        // Due to issues with negative progress when setting up the seekbar
-        // We need to set a random progress to force the refresh of the thumb
+
+
         if(super.getProgress() == 0) {
             super.setProgress(super.getProgress() + 1);
             post(() -> {
@@ -149,11 +145,7 @@ public class CustomSeekbar extends SeekBar {
         }
     }
 
-    /**
-     * Apply increment to the progress
-     * @param progress Progress to apply increment to
-     * @return Progress with increment applied
-     */
+
     private int applyIncrement(int progress) {
         if (mIncrement < 1) return progress;
 

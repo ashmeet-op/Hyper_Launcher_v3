@@ -54,6 +54,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.SliderState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -158,14 +159,13 @@ fun RecordingsGalleryScreen(
                         .padding(12.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    // Left Column: Video List
                     Surface(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight(),
                         shape = RoundedCornerShape(32.dp),
                         color = if (hasBackground) MaterialTheme.colorScheme.surface.copy(alpha = backgroundTransparency)
-                                else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
+                                else MaterialTheme.colorScheme.surfaceContainer,
                         tonalElevation = 0.dp
                     ) {
                         LazyColumn(
@@ -185,14 +185,14 @@ fun RecordingsGalleryScreen(
                         }
                     }
 
-                    // Right Column: Built-in Media Player & Actions
+
                     Surface(
                         modifier = Modifier
                             .weight(1.3f)
                             .fillMaxHeight(),
                         shape = RoundedCornerShape(32.dp),
                         color = if (hasBackground) MaterialTheme.colorScheme.surface.copy(alpha = backgroundTransparency)
-                                else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
+                                else MaterialTheme.colorScheme.surfaceContainer,
                         tonalElevation = 0.dp
                     ) {
                         if (selectedItem != null) {
@@ -218,7 +218,7 @@ fun RecordingsGalleryScreen(
         }
     }
 
-    // Delete Confirmation Dialog
+
     if (itemToDelete != null) {
         val fileToDelete = itemToDelete!!.file
         SimpleAlertDialog(
@@ -275,7 +275,7 @@ fun RecordingListItemCard(
             containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer
             else MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (isSelected) 4.dp else 1.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(
             modifier = Modifier
@@ -283,7 +283,7 @@ fun RecordingListItemCard(
                 .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Thumbnail Box
+
             Box(
                 modifier = Modifier
                     .size(width = 80.dp, height = 48.dp)
@@ -306,7 +306,7 @@ fun RecordingListItemCard(
                     )
                 }
 
-                // Duration badge
+
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
@@ -326,7 +326,7 @@ fun RecordingListItemCard(
 
             Spacer(modifier = Modifier.width(10.dp))
 
-            // Details
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = item.name,
@@ -425,6 +425,8 @@ fun BuiltInMediaPlayerView(
                 Log.w("MediaPlayer", "Error releasing player", e)
             }
             mediaPlayer = null
+            textureSurface?.release()
+            textureSurface = null
             isPrepared = false
             isPlaying = false
         }
@@ -496,15 +498,23 @@ fun BuiltInMediaPlayerView(
             .fillMaxSize()
             .padding(12.dp)
     ) {
-        // Video Preview Container
         BoxWithConstraints(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color.Black),
+                .background(Color.Transparent),
             contentAlignment = Alignment.Center
         ) {
+            val surfaceCreated: (Surface) -> Unit = { surface ->
+                textureSurface?.release()
+                textureSurface = surface
+            }
+            val surfaceDestroyed: () -> Unit = {
+                textureSurface?.release()
+                textureSurface = null
+            }
+
             if (videoWidth > 0 && videoHeight > 0) {
                 val videoAspect = videoWidth.toFloat() / videoHeight.toFloat()
                 val containerAspect = maxWidth.value / maxHeight.value
@@ -521,49 +531,17 @@ fun BuiltInMediaPlayerView(
                         .clip(RoundedCornerShape(8.dp)),
                     contentAlignment = Alignment.Center
                 ) {
-                    AndroidView(
-                        factory = { ctx ->
-                            TextureView(ctx).apply {
-                                surfaceTextureListener = object : TextureView.SurfaceTextureListener {
-                                    override fun onSurfaceTextureAvailable(st: SurfaceTexture, width: Int, height: Int) {
-                                        val oldSurface = textureSurface
-                                        textureSurface = Surface(st)
-                                        oldSurface?.release()
-                                    }
-                                    override fun onSurfaceTextureSizeChanged(st: SurfaceTexture, width: Int, height: Int) {}
-                                    override fun onSurfaceTextureDestroyed(st: SurfaceTexture): Boolean {
-                                        textureSurface?.release()
-                                        textureSurface = null
-                                        return true
-                                    }
-                                    override fun onSurfaceTextureUpdated(st: SurfaceTexture) {}
-                                }
-                            }
-                        },
-                        modifier = Modifier.fillMaxSize()
+                    VideoTextureView(
+                        modifier = Modifier.fillMaxSize(),
+                        onSurfaceCreated = surfaceCreated,
+                        onSurfaceDestroyed = surfaceDestroyed
                     )
                 }
             } else {
-                AndroidView(
-                    factory = { ctx ->
-                        TextureView(ctx).apply {
-                            surfaceTextureListener = object : TextureView.SurfaceTextureListener {
-                                override fun onSurfaceTextureAvailable(st: SurfaceTexture, width: Int, height: Int) {
-                                    val oldSurface = textureSurface
-                                    textureSurface = Surface(st)
-                                    oldSurface?.release()
-                                }
-                                override fun onSurfaceTextureSizeChanged(st: SurfaceTexture, width: Int, height: Int) {}
-                                override fun onSurfaceTextureDestroyed(st: SurfaceTexture): Boolean {
-                                    textureSurface?.release()
-                                    textureSurface = null
-                                    return true
-                                }
-                                override fun onSurfaceTextureUpdated(st: SurfaceTexture) {}
-                            }
-                        }
-                    },
-                    modifier = Modifier.fillMaxSize()
+                VideoTextureView(
+                    modifier = Modifier.fillMaxSize(),
+                    onSurfaceCreated = surfaceCreated,
+                    onSurfaceDestroyed = surfaceDestroyed
                 )
             }
 
@@ -604,7 +582,14 @@ fun BuiltInMediaPlayerView(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Interactive Timeline Seek Bar
+        val progress = if (totalDurationMs > 0) (currentPosMs.toFloat() / totalDurationMs.toFloat()).coerceIn(0f, 1f) else 0f
+        val seekSliderState = remember(progress) {
+            SliderState(
+                value = progress
+            )
+        }
+
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -615,7 +600,7 @@ fun BuiltInMediaPlayerView(
                 color = MaterialTheme.colorScheme.onSurface
             )
             Slider(
-                value = if (totalDurationMs > 0) (currentPosMs.toFloat() / totalDurationMs.toFloat()).coerceIn(0f, 1f) else 0f,
+                state = seekSliderState,
                 onValueChange = { frac ->
                     if (!isPrepared) return@Slider
                     val seekTarget = (frac * totalDurationMs).toLong()
@@ -641,7 +626,7 @@ fun BuiltInMediaPlayerView(
             )
         }
 
-        // Controls & Volume Slider
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -698,8 +683,15 @@ fun BuiltInMediaPlayerView(
                     )
                 }
 
+                val currentVol = if (isMuted) 0f else volumeLevel
+                val volumeSliderState = remember(currentVol) {
+                    SliderState(
+                        value = currentVol
+                    )
+                }
+
                 Slider(
-                    value = if (isMuted) 0f else volumeLevel,
+                    state = volumeSliderState,
                     onValueChange = { vol ->
                         volumeLevel = vol
                         isMuted = vol == 0f
@@ -711,7 +703,6 @@ fun BuiltInMediaPlayerView(
                             }
                         }
                     },
-                    valueRange = 0f..1f,
                     modifier = Modifier.width(90.dp)
                 )
             }
@@ -723,7 +714,7 @@ fun BuiltInMediaPlayerView(
                     Icon(
                         imageVector = Icons.Rounded.Download,
                         contentDescription = translatedText("Save to Gallery"),
-                        tint = MaterialTheme.colorScheme.tertiary
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
 
@@ -839,4 +830,32 @@ private fun shareClip(context: Context, file: File) {
     } catch (e: Exception) {
         Toast.makeText(context, "Could not share video: ${e.message}", Toast.LENGTH_SHORT).show()
     }
+}
+
+@Composable
+private fun VideoTextureView(
+    modifier: Modifier = Modifier,
+    onSurfaceCreated: (Surface) -> Unit,
+    onSurfaceDestroyed: () -> Unit
+) {
+    AndroidView(
+        factory = { ctx ->
+            TextureView(ctx).apply {
+                surfaceTextureListener = object : TextureView.SurfaceTextureListener {
+                    override fun onSurfaceTextureAvailable(st: SurfaceTexture, width: Int, height: Int) {
+                        @Suppress("ResourceLeak")
+                        val surface = Surface(st)
+                        onSurfaceCreated(surface)
+                    }
+                    override fun onSurfaceTextureSizeChanged(st: SurfaceTexture, width: Int, height: Int) {}
+                    override fun onSurfaceTextureDestroyed(st: SurfaceTexture): Boolean {
+                        onSurfaceDestroyed()
+                        return true
+                    }
+                    override fun onSurfaceTextureUpdated(st: SurfaceTexture) {}
+                }
+            }
+        },
+        modifier = modifier
+    )
 }

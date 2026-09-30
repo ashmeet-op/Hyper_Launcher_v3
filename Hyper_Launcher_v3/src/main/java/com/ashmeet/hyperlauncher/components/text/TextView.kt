@@ -419,7 +419,7 @@ fun <G, I> ExpandableVersionList(
                     itemContent(item)
                 }
             }
-            
+
             item {
                 Spacer(modifier = Modifier.height(8.dp))
             }

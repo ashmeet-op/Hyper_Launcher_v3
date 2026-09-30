@@ -36,12 +36,12 @@ public class LeftClickGesture extends DistanceGesture {
     @Override
     public boolean checkAndTrigger() {
         boolean fingerStill = travelBelowThreshold(LeftClickGesture.FINGER_STILL_THRESHOLD);
-        // If the finger is still, fire the gesture.
+
         if(fingerStill) {
             sendMouseButton(MotionEvent.BUTTON_PRIMARY, true);
             mMouseActivated = true;
         }
-        // Otherwise, don't click but still keep it active
+
         return true;
     }
 

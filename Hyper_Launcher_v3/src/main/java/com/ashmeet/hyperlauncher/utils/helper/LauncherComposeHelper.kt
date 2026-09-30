@@ -3,7 +3,7 @@ package com.ashmeet.hyperlauncher.utils.helper
 import android.content.Context
 import android.content.ContextWrapper
 import android.view.View
-import android.widget.FrameLayout
+import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.FragmentActivity
@@ -35,7 +35,7 @@ object LauncherComposeHelper {
     }
 
     interface OnFragmentViewCreatedListener {
-        fun onCreated(view: FrameLayout)
+        fun onCreated(view: ViewGroup)
     }
 
     interface DrawerController {

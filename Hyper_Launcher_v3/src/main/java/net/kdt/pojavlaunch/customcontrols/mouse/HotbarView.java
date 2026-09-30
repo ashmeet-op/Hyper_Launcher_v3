@@ -58,7 +58,7 @@ public class HotbarView extends View implements MCOptionUtils.MCOptionListener, 
         initialize();
     }
 
-    @SuppressWarnings("unused") // You suggested me this constructor, Android
+    @SuppressWarnings("unused")
     public HotbarView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         initialize();
@@ -96,38 +96,38 @@ public class HotbarView extends View implements MCOptionUtils.MCOptionListener, 
         setLayoutParams(marginLayoutParams);
     }
 
-    @SuppressWarnings("ClickableViewAccessibility") // performClick does not report coordinates.
+    @SuppressWarnings("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        // Avoid going through the JNI each time.
+
         if(!Platform.isGrabbing()) return false;
         boolean hasDoubleTapped = mDoubleTapDetector.onTouchEvent(event);
 
-        // Check if we need to cancel the drop event
+
         int actionMasked = event.getActionMasked();
         if(isLastEventInGesture(actionMasked)) mDropGesture.cancel();
         else mDropGesture.submit();
-        // Determine the hotbar slot
+
         float x = event.getX();
-        // Ignore positions equal to mWidth because they would translate into an out-of-bounds hotbar index
+
         if(x < 0 || x >= mWidth) {
-            // If out of bounds, cancel the hotbar gesture to avoid dropping items on last hotbar slots
+
             mDropGesture.cancel();
             return true;
         }
         int hotbarIndex = (int)MathUtils.map(x, 0, mWidth, 0, HOTBAR_KEYS.length);
-        // Check if the slot changed and we need to make a key press
+
         if(hotbarIndex == mLastIndex) {
-            // Only check for doubletapping if the slot has not changed
+
             if(hasDoubleTapped && !LauncherPreferences.PREF_DISABLE_SWAP_HAND) CallbackBridge.sendKeyPress(KeyEvent.KEYCODE_F);
             return true;
         }
         mLastIndex = hotbarIndex;
         int hotbarKey = HOTBAR_KEYS[hotbarIndex];
         CallbackBridge.sendKeyPress(hotbarKey);
-        // Cancel the event since we changed hotbar slots.
+
         mDropGesture.cancel();
-        // Only resubmit the gesture only if it isn't the last event we will receive.
+
         if(!isLastEventInGesture(actionMasked)) mDropGesture.submit();
         return true;
     }
@@ -140,7 +140,7 @@ public class HotbarView extends View implements MCOptionUtils.MCOptionListener, 
         return (int)((mGuiScale * input) / LauncherPreferences.PREF_SCALE_FACTOR);
     }
 
-    /** Forces the view to reposition itself. */
+
     public void onResolutionChanged() {
         if(getParent() == null) return;
         mGuiScale = MCOptionUtils.getMcScale();
@@ -163,11 +163,11 @@ public class HotbarView extends View implements MCOptionUtils.MCOptionListener, 
 
     @Override
     public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-        // We need to check whether dimensions match or not because here we are looking specifically for changes of dimensions
-        // and Android keeps calling this without dimensions actually changing for some reason.
+
+
         if(v.equals(mParentView) && (left != oldLeft || right != oldRight || top != oldTop || bottom != oldBottom)) {
-            // Need to post this, because it is not correct to resize the view
-            // during a layout pass.
+
+
             post(this::repositionView);
         }
     }

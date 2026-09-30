@@ -25,7 +25,7 @@ class VersionListAdapter(versionList: Array<JVersionList.Version>, private val h
         val betaList = FilteredSubList(versionList) { item: JVersionList.Version -> item.type == "old_beta" }
         val alphaList = FilteredSubList(versionList) { item: JVersionList.Version -> item.type == "old_alpha" }
 
-        // Query installed versions
+
         mInstalledVersions = File(Tools.DIR_GAME_NEW + "/versions").list()
         mInstalledVersions?.sort()
 

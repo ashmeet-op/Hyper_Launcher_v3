@@ -39,8 +39,8 @@ object SkinLoader {
                 }
             }
         }
-        
-        // Fallback to caching based on profileId if skinPath is empty or failed
+
+
         val cachedSkinFaceFile = File(Tools.DIR_CACHE, "skin-face-${account.profileId}-${account.authType.name}.webp")
         if (cachedSkinFaceFile.exists()) {
             try {
@@ -77,33 +77,33 @@ object SkinLoader {
         val faceOffset = (size / 18.0).roundToInt().toFloat()
         val scaleFactor = skin.width / 64.0f
         val faceSize = (8 * scaleFactor).roundToInt()
-        
+
         val faceBitmap = Bitmap.createBitmap(skin, faceSize, faceSize, faceSize, faceSize, null, false)
         val hatBitmap = Bitmap.createBitmap(skin,
             (40 * scaleFactor).roundToInt(), faceSize, faceSize, faceSize, null, false)
-        
+
         val avatar = createBitmap(size, size)
         val canvas = Canvas(avatar)
-        
+
         val faceScale = (size - 2 * faceOffset) / faceSize
         val hatScale = size.toFloat() / faceSize
-        
+
         var matrix = Matrix()
         matrix.postScale(faceScale, faceScale)
         val newFaceBitmap = Bitmap.createBitmap(faceBitmap, 0, 0, faceSize, faceSize, matrix, false)
-        
+
         matrix = Matrix()
         matrix.postScale(hatScale, hatScale)
         val newHatBitmap = Bitmap.createBitmap(hatBitmap, 0, 0, faceSize, faceSize, matrix, false)
-        
+
         canvas.drawBitmap(newFaceBitmap, faceOffset, faceOffset, Paint(Paint.ANTI_ALIAS_FLAG))
         canvas.drawBitmap(newHatBitmap, 0f, 0f, Paint(Paint.ANTI_ALIAS_FLAG))
-        
+
         faceBitmap.recycle()
         hatBitmap.recycle()
         newFaceBitmap.recycle()
         newHatBitmap.recycle()
-        
+
         return avatar
     }
 }

@@ -3,9 +3,7 @@ package net.kdt.pojavlaunch.game.platform.backend;
 import android.view.Surface;
 
 
-/**
- * Null (dummy) Platform implementation. Use when none of other platforms are available
- */
+
 public class DummyBackend implements PlatformBackend {
 
     @Override

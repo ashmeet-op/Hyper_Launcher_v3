@@ -101,7 +101,7 @@ object RecordingManager {
                 }
             }
 
-            // Ensure even dimensions required by H264
+
             recordWidth = if (recordWidth % 2 == 0) recordWidth else recordWidth - 1
             recordHeight = if (recordHeight % 2 == 0) recordHeight else recordHeight - 1
 
@@ -126,7 +126,7 @@ object RecordingManager {
 
             recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
             recorder.setOutputFile(outputFile.absolutePath)
-            recorder.setVideoEncodingBitRate(12000000) // 12 Mbps
+            recorder.setVideoEncodingBitRate(12000000)
             recorder.setVideoFrameRate(60)
             recorder.setVideoSize(recordWidth, recordHeight)
             recorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264)
@@ -136,7 +136,7 @@ object RecordingManager {
                 recorder.setAudioSamplingRate(44100)
                 recorder.setAudioEncodingBitRate(128000)
             } catch (_: Exception) {
-                // Audio encoding fallback if mic was omitted
+
             }
 
             recorder.prepare()

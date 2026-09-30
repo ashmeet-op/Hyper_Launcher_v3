@@ -12,9 +12,7 @@ import net.kdt.pojavlaunch.game.platform.cursor.PlatformCursor;
 import git.artdeell.dnbootstrap.glfw.GLFW;
 import git.artdeell.dnbootstrap.glfw.GLFWCursor;
 
-/**
- * GLFW Platform implementation
- */
+
 public class GLFWBackend implements PlatformBackend {
     public GLFWBackend() {
         GLFW.setGrabListener(Platform::grabStateChanged);

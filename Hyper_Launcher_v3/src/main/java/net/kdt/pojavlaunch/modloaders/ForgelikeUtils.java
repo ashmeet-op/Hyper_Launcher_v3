@@ -47,18 +47,18 @@ public abstract class ForgelikeUtils {
             saxParser = parserFactory.newSAXParser();
         } catch (SAXException | ParserConfigurationException e) {
             e.printStackTrace();
-            // if we cant make a parser we might as well not even try to parse anything
+
             return null;
         }
         try {
-            //of_test();
+
             return DownloadUtils.downloadStringCached(mMetadataUrl, mCachePrefix + "_versions", input -> {
                 try {
                     ForgelikeVersionListHandler handler = new ForgelikeVersionListHandler();
                     saxParser.parse(new InputSource(new StringReader(input)), handler);
                     return handler.getVersions();
-                    // IOException is present here StringReader throws it only if the parser called close()
-                    // sooner than needed, which is a parser issue and not an I/O one
+
+
                 } catch (SAXException | IOException e) {
                     throw new DownloadUtils.ParseException(e);
                 }
@@ -118,11 +118,11 @@ public abstract class ForgelikeUtils {
     }
 
     private static String getMcVersionForNeoVersion(String neoVersion) {
-        // I feel like it's necessary to explain the NeoForge versioning format
-        // basically, what it does is it trims the major version from minecrafts version
-        // e.g.: 1.20.1 -> 20.1, and then appends its own "patch" version to that
-        // e.g.: 20.1 -> 20.1.8, which means the version string includes both, the minecraft
-        // and the loader version at once
+
+
+
+
+
         try {
             int firstIndex = neoVersion.indexOf('.');
             int secondIndex = neoVersion.indexOf('.', firstIndex + 1);

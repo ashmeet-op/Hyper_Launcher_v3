@@ -10,17 +10,15 @@ import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-/**
- * This image is intended to keep the mod icon cache tidy (aka under 100 megabytes)
- */
+
 public class IconCacheJanitor implements Runnable{
-    public static final long CACHE_SIZE_LIMIT = 104857600; // The cache size limit, 100 megabytes
-    public static final long CACHE_BRINGDOWN = 52428800; // The size to which the cache should be brought
-    // in case of an overflow, 50 mb
+    public static final long CACHE_SIZE_LIMIT = 104857600;
+    public static final long CACHE_BRINGDOWN = 52428800;
+
     private static Future<?> sJanitorFuture;
     private static boolean sJanitorRan = false;
     private IconCacheJanitor() {
-        // don't allow others to create this
+
     }
     @Override
     public void run() {
@@ -59,9 +57,7 @@ public class IconCacheJanitor implements Runnable{
         }
     }
 
-    /**
-     * Runs the janitor task, unless there was one running already or one has ran already
-     */
+
     public static void runJanitor() {
         synchronized (IconCacheJanitor.class) {
             if (sJanitorFuture != null || sJanitorRan) return;
@@ -69,10 +65,7 @@ public class IconCacheJanitor implements Runnable{
         }
     }
 
-    /**
-     * Waits for the janitor task to finish, if there is one running already
-     * Note that the thread waiting must not be interrupted.
-     */
+
     public static void waitForJanitorToFinish() {
         synchronized (IconCacheJanitor.class) {
             if (sJanitorFuture == null) return;

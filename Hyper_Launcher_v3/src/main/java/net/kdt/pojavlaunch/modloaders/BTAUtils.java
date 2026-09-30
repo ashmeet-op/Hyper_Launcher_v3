@@ -54,9 +54,9 @@ public class BTAUtils {
     private static List<BTAVersion> createVersionList(List<String> versionStrings, String buildType) {
         ListIterator<String> iterator = versionStrings.listIterator(versionStrings.size());
         ArrayList<BTAVersion> btaVersions = new ArrayList<>(versionStrings.size());
-        // The original list is guaranteed to be in ascending order - the earliest versions
-        // are at the top, but for user convenience we need to put the newest versions at the top,
-        // so the BTAVersion list is made from the reverse of the string list.
+
+
+
         while(iterator.hasPrevious()) {
             String version = iterator.previous();
             if(version == null) continue;
@@ -82,8 +82,8 @@ public class BTAUtils {
         List<String> untestedVersions = new ArrayList<>();
         for(String version : stringVersions) {
             if(version == null) break;
-            // Checking for presence in testing array here to avoid accidentally adding nonexistent
-            // versions if some of them end up getting removed.
+
+
             if(BTA_TESTED_VERSIONS.contains(version)) {
                 testedVersions.add(version);
             }else {

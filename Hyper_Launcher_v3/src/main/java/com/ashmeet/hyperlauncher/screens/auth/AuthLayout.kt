@@ -1,7 +1,8 @@
 package com.ashmeet.hyperlauncher.screens.auth
 
 
-import android.widget.FrameLayout
+import android.view.ViewGroup
+import androidx.fragment.app.FragmentContainerView
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
@@ -81,7 +82,7 @@ fun AuthLayout(
     title: String,
     isFullScreen: Boolean = false,
     onBack: (() -> Unit)? = null,
-    onFragmentViewCreated: (FrameLayout) -> Unit
+    onFragmentViewCreated: (ViewGroup) -> Unit
 ) {
     val animations = listOf("NewIdle", "DefaultIdle", "Walking", "Running", "Flying", "Wave", "Crouch", "Hit")
     var currentAnimation by remember { mutableStateOf(LauncherPreferences.PREF_SKIN_ANIMATION) }
@@ -375,7 +376,7 @@ fun AuthLayout(
                 ) {
                     AndroidView(
                         factory = { context ->
-                            FrameLayout(context).apply {
+                            FragmentContainerView(context).apply {
                                 id = R.id.container_fragment_auth
                                 onFragmentViewCreated(this)
                             }

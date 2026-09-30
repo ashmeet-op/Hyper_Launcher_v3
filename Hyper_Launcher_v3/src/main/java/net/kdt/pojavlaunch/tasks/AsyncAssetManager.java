@@ -28,12 +28,9 @@ public class AsyncAssetManager {
 
     private AsyncAssetManager(){}
 
-    /**
-     * Attempt to install the java 8 runtime, if necessary
-     * @param am App context
-     */
+
     public static void unpackRuntime(AssetManager am) {
-        /* Check if JRE is included */
+
         String rt_version = null;
         String current_rt_version = MultiRTUtils.readInternalRuntimeVersion("Internal");
         try {
@@ -42,11 +39,11 @@ public class AsyncAssetManager {
             Log.e("JREAuto", "JRE was not included on this APK.", e);
         }
         String exactJREName = MultiRTUtils.getExactJreName(8);
-        if(current_rt_version == null && exactJREName != null && !exactJREName.equals("Internal")/*this clause is for when the internal runtime is goofed*/) return;
+        if(current_rt_version == null && exactJREName != null && !exactJREName.equals("Internal")) return;
         if(rt_version == null) return;
         if(rt_version.equals(current_rt_version)) return;
 
-        // Install the runtime in an async manner, hope for the best
+
         String finalRt_version = rt_version;
         sExecutorService.execute(() -> {
 
@@ -62,15 +59,15 @@ public class AsyncAssetManager {
         });
     }
 
-    /** Unpack single files, with no regard to version tracking */
+
     public static void unpackSingleFiles(Context ctx){
         ProgressLayout.setProgress(ProgressLayout.EXTRACT_SINGLE_FILES, 0);
         sExecutorService.execute(() -> {
             try {
                 Tools.copyAssetFile(ctx, "options.txt", Tools.DIR_GAME_NEW, false);
 
-                // This is disgusting, but am lazy. We probably won't be getting any updates to
-                // controlmap till rewrite anyway so this is fine.
+
+
                 try (InputStream is = ctx.getAssets().open("default.json")) {
                     String assetSha1 = new String(org.apache.commons.codec.binary.Hex.encodeHex(org.apache.commons.codec.digest.DigestUtils.sha1(is)));
                     if (!Tools.compareSHA1(new File(Tools.CTRLDEF_FILE), assetSha1)) {
@@ -93,10 +90,10 @@ public class AsyncAssetManager {
         sExecutorService.execute(() -> {
             tryUnpackComponent(ctx, "caciocavallo", false);
             tryUnpackComponent(ctx, "caciocavallo17", false);
-            
+
             try {
-                // Since the Java module system doesn't allow multiple JARs to declare the same module,
-                // we repack them to a single file here
+
+
                 unpackLwjglNatives(ctx);
             } catch (IOException e) {
                 Log.e("AsyncAssetManager", "Failed to unpack LWJGL natives !", e);
@@ -139,8 +136,8 @@ public class AsyncAssetManager {
         }
     }
 
-    // Piggybacks off of the java modules extracting later to use their version files for update checks
-    // This is indeed prone to breaking.
+
+
     private static void unpackLwjglNatives(Context ctx) throws IOException {
         AssetManager am = ctx.getAssets();
         String rootDir = Tools.DIR_DATA;
@@ -189,8 +186,8 @@ public class AsyncAssetManager {
         String[] fileList = am.list(componentSource);
 
         boolean needsUpdate = installedVersion == null || !installedVersion.equals(builtinVersion);
-        
-        // Even if the version matches, check if the files actually exist and are not empty or size-mismatched
+
+
         if (!needsUpdate && fileList != null) {
             for (String fileName : fileList) {
                 if (fileName.equals("version")) continue;
@@ -232,8 +229,8 @@ public class AsyncAssetManager {
             }
         }
 
-        // Always write the version file separately after extracting everything else, to improve
-        // reliability.
+
+
         if (builtinVersion != null) {
             Tools.write(new File(componentTarget, "version"), builtinVersion);
         }

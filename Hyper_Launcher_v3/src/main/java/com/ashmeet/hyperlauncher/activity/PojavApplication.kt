@@ -41,7 +41,7 @@ class PojavApplication : Application() {
             ) == PackageManager.PERMISSION_GRANTED) && Tools.checkStorageRoot(this)
             val crashFile = File(if (storagePermAllowed) Tools.DIR_GAME_HOME else Tools.DIR_DATA, "latestcrash.txt")
             try {
-                // Write to file, since some devices may not able to show error
+
                 FileUtils.ensureParentDirectory(crashFile)
                 PrintStream(crashFile).use { crashStream ->
                     crashStream.append("Hyper crash report\n")
@@ -67,19 +67,19 @@ class PojavApplication : Application() {
     @SuppressLint("SuspiciousIndentation")
     override fun onCreate() {
         ContextExecutor.setApplication(this)
-        // Disable fatal errors on gplay. This is necessary so that Google can collect crash report data and send it to me
-        // (where I can find the cause and fix it)
+
+
         if (BuildConfig.BUILD_TYPE != "gplay") installFatalErrorHandler()
 
         try {
             super.onCreate()
             if (Tools.checkStorageRoot(this)) {
-                // Implicitly initializes early constants and storage constants.
-                // Required to run the main activity properly.
+
+
                 LauncherPreferences.loadPreferences(this)
             } else {
-                // In other cases, only initialize enough for the basic most basics to work
-                // and not explode.
+
+
                 Tools.initEarlyConstants(this)
             }
 
@@ -88,7 +88,7 @@ class PojavApplication : Application() {
 
             Tools.DEVICE_ARCHITECTURE = Architecture.getDeviceArchitecture()
             NativePluginManager.discoverAarPlugins(this)
-            //Force x86 lib directory for Asus x86 based zenfones
+
             if (Architecture.isx86Device() && Architecture.is32BitsDevice()) {
                 val info = applicationInfo
                 val originalJNIDirectory = info.nativeLibraryDir

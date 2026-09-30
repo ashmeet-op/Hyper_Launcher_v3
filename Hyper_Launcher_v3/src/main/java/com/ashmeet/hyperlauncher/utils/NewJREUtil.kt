@@ -40,7 +40,7 @@ object NewJREUtil {
     private fun checkInternalRuntime(assetManager: AssetManager, internalRuntime: InternalRuntime) {
         val installedRuntimeVersion = MultiRTUtils.readInternalRuntimeVersion(internalRuntime.runtimeName)
         if (installedRuntimeVersion != null && checkLastUpdateTime(internalRuntime)) return
-        
+
         val remoteRuntimeVersion = try {
             getRemoteRuntimeVersion(internalRuntime)
         } catch (exc: IOException) {
@@ -50,7 +50,7 @@ object NewJREUtil {
             }
             return
         }
-        
+
         if (remoteRuntimeVersion != installedRuntimeVersion) {
             unpackInternalRuntime(assetManager, internalRuntime, remoteRuntimeVersion)
         }
@@ -148,7 +148,7 @@ object NewJREUtil {
         val instance = Instances.loadSelectedInstance()
         val profileRuntime = Tools.getSelectedRuntime(instance)
         val runtime = MultiRTUtils.read(profileRuntime)
-        
+
         if (runtime.javaVersion >= gameRequiredVersion) {
             val internalRuntime = getInternalRuntime(runtime)
             if (internalRuntime != null) {
