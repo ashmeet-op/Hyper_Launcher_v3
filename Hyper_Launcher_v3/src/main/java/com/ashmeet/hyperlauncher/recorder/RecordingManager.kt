@@ -1,13 +1,17 @@
 package com.ashmeet.hyperlauncher.recorder
 
 
+import android.content.ContentValues
 import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.media.MediaRecorder
 import android.media.MediaScannerConnection
 import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
+import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -118,10 +122,12 @@ object RecordingManager {
             }
 
             recorder.setVideoSource(MediaRecorder.VideoSource.SURFACE)
-            try {
-                recorder.setAudioSource(MediaRecorder.AudioSource.MIC)
-            } catch (e: Exception) {
-                Log.w(TAG, "Audio source MIC unavailable, recording video only: ${e.message}")
+            if (LauncherPreferences.PREF_RECORD_MIC_SOUND) {
+                try {
+                    recorder.setAudioSource(MediaRecorder.AudioSource.MIC)
+                } catch (e: Exception) {
+                    Log.w(TAG, "Audio source MIC unavailable, recording video only: ${e.message}")
+                }
             }
 
             recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
@@ -131,12 +137,14 @@ object RecordingManager {
             recorder.setVideoSize(recordWidth, recordHeight)
             recorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264)
 
-            try {
-                recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                recorder.setAudioSamplingRate(44100)
-                recorder.setAudioEncodingBitRate(128000)
-            } catch (_: Exception) {
+            if (LauncherPreferences.PREF_RECORD_MIC_SOUND) {
+                try {
+                    recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                    recorder.setAudioSamplingRate(44100)
+                    recorder.setAudioEncodingBitRate(128000)
+                } catch (_: Exception) {
 
+                }
             }
 
             recorder.prepare()
@@ -204,6 +212,9 @@ object RecordingManager {
                 arrayOf("video/mp4"),
                 null
             )
+            if (LauncherPreferences.PREF_AUTO_SAVE_TO_GALLERY) {
+                saveFileToGallery(context, savedFile)
+            }
             val durationText = formatDuration(currentState.durationSeconds)
             Toast.makeText(
                 context,
@@ -269,6 +280,43 @@ object RecordingManager {
         return if (file.exists()) {
             file.delete()
         } else false
+    }
+
+    fun saveFileToGallery(context: Context, file: File): Boolean {
+        try {
+            val resolver = context.contentResolver
+            val contentValues = ContentValues().apply {
+                put(MediaStore.Video.Media.DISPLAY_NAME, file.name)
+                put(MediaStore.Video.Media.MIME_TYPE, "video/mp4")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    put(MediaStore.Video.Media.RELATIVE_PATH, Environment.DIRECTORY_MOVIES + "/HyperLauncher")
+                    put(MediaStore.Video.Media.IS_PENDING, 1)
+                }
+            }
+            val collection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+            } else {
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+            }
+            val uri = resolver.insert(collection, contentValues)
+            if (uri != null) {
+                resolver.openOutputStream(uri)?.use { output ->
+                    file.inputStream().use { input ->
+                        input.copyTo(output)
+                    }
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    contentValues.clear()
+                    contentValues.put(MediaStore.Video.Media.IS_PENDING, 0)
+                    resolver.update(uri, contentValues, null, null)
+                }
+                MediaScannerConnection.scanFile(context, arrayOf(file.absolutePath), arrayOf("video/mp4"), null)
+                return true
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to save file to gallery", e)
+        }
+        return false
     }
 
     fun formatDuration(seconds: Long): String {

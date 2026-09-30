@@ -20,6 +20,7 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -43,18 +44,18 @@ import androidx.compose.material.icons.automirrored.rounded.VolumeMute
 import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Download
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Share
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.SliderState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -70,17 +71,24 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.edit
+import com.ashmeet.hyperlauncher.components.HyperAlertDialog
+import com.ashmeet.hyperlauncher.components.HyperDropdownMenu
 import com.ashmeet.hyperlauncher.components.dialog.SimpleAlertDialog
+import com.ashmeet.hyperlauncher.components.switch.DefaultSwitch
 import com.ashmeet.hyperlauncher.recorder.RecordingItem
 import com.ashmeet.hyperlauncher.recorder.RecordingManager
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
@@ -97,17 +105,16 @@ import kotlin.time.Duration.Companion.milliseconds
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecordingsGalleryScreen(
+    @Suppress("UNUSED_PARAMETER") onBack: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
     val scope = rememberCoroutineScope()
-
-    var launcherBgPath by remember { mutableStateOf(LauncherPreferences.PREF_LAUNCHER_BACKGROUND_PATH) }
-    val hasBackground = launcherBgPath != null
-    val backgroundTransparency = if (hasBackground) 0.5f else 1f
 
     var recordings by remember { mutableStateOf<List<RecordingItem>>(emptyList()) }
     var selectedItem by remember { mutableStateOf<RecordingItem?>(null) }
     var itemToDelete by remember { mutableStateOf<RecordingItem?>(null) }
+    var showSettingsDialog by remember { mutableStateOf(false) }
 
     fun refreshList() {
         scope.launch {
@@ -124,92 +131,127 @@ fun RecordingsGalleryScreen(
         refreshList()
     }
 
+    val isBlurred = LauncherPreferences.PREF_BLURRED_ELEMENTS_ENABLED
+    val hasBackground = LauncherPreferences.PREF_LAUNCHER_BACKGROUND_PATH != null
+
+    val panelColor = if (isBlurred) {
+        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+    } else if (hasBackground) {
+        MaterialTheme.colorScheme.surface.copy(alpha = 0.3f)
+    } else {
+        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
+    }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = if (hasBackground) Color.Transparent else MaterialTheme.colorScheme.surface.copy(alpha = 0.1f),
-        contentColor = MaterialTheme.colorScheme.onBackground,
-        tonalElevation = 3.dp
+        color = if (hasBackground) Color.Transparent else MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.onBackground
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            if (recordings.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = translatedText("No recorded game clips found."),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = translatedText("Use Quick Settings or Drawer button to start recording."),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                        )
-                    }
-                }
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            shape = RoundedCornerShape(32.dp),
+            color = if (isBlurred) {
+                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
             } else {
-                Row(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Surface(
+                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
+            },
+            tonalElevation = 2.dp
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pointerInput(Unit) {
+                        detectTapGestures(onTap = {
+                            focusManager.clearFocus()
+                        })
+                    }
+            ) {
+                if (isBlurred) {
+                    Box(
                         modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight(),
-                        shape = RoundedCornerShape(32.dp),
-                        color = if (hasBackground) MaterialTheme.colorScheme.surface.copy(alpha = backgroundTransparency)
-                                else MaterialTheme.colorScheme.surfaceContainer,
-                        tonalElevation = 0.dp
+                            .matchParentSize()
+                            .blur(16.dp)
+                    )
+                }
+
+                if (recordings.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            items(recordings, key = { it.file.absolutePath }) { item ->
-                                RecordingListItemCard(
-                                    item = item,
-                                    isSelected = item.file.absolutePath == selectedItem?.file?.absolutePath,
-                                    onClick = { selectedItem = item },
-                                    onDeleteClick = { itemToDelete = item }
-                                )
-                            }
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = translatedText("No recorded game clips found."),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = translatedText("Use Quick Settings or Drawer button to start recording."),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                            )
                         }
                     }
-
-
-                    Surface(
+                } else {
+                    Row(
                         modifier = Modifier
-                            .weight(1.3f)
-                            .fillMaxHeight(),
-                        shape = RoundedCornerShape(32.dp),
-                        color = if (hasBackground) MaterialTheme.colorScheme.surface.copy(alpha = backgroundTransparency)
-                                else MaterialTheme.colorScheme.surfaceContainer,
-                        tonalElevation = 0.dp
+                            .fillMaxSize()
+                            .padding(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        if (selectedItem != null) {
-                            BuiltInMediaPlayerView(
-                                item = selectedItem!!,
-                                onDelete = { itemToDelete = selectedItem }
-                            )
-                        } else {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
+                        Surface(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight(),
+                            shape = RoundedCornerShape(24.dp),
+                            color = panelColor,
+                            tonalElevation = 0.dp
+                        ) {
+                            LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Text(
-                                    text = translatedText("Select a video clip to play"),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                items(recordings, key = { it.file.absolutePath }) { item ->
+                                    RecordingListItemCard(
+                                        item = item,
+                                        isSelected = item.file.absolutePath == selectedItem?.file?.absolutePath,
+                                        onClick = { selectedItem = item },
+                                        onDeleteClick = { itemToDelete = item }
+                                    )
+                                }
+                            }
+                        }
+
+                        Surface(
+                            modifier = Modifier
+                                .weight(1.3f)
+                                .fillMaxHeight(),
+                            shape = RoundedCornerShape(24.dp),
+                            color = panelColor,
+                            tonalElevation = 0.dp
+                        ) {
+                            if (selectedItem != null) {
+                                BuiltInMediaPlayerView(
+                                    item = selectedItem!!,
+                                    onDelete = { itemToDelete = selectedItem },
+                                    onSettingsClick = { showSettingsDialog = true }
                                 )
+                            } else {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = translatedText("Select a video clip to play"),
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                             }
                         }
                     }
@@ -217,7 +259,6 @@ fun RecordingsGalleryScreen(
             }
         }
     }
-
 
     if (itemToDelete != null) {
         val fileToDelete = itemToDelete!!.file
@@ -238,6 +279,100 @@ fun RecordingsGalleryScreen(
             onDismiss = { itemToDelete = null }
         )
     }
+
+    if (showSettingsDialog) {
+        var recordMicSound by remember { mutableStateOf(LauncherPreferences.PREF_RECORD_MIC_SOUND) }
+        var autoSaveGallery by remember { mutableStateOf(LauncherPreferences.PREF_AUTO_SAVE_TO_GALLERY) }
+
+        HyperAlertDialog(
+            onDismissRequest = { showSettingsDialog = false },
+            title = {
+                Text(
+                    text = translatedText("Recorder Settings"),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier.padding(top = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable {
+                                recordMicSound = !recordMicSound
+                                LauncherPreferences.PREF_RECORD_MIC_SOUND = recordMicSound
+                                LauncherPreferences.prefs.edit { putBoolean("record_mic_sound", recordMicSound) }
+                            },
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+                            Text(
+                                text = translatedText("Record Microphone Sound"),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = translatedText("Record mic audio along with game video"),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        DefaultSwitch(
+                            checked = recordMicSound,
+                            onCheckedChange = { checked ->
+                                recordMicSound = checked
+                                LauncherPreferences.PREF_RECORD_MIC_SOUND = checked
+                                LauncherPreferences.prefs.edit { putBoolean("record_mic_sound", checked) }
+                            }
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable {
+                                autoSaveGallery = !autoSaveGallery
+                                LauncherPreferences.PREF_AUTO_SAVE_TO_GALLERY = autoSaveGallery
+                                LauncherPreferences.prefs.edit { putBoolean("auto_save_to_gallery", autoSaveGallery) }
+                            },
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+                            Text(
+                                text = translatedText("Always Save to Gallery"),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = translatedText("Automatically save new game recordings to your Gallery"),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        DefaultSwitch(
+                            checked = autoSaveGallery,
+                            onCheckedChange = { checked ->
+                                autoSaveGallery = checked
+                                LauncherPreferences.PREF_AUTO_SAVE_TO_GALLERY = checked
+                                LauncherPreferences.prefs.edit { putBoolean("auto_save_to_gallery", checked) }
+                            }
+                        )
+                    }
+                }
+            },
+            confirmText = translatedText("Done"),
+            onConfirm = { showSettingsDialog = false }
+        )
+    }
 }
 
 @Composable
@@ -248,6 +383,7 @@ fun RecordingListItemCard(
     onDeleteClick: () -> Unit
 ) {
     var thumbnail by remember(item.file.absolutePath) { mutableStateOf<Bitmap?>(null) }
+    val isBlurred = LauncherPreferences.PREF_BLURRED_ELEMENTS_ENABLED
 
     LaunchedEffect(item.file.absolutePath) {
         withContext(Dispatchers.IO) {
@@ -266,16 +402,20 @@ fun RecordingListItemCard(
         }
     }
 
-    Card(
+    val cardColor = if (isSelected) {
+        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
+    } else {
+        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (isBlurred) 0.4f else 0.2f)
+    }
+
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer
-            else MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        shape = RoundedCornerShape(16.dp),
+        color = cardColor,
+        tonalElevation = 0.dp
     ) {
         Row(
             modifier = Modifier
@@ -283,7 +423,6 @@ fun RecordingListItemCard(
                 .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-
             Box(
                 modifier = Modifier
                     .size(width = 80.dp, height = 48.dp)
@@ -306,7 +445,6 @@ fun RecordingListItemCard(
                     )
                 }
 
-
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
@@ -325,7 +463,6 @@ fun RecordingListItemCard(
             }
 
             Spacer(modifier = Modifier.width(10.dp))
-
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -349,7 +486,7 @@ fun RecordingListItemCard(
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Delete,
-                    contentDescription = "Delete",
+                    contentDescription = translatedText("Delete"),
                     tint = MaterialTheme.colorScheme.error.copy(alpha = 0.8f),
                     modifier = Modifier.size(18.dp)
                 )
@@ -361,7 +498,8 @@ fun RecordingListItemCard(
 @Composable
 fun BuiltInMediaPlayerView(
     item: RecordingItem,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onSettingsClick: () -> Unit
 ) {
     val context = LocalContext.current
     var isPrepared by remember(item.file.absolutePath) { mutableStateOf(false) }
@@ -371,11 +509,31 @@ fun BuiltInMediaPlayerView(
     var isMuted by remember { mutableStateOf(false) }
     var volumeLevel by remember { mutableFloatStateOf(1.0f) }
 
+    var playbackSpeed by remember { mutableFloatStateOf(1.0f) }
+    val availableSpeeds = remember { listOf(0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f) }
+    var showSpeedMenu by remember { mutableStateOf(false) }
+    var showMoreMenu by remember { mutableStateOf(false) }
+
     var videoWidth by remember(item.file.absolutePath) { mutableIntStateOf(0) }
     var videoHeight by remember(item.file.absolutePath) { mutableIntStateOf(0) }
 
     var textureSurface by remember { mutableStateOf<Surface?>(null) }
     var mediaPlayer by remember(item.file.absolutePath) { mutableStateOf<MediaPlayer?>(null) }
+
+    fun updateSpeed(newSpeed: Float) {
+        playbackSpeed = newSpeed
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && isPrepared) {
+            try {
+                mediaPlayer?.let { mp ->
+                    val params = mp.playbackParams
+                    params.speed = newSpeed
+                    mp.playbackParams = params
+                }
+            } catch (e: Exception) {
+                Log.e("MediaPlayer", "Error setting playback speed", e)
+            }
+        }
+    }
 
     DisposableEffect(item.file.absolutePath) {
         val player = MediaPlayer().apply {
@@ -390,6 +548,15 @@ fun BuiltInMediaPlayerView(
                     }
                     val vol = if (isMuted) 0f else volumeLevel
                     mp.setVolume(vol, vol)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && playbackSpeed != 1.0f) {
+                        try {
+                            val params = mp.playbackParams
+                            params.speed = playbackSpeed
+                            mp.playbackParams = params
+                        } catch (e: Exception) {
+                            Log.w("MediaPlayer", "Failed applying speed on prepare", e)
+                        }
+                    }
                 }
                 setOnVideoSizeChangedListener { _, width, height ->
                     if (width > 0 && height > 0) {
@@ -582,34 +749,39 @@ fun BuiltInMediaPlayerView(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        val progress = if (totalDurationMs > 0) (currentPosMs.toFloat() / totalDurationMs.toFloat()).coerceIn(0f, 1f) else 0f
-        val seekSliderState = remember(progress) {
-            SliderState(
-                value = progress
-            )
-        }
+        var isDraggingSeek by remember { mutableStateOf(false) }
+        var dragProgress by remember { mutableFloatStateOf(0f) }
 
+        val actualProgress = if (totalDurationMs > 0) (currentPosMs.toFloat() / totalDurationMs.toFloat()).coerceIn(0f, 1f) else 0f
+        val sliderValue = if (isDraggingSeek) dragProgress else actualProgress
 
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val displayMs = if (isDraggingSeek) (dragProgress * totalDurationMs).toLong() else currentPosMs
             Text(
-                text = formatMs(currentPosMs),
+                text = formatMs(displayMs),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Slider(
-                state = seekSliderState,
+                value = sliderValue,
                 onValueChange = { frac ->
-                    if (!isPrepared) return@Slider
-                    val seekTarget = (frac * totalDurationMs).toLong()
-                    currentPosMs = seekTarget
-                    try {
-                        mediaPlayer?.seekTo(seekTarget.toInt())
-                    } catch (e: Exception) {
-                        Log.e("MediaPlayer", "Error seeking", e)
+                    isDraggingSeek = true
+                    dragProgress = frac
+                },
+                onValueChangeFinished = {
+                    if (isPrepared) {
+                        val seekTarget = (dragProgress * totalDurationMs).toLong()
+                        currentPosMs = seekTarget
+                        try {
+                            mediaPlayer?.seekTo(seekTarget.toInt())
+                        } catch (e: Exception) {
+                            Log.e("MediaPlayer", "Error seeking", e)
+                        }
                     }
+                    isDraggingSeek = false
                 },
                 modifier = Modifier
                     .weight(1f)
@@ -625,7 +797,6 @@ fun BuiltInMediaPlayerView(
                 color = MaterialTheme.colorScheme.onSurface
             )
         }
-
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -684,14 +855,9 @@ fun BuiltInMediaPlayerView(
                 }
 
                 val currentVol = if (isMuted) 0f else volumeLevel
-                val volumeSliderState = remember(currentVol) {
-                    SliderState(
-                        value = currentVol
-                    )
-                }
 
                 Slider(
-                    state = volumeSliderState,
+                    value = currentVol,
                     onValueChange = { vol ->
                         volumeLevel = vol
                         isMuted = vol == 0f
@@ -703,49 +869,135 @@ fun BuiltInMediaPlayerView(
                             }
                         }
                     },
-                    modifier = Modifier.width(90.dp)
+                    valueRange = 0f..1f,
+                    modifier = Modifier.width(80.dp)
                 )
             }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Box(modifier = Modifier.padding(end = 6.dp)) {
+                    Surface(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable { showSpeedMenu = true },
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    ) {
+                        Text(
+                            text = "${if (playbackSpeed % 1f == 0f) playbackSpeed.toInt().toString() else playbackSpeed.toString()}x",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)
+                        )
+                    }
+
+                    HyperDropdownMenu(
+                        expanded = showSpeedMenu,
+                        onDismissRequest = { showSpeedMenu = false }
+                    ) {
+                        availableSpeeds.forEach { speed ->
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = "${speed}x",
+                                        fontWeight = if (speed == playbackSpeed) FontWeight.Bold else FontWeight.Normal
+                                    )
+                                },
+                                onClick = {
+                                    updateSpeed(speed)
+                                    showSpeedMenu = false
+                                }
+                            )
+                        }
+                    }
+                }
+
                 IconButton(
                     onClick = { saveToGallery(context, item.file) }
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Download,
                         contentDescription = translatedText("Save to Gallery"),
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
 
                 IconButton(
-                    onClick = { openExternal(context, item.file) }
+                    onClick = onSettingsClick
                 ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Rounded.OpenInNew,
-                        contentDescription = translatedText("Open External"),
-                        tint = MaterialTheme.colorScheme.primary
+                        imageVector = Icons.Rounded.Settings,
+                        contentDescription = translatedText("Recorder Settings"),
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
 
-                IconButton(
-                    onClick = { shareClip(context, item.file) }
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Share,
-                        contentDescription = translatedText("Share"),
-                        tint = MaterialTheme.colorScheme.secondary
-                    )
-                }
+                Box {
+                    IconButton(
+                        onClick = { showMoreMenu = true }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.MoreVert,
+                            contentDescription = translatedText("More Options"),
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
 
-                IconButton(
-                    onClick = onDelete
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Delete,
-                        contentDescription = translatedText("Delete"),
-                        tint = MaterialTheme.colorScheme.error
-                    )
+                    HyperDropdownMenu(
+                        expanded = showMoreMenu,
+                        onDismissRequest = { showMoreMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text(translatedText("Share")) },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Rounded.Share,
+                                    contentDescription = null
+                                )
+                            },
+                            onClick = {
+                                showMoreMenu = false
+                                shareClip(context, item.file)
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(translatedText("Open External")) },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Rounded.OpenInNew,
+                                    contentDescription = null
+                                )
+                            },
+                            onClick = {
+                                showMoreMenu = false
+                                openExternal(context, item.file)
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    translatedText("Delete"),
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Rounded.Delete,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            },
+                            onClick = {
+                                showMoreMenu = false
+                                onDelete()
+                            }
+                        )
+                    }
                 }
             }
         }

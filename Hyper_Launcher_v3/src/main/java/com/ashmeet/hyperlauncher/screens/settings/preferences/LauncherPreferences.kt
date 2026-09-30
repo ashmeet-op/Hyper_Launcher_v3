@@ -144,6 +144,12 @@ object LauncherPreferences {
     var PREF_SKIP_INCOMPATIBLE_WARNING = false
 
     @JvmField
+    var PREF_RECORD_MIC_SOUND = true
+
+    @JvmField
+    var PREF_AUTO_SAVE_TO_GALLERY = true
+
+    @JvmField
     var PREF_VSYNC_IN_ZINK = true
 
     @JvmField
@@ -383,6 +389,8 @@ object LauncherPreferences {
         PREF_VERIFY_MANIFEST = pref.getBoolean("verifyManifest", true)
         PREF_SKIP_NOTIFICATION_PERMISSION_CHECK = pref.getBoolean(PREF_KEY_SKIP_NOTIFICATION_CHECK, false)
         PREF_SKIP_INCOMPATIBLE_WARNING = pref.getBoolean("skipIncompatibleWarning", false)
+        PREF_RECORD_MIC_SOUND = pref.getBoolean("record_mic_sound", false)
+        PREF_AUTO_SAVE_TO_GALLERY = pref.getBoolean("auto_save_to_gallery", false)
         PREF_VSYNC_IN_ZINK = pref.getBoolean("vsync_in_zink", true)
         PREF_FULLSCREEN_LAUNCHER = pref.getBoolean("fullscreen_launcher", true)
         PREF_DYNAMIC_ORIENTATION = pref.getBoolean("dynamic_orientation", false)

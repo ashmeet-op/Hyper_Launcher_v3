@@ -469,6 +469,11 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
                                             if (canvas != null) {
                                                 canvas.drawColor(Color.BLACK);
                                                 canvas.drawBitmap(mRecorderBitmap, null, new Rect(0, 0, canvas.getWidth(), canvas.getHeight()), mRecorderPaint);
+                                                if (mCursorView != null && mCursorView.getVisibility() == View.VISIBLE) {
+                                                    float scaleX = (float) canvas.getWidth() / (float) getWindowWidth();
+                                                    float scaleY = (float) canvas.getHeight() / (float) getWindowHeight();
+                                                    mCursorView.drawCursorToCanvas(canvas, scaleX, scaleY);
+                                                }
                                                 targetSurface.unlockCanvasAndPost(canvas);
                                             }
                                         } catch (Exception e) {
@@ -496,6 +501,11 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
                                     if (canvas != null) {
                                         canvas.drawColor(Color.BLACK);
                                         canvas.drawBitmap(bitmap, null, new Rect(0, 0, canvas.getWidth(), canvas.getHeight()), mRecorderPaint);
+                                        if (mCursorView != null && mCursorView.getVisibility() == View.VISIBLE) {
+                                            float scaleX = (float) canvas.getWidth() / (float) getWindowWidth();
+                                            float scaleY = (float) canvas.getHeight() / (float) getWindowHeight();
+                                            mCursorView.drawCursorToCanvas(canvas, scaleX, scaleY);
+                                        }
                                         targetSurface.unlockCanvasAndPost(canvas);
                                     }
                                 } catch (Exception e) {
