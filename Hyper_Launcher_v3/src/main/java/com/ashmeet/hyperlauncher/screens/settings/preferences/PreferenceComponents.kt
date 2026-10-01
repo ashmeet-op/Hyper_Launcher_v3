@@ -12,12 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.rounded.AddCircleOutline
-import androidx.compose.material.icons.rounded.AddPhotoAlternate
 import androidx.compose.material.icons.rounded.DragIndicator
 import androidx.compose.material.icons.rounded.RemoveCircleOutline
-import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -44,11 +41,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.ashmeet.hyperlauncher.components.slider.SimpleTextSlider
 import com.ashmeet.hyperlauncher.components.switch.DefaultSwitch
-
 import com.ashmeet.hyperlauncher.screens.settings.layouts.TitleAndSummary
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
-import net.ashmeet.hyperlauncher.R
 import kotlinx.coroutines.launch
+import net.ashmeet.hyperlauncher.R
 
 data class CursorInfo(val name: String, val shapeId: Int, val suffix: String)
 

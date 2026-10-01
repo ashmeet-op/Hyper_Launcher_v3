@@ -1,30 +1,27 @@
 package net.kdt.pojavlaunch.utils;
 
-
-
-import static com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_DUMP_SHADERS;
-import static com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_VSYNC_IN_ZINK;
-import static com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_ZINK_PREFER_SYSTEM_DRIVER;
-
-import android.content.*;
-import android.system.*;
-import android.util.*;
+import android.content.Context;
+import android.system.Os;
+import android.util.ArrayMap;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 import com.ashmeet.hyperlauncher.plugins.natives.LibraryPlugin;
-import com.ashmeet.hyperlauncher.plugins.manager.NativePluginManager;
+import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 import com.ashmeet.hyperlauncher.utils.Tools;
 
-import java.io.*;
-import java.util.*;
-import net.kdt.pojavlaunch.*;
-import net.kdt.pojavlaunch.extra.ExtraConstants;
-import net.kdt.pojavlaunch.extra.ExtraCore;
+import net.kdt.pojavlaunch.Logger;
+import net.kdt.pojavlaunch.game.renderer.GameRenderer;
 import net.kdt.pojavlaunch.multirt.Runtime;
 
-import git.artdeell.mojoexec.MojoExec;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class JREUtils {
     public static void redirectAndPrintJRELog() {
@@ -36,14 +33,14 @@ public class JREUtils {
             public void run() {
                 try {
                     if (logcatPb == null) {
-
-                        logcatPb = new ProcessBuilder().command("logcat",  "-v", "brief", "-s", "jrelog", "LIBGL", "NativeInput").redirectErrorStream(true);
+                        // No filtering by tag anymore as that relied on incorrect log levels set in log.h
+                        logcatPb = new ProcessBuilder().command("logcat", /* "-G", "1mb", */ "-v", "brief", "-s", "jrelog", "LIBGL", "NativeInput").redirectErrorStream(true);
                     }
 
                     Log.i("jrelog-logcat","Clearing logcat");
                     new ProcessBuilder().command("logcat", "-c").redirectErrorStream(true).start();
                     Log.i("jrelog-logcat","Starting logcat");
-                    java.lang.Process p = logcatPb.start();
+                    Process p = logcatPb.start();
 
                     byte[] buf = new byte[1024];
                     int len;
@@ -78,14 +75,16 @@ public class JREUtils {
         BufferedReader reader = new BufferedReader(new FileReader(customEnvFile));
         String line;
         while ((line = reader.readLine()) != null) {
-
+            // Not use split() as only split first one
             int index = line.indexOf("=");
-            envMap.put(line.substring(0, index), line.substring(index + 1));
+            if (index != -1) {
+                envMap.put(line.substring(0, index), line.substring(index + 1));
+            }
         }
         reader.close();
     }
 
-
+    // Sets up ANGLE driver environment
     public static void setupAngleEnv(Context ctx, Map<String, String> envMap) {
         if (!LauncherPreferences.PREF_USE_ANGLE) return;
         LibraryPlugin angle = LibraryPlugin.discoverPlugin(ctx, LibraryPlugin.ID_ANGLE_PLUGIN);
@@ -104,39 +103,10 @@ public class JREUtils {
         if(ffmpeg == null) return;
         envMap.put("POJAV_FFMPEG_PATH", ffmpeg.resolveAbsolutePath("libffmpeg.so"));
     }
-    public static void setEnviroimentForGame(Context context, String renderer) throws Throwable {
+
+    public static void setGameEnvironment(Context context, GameRenderer renderer) throws Throwable {
         Map<String, String> envMap = new ArrayMap<>();
-        envMap.put("LIBGL_MIPMAP", "3");
-
-
-        envMap.put("LIBGL_NOERROR", "1");
-
-
-        envMap.put("LIBGL_NOINTOVLHACK", "1");
-
-
-        envMap.put("LIBGL_NORMALIZE", "1");
-
-        if(PREF_DUMP_SHADERS)
-            envMap.put("LIBGL_VGPU_DUMP", "1");
-        if(PREF_VSYNC_IN_ZINK)
-            envMap.put("POJAV_VSYNC_IN_ZINK", "1");
-
-
-        String glVersion = (String) ExtraCore.getValue(ExtraConstants.OPEN_GL_VERSION);
-        if (renderer.contains(":") && getDetectedVersion() >= 3) {
-            glVersion = "3";
-        }
-        envMap.put("LIBGL_ES", glVersion);
-        Log.i("JREUtils", "Setting LIBGL_ES to " + glVersion + " for renderer: " + renderer);
-
-        envMap.put("FORCE_VSYNC", String.valueOf(LauncherPreferences.PREF_FORCE_VSYNC));
-
-        envMap.put("MESA_GLSL_CACHE_DIR", Tools.DIR_CACHE.getAbsolutePath());
-        envMap.put("force_glsl_extensions_warn", "true");
-        envMap.put("allow_higher_compat_version", "true");
-        envMap.put("allow_glsl_extension_directive_midshader", "true");
-
+        // This is currently required for YSM mod to function
         File modRuntimeDir = new File(Tools.DIR_CACHE, "app_runtime_mod");
         if (!modRuntimeDir.exists()) {
             modRuntimeDir.mkdirs();
@@ -146,29 +116,10 @@ public class JREUtils {
         setupAngleEnv(context, envMap);
         setupFfmpegEnv(context, envMap);
 
-        MesaUtils.initEnvironment(context, renderer, envMap);
-
-        String pluginPaths = NativePluginManager.getRuntimeLibraryPath(null, renderer, null);
-        String mainLibPath = Tools.NATIVE_LIB_DIR;
-        if (!pluginPaths.isEmpty()) {
-            mainLibPath = pluginPaths + ":" + mainLibPath;
-        }
-
-        setRendererLibraryPath(mainLibPath, MesaUtils.getCustomZinkLibraryPath());
+        renderer.setupEnvironment(context, envMap);
 
         if(LauncherPreferences.PREF_BIG_CORE_AFFINITY) envMap.put("POJAV_BIG_CORE_AFFINITY", "1");
         if(LauncherPreferences.PREF_ALSOFT_FORCE_OPENSL) envMap.put("ALSOFT_DRIVERS", "opensl");
-
-        if(GLInfoUtils.getGlInfo().isAdreno() && !PREF_ZINK_PREFER_SYSTEM_DRIVER) {
-            MojoExec.setUseTurnip(true);
-        }
-
-        if(LauncherPreferences.PREF_FREEDRENO_SYSMEM) {
-
-            Logger.appendToLog("Will use sysmem rendering for Turnip/Freedreno");
-            envMap.put("FD_MESA_DEBUG", "sysmem");
-            envMap.put("TU_DEBUG", "sysmem");
-        }
 
         overrideEnvVars(envMap);
 
@@ -184,23 +135,30 @@ public class JREUtils {
 
     public static void launchJavaVM(final AppCompatActivity activity, final Runtime runtime, File gameDirectory, final List<String> JVMArgs, final String userArgsString) throws Throwable {
 
-
-
-
+        // Force LWJGL to use the Freetype library intended for it, instead of using the one
+        // that we ship with Java (since it may be older than what's needed)
+        //
         Tools.fullyExit();
     }
 
-
+    /**
+     * Parse and separate java arguments in a user friendly fashion
+     * It supports multi line and absence of spaces between arguments
+     * The function also supports auto-removal of improper arguments, although it may miss some.
+     *
+     * @param args The un-parsed argument list.
+     * @return Parsed args as an ArrayList
+     */
     public static ArrayList<String> parseJavaArguments(String args){
         ArrayList<String> parsedArguments = new ArrayList<>(0);
         args = args.trim().replace(" ", "");
-
+        //For each prefixes, we separate args.
         String[] separators = new String[]{"-XX:-","-XX:+", "-XX:","--", "-D", "-X", "-javaagent:", "-verbose"};
         for(String prefix : separators){
             while (true){
                 int start = args.indexOf(prefix);
                 if(start == -1) break;
-
+                //Get the end of the current argument by checking the nearest separator
                 int end = -1;
                 for(String separator: separators){
                     int tempEnd = args.indexOf(separator, start + prefix.length());
@@ -211,25 +169,29 @@ public class JREUtils {
                     }
                     end = Math.min(end, tempEnd);
                 }
-
+                //Fallback
                 if(end == -1) end = args.length();
 
-
+                //Extract it
                 String parsedSubString = args.substring(start, end);
                 args = args.replace(parsedSubString, "");
 
-
+                //Check if two args aren't bundled together by mistake
                 if(parsedSubString.indexOf('=') == parsedSubString.lastIndexOf('=')) {
                     int arraySize = parsedArguments.size();
                     if(arraySize > 0){
                         String lastString = parsedArguments.get(arraySize - 1);
-
+                        // Looking for list elements
                         if(lastString.charAt(lastString.length() - 1) == ',' ||
                                 parsedSubString.contains(",")){
                             parsedArguments.set(arraySize - 1, lastString + parsedSubString);
                             continue;
                         }
                     }
+                    parsedArguments.add(parsedSubString);
+                }
+                // --a-b= handling (with multiple signs so we don't accidentally remove mandatory args)
+                else if(parsedSubString.startsWith("--") && parsedSubString.indexOf('=') != -1) {
                     parsedArguments.add(parsedSubString);
                 }
                 else Log.w("JAVA ARGS PARSER", "Removed improper arguments: " + parsedSubString);
@@ -239,12 +201,7 @@ public class JREUtils {
     }
 
     public static int getDetectedVersion() {
-        return GLInfoUtils.getGlInfo().glesMajorVersion;
-    }
-    public static void setRendererLibraryPath(String mainPath, String additionalPath){
-        if(additionalPath != null)
-            mainPath = additionalPath + ":" + mainPath;
-        MojoExec.setNativeLibraryDir(mainPath);
+        return GpuUtils.getGlInfo().glesMajorVersion;
     }
     public static native int chdir(String path);
 

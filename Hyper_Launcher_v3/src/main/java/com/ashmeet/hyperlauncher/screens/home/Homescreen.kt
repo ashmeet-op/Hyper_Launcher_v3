@@ -69,6 +69,7 @@ import com.ashmeet.hyperlauncher.components.button.MineButton
 import com.ashmeet.hyperlauncher.screens.settings.layouts.CardPosition
 import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsCard
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsActionItem
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.utils.SkinUtils
 import com.ashmeet.hyperlauncher.utils.drawable.rememberDrawablePainter
@@ -440,27 +441,11 @@ fun ActionCard(
         position = position,
         useSurface = true
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .clickable(onClick = onClick)
-                .padding(horizontal = 18.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(14.dp)
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.size(28.dp)
-            )
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
+        SettingsActionItem(
+            title = title,
+            icon = icon,
+            onClick = onClick
+        )
     }
 }
 

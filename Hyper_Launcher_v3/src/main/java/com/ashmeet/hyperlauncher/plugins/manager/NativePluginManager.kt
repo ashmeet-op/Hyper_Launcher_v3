@@ -148,12 +148,21 @@ object NativePluginManager {
 
     private fun parseEnvString(envString: String?, libDir: String, envMap: MutableMap<String, String>) {
         if (envString.isNullOrEmpty()) return
-        val pairs = envString.split("[ ;]".toRegex()).toTypedArray()
+        val pairs = envString.split("[:; \t\r\n]+".toRegex()).toTypedArray()
         for (pair in pairs) {
+            if (pair.isEmpty()) continue
             val kv = pair.split("=".toRegex(), 2).toTypedArray()
             if (kv.size == 2) {
                 val key = kv[0].trim()
-                val value = kv[1].trim().replace("{nativeLibraryDir}", libDir)
+                var value = kv[1].trim()
+                if (value.contains("{nativeLibraryDir}")) {
+                    value = value.replace("{nativeLibraryDir}", libDir)
+                } else if (!value.startsWith("/") && value.endsWith(".so")) {
+                    val fullLib = File(libDir, value)
+                    if (fullLib.exists()) {
+                        value = fullLib.absolutePath
+                    }
+                }
                 if (key.isNotEmpty()) {
                     envMap[key] = value
                     Log.i(TAG, "Env: $key=$value")

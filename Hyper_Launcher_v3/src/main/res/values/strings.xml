@@ -107,6 +107,10 @@
     <string name="mcl_setting_renderer_ltw">LTW (OpenGL ES 3) - 1.17+ only, fast</string>
     <string name="mcl_setting_renderer_mobileglues">MobileGlues - 1.17+ only, stable</string>
     <string name="mcl_setting_renderer_holy">Holy GL4ES - old versions, stable</string>
+    <string name="mcl_setting_renderer_gles2_4">Holy GL4ES 1.1.4 (OpenGL ES 2.0)</string>
+    <string name="mcl_setting_renderer_mesa_desktop">Mesa (Desktop OpenGL)</string>
+    <string name="mcl_setting_renderer_mesa_desktop_ext">Mesa (External)</string>
+    <string name="mcl_setting_renderer_vulkan_lzink">Zink (Legacy Vulkan)</string>
     <string name="mcl_setting_veroption_release">Release</string>
     <string name="mcl_setting_veroption_snapshot">Snapshot</string>
     <string name="mcl_setting_veroption_oldalpha">Old-alpha</string>

@@ -9,9 +9,5 @@ class FCLRendererPlugin : HyperPlugin {
     override fun prepare(activity: AppCompatActivity, javaArgList: MutableList<String>, mcVersion: String) {
         val selectedRenderer = LauncherPreferences.PREF_RENDERER
         Log.i("FCLRenderer", "HyperLauncher FCL Renderer selected: $selectedRenderer")
-
-
-
-
     }
 }

@@ -14,6 +14,7 @@ import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.utils.Tools
 import net.kdt.pojavlaunch.instances.Instances
+import net.kdt.pojavlaunch.utils.GpuUtils
 import net.kdt.pojavlaunch.utils.MCOptionUtils
 
 class LauncherPreferenceVideoFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener {
@@ -25,7 +26,7 @@ class LauncherPreferenceVideoFragment : Fragment(), SharedPreferences.OnSharedPr
     ): View {
         updateGraphicsBackendPreference()
         val isAngleAvailable = LibraryPlugin.discoverPlugin(requireContext(), LibraryPlugin.ID_ANGLE_PLUGIN) != null
-        val supportsTurnip = com.ashmeet.hyperlauncher.utils.RendererCompatUtil.checkVulkanSupport(requireContext().packageManager) && net.kdt.pojavlaunch.utils.GLInfoUtils.getGlInfo().isAdreno
+        val supportsTurnip = GpuUtils.checkVulkanSupport(requireContext().packageManager) && GpuUtils.getGlInfo().isAdreno
         return ComposeView(requireContext()).apply {
             setContent {
                 PojavTheme {

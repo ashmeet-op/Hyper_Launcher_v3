@@ -14,6 +14,11 @@ class LibraryPlugin private constructor(
     val libraryPath: String,
     private val metaData: Bundle?
 ) {
+    fun getId(): String = appId
+
+    fun resolve(library: String): File {
+        return File(libraryPath, library)
+    }
     companion object {
         private const val TAG = "LibraryPlugin"
         const val METADATA_FCL_PLUGIN = "FCLNativePlugin"
@@ -31,6 +36,7 @@ class LibraryPlugin private constructor(
         const val ID_ANGLE_PLUGIN = "git.mojo.angle"
         const val ID_FFMPEG_PLUGIN = "git.mojo.ffmpeg"
         const val ID_ZINK_PLUGIN = "git.mojo.zink"
+        const val ID_MESA_PLUGIN = "git.mojo.mesa"
 
         @JvmStatic
         fun fromApplicationInfo(info: ApplicationInfo): LibraryPlugin {

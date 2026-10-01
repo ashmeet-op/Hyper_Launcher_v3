@@ -21,7 +21,7 @@ import com.ashmeet.hyperlauncher.fragments.selection.FileSelectorFragment
 import com.ashmeet.hyperlauncher.profiles.VersionSelectorDialog
 import com.ashmeet.hyperlauncher.screens.instances.InstanceEditorScreen
 import com.ashmeet.hyperlauncher.theme.PojavTheme
-import com.ashmeet.hyperlauncher.utils.RendererCompatUtil
+import net.kdt.pojavlaunch.game.renderer.RendererCache
 import com.ashmeet.hyperlauncher.utils.Tools
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.extra.ExtraConstants
@@ -152,7 +152,7 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
 
         mSelectedRuntime = if (jvmIndex != -1) mRuntimes[jvmIndex] else mRuntimes.find { it.name == "<Default>" } ?: mRuntimes.last()
 
-        val renderersList = RendererCompatUtil.getCompatibleRenderers(requireContext())
+        val renderersList = RendererCache.getCompatibleRenderers(requireContext())
         mRenderNames = renderersList.rendererIds.toList()
         mRenderDisplayNames = renderersList.rendererDisplayNames.toList()
 

@@ -36,7 +36,7 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSliderItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSwitchItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SingleChoiceDialog
 import androidx.compose.material.icons.filled.Settings
-import com.ashmeet.hyperlauncher.utils.RendererCompatUtil
+import net.kdt.pojavlaunch.game.renderer.RendererCache
 import com.ashmeet.hyperlauncher.utils.Tools
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
@@ -69,8 +69,8 @@ fun VideoSettingsScreen(
     var showBackendDialog by remember { mutableStateOf(false) }
     var showDriverDialog by remember { mutableStateOf(false) }
 
-    val compatibleRenderers = remember(context) { RendererCompatUtil.getCompatibleRenderers(context) }
-    val compatibleDrivers = remember(context) { RendererCompatUtil.getCompatibleDrivers(context) }
+    val compatibleRenderers = remember(context) { RendererCache.getCompatibleRenderers(context) }
+    val compatibleDrivers = remember(context) { RendererCache.getCompatibleDrivers(context) }
 
     SettingsScreenWrapper(
         title = translatedText(stringResource(R.string.preference_category_video)),
@@ -314,7 +314,7 @@ fun VideoSettingsScreen(
     }
 
     if (showRendererDialog) {
-        val compatibleRenderers = RendererCompatUtil.getCompatibleRenderers(context)
+        val compatibleRenderers = RendererCache.getCompatibleRenderers(context)
         SingleChoiceDialog(
             title = translatedText(stringResource(R.string.mcl_setting_category_renderer)),
             options = compatibleRenderers.rendererDisplayNames.toList(),
