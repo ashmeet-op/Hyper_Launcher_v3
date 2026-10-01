@@ -12,8 +12,11 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
@@ -169,6 +172,7 @@ object GameComposeHelper {
             PojavTheme {
                 val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                 val scope = rememberCoroutineScope()
+                var activeAction by remember { mutableStateOf<Int?>(null) }
 
                 val editorContent = @Composable {
                     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
@@ -179,7 +183,10 @@ object GameComposeHelper {
                                     SideNavigationRail(
                                         isEditor = true,
                                         onAction = { action ->
-                                            onAction(action)
+                                            when (action) {
+                                                3, 4, 5 -> activeAction = action
+                                                else -> onAction(action)
+                                            }
                                             scope.launch { drawerState.close() }
                                         },
                                         isExport = true
@@ -204,7 +211,9 @@ object GameComposeHelper {
                                     ControlsEditorScreen(
                                         controlLayout = controlLayout,
                                         drawerState = drawerState,
-                                        hostViews = false
+                                        hostViews = false,
+                                        activeAction = activeAction,
+                                        onActionConsumed = { activeAction = null }
                                     )
 
                                     if (drawerState.targetValue != DrawerValue.Closed) {

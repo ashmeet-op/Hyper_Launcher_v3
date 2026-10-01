@@ -11,6 +11,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.ipaulpro.afilechooser.FileListAdapter;
 
+import com.ashmeet.hyperlauncher.activity.PojavApplication;
 import com.ashmeet.hyperlauncher.utils.Tools;
 
 import java.io.File;
@@ -84,7 +85,9 @@ public class FileListView extends LinearLayout
 
             File mainFile = new File(p1.getItemAtPosition(p3).toString());
             if (mainFile.isFile()) {
-                fileSelectedListener.onFileLongClick(mainFile, mainFile.getAbsolutePath());
+                if (fileSelectedListener != null) {
+                    fileSelectedListener.onFileLongClick(mainFile, mainFile.getAbsolutePath());
+                }
                 return true;
             }
             return false;
@@ -92,8 +95,8 @@ public class FileListView extends LinearLayout
         addView(mainLv, layParam);
 
         try {
-            listFileAt(Environment.getExternalStorageDirectory());
-        } catch (NullPointerException e) {}
+            fullPath = Environment.getExternalStorageDirectory();
+        } catch (NullPointerException ignored) {}
     }
     public void setFileSelectedListener(FileSelectedListener listener)
     {
@@ -104,53 +107,64 @@ public class FileListView extends LinearLayout
     }
 
     public void listFileAt(final File path) {
-        try{
-            if(path.exists()){
-                if(path.isDirectory()){
-                    fullPath = path;
+        if (path == null) return;
+        PojavApplication.sExecutorService.execute(() -> {
+            try{
+                if(path.exists()){
+                    if(path.isDirectory()){
+                        fullPath = path;
 
-                    File[] listFile = path.listFiles();
-                    FileListAdapter fileAdapter = new FileListAdapter(context);
-                    if(!path.equals(lockPath)){
-                        fileAdapter.add(new File(path, ".."));
-                    }
+                        File[] listFile = path.listFiles();
+                        FileListAdapter fileAdapter = new FileListAdapter(context);
+                        if(!path.equals(lockPath)){
+                            fileAdapter.add(new File(path, ".."));
+                        }
 
-                    if(listFile != null && listFile.length != 0){
-                        Arrays.sort(listFile, new SortFileName());
+                        if(listFile != null && listFile.length != 0){
+                            Arrays.sort(listFile, new SortFileName());
 
-                        for(File file : listFile){
-                            if(file.isDirectory()){
-                                if(showFolders && ((!file.getName().startsWith(".")) || file.getName().equals(".minecraft")))
-                                    fileAdapter.add(file);
-                                continue;
-                            }
+                            for(File file : listFile){
+                                if(file.isDirectory()){
+                                    if(showFolders && ((!file.getName().startsWith(".")) || file.getName().equals(".minecraft")))
+                                        fileAdapter.add(file);
+                                    continue;
+                                }
 
-                            if(showFiles){
-                                if(fileSuffixes.length > 0){
-                                    for(String suffix : fileSuffixes){
-                                        if(file.getName().endsWith("." + suffix)){
-                                            fileAdapter.add(file);
-                                            break;
+                                if(showFiles){
+                                    if(fileSuffixes.length > 0){
+                                        for(String suffix : fileSuffixes){
+                                            if(file.getName().endsWith("." + suffix)){
+                                                fileAdapter.add(file);
+                                                break;
+                                            }
                                         }
+                                    }else {
+                                        fileAdapter.add(file);
                                     }
-                                }else {
-                                    fileAdapter.add(file);
                                 }
                             }
                         }
+                        Tools.runOnUiThread(() -> {
+                            mainLv.setAdapter(fileAdapter);
+                            if(dialogTitleListener != null) dialogTitleListener.onChangeDialogTitle(path.getAbsolutePath());
+                        });
+                    } else {
+                        Tools.runOnUiThread(() -> {
+                            if (fileSelectedListener != null) {
+                                fileSelectedListener.onFileSelected(path, path.getAbsolutePath());
+                            }
+                        });
                     }
-                    mainLv.setAdapter(fileAdapter);
-                    if(dialogTitleListener != null) dialogTitleListener.onChangeDialogTitle(path.getAbsolutePath());
                 } else {
-                    fileSelectedListener.onFileSelected(path, path.getAbsolutePath());
+                    Tools.runOnUiThread(() -> {
+                        Toast.makeText(context, "This folder (or file) doesn't exist", Toast.LENGTH_SHORT).show();
+                        refreshPath();
+                    });
                 }
-            } else {
-                Toast.makeText(context, "This folder (or file) doesn't exist", Toast.LENGTH_SHORT).show();
-                refreshPath();
+            } catch (Exception e){
+                Tools.runOnUiThread(() -> Tools.showError(context, e));
             }
-        } catch (Exception e){
-            Tools.showError(context, e);
-        }
+        });
     }
 
     public File getFullPath(){

@@ -39,7 +39,23 @@ object WorldMetadataReader {
         }
         val iconFile = File(worldDir, "icon.png")
         if (iconFile.exists()) {
-            metadata.icon = BitmapFactory.decodeFile(iconFile.absolutePath)
+            try {
+                val opts = BitmapFactory.Options().apply {
+                    inJustDecodeBounds = true
+                }
+                BitmapFactory.decodeFile(iconFile.absolutePath, opts)
+                if (opts.outWidth > 0 && opts.outHeight > 0) {
+                    var sampleSize = 1
+                    while (opts.outWidth / (sampleSize * 2) >= 256 &&
+                        opts.outHeight / (sampleSize * 2) >= 256
+                    ) {
+                        sampleSize *= 2
+                    }
+                    opts.inSampleSize = sampleSize
+                    opts.inJustDecodeBounds = false
+                    metadata.icon = BitmapFactory.decodeFile(iconFile.absolutePath, opts)
+                }
+            } catch (_: Exception) {} catch (_: OutOfMemoryError) {}
         }
         return metadata
     }

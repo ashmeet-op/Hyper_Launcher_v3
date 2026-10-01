@@ -7,7 +7,7 @@ import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
-    id("com.android.application") version "9.3.2"
+    id("com.android.application") version "9.4.1"
     id("de.undercouch.download") version "5.7.0"
     id("org.jetbrains.kotlin.plugin.compose") version "2.4.20"
     id("org.jetbrains.kotlin.plugin.serialization") version "2.4.20"
@@ -225,12 +225,12 @@ class AssetTaskRegistrar(private val project: Project) {
         createDirectories(targetAssetsDir)
 
         val androidExtension = project.extensions.getByType(com.android.build.api.dsl.ApplicationExtension::class.java)
-        androidExtension.sourceSets.getByName(variant.name).assets.srcDir(targetAssetsDir.absolutePath)
+        androidExtension.sourceSets.getByName(variant.name).assets.directories.add(targetAssetsDir.absolutePath)
     }
 
     private fun createDirectories(location: File) {
         if (!location.isDirectory && !location.mkdirs()) {
-            throw RuntimeException("Failed to create directory " + location.absolutePath)
+            throw RuntimeException("Failed to create directory ${location.absolutePath}")
         }
     }
 
@@ -260,12 +260,14 @@ class AssetTaskRegistrar(private val project: Project) {
         val dependencySuffix = "$name$variantName"
 
         val downloadTask = project.tasks.register<Download>("download$dependencySuffix") {
+            description = "Download $name for variant $variantName"
             src(downloadUrl)
             dest(downloadTarget)
             overwrite(false)
         }
 
         return project.tasks.register<Copy>("unzip$dependencySuffix") {
+            description = "Unzip $name for variant $variantName"
             from(project.zipTree(downloadTarget))
             into(targetExtractionDir)
             dependsOn(downloadTask)
@@ -285,6 +287,7 @@ class AssetTaskRegistrar(private val project: Project) {
 
         val copyTaskName = "copyProjectJar${jarTargetDir.name}$variantName"
         val copyTask = project.tasks.register<Copy>(copyTaskName) {
+            description = "Copy project jar for ${targetProject.name} to assets"
             from(jarTargetDir)
             into(assetTargetDir)
             dependsOn(":${targetProject.name}:jar")
@@ -309,6 +312,7 @@ class AssetTaskRegistrar(private val project: Project) {
         createDirectories(targetDir)
         val dependencySuffix = "$jarProject$dependency$variantName"
         val downloadTask = project.tasks.register<Download>("download$dependencySuffix") {
+            description = "Download $dependency for variant $variantName"
             src(String.format(jarUrl, jarProject, dependency, version, suffix))
             dest(targetDir)
             overwrite(false)
@@ -335,6 +339,7 @@ androidComponents.onVariants { variant ->
     variant.outputs.forEach { output ->
         val abiFilter = output.filters.find { it.filterType == FilterConfiguration.FilterType.ABI }?.identifier
         val archSuffix = if (abiFilter != null) "-$abiFilter" else ""
+        @Suppress("UnstableApiUsage")
         output.outputFileName.set(output.versionName.map { "hyper_launcher-$it$archSuffix.apk" })
     }
 
@@ -345,12 +350,10 @@ androidComponents.onVariants { variant ->
         registrar.jreRuntimeDependency(8, "components/jre")
     }
 
-    val cacioJarUrl = "https://jitpack.io/com/github/MojoLauncher/%1\$s/%2\$s/%3\$s/%2\$s-%3\$s%4\$s.jar"
+    val cacioJarUrl = "https://jitpack.io/com/github/MojoLauncher/%1" + "$" + "s/%2" + "$" + "s/%3" + "$" + "s/%2" + "$" + "s-%3" + "$" + "s%4" + "$" + "s.jar"
 
     registrar.onlineJarDependency(cacioJarUrl, "caciocavallo", "cacio-shared", "-01d2dc1d65-1", "", "components/caciocavallo")
     registrar.onlineJarDependency(cacioJarUrl, "caciocavallo", "cacio-androidnw", "-01d2dc1d65-1", "", "components/caciocavallo")
-
-    // FIX: Replaced "cacio17" with "caciocavallo17" to match Groovy
     registrar.onlineJarDependency(cacioJarUrl, "caciocavallo17", "cacio-tta", "72a9ab6323", "-jar-with-dependencies", "components/caciocavallo17")
 }
 
@@ -367,7 +370,7 @@ dependencies {
     implementation("com.google.android.material:material:1.14.0")
     implementation("androidx.drawerlayout:drawerlayout:1.2.0")
     implementation("androidx.viewpager2:viewpager2:1.1.0")
-    implementation("androidx.annotation:annotation:1.10.0")
+    implementation("androidx.annotation:annotation:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.2.2")
     implementation("androidx.compose.material3:material3:1.5.0-alpha29")
 
@@ -386,7 +389,7 @@ dependencies {
 
     implementation("com.github.MojoLauncher:alsoft-android-aar:f369161d5f")
 
-    val ktorVersion = "3.5.2"
+    val ktorVersion = "3.6.0"
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-cio:$ktorVersion")
     implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
@@ -433,4 +436,6 @@ dependencies {
     implementation("io.github.spair:imgui-java-lwjgl3:$imguiVersion")
 }
 
-tasks.register("prepareKotlinBuildScriptModel") {}
+tasks.register("prepareKotlinBuildScriptModel") {
+    description = "Prepare Kotlin build script model"
+}

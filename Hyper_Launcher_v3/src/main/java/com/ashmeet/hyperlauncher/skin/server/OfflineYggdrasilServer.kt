@@ -50,8 +50,10 @@ class OfflineYggdrasilServer(
     private val byName = ConcurrentHashMap<String, Character>()
     private val textureStore = ConcurrentHashMap<String, ByteArray>()
 
-    private val keyPair = KeyPairGenerator.getInstance("RSA")
-        .apply { initialize(2048) }.genKeyPair()
+    private val keyPair by lazy {
+        KeyPairGenerator.getInstance("RSA")
+            .apply { initialize(2048) }.genKeyPair()
+    }
 
     private var server: EmbeddedServer<*, *>? = null
     private val startLatch = CountDownLatch(1)

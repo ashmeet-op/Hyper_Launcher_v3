@@ -1,14 +1,28 @@
 package com.ashmeet.hyperlauncher.utils.installer
 
+private val RELEASE_REGEX = Regex("""^1\.\d+(\.\d+)*$""")
+private val SNAPSHOT_REGEX = Regex("""\d+w\d+[a-z]""")
+private val BASE_VERSION_REGEX = Regex("""1\.\d+(\.\d+)*""")
+
+private val LOADER_PREFIX_REGEX = Regex("""(fabric|quilt|neoforge|forge)-loader-[0-9.]+-""", RegexOption.IGNORE_CASE)
+private val LOADER_DASH_REGEX = Regex("""(fabric|quilt|neoforge|forge)-loader-""", RegexOption.IGNORE_CASE)
+private val LOADER_NO_DASH_REGEX = Regex("""(fabric|quilt|neoforge|forge)loader""", RegexOption.IGNORE_CASE)
+private val FORGE_SUFFIX_REGEX = Regex("""-forge-.*""", RegexOption.IGNORE_CASE)
+private val FABRIC_SUFFIX_REGEX = Regex("""-fabric-.*""", RegexOption.IGNORE_CASE)
+private val QUILT_SUFFIX_REGEX = Regex("""-quilt-.*""", RegexOption.IGNORE_CASE)
+private val NEOFORGE_SUFFIX_REGEX = Regex("""-neoforge-.*""", RegexOption.IGNORE_CASE)
+private val OPTIFINE_UNDERSCORE_REGEX = Regex("""-OptiFine_.*""", RegexOption.IGNORE_CASE)
+private val OPTIFINE_SPACE_REGEX = Regex(""" OptiFine .*""", RegexOption.IGNORE_CASE)
+private val PARENTHESES_REGEX = Regex(""" \(.*\)""")
+
 fun isMcVersionCompatible(v1: String, v2: String): Boolean {
     val cv1 = cleanMcVersion(v1)
     val cv2 = cleanMcVersion(v2)
     if (cv1 == cv2) return true
-    val releaseRegex = Regex("""^1\.\d+(\.\d+)*$""")
-    val isR1 = cv1.matches(releaseRegex)
-    val isR2 = cv2.matches(releaseRegex)
-    val isNonRelease1 = cv1.contains("-rc", ignoreCase = true) || cv1.contains("-pre", ignoreCase = true) || cv1.contains(Regex("""\d+w\d+[a-z]"""))
-    val isNonRelease2 = cv2.contains("-rc", ignoreCase = true) || cv2.contains("-pre", ignoreCase = true) || cv2.contains(Regex("""\d+w\d+[a-z]"""))
+    val isR1 = cv1.matches(RELEASE_REGEX)
+    val isR2 = cv2.matches(RELEASE_REGEX)
+    val isNonRelease1 = cv1.contains("-rc", ignoreCase = true) || cv1.contains("-pre", ignoreCase = true) || cv1.contains(SNAPSHOT_REGEX)
+    val isNonRelease2 = cv2.contains("-rc", ignoreCase = true) || cv2.contains("-pre", ignoreCase = true) || cv2.contains(SNAPSHOT_REGEX)
     if ((isR1 && isNonRelease2) || (isR2 && isNonRelease1)) return false
     if (isR1 != isR2) return false
 
@@ -28,27 +42,23 @@ fun isMcVersionCompatible(v1: String, v2: String): Boolean {
 fun cleanMcVersion(version: String?): String {
     if (version == null) return ""
     var cleaned = version
-        .replace(Regex("""(fabric|quilt|neoforge|forge)-loader-[0-9.]+-""", RegexOption.IGNORE_CASE), "")
-        .replace(Regex("""(fabric|quilt|neoforge|forge)-loader-""", RegexOption.IGNORE_CASE), "")
-        .replace(Regex("""(fabric|quilt|neoforge|forge)loader""", RegexOption.IGNORE_CASE), "")
-        .replace(Regex("-forge-.*", RegexOption.IGNORE_CASE), "")
-        .replace(Regex("-fabric-.*", RegexOption.IGNORE_CASE), "")
-        .replace(Regex("-quilt-.*", RegexOption.IGNORE_CASE), "")
-        .replace(Regex("-neoforge-.*", RegexOption.IGNORE_CASE), "")
-        .replace(Regex("-OptiFine_.*", RegexOption.IGNORE_CASE), "")
-        .replace(Regex(" OptiFine .*", RegexOption.IGNORE_CASE), "")
-        .replace(Regex(" \\(.*\\)"), "")
+        .replace(LOADER_PREFIX_REGEX, "")
+        .replace(LOADER_DASH_REGEX, "")
+        .replace(LOADER_NO_DASH_REGEX, "")
+        .replace(FORGE_SUFFIX_REGEX, "")
+        .replace(FABRIC_SUFFIX_REGEX, "")
+        .replace(QUILT_SUFFIX_REGEX, "")
+        .replace(NEOFORGE_SUFFIX_REGEX, "")
+        .replace(OPTIFINE_UNDERSCORE_REGEX, "")
+        .replace(OPTIFINE_SPACE_REGEX, "")
+        .replace(PARENTHESES_REGEX, "")
         .trim()
 
-
-    val baseVersionRegex = Regex("""1\.\d+(\.\d+)*""")
-    val match = baseVersionRegex.find(cleaned)
+    val match = BASE_VERSION_REGEX.find(cleaned)
     if (match != null) {
         cleaned = match.value
     } else {
-
-        val snapshotRegex = Regex("""\d+w\d+[a-z]""")
-        val snapshotMatch = snapshotRegex.find(cleaned)
+        val snapshotMatch = SNAPSHOT_REGEX.find(cleaned)
         if (snapshotMatch != null) {
             cleaned = snapshotMatch.value
         }

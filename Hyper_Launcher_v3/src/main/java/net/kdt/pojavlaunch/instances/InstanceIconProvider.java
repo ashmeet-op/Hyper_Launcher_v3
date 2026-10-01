@@ -65,11 +65,40 @@ public class InstanceIconProvider {
 
     private static Drawable fetchInstanceFileIcon(Resources resources, int identityHash, File iconLocation) {
         if(!iconLocation.isFile() || !iconLocation.canRead()) return null;
-        Bitmap iconBitmap = BitmapFactory.decodeFile(iconLocation.getAbsolutePath());
+        BitmapFactory.Options opts = new BitmapFactory.Options();
+        opts.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(iconLocation.getAbsolutePath(), opts);
+        if (opts.outWidth <= 0 || opts.outHeight <= 0) return null;
+
+        opts.inSampleSize = calculateInSampleSize(opts, 128, 128);
+        opts.inJustDecodeBounds = false;
+        opts.inPreferredConfig = Bitmap.Config.RGB_565;
+
+        Bitmap iconBitmap;
+        try {
+            iconBitmap = BitmapFactory.decodeFile(iconLocation.getAbsolutePath(), opts);
+        } catch (OutOfMemoryError e) {
+            return null;
+        }
         if(iconBitmap == null) return null;
         Drawable iconDrawable = new BitmapDrawable(resources, iconBitmap);
         sIconCache.put(identityHash, iconDrawable);
         return iconDrawable;
+    }
+
+    private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+            while ((halfHeight / inSampleSize) >= reqHeight || (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+        return inSampleSize;
     }
 
     private static Drawable fetchStaticIcon(Resources resources, int identityHash, String icon) {

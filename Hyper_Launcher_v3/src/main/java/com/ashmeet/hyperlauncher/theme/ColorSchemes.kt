@@ -5,6 +5,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.colorResource
@@ -155,19 +156,22 @@ fun getMonochromeColorScheme(primaryColor: Color, isDark: Boolean): ColorScheme 
         alpha = 1f
     )
 
+    val surfaceColor = colorResource(R.color.background_status_bar)
+    val dividerColor = colorResource(R.color.divider)
+
     return if (isDark) {
         darkColorScheme(
             primary = primaryColor,
             onPrimary = if (primaryColor.luminance() > 0.5f) darkenedPrimary else lightenedPrimary,
-            primaryContainer = primaryColor.copy(alpha = 0.3f),
+            primaryContainer = primaryColor.copy(alpha = 0.3f).compositeOver(surfaceColor),
             onPrimaryContainer = lightenedPrimary,
             secondary = primaryColor,
             onSecondary = if (primaryColor.luminance() > 0.5f) darkenedPrimary else lightenedPrimary,
-            secondaryContainer = primaryColor.copy(alpha = 0.2f),
+            secondaryContainer = primaryColor.copy(alpha = 0.2f).compositeOver(surfaceColor),
             onSecondaryContainer = lightenedPrimary,
             tertiary = primaryColor,
             onTertiary = if (primaryColor.luminance() > 0.5f) darkenedPrimary else lightenedPrimary,
-            tertiaryContainer = primaryColor.copy(alpha = 0.15f),
+            tertiaryContainer = primaryColor.copy(alpha = 0.15f).compositeOver(surfaceColor),
             onTertiaryContainer = lightenedPrimary,
             error = colorResource(R.color.warning),
             onError = darkenedPrimary,
@@ -175,12 +179,12 @@ fun getMonochromeColorScheme(primaryColor: Color, isDark: Boolean): ColorScheme 
             onErrorContainer = Color(0xFFFFDAD6),
             background = colorResource(R.color.background_app),
             onBackground = lightenedPrimary,
-            surface = colorResource(R.color.background_status_bar),
+            surface = surfaceColor,
             onSurface = lightenedPrimary,
             surfaceVariant = colorResource(R.color.background_overlay),
-            onSurfaceVariant = lightenedPrimary.copy(alpha = 0.7f),
-            outline = colorResource(R.color.divider),
-            outlineVariant = colorResource(R.color.divider).copy(alpha = 0.5f),
+            onSurfaceVariant = lightenedPrimary.copy(alpha = 0.7f).compositeOver(surfaceColor),
+            outline = dividerColor,
+            outlineVariant = dividerColor.copy(alpha = 0.5f).compositeOver(surfaceColor),
             scrim = Color.Black,
             inverseSurface = lightenedPrimary,
             inverseOnSurface = darkenedPrimary,
@@ -197,15 +201,15 @@ fun getMonochromeColorScheme(primaryColor: Color, isDark: Boolean): ColorScheme 
         lightColorScheme(
             primary = primaryColor,
             onPrimary = if (primaryColor.luminance() > 0.5f) darkenedPrimary else Color.White,
-            primaryContainer = primaryColor.copy(alpha = 0.1f),
+            primaryContainer = primaryColor.copy(alpha = 0.1f).compositeOver(surfaceColor),
             onPrimaryContainer = darkenedPrimary,
             secondary = primaryColor,
             onSecondary = if (primaryColor.luminance() > 0.5f) darkenedPrimary else Color.White,
-            secondaryContainer = primaryColor.copy(alpha = 0.05f),
+            secondaryContainer = primaryColor.copy(alpha = 0.05f).compositeOver(surfaceColor),
             onSecondaryContainer = darkenedPrimary,
             tertiary = primaryColor,
             onTertiary = if (primaryColor.luminance() > 0.5f) darkenedPrimary else Color.White,
-            tertiaryContainer = primaryColor.copy(alpha = 0.03f),
+            tertiaryContainer = primaryColor.copy(alpha = 0.03f).compositeOver(surfaceColor),
             onTertiaryContainer = darkenedPrimary,
             error = colorResource(R.color.warning),
             onError = lightenedPrimary,
@@ -213,12 +217,12 @@ fun getMonochromeColorScheme(primaryColor: Color, isDark: Boolean): ColorScheme 
             onErrorContainer = Color(0xFF410002),
             background = colorResource(R.color.background_app),
             onBackground = darkenedPrimary,
-            surface = colorResource(R.color.background_status_bar),
+            surface = surfaceColor,
             onSurface = darkenedPrimary,
             surfaceVariant = colorResource(R.color.background_overlay),
-            onSurfaceVariant = darkenedPrimary.copy(alpha = 0.7f),
-            outline = colorResource(R.color.divider),
-            outlineVariant = colorResource(R.color.divider).copy(alpha = 0.5f),
+            onSurfaceVariant = darkenedPrimary.copy(alpha = 0.7f).compositeOver(surfaceColor),
+            outline = dividerColor,
+            outlineVariant = dividerColor.copy(alpha = 0.5f).compositeOver(surfaceColor),
             scrim = Color.Black,
             inverseSurface = Color(0xFF313033),
             inverseOnSurface = Color(0xFFF4EFF4),

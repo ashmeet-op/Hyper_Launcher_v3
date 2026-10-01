@@ -36,14 +36,39 @@ object MaterialIconUtil {
     private class FileIconDrawable(private val context: Context) : Drawable() {
         private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             style = Paint.Style.STROKE
-            strokeWidth = 4f
+            strokeWidth = 3.5f
+            strokeJoin = Paint.Join.ROUND
         }
+        private val path = Path()
+        private val foldPath = Path()
+
         override fun draw(canvas: Canvas) {
             paint.color = ThemeUtils.getThemePrimaryColor(context)
             val b = bounds
             val w = b.width().toFloat()
             val h = b.height().toFloat()
-            canvas.drawRect(b.left + w * 0.2f, b.top + h * 0.1f, b.right - w * 0.2f, b.bottom - h * 0.1f, paint)
+
+            path.reset()
+            val left = b.left + w * 0.25f
+            val right = b.right - w * 0.25f
+            val top = b.top + h * 0.1f
+            val bottom = b.bottom - h * 0.1f
+            val foldSize = w * 0.2f
+
+            path.moveTo(left, top)
+            path.lineTo(right - foldSize, top)
+            path.lineTo(right, top + foldSize)
+            path.lineTo(right, bottom)
+            path.lineTo(left, bottom)
+            path.close()
+
+            canvas.drawPath(path, paint)
+
+            foldPath.reset()
+            foldPath.moveTo(right - foldSize, top)
+            foldPath.lineTo(right - foldSize, top + foldSize)
+            foldPath.lineTo(right, top + foldSize)
+            canvas.drawPath(foldPath, paint)
         }
         override fun setAlpha(alpha: Int) { paint.alpha = alpha }
         override fun setColorFilter(colorFilter: android.graphics.ColorFilter?) { paint.colorFilter = colorFilter }

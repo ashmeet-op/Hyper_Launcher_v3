@@ -1,6 +1,7 @@
 package com.ashmeet.hyperlauncher.components.layout
 
 import android.content.SharedPreferences
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.SurfaceTexture
 import android.media.MediaPlayer
@@ -63,8 +64,27 @@ fun LauncherBackground(
     val backgroundBitmap = remember(launcherBgPath, launcherBgType) {
         if (launcherBgPath != null && launcherBgType == "image") {
             try {
-                BitmapFactory.decodeFile(launcherBgPath)
+                val opts = BitmapFactory.Options().apply {
+                    inJustDecodeBounds = true
+                }
+                BitmapFactory.decodeFile(launcherBgPath, opts)
+                if (opts.outWidth > 0 && opts.outHeight > 0) {
+                    var sampleSize = 1
+                    val maxTargetWidth = 1920
+                    val maxTargetHeight = 1080
+                    while (opts.outWidth / (sampleSize * 2) >= maxTargetWidth &&
+                        opts.outHeight / (sampleSize * 2) >= maxTargetHeight
+                    ) {
+                        sampleSize *= 2
+                    }
+                    opts.inSampleSize = sampleSize
+                    opts.inJustDecodeBounds = false
+                    opts.inPreferredConfig = Bitmap.Config.RGB_565
+                    BitmapFactory.decodeFile(launcherBgPath, opts)
+                } else null
             } catch (_: Exception) {
+                null
+            } catch (_: OutOfMemoryError) {
                 null
             }
         } else null

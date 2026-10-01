@@ -21,6 +21,7 @@ import java.io.File
 import java.io.IOException
 import kotlin.system.exitProcess
 
+@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @Keep
 class ExitActivity : AppCompatActivity() {
 
@@ -62,9 +63,14 @@ class ExitActivity : AppCompatActivity() {
     }
 
     companion object {
+        @Volatile
+        @JvmField
+        var isExiting: Boolean = false
+
         @JvmStatic
         @Suppress("unused")
         fun showExitMessage(ctx: Context?, code: Int, isSignal: Boolean) {
+            isExiting = true
             if (!isSignal && code == 0) {
                 ctx?.let { Tools.restartLauncherActivity(it) }
                 exitProcess(0)
@@ -84,7 +90,7 @@ class ExitActivity : AppCompatActivity() {
             }
             synchronized(lock) {
                 try {
-                    (lock as Object).wait()
+                    (lock as Object).wait(2000)
                 } catch (e: InterruptedException) {
                     Log.e("ExitActivity", "Waiting on lock failed: $e")
                 }

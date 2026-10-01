@@ -75,6 +75,7 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -87,6 +88,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.edit
 import com.ashmeet.hyperlauncher.components.HyperAlertDialog
 import com.ashmeet.hyperlauncher.components.HyperDropdownMenu
+import com.ashmeet.hyperlauncher.components.button.MineButton
 import com.ashmeet.hyperlauncher.components.dialog.SimpleAlertDialog
 import com.ashmeet.hyperlauncher.components.switch.DefaultSwitch
 import com.ashmeet.hyperlauncher.recorder.RecordingItem
@@ -192,6 +194,13 @@ fun RecordingsGalleryScreen(
                                 text = translatedText("Use Quick Settings or Drawer button to start recording."),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            MineButton(
+                                text = translatedText("Recorder Settings"),
+                                onClick = { showSettingsDialog = true },
+                                icon = rememberVectorPainter(Icons.Rounded.Settings),
+                                tintIcon = true
                             )
                         }
                     }

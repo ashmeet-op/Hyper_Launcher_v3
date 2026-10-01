@@ -78,7 +78,8 @@ import net.kdt.pojavlaunch.tasks.AsyncAssetManager;
 import net.kdt.pojavlaunch.utils.JREUtils;
 import net.kdt.pojavlaunch.utils.MCOptionUtils;
 import net.kdt.pojavlaunch.authenticator.accounts.Account;
-import com.ashmeet.hyperlauncher.utils.RendererCompatUtil;
+import net.kdt.pojavlaunch.game.renderer.GameRenderer;
+import net.kdt.pojavlaunch.game.renderer.RendererCache;
 import net.kdt.pojavlaunch.utils.jre.GameRunner;
 
 import java.io.File;
@@ -167,6 +168,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
 
                     view.postDelayed(() -> {
                         WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(getWindow(), view);
+                        //noinspection ConstantValue
                         if (controller != null) {
                             controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
                             controller.hide(WindowInsetsCompat.Type.systemBars());
@@ -425,8 +427,14 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
+        if (PLATFORM != null) {
+            PLATFORM.setVisible(false);
+        }
+        if (launcherGLView != null) {
+            launcherGLView.onSurfaceDestroyed();
+        }
         ContextExecutor.clearActivity();
+        super.onDestroy();
     }
 
     @Override
@@ -467,6 +475,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
             try {
                 mControlLayout.loadLayout(LauncherPreferences.PREF_DEFAULTCTRL_PATH);
             } catch (IOException e) {
+                //noinspection CallToPrintStackTrace
                 e.printStackTrace();
             }
         }
@@ -474,16 +483,17 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
 
     private void runCraft(String versionId, File[] classpath) throws Throwable {
         String renderer = instance.getLaunchRenderer();
-        if(!RendererCompatUtil.checkRendererCompatible(this, renderer)) {
-            RendererCompatUtil.RenderersList renderersList = RendererCompatUtil.getCompatibleRenderers(this);
+        if(!RendererCache.checkRendererCompatible(this, renderer)) {
+            RendererCache renderersList = RendererCache.getCompatibleRenderers(this);
             String firstCompatibleRenderer = renderersList.rendererIds.get(0);
             Log.w("runCraft","Incompatible renderer "+renderer+ " will be replaced with "+firstCompatibleRenderer);
             renderer = firstCompatibleRenderer;
         }
+        GameRenderer gameRenderer = new GameRenderer(renderer);
         Logger.appendToLog("--------- Starting game with Launcher Debug!");
         Tools.printLauncherInfo(versionId, instance.getLaunchArgs(), renderer, this);
         JREUtils.redirectAndPrintJRELog();
-        GameRunner.launchGame(this, account, instance, versionId, classpath, renderer);
+        GameRunner.launchGame(this, account, instance, versionId, classpath, gameRenderer);
 
         Tools.runOnUiThread(()-> mServiceBinder.isActive = false);
     }

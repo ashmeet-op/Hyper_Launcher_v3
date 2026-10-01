@@ -46,7 +46,22 @@ object ModMetadataReader {
                                 val iconEntry = zip.getEntry(iconP)
                                 if (iconEntry != null) {
                                     zip.getInputStream(iconEntry).use { iconIs ->
-                                        metadata.icon = BitmapFactory.decodeStream(iconIs)
+                                        val bytes = iconIs.readBytes()
+                                        val opts = BitmapFactory.Options().apply {
+                                            inJustDecodeBounds = true
+                                        }
+                                        BitmapFactory.decodeByteArray(bytes, 0, bytes.size, opts)
+                                        if (opts.outWidth > 0 && opts.outHeight > 0) {
+                                            var sampleSize = 1
+                                            while (opts.outWidth / (sampleSize * 2) >= 256 &&
+                                                opts.outHeight / (sampleSize * 2) >= 256
+                                            ) {
+                                                sampleSize *= 2
+                                            }
+                                            opts.inSampleSize = sampleSize
+                                            opts.inJustDecodeBounds = false
+                                            metadata.icon = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, opts)
+                                        }
                                     }
                                 }
                             }

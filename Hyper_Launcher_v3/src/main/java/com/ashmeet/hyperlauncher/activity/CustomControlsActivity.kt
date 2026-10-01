@@ -45,9 +45,9 @@ class CustomControlsActivity : BaseActivity(), EditorExitable, CropperUtils.Crop
                 0 -> mControlLayout.addControlButton(ControlData("New"))
                 1 -> mControlLayout.addDrawer(ControlDrawerData())
                 2 -> mControlLayout.addJoystickButton(ControlJoystickData())
-                3 -> mControlLayout.openLoadDialog()
-                4 -> mControlLayout.openSaveDialog(this)
-                5 -> mControlLayout.openSetDefaultDialog()
+                3, 4, 5 -> {
+                    // empty
+                }
                 6 -> {
                     try {
                         val contentUri = DocumentsContract.buildDocumentUri(

@@ -75,17 +75,18 @@ fun SideNavigationRail(
     onAction: (Int) -> Unit,
     isExport: Boolean = false
 ) {
+    val railWidth = if (isEditor) 150.dp else 110.dp
     NavigationRail(
         containerColor = NavigationRailDefaults.ContainerColor,
         windowInsets = WindowInsets(0.dp),
         modifier = Modifier
             .fillMaxHeight()
-            .width(110.dp)
+            .width(railWidth)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxHeight()
-                .width(110.dp)
+                .width(railWidth)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
