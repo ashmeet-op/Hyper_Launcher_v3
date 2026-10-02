@@ -68,6 +68,11 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.TextInputDialog
 import com.ashmeet.hyperlauncher.screens.settings.preferences.TextViewerDialog
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.utils.FileOperationUtils
+import com.ashmeet.hyperlauncher.utils.WorldMetadataReader
+import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
+import net.kdt.pojavlaunch.extra.ExtraCore
+import net.kdt.pojavlaunch.extra.ExtraConstants
 import com.ashmeet.hyperlauncher.utils.Tools
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import kotlinx.coroutines.delay
@@ -120,6 +125,7 @@ fun InstanceDirectoryContent(
 
     var clipboardFile by remember { mutableStateOf<File?>(null) }
     var isCutOperation by remember { mutableStateOf(false) }
+    var worldToQuickPlay by remember { mutableStateOf<File?>(null) }
 
     var searchQuery by remember { mutableStateOf("") }
     val searchTextFieldState = rememberTextFieldState(searchQuery)
@@ -187,6 +193,86 @@ fun InstanceDirectoryContent(
         }
     }
 
+    if (worldToQuickPlay != null) {
+        val targetWorld = worldToQuickPlay!!
+        val worldName = WorldMetadataReader.getMetadata(targetWorld)?.worldName ?: targetWorld.name
+        HyperAlertDialog(
+            onDismissRequest = { worldToQuickPlay = null },
+            title = { Text(translatedText("World: $worldName")) },
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(translatedText("Choose an action for this world:"))
+                    FilledTonalButton(
+                        onClick = {
+                            worldToQuickPlay = null
+                            ExtraCore.setValue(ExtraConstants.QUICK_PLAY_WORLD, targetWorld.name)
+                            ExtraCore.setValue(ExtraConstants.LAUNCH_GAME, true)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(translatedText("Quick Play"))
+                    }
+                    Button(
+                        onClick = {
+                            worldToQuickPlay = null
+                            loadFiles(targetWorld)
+                            searchTextFieldState.edit { replace(0, length, "") }
+                            isSearchActive = false
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(translatedText("Open Folder"))
+                    }
+                }
+            },
+            confirmText = "Cancel",
+            onConfirm = { worldToQuickPlay = null }
+        )
+    }
+
+    if (worldToQuickPlay != null) {
+        val targetWorld = worldToQuickPlay!!
+        val worldName = WorldMetadataReader.getMetadata(targetWorld)?.worldName ?: targetWorld.name
+        HyperAlertDialog(
+            onDismissRequest = { worldToQuickPlay = null },
+            title = { Text(translatedText("World: $worldName")) },
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(translatedText("Choose an action for this world:"))
+                    FilledTonalButton(
+                        onClick = {
+                            worldToQuickPlay = null
+                            ExtraCore.setValue(ExtraConstants.QUICK_PLAY_WORLD, targetWorld.name)
+                            ExtraCore.setValue(ExtraConstants.LAUNCH_GAME, true)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(translatedText("Quick Play"))
+                    }
+                    Button(
+                        onClick = {
+                            worldToQuickPlay = null
+                            loadFiles(targetWorld)
+                            searchTextFieldState.edit { replace(0, length, "") }
+                            isSearchActive = false
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(translatedText("Open Folder"))
+                    }
+                }
+            },
+            confirmText = "Cancel",
+            onConfirm = { worldToQuickPlay = null }
+        )
+    }
+
     val importFileLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
@@ -228,6 +314,46 @@ fun InstanceDirectoryContent(
                 }
             }
         }
+    }
+
+    if (worldToQuickPlay != null) {
+        val targetWorld = worldToQuickPlay!!
+        val worldName = WorldMetadataReader.getMetadata(targetWorld)?.worldName ?: targetWorld.name
+        HyperAlertDialog(
+            onDismissRequest = { worldToQuickPlay = null },
+            title = { Text(translatedText("World: $worldName")) },
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(translatedText("Choose an action for this world:"))
+                    FilledTonalButton(
+                        onClick = {
+                            worldToQuickPlay = null
+                            ExtraCore.setValue(ExtraConstants.QUICK_PLAY_WORLD, targetWorld.name)
+                            ExtraCore.setValue(ExtraConstants.LAUNCH_GAME, true)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(translatedText("Quick Play"))
+                    }
+                    Button(
+                        onClick = {
+                            worldToQuickPlay = null
+                            loadFiles(targetWorld)
+                            searchTextFieldState.edit { replace(0, length, "") }
+                            isSearchActive = false
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(translatedText("Open Folder"))
+                    }
+                }
+            },
+            confirmText = "Cancel",
+            onConfirm = { worldToQuickPlay = null }
+        )
     }
 
     LaunchedEffect(selectedTab) {
@@ -355,6 +481,46 @@ fun InstanceDirectoryContent(
         }
     }
 
+    if (worldToQuickPlay != null) {
+        val targetWorld = worldToQuickPlay!!
+        val worldName = WorldMetadataReader.getMetadata(targetWorld)?.worldName ?: targetWorld.name
+        HyperAlertDialog(
+            onDismissRequest = { worldToQuickPlay = null },
+            title = { Text(translatedText("World: $worldName")) },
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(translatedText("Choose an action for this world:"))
+                    FilledTonalButton(
+                        onClick = {
+                            worldToQuickPlay = null
+                            ExtraCore.setValue(ExtraConstants.QUICK_PLAY_WORLD, targetWorld.name)
+                            ExtraCore.setValue(ExtraConstants.LAUNCH_GAME, true)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(translatedText("Quick Play"))
+                    }
+                    Button(
+                        onClick = {
+                            worldToQuickPlay = null
+                            loadFiles(targetWorld)
+                            searchTextFieldState.edit { replace(0, length, "") }
+                            isSearchActive = false
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(translatedText("Open Folder"))
+                    }
+                }
+            },
+            confirmText = "Cancel",
+            onConfirm = { worldToQuickPlay = null }
+        )
+    }
+
     if (showTextViewerDialog && fileToView != null) {
         val target = fileToView!!
         var content by remember { mutableStateOf("") }
@@ -400,6 +566,46 @@ fun InstanceDirectoryContent(
                 }
             )
         }
+    }
+
+    if (worldToQuickPlay != null) {
+        val targetWorld = worldToQuickPlay!!
+        val worldName = WorldMetadataReader.getMetadata(targetWorld)?.worldName ?: targetWorld.name
+        HyperAlertDialog(
+            onDismissRequest = { worldToQuickPlay = null },
+            title = { Text(translatedText("World: $worldName")) },
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(translatedText("Choose an action for this world:"))
+                    FilledTonalButton(
+                        onClick = {
+                            worldToQuickPlay = null
+                            ExtraCore.setValue(ExtraConstants.QUICK_PLAY_WORLD, targetWorld.name)
+                            ExtraCore.setValue(ExtraConstants.LAUNCH_GAME, true)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(translatedText("Quick Play"))
+                    }
+                    Button(
+                        onClick = {
+                            worldToQuickPlay = null
+                            loadFiles(targetWorld)
+                            searchTextFieldState.edit { replace(0, length, "") }
+                            isSearchActive = false
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(translatedText("Open Folder"))
+                    }
+                }
+            },
+            confirmText = "Cancel",
+            onConfirm = { worldToQuickPlay = null }
+        )
     }
 
     val filteredFiles = remember(files, searchQuery) {
@@ -609,7 +815,10 @@ fun InstanceDirectoryContent(
                             instanceVersion = instanceVersion,
                             instanceLoader = instanceLoader,
                             onClick = {
-                                if (file.isDirectory) {
+                                val wMeta = WorldMetadataReader.getMetadata(file)
+                                if (wMeta != null) {
+                                    worldToQuickPlay = file
+                                } else if (file.isDirectory) {
                                     loadFiles(file)
                                     searchTextFieldState.edit { replace(0, length, "") }
                                     isSearchActive = false
@@ -640,12 +849,56 @@ fun InstanceDirectoryContent(
                             onOpenInFiles = {
                                 Tools.openPath(context, file, false)
                             },
-                            onRefresh = { currentDir?.let { loadFiles(it) } }
+                            onRefresh = { currentDir?.let { loadFiles(it) } },
+                            onQuickPlay = {
+                                ExtraCore.setValue(ExtraConstants.QUICK_PLAY_WORLD, file.name)
+                                ExtraCore.setValue(ExtraConstants.LAUNCH_GAME, true)
+                            }
                         )
                     }
                 }
             }
         }
+    }
+
+    if (worldToQuickPlay != null) {
+        val targetWorld = worldToQuickPlay!!
+        val worldName = WorldMetadataReader.getMetadata(targetWorld)?.worldName ?: targetWorld.name
+        HyperAlertDialog(
+            onDismissRequest = { worldToQuickPlay = null },
+            title = { Text(translatedText("World: $worldName")) },
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(translatedText("Choose an action for this world:"))
+                    FilledTonalButton(
+                        onClick = {
+                            worldToQuickPlay = null
+                            ExtraCore.setValue(ExtraConstants.QUICK_PLAY_WORLD, targetWorld.name)
+                            ExtraCore.setValue(ExtraConstants.LAUNCH_GAME, true)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(translatedText("Quick Play"))
+                    }
+                    Button(
+                        onClick = {
+                            worldToQuickPlay = null
+                            loadFiles(targetWorld)
+                            searchTextFieldState.edit { replace(0, length, "") }
+                            isSearchActive = false
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(translatedText("Open Folder"))
+                    }
+                }
+            },
+            confirmText = "Cancel",
+            onConfirm = { worldToQuickPlay = null }
+        )
     }
 }
 

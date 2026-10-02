@@ -32,6 +32,9 @@ import net.kdt.pojavlaunch.utils.JSONUtils;
 import net.kdt.pojavlaunch.utils.MCOptionUtils;
 import net.kdt.pojavlaunch.utils.OldVersionsUtils;
 
+import net.kdt.pojavlaunch.extra.ExtraCore;
+import net.kdt.pojavlaunch.extra.ExtraConstants;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
@@ -443,6 +446,11 @@ public class GameRunner {
         }
         if(versionInfo.minecraftArguments != null){
             clientArgs.addAll(splitAndFilterEmpty(versionInfo.minecraftArguments));
+        }
+        String quickPlayWorld = (String) ExtraCore.consumeValue(ExtraConstants.QUICK_PLAY_WORLD);
+        if (quickPlayWorld != null && !quickPlayWorld.isEmpty()) {
+            clientArgs.add("--quickPlaySingleplayer");
+            clientArgs.add(quickPlayWorld);
         }
         return JSONUtils.insertJSONValueList(clientArgs, varArgMap);
     }

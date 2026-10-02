@@ -1,5 +1,6 @@
 package com.ashmeet.hyperlauncher.components.list
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
@@ -33,6 +34,7 @@ import androidx.compose.material.icons.rounded.Extension
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.FolderOpen
 import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Update
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.DropdownMenuItem
@@ -113,7 +115,8 @@ fun FileListItem(
     onMove: () -> Unit,
     onCompress: () -> Unit,
     onOpenInFiles: () -> Unit,
-    onRefresh: () -> Unit
+    onRefresh: () -> Unit,
+    onQuickPlay: (() -> Unit)? = null
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     val dateFormat = remember { SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()) }
@@ -351,6 +354,28 @@ fun FileListItem(
                     expanded = menuExpanded,
                     onDismissRequest = { menuExpanded = false }
                 ) {
+                    if (worldMeta != null && onQuickPlay != null) {
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = translatedText("Quick Play"),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Rounded.PlayArrow,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            },
+                            onClick = {
+                                menuExpanded = false
+                                onQuickPlay()
+                            }
+                        )
+                    }
                     DropdownMenuItem(
                         text = {
                             Text(
@@ -500,6 +525,7 @@ fun FileListItemPreview() {
     }
 }
 
+@SuppressLint("LocalContextResourcesRead")
 @Composable
 fun InstanceListItem(
     modifier: Modifier = Modifier,
