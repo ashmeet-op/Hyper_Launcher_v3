@@ -8,7 +8,6 @@ import com.ashmeet.hyperlauncher.plugins.interfaces.NativePlugin
 import com.ashmeet.hyperlauncher.plugins.natives.LibraryPlugin
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.utils.Tools
-import net.kdt.pojavlaunch.modloaders.ComparableVersionString
 import java.io.File
 import java.util.HashMap
 
@@ -51,7 +50,6 @@ object NativePluginManager {
     @JvmStatic
     fun discoverPojavPlugins(context: Context) {
         val allPlugins = LibraryPlugin.discoverAllPlugins(context)
-        val pm = context.packageManager
         for (plugin in allPlugins) {
             val metaData = plugin.getMetaData()
             if (!metaData.containsKey(LibraryPlugin.METADATA_POJAV_PLUGIN_TYPE)) continue
@@ -59,19 +57,7 @@ object NativePluginManager {
             val type = getMetadataString(metaData, LibraryPlugin.METADATA_POJAV_PLUGIN_TYPE)
             if (type != "native-bundle") continue
 
-            val libDir = plugin.libraryPath
-            val appLabel = try {
-                val info = pm.getApplicationInfo(plugin.appId, 0)
-                pm.getApplicationLabel(info).toString()
-            } catch (_: Exception) {
-                null
-            }
-
-            registerPlugin(object : NativePlugin {
-                override fun getPaths(): Array<String> = arrayOf(libDir)
-                override fun getJVMEnv(): Map<String, String> = emptyMap()
-                override val name: String? get() = appLabel
-            })
+            registerPlugin(plugin)
             Log.i(TAG, "Discovered Pojav plugin: ${plugin.appId} (Type: $type)")
         }
     }
@@ -79,95 +65,13 @@ object NativePluginManager {
     @JvmStatic
     fun discoverFCLPlugins(context: Context) {
         val fclPlugins = LibraryPlugin.discoverAllPlugins(context)
-        val pm = context.packageManager
         for (plugin in fclPlugins) {
             val metaData = plugin.getMetaData()
             if (!metaData.containsKey(LibraryPlugin.METADATA_FCL_PLUGIN) && !metaData.containsKey(LibraryPlugin.METADATA_FCL_PLUGIN_ALT)) continue
 
-            val libDir = plugin.libraryPath
-            val envString = getMetadataString(metaData, LibraryPlugin.METADATA_FCL_ENVIRONMENT)
-            val boatEnv = getMetadataString(metaData, LibraryPlugin.METADATA_FCL_BOAT_ENV)
-            val pojavEnv = getMetadataString(metaData, LibraryPlugin.METADATA_FCL_POJAV_ENV)
-            val vzh = getMetadataString(metaData, LibraryPlugin.METADATA_FCL_DESCRIPTION)
-            val rendererNameMetadata = getMetadataString(metaData, LibraryPlugin.METADATA_FCL_RENDERER)
-            val driverNameMetadata = getMetadataString(metaData, LibraryPlugin.METADATA_FCL_DRIVER)
-            val minVerStr = getMetadataString(metaData, LibraryPlugin.METADATA_FCL_MIN_MC_VER)
-            val maxVerStr = getMetadataString(metaData, LibraryPlugin.METADATA_FCL_MAX_MC_VER)
-
-            val appLabel = try {
-                val info = pm.getApplicationInfo(plugin.appId, 0)
-                pm.getApplicationLabel(info).toString()
-            } catch (_: Exception) {
-                null
-            }
-
-            registerPlugin(object : NativePlugin {
-                override fun getPaths(): Array<String> = arrayOf(libDir)
-
-                override fun getJVMEnv(): Map<String, String> {
-                    val envMap = HashMap<String, String>()
-                    parseEnvString(envString, libDir, envMap)
-                    parseEnvString(boatEnv, libDir, envMap)
-                    parseEnvString(pojavEnv, libDir, envMap)
-                    return envMap
-                }
-
-                override val name: String?
-                    get() = appLabel
-
-                override val rendererName: String?
-                    get() = rendererNameMetadata
-
-                override val driverName: String?
-                    get() = driverNameMetadata
-
-                override val displayName: String?
-                    get() = vzh
-
-                override fun supportsVersion(mcVersion: String?): Boolean {
-                    if (mcVersion == null) return true
-                    val current = ComparableVersionString.parse(mcVersion)
-                    if (!current.isValid) return true
-
-                    if (!minVerStr.isNullOrEmpty()) {
-                        val min = ComparableVersionString.parse(minVerStr)
-                        if (min.isValid && current < min) return false
-                    }
-
-                    if (!maxVerStr.isNullOrEmpty()) {
-                        val max = ComparableVersionString.parse(maxVerStr)
-                        if (max.isValid && current > max) return false
-                    }
-
-                    return true
-                }
-            })
+            registerPlugin(plugin)
+            val rendererNameMetadata = plugin.rendererName
             Log.i(TAG, "Discovered FCL plugin: ${plugin.appId}" + if (rendererNameMetadata != null) " (Renderer: $rendererNameMetadata)" else "")
-        }
-    }
-
-    private fun parseEnvString(envString: String?, libDir: String, envMap: MutableMap<String, String>) {
-        if (envString.isNullOrEmpty()) return
-        val pairs = envString.split("[:; \t\r\n]+".toRegex()).toTypedArray()
-        for (pair in pairs) {
-            if (pair.isEmpty()) continue
-            val kv = pair.split("=".toRegex(), 2).toTypedArray()
-            if (kv.size == 2) {
-                val key = kv[0].trim()
-                var value = kv[1].trim()
-                if (value.contains("{nativeLibraryDir}")) {
-                    value = value.replace("{nativeLibraryDir}", libDir)
-                } else if (!value.startsWith("/") && value.endsWith(".so")) {
-                    val fullLib = File(libDir, value)
-                    if (fullLib.exists()) {
-                        value = fullLib.absolutePath
-                    }
-                }
-                if (key.isNotEmpty()) {
-                    envMap[key] = value
-                    Log.i(TAG, "Env: $key=$value")
-                }
-            }
         }
     }
 

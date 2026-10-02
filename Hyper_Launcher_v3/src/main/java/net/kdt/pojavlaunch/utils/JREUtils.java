@@ -14,6 +14,7 @@ import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.Logger;
 import net.kdt.pojavlaunch.game.renderer.GameRenderer;
 import net.kdt.pojavlaunch.multirt.Runtime;
+import git.artdeell.mojoexec.MojoExec;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -117,7 +118,7 @@ public class JREUtils {
         setupFfmpegEnv(context, envMap);
 
         renderer.setupEnvironment(context, envMap);
-
+        MojoExec.setUseBigCoreAffinity(LauncherPreferences.PREF_BIG_CORE_AFFINITY);
         if(LauncherPreferences.PREF_BIG_CORE_AFFINITY) envMap.put("POJAV_BIG_CORE_AFFINITY", "1");
         if(LauncherPreferences.PREF_ALSOFT_FORCE_OPENSL) envMap.put("ALSOFT_DRIVERS", "opensl");
 

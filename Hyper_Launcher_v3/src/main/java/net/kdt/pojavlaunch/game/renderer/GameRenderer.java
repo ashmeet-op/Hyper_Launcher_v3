@@ -15,15 +15,10 @@ import com.ashmeet.hyperlauncher.plugins.interfaces.NativePlugin;
 import com.ashmeet.hyperlauncher.plugins.manager.NativePluginManager;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 import com.ashmeet.hyperlauncher.utils.Tools;
-
-import net.ashmeet.hyperlauncher.R;
-import net.kdt.pojavlaunch.Logger;
 import net.kdt.pojavlaunch.game.renderer.def.Renderers;
+import net.kdt.pojavlaunch.game.renderer.impl.FCLRenderSpec;
 import net.kdt.pojavlaunch.game.renderer.impl.GLESRenderSpec;
 import net.kdt.pojavlaunch.game.renderer.impl.MesaRenderSpec;
-
-import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
 
 import git.artdeell.mojoexec.MojoExec;
@@ -39,7 +34,6 @@ public class GameRenderer {
     private final static String TAG = "Renderer";
     private final static String FALLBACK_RENDERER = GL4ES_RENDERER;
     private RenderSpec currentRenderer;
-    private Map<String, String> environment = new HashMap<>();
 
     public GameRenderer(String currentRenderer) {
         this.currentRenderer = getKnownRenderer(currentRenderer);
@@ -78,66 +72,6 @@ public class GameRenderer {
         }
     }
 
-    public static class FCLRenderSpec implements RenderSpec {
-        private final NativePlugin plugin;
-
-        public FCLRenderSpec(NativePlugin plugin) {
-            this.plugin = plugin;
-        }
-
-        @Override
-        public String name() {
-            return plugin.getDisplayName() != null ? plugin.getDisplayName() : plugin.getRendererName();
-        }
-
-        @Override
-        public int displayName() {
-            return R.string.mcl_setting_renderer_holy;
-        }
-
-        @Override
-        public String tag() {
-            return plugin.getRendererName();
-        }
-
-        @Override
-        public String library() {
-            Map<String, String> env = plugin.getJVMEnv();
-            String egl = env.get("POJAVEXEC_EGL");
-            if (egl == null) egl = env.get("LIBGL_EGL");
-            if (egl == null) egl = env.get("POJAV_EGL");
-            if (egl != null && !egl.isEmpty()) {
-                return egl;
-            }
-            for (String path : plugin.getPaths()) {
-                File dir = new File(path);
-                if (dir.exists() && dir.isDirectory()) {
-                    File[] soFiles = dir.listFiles((d, name) -> name.endsWith(".so"));
-                    if (soFiles != null && soFiles.length > 0) {
-                        return soFiles[0].getAbsolutePath();
-                    }
-                }
-            }
-            return "libgl4es_114.so";
-        }
-
-        @Override
-        public void setupEnvironment(Context context, Map<String, String> envMap) {
-            envMap.putAll(plugin.getJVMEnv());
-        }
-
-        @Override
-        public boolean setupRenderer() {
-            MojoExec.preloadVulkan();
-            return MojoExec.prepareEgl(library(), true, false, 3);
-        }
-
-        @Override
-        public boolean compatibleDevice(Context context) {
-            return plugin.supportsVersion(null);
-        }
-    }
-
     /**
      * Set renderer library path
      *
@@ -154,26 +88,6 @@ public class GameRenderer {
     }
 
     /**
-     * Setup current selected renderer environment. Call before using {@link GameRenderer#maybeSetupRenderer()}
-     *
-     * @param context application context
-     * @throws ErrnoException if underlying Os#setenv call threw an exception
-     */
-    public void setupEnvironment(Context context) throws ErrnoException {
-        if(environment == null) {
-            Log.w(TAG, "Tried to call setupEnvironment in already initialized environment");
-            return;
-        }
-        currentRenderer.setupEnvironment(context, environment);
-        for(Map.Entry<String, String> e : environment.entrySet()) {
-            Logger.appendToLog("Added renderer env: " + e.getKey() + '=' + e.getValue());
-            Os.setenv(e.getKey(), e.getValue(), true);
-        }
-        environment.clear();
-        environment = null;
-    }
-
-    /**
      * Get current selected renderer in this GameRenderer instance
      *
      * @return renderer
@@ -183,7 +97,7 @@ public class GameRenderer {
     }
 
     /**
-     * Set current selected renderer. Call this before {@link GameRenderer#setupEnvironment} or bad things may happen
+     * Set current selected renderer.
      *
      * @param spec renderer
      */
@@ -193,7 +107,7 @@ public class GameRenderer {
     }
 
     /**
-     * Set current selected renderer. Call this before {@link GameRenderer#setupEnvironment} or bad things may happen
+     * Set current selected renderer.
      *
      * @param renderer renderer string
      * @throws IllegalArgumentException if incorrect renderer string is given
@@ -223,7 +137,13 @@ public class GameRenderer {
      * Enable custom Vulkan driver (Turnip) usage
      */
     public void overrideVulkanDriver() {
-        if(LauncherPreferences.PREF_FREEDRENO_SYSMEM) environment.put("TU_DEBUG", "sysmem");
+        if(LauncherPreferences.PREF_FREEDRENO_SYSMEM) {
+            try {
+                Os.setenv("TU_DEBUG", "sysmem", true);
+            } catch (ErrnoException e) {
+                Log.e(TAG, "Failed to set TU_DEBUG", e);
+            }
+        }
         MojoExec.setUseTurnip(true);
     }
 

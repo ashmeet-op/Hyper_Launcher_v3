@@ -11,6 +11,7 @@ import com.ashmeet.hyperlauncher.utils.Architecture
 import com.ashmeet.hyperlauncher.utils.Tools
 import net.kdt.pojavlaunch.multirt.MultiRTUtils
 import net.kdt.pojavlaunch.utils.JREUtils
+import git.artdeell.mojoexec.MojoExec
 import java.io.IOException
 import kotlin.math.ceil
 
@@ -384,6 +385,9 @@ object LauncherPreferences {
         PREF_DUMP_SHADERS = pref.getBoolean("dump_shaders", false)
         PREF_DEADZONE_SCALE = pref.getInt("gamepad_deadzone_scale", 100).toFloat() / 100f
         PREF_BIG_CORE_AFFINITY = pref.getBoolean("bigCoreAffinity", false)
+        try {
+            MojoExec.setUseBigCoreAffinity(PREF_BIG_CORE_AFFINITY)
+        } catch (_: Throwable) {}
         PREF_ZINK_PREFER_SYSTEM_DRIVER = pref.getBoolean("zinkPreferSystemDriver", false)
         PREF_DOWNLOAD_SOURCE = pref.getString("downloadSource", "default") ?: "default"
         PREF_VERIFY_MANIFEST = pref.getBoolean("verifyManifest", true)
