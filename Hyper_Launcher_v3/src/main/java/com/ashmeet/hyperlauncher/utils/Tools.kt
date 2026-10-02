@@ -34,6 +34,7 @@ import android.view.WindowManager
 import androidx.core.view.WindowCompat
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.material3.Text
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -53,6 +54,7 @@ import net.kdt.pojavlaunch.Logger
 import com.ashmeet.hyperlauncher.activity.MissingStorageActivity
 import com.ashmeet.hyperlauncher.activity.PojavApplication
 import com.ashmeet.hyperlauncher.activity.ShowErrorActivity
+import com.ashmeet.hyperlauncher.components.HyperAlertDialog
 import net.kdt.pojavlaunch.awt.AWTActivity
 import net.kdt.pojavlaunch.game.GameActivity
 import net.kdt.pojavlaunch.instances.Instance
@@ -227,7 +229,7 @@ object Tools {
         val channel = NotificationChannel(
             context.getString(R.string.notif_channel_id),
             context.getString(R.string.notif_channel_name),
-            NotificationManager.IMPORTANCE_DEFAULT
+            NotificationManager.IMPORTANCE_DEFAULT,
         )
         val manager = NotificationManagerCompat.from(context)
         manager.createNotificationChannel(channel)
@@ -273,7 +275,7 @@ object Tools {
     @Suppress("DEPRECATION")
     private fun setLegacyFullscreen(insetView: View, fullscreen: Boolean) {
         val listener = View.OnSystemUiVisibilityChangeListener { visibility ->
-            if (fullscreen && (visibility and View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+            if (fullscreen && ((visibility and View.SYSTEM_UI_FLAG_FULLSCREEN) == 0)) {
                 insetView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         or View.SYSTEM_UI_FLAG_FULLSCREEN
                         or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -374,7 +376,7 @@ object Tools {
     @JvmStatic
     @JvmOverloads
     fun showError(ctx: Context, e: Throwable, exitIfOk: Boolean = false) {
-        showError(ctx, R.string.global_error, null, e, exitIfOk, false)
+        showError(ctx, R.string.global_error, null, e, exitIfOk, showMore = false)
     }
 
     @JvmStatic
@@ -408,17 +410,17 @@ object Tools {
             if (ctx is FragmentActivity && !ctx.isFinishing && !ctx.isDestroyed) {
                 val dialogFragment = GenericComposeDialogFragment {
                     val errMsg = if (showMore) printToString(e) else rolledMessage ?: e.message
-                    SimpleAlertDialog(
-                        title = ctx.getString(titleId),
-                        text = errMsg ?: "",
+                    HyperAlertDialog(
+                        onDismissRequest = { dismiss() },
+                        title = { Text(ctx.getString(titleId)) },
+                        text = { Text(errMsg ?: "") },
                         confirmText = ctx.getString(android.R.string.ok),
                         onConfirm = {
                             dismiss()
                             if (exitIfOk) {
-                                if (ctx is GameActivity) {
-                                    fullyExit()
-                                } else {
-                                    ctx.finish()
+                                when (ctx) {
+                                    is GameActivity -> fullyExit()
+                                    is Activity -> ctx.finish()
                                 }
                             }
                         },
@@ -769,16 +771,21 @@ object Tools {
     }
 
     @JvmStatic
-    private fun insertSafety(targetVer: JVersionList.Version, fromVer: JVersionList.Version, @Suppress(
-        "SameParameterValue"
-    ) vararg keyArr: String) {
+    private fun insertSafety(
+        targetVer: JVersionList.Version,
+        fromVer: JVersionList.Version,
+        @Suppress("SameParameterValue")
+        vararg keyArr: String
+    ) {
         for (key in keyArr) {
             var value: Any? = null
             try {
                 val fieldA = fromVer.javaClass.getField(key)
+                @Suppress("ExplicitGetCall")
                 value = fieldA.get(fromVer)
                 if (value != null && (value !is String || value.isNotEmpty())) {
                     val fieldB = targetVer.javaClass.getField(key)
+                    @Suppress("ExplicitSetCall")
                     fieldB.set(targetVer, value)
                 }
             } catch (th: Throwable) {
