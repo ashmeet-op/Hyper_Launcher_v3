@@ -8,6 +8,7 @@ import android.content.ActivityNotFoundException
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.content.res.AssetManager
 import android.graphics.Color
@@ -35,6 +36,27 @@ import androidx.core.view.WindowCompat
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.Text
+import android.widget.Toast
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
+import com.ashmeet.hyperlauncher.utils.translation.translatedText
+import com.kdt.pickafile.FileListView
+import com.kdt.pickafile.FileSelectedListener
+import net.kdt.pojavlaunch.customcontrols.ControlLayout
+import net.kdt.pojavlaunch.customcontrols.EditorExitable
+import net.kdt.pojavlaunch.utils.KeycodeUtils
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -1077,5 +1099,204 @@ object Tools {
         if (activity != null && javaArgList != null && versionId != null && gameDir != null) {
             HyperPluginManager.applyHooks(activity, javaArgList, versionId, gameDir)
         }
+    }
+
+    @JvmStatic
+    fun findFragmentActivity(context: Context?): FragmentActivity? {
+        var ctx = context
+        while (ctx is ContextWrapper) {
+            if (ctx is FragmentActivity) return ctx
+            ctx = ctx.baseContext
+        }
+        return ctx as? FragmentActivity
+    }
+
+    @JvmStatic
+    fun openSaveDialog(controlLayout: ControlLayout, editorExitable: EditorExitable?) {
+        val context = controlLayout.context
+        val fragmentActivity = findFragmentActivity(context) ?: return
+        if (fragmentActivity.isFinishing || fragmentActivity.isDestroyed) return
+
+        val dialogFragment = GenericComposeDialogFragment {
+            var layoutName by remember { mutableStateOf(controlLayout.mLayoutFileName ?: "") }
+            HyperAlertDialog(
+                onDismissRequest = { dismiss() },
+                title = { Text(text = translatedText(stringResource(R.string.global_save))) },
+                text = {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        HyperOutlinedTextField(
+                            value = layoutName,
+                            onValueChange = { layoutName = it },
+                            label = { Text(translatedText("Layout Name")) },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                },
+                confirmText = stringResource(R.string.global_save),
+                onConfirm = {
+                    if (layoutName.isBlank()) {
+                        Toast.makeText(context, "Name cannot be empty", Toast.LENGTH_SHORT).show()
+                    } else {
+                        try {
+                            val jsonPath = controlLayout.saveToDirectory(layoutName)
+                            Toast.makeText(context, "${context.getString(R.string.global_save)}: $jsonPath", Toast.LENGTH_SHORT).show()
+                            dismiss()
+                            editorExitable?.exitEditor()
+                        } catch (e: Throwable) {
+                            showError(context, e, false)
+                        }
+                    }
+                },
+                dismissText = stringResource(android.R.string.cancel),
+                onDismiss = { dismiss() }
+            )
+        }
+        dialogFragment.show(fragmentActivity.supportFragmentManager, "save_control_dialog")
+    }
+
+    @JvmStatic
+    fun openLoadDialog(controlLayout: ControlLayout) {
+        val context = controlLayout.context
+        val fragmentActivity = findFragmentActivity(context) ?: return
+        if (fragmentActivity.isFinishing || fragmentActivity.isDestroyed) return
+
+        val dialogFragment = GenericComposeDialogFragment {
+            HyperAlertDialog(
+                onDismissRequest = { dismiss() },
+                title = { Text(text = translatedText(stringResource(R.string.global_load))) },
+                text = {
+                    AndroidView(
+                        factory = { ctx ->
+                            FileListView(ctx, null, arrayOf("json")).apply {
+                                if (SDK_INT < 29) {
+                                    listFileAt(File(CTRLMAP_PATH ?: ""))
+                                } else {
+                                    lockPathAt(File(CTRLMAP_PATH ?: ""))
+                                }
+                                setFileSelectedListener(object : FileSelectedListener() {
+                                    override fun onFileSelected(file: File, path: String) {
+                                        try {
+                                            controlLayout.loadLayout(path)
+                                        } catch (e: Exception) {
+                                            showError(ctx, e)
+                                        }
+                                        dismiss()
+                                    }
+                                })
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(350.dp)
+                    )
+                },
+                dismissText = stringResource(android.R.string.cancel),
+                onDismiss = { dismiss() }
+            )
+        }
+        dialogFragment.show(fragmentActivity.supportFragmentManager, "load_control_dialog")
+    }
+
+    @JvmStatic
+    fun openSetDefaultDialog(controlLayout: ControlLayout) {
+        val context = controlLayout.context
+        val fragmentActivity = findFragmentActivity(context) ?: return
+        if (fragmentActivity.isFinishing || fragmentActivity.isDestroyed) return
+
+        val dialogFragment = GenericComposeDialogFragment {
+            HyperAlertDialog(
+                onDismissRequest = { dismiss() },
+                title = { Text(text = translatedText(stringResource(R.string.customctrl_selectdefault))) },
+                text = {
+                    AndroidView(
+                        factory = { ctx ->
+                            FileListView(ctx, null, arrayOf("json")).apply {
+                                lockPathAt(File(CTRLMAP_PATH ?: ""))
+                                setFileSelectedListener(object : FileSelectedListener() {
+                                    override fun onFileSelected(file: File, path: String) {
+                                        try {
+                                            LauncherPreferences.DEFAULT_PREF?.edit()?.putString("defaultCtrl", path)?.apply()
+                                            LauncherPreferences.PREF_DEFAULTCTRL_PATH = path
+                                            controlLayout.loadLayout(path)
+                                            Toast.makeText(ctx, "Default layout set to ${file.name}", Toast.LENGTH_SHORT).show()
+                                        } catch (e: Exception) {
+                                            showError(ctx, e)
+                                        }
+                                        dismiss()
+                                    }
+                                })
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(350.dp)
+                    )
+                },
+                dismissText = stringResource(android.R.string.cancel),
+                onDismiss = { dismiss() }
+            )
+        }
+        dialogFragment.show(fragmentActivity.supportFragmentManager, "set_default_control_dialog")
+    }
+
+    @JvmStatic
+    fun openExitDialog(context: Context, exitListener: EditorExitable) {
+        val fragmentActivity = findFragmentActivity(context) ?: return
+        if (fragmentActivity.isFinishing || fragmentActivity.isDestroyed) return
+
+        val dialogFragment = GenericComposeDialogFragment {
+            SimpleAlertDialog(
+                title = stringResource(R.string.customctrl_editor_exit_title),
+                text = stringResource(R.string.customctrl_editor_exit_msg),
+                confirmText = stringResource(R.string.global_yes),
+                dismissText = stringResource(R.string.global_no),
+                onConfirm = {
+                    dismiss()
+                    exitListener.exitEditor()
+                },
+                onDismiss = { dismiss() }
+            )
+        }
+        dialogFragment.show(fragmentActivity.supportFragmentManager, "exit_control_dialog")
+    }
+
+    @JvmStatic
+    fun dialogSendCustomKey(context: Context) {
+        val fragmentActivity = findFragmentActivity(context) ?: return
+        if (fragmentActivity.isFinishing || fragmentActivity.isDestroyed) return
+
+        val dialogFragment = GenericComposeDialogFragment {
+            val keyNames = remember { KeycodeUtils.generateKeyName() }
+            val listState = rememberLazyListState()
+
+            HyperAlertDialog(
+                onDismissRequest = { dismiss() },
+                title = { Text(text = translatedText(stringResource(R.string.control_customkey))) },
+                text = {
+                    Box(modifier = Modifier.height(300.dp)) {
+                        LazyColumn(state = listState) {
+                            itemsIndexed(keyNames) { index, name ->
+                                DropdownMenuItem(
+                                    text = { Text(name) },
+                                    onClick = {
+                                        KeycodeUtils.execKeyIndex(index)
+                                        dismiss()
+                                    }
+                                )
+                            }
+                        }
+                    }
+                },
+                confirmText = stringResource(android.R.string.cancel),
+                onConfirm = { dismiss() }
+            )
+        }
+        dialogFragment.show(fragmentActivity.supportFragmentManager, "send_custom_key_dialog")
     }
 }

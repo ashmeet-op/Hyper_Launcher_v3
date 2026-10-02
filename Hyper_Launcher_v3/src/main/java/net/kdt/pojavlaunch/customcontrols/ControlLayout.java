@@ -23,8 +23,6 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 import com.google.gson.JsonSyntaxException;
-import com.kdt.pickafile.FileListView;
-import com.kdt.pickafile.FileSelectedListener;
 
 import net.ashmeet.hyperlauncher.R;
 import net.kdt.pojavlaunch.game.GameView;
@@ -506,8 +504,10 @@ public class ControlLayout extends FrameLayout {
 	}
 
 	public void updateLoadedFileName(String path) {
-		path = path.replace(Tools.CTRLMAP_PATH, ".");
-		path = path.substring(0, path.length() - 5);
+        if (Tools.CTRLMAP_PATH != null) {
+            path = path.replace(Tools.CTRLMAP_PATH, ".");
+        }
+        path = path.substring(0, path.length() - 5);
 		mLayoutFileName = path;
 	}
 
@@ -517,114 +517,20 @@ public class ControlLayout extends FrameLayout {
 		return jsonPath;
 	}
 
-	class OnClickExitListener implements View.OnClickListener {
-		private final AlertDialog mDialog;
-		private final EditText mEditText;
-		private final EditorExitable mListener;
-
-		public OnClickExitListener(AlertDialog mDialog, EditText mEditText, EditorExitable mListener) {
-			this.mDialog = mDialog;
-			this.mEditText = mEditText;
-			this.mListener = mListener;
-		}
-
-		@Override
-		public void onClick(View v) {
-			Context context = v.getContext();
-			if (mEditText.getText().toString().isEmpty()) {
-				mEditText.setError(context.getString(R.string.global_error_field_empty));
-				return;
-			}
-			try {
-				String jsonPath = saveToDirectory(mEditText.getText().toString());
-				Toast.makeText(context, context.getString(R.string.global_save) + ": " + jsonPath, Toast.LENGTH_SHORT).show();
-				mDialog.dismiss();
-				if(mListener != null) mListener.exitEditor();
-			} catch (Throwable th) {
-				Tools.showError(context, th, mListener != null);
-			}
-		}
-	}
-
 	public void openSaveDialog(EditorExitable editorExitable) {
-		final Context context = getContext();
-		final EditText edit = new EditText(context);
-		edit.setSingleLine();
-		edit.setText(mLayoutFileName);
-
-		com.google.android.material.dialog.MaterialAlertDialogBuilder builder = new com.google.android.material.dialog.MaterialAlertDialogBuilder(context);
-		builder.setTitle(R.string.global_save);
-		builder.setView(edit);
-		builder.setPositiveButton(android.R.string.ok, null);
-		builder.setNegativeButton(android.R.string.cancel, null);
-		if(editorExitable != null) builder.setNeutralButton(R.string.global_save_and_exit, null);
-		final AlertDialog dialog = builder.create();
-		dialog.setOnShowListener(dialogInterface -> {
-			dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-					.setOnClickListener(new OnClickExitListener(dialog, edit, null));
-			if(editorExitable != null) dialog.getButton(AlertDialog.BUTTON_NEUTRAL)
-					.setOnClickListener(new OnClickExitListener(dialog, edit, editorExitable));
-		});
-		dialog.show();
+		Tools.openSaveDialog(this, editorExitable);
 	}
 
 	public void openLoadDialog() {
-		com.google.android.material.dialog.MaterialAlertDialogBuilder builder = new com.google.android.material.dialog.MaterialAlertDialogBuilder(getContext());
-		builder.setTitle(R.string.global_load);
-		builder.setPositiveButton(android.R.string.cancel, null);
-
-		final AlertDialog dialog = builder.create();
-		FileListView flv = new FileListView(dialog, "json");
-		if(Build.VERSION.SDK_INT < 29)flv.listFileAt(new File(Tools.CTRLMAP_PATH));
-		else flv.lockPathAt(new File(Tools.CTRLMAP_PATH));
-		flv.setFileSelectedListener(new FileSelectedListener(){
-
-			@Override
-			public void onFileSelected(File file, String path) {
-				try {
-					loadLayout(path);
-				}catch (IOException e) {
-					Tools.showError(getContext(), e);
-				}
-				dialog.dismiss();
-			}
-		});
-		dialog.setView(flv);
-		dialog.show();
+		Tools.openLoadDialog(this);
 	}
 
 	public void openSetDefaultDialog() {
-		com.google.android.material.dialog.MaterialAlertDialogBuilder builder = new com.google.android.material.dialog.MaterialAlertDialogBuilder(getContext());
-		builder.setTitle(R.string.customctrl_selectdefault);
-		builder.setPositiveButton(android.R.string.cancel, null);
-
-		final AlertDialog dialog = builder.create();
-		FileListView flv = new FileListView(dialog, "json");
-		flv.lockPathAt(new File(Tools.CTRLMAP_PATH));
-		flv.setFileSelectedListener(new FileSelectedListener(){
-
-			@Override
-			public void onFileSelected(File file, String path) {
-				try {
-					LauncherPreferences.DEFAULT_PREF.edit().putString("defaultCtrl", path).apply();
-					LauncherPreferences.PREF_DEFAULTCTRL_PATH = path;loadLayout(path);
-				}catch (IOException|JsonSyntaxException e) {
-					Tools.showError(getContext(), e);
-				}
-				dialog.dismiss();
-			}
-		});
-		dialog.setView(flv);
-		dialog.show();
+		Tools.openSetDefaultDialog(this);
 	}
 
 	public void openExitDialog(EditorExitable exitListener) {
-		com.google.android.material.dialog.MaterialAlertDialogBuilder builder = new com.google.android.material.dialog.MaterialAlertDialogBuilder(getContext());
-		builder.setTitle(R.string.customctrl_editor_exit_title);
-		builder.setMessage(R.string.customctrl_editor_exit_msg);
-		builder.setPositiveButton(R.string.global_yes, (d,w)->exitListener.exitEditor());
-		builder.setNegativeButton(R.string.global_no, (d,w)->{});
-		builder.show();
+		Tools.openExitDialog(getContext(), exitListener);
 	}
 
 

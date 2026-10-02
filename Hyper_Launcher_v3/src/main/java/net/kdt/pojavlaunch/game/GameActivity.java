@@ -52,7 +52,6 @@ import com.ashmeet.hyperlauncher.screens.game.LoggerView;
 import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperlauncher.activity.BaseActivity;
 import net.kdt.pojavlaunch.CallbackBridge;
-import net.kdt.pojavlaunch.utils.KeycodeUtils;
 import net.kdt.pojavlaunch.Logger;
 import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.authenticator.accounts.Accounts;
@@ -87,8 +86,6 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Objects;
 import androidx.compose.ui.platform.ComposeView;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
 
 
 public class GameActivity extends BaseActivity implements ControlButtonMenuListener, EditorExitable, ServiceConnection {
@@ -499,10 +496,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
     }
 
     private void dialogSendCustomKey() {
-        MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(this);
-        dialog.setTitle(R.string.control_customkey);
-        dialog.setItems(KeycodeUtils.generateKeyName(), (dInterface, position) -> KeycodeUtils.execKeyIndex(position));
-        dialog.show();
+        Tools.dialogSendCustomKey(this);
     }
 
     boolean isInEditor;
