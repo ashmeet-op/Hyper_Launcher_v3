@@ -38,9 +38,9 @@ configurations {
 }
 
 val hyperVersionNumber = localProperties.getProperty("VERSION_NUMBER")
-    ?: (project.findProperty("VERSION_NUMBER")?.toString() ?: "4.1.3")
+    ?: (project.findProperty("VERSION_NUMBER")?.toString() ?: "1.0.0")
 val hyperVersionSuffix = localProperties.getProperty("VERSION_NAME")
-    ?: (project.findProperty("VERSION_NAME")?.toString() ?: "mercury")
+    ?: (project.findProperty("VERSION_NAME")?.toString() ?: "saturn")
 
 configure<com.android.build.api.dsl.ApplicationExtension> {
     namespace = "net.ashmeet.hyperlauncher"
