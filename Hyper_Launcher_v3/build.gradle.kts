@@ -42,6 +42,8 @@ val hyperVersionNumber = localProperties.getProperty("VERSION_NUMBER")
 val hyperVersionSuffix = localProperties.getProperty("VERSION_NAME")
     ?: (project.findProperty("VERSION_NAME")?.toString() ?: "saturn")
 
+val isBundle = gradle.startParameter.taskNames.any { it.contains("bundle", ignoreCase = true) }
+
 configure<com.android.build.api.dsl.ApplicationExtension> {
     namespace = "net.ashmeet.hyperlauncher"
 
@@ -96,7 +98,7 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
 
     splits {
         abi {
-            isEnable = true
+            isEnable = !isBundle
             reset()
             include("armeabi-v7a", "arm64-v8a", "x86_64")
             isUniversalApk = true
