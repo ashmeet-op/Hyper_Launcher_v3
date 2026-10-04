@@ -57,7 +57,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ashmeet.hyperlauncher.components.HyperAlertDialog
-import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.utils.GeminiCrashAnalyzer
@@ -97,8 +96,6 @@ fun ExitScreen(
         } else null
     }
 
-    var showApiKeyDialog by remember { mutableStateOf(value = false) }
-    var apiKeyInput by remember { mutableStateOf("") }
     var isAnalyzing by remember { mutableStateOf(value = false) }
     var aiResult by remember { mutableStateOf<String?>(null) }
     var aiError by remember { mutableStateOf<String?>(null) }
@@ -107,30 +104,21 @@ fun ExitScreen(
     val coroutineScope = rememberCoroutineScope()
 
     val runAiInspection = {
-        val apiKey = GeminiCrashAnalyzer.getApiKey(context)
-        if (apiKey.isBlank()) {
-            showApiKeyDialog = true
-        } else {
-            isAnalyzing = true
-            viewingAiResult = true
-            aiError = null
-            coroutineScope.launch {
-                val result = GeminiCrashAnalyzer.analyze(context, logs)
-                isAnalyzing = false
-                result.fold(
-                    onSuccess = { answer ->
-                        aiResult = cleanMarkdownText(answer)
-                        viewingAiResult = true
-                    },
-                    onFailure = { error ->
-                        if ((error.message == "API_KEY_INVALID") || (error.message == "API_KEY_MISSING")) {
-                            showApiKeyDialog = true
-                        } else {
-                            aiError = error.localizedMessage ?: "Unknown error occurred during AI analysis."
-                        }
-                    }
-                )
-            }
+        isAnalyzing = true
+        viewingAiResult = true
+        aiError = null
+        coroutineScope.launch {
+            val result = GeminiCrashAnalyzer.analyze(context, logs)
+            isAnalyzing = false
+            result.fold(
+                onSuccess = { answer ->
+                    aiResult = cleanMarkdownText(answer)
+                    viewingAiResult = true
+                },
+                onFailure = { error ->
+                    aiError = error.localizedMessage ?: "Unknown error occurred during AI analysis."
+                }
+            )
         }
     }
     
@@ -248,8 +236,6 @@ fun ExitScreen(
             }
 
             Spacer(modifier = Modifier.width(20.dp))
-
-            // Right side: Action Panel
             Column(
                 modifier = Modifier
                     .weight(0.35f)
@@ -337,43 +323,6 @@ fun ExitScreen(
             }
         }
     }
-
-    // API Key Input Dialog
-    if (showApiKeyDialog) {
-        HyperAlertDialog(
-            onDismissRequest = { showApiKeyDialog = false },
-            title = { Text(text = translatedText("Gemini API Key Required")) },
-            text = {
-                Column {
-                    Text(
-                        text = translatedText("Please enter your Gemini API key to use AI crash inspection."),
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(bottom = 12.dp)
-                    )
-                    HyperOutlinedTextField(
-                        value = apiKeyInput,
-                        onValueChange = { apiKeyInput = it },
-                        label = { Text("API Key") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            },
-            confirmText = "Save & Inspect",
-            onConfirm = {
-                if (apiKeyInput.isNotBlank()) {
-                    GeminiCrashAnalyzer.saveApiKey(context, apiKeyInput)
-                    showApiKeyDialog = false
-                    apiKeyInput = ""
-                    runAiInspection()
-                }
-            },
-            dismissText = "Cancel",
-            onDismiss = { showApiKeyDialog = false }
-        )
-    }
-
-    // AI Error Dialog
     if (aiError != null) {
         HyperAlertDialog(
             onDismissRequest = { aiError = null },
