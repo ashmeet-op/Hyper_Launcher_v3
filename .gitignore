@@ -10,6 +10,8 @@ Hyper_Launcher_v3/.cxx/
 .vs/
 /curseforge_key.txt
 /Hyper_Launcher_v3/curseforge_key.txt
+/hyper_launcher_api_key.txt
+/Hyper_Launcher_v3/hyper_launcher_api_key.txt
 /Hyper_Launcher_v3/libs/ltw-release.aar
 .artifacts/
 *.log
