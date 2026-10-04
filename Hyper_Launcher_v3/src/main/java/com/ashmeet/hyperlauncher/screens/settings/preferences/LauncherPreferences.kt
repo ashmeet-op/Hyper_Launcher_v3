@@ -55,6 +55,9 @@ object LauncherPreferences {
     var PREF_CUSTOM_JAVA_ARGS: String? = null
 
     @JvmField
+    var PREF_GEMINI_API_KEY: String? = null
+
+    @JvmField
     var PREF_FORCE_ENGLISH = false
 
     const val PREF_VERSION_REPOS = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"
@@ -367,6 +370,7 @@ object LauncherPreferences {
         PREF_DISABLE_SWAP_HAND = pref.getBoolean("disableDoubleTap", false)
         PREF_RAM_ALLOCATION = pref.getInt("allocation", findBestRAMAllocation(ctx))
         PREF_CUSTOM_JAVA_ARGS = pref.getString("javaArgs", "")
+        PREF_GEMINI_API_KEY = pref.getString("geminiApiKey", "")
         PREF_SUSTAINED_PERFORMANCE = pref.getBoolean("sustainedPerformance", isDevicePowerful)
         PREF_VIRTUAL_MOUSE_START = pref.getBoolean("mouse_start", false)
         PREF_USE_ALTERNATE_SURFACE = pref.getBoolean("alternate_surface", isDevicePowerful)

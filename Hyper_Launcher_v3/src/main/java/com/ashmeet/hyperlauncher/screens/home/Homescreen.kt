@@ -65,9 +65,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ashmeet.hyperlauncher.components.HyperAlertDialog
 import com.ashmeet.hyperlauncher.components.button.MineButton
-import com.ashmeet.hyperlauncher.components.dialog.GeminiAiDialog
 import com.ashmeet.hyperlauncher.screens.settings.layouts.CardPosition
 import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsCard
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
@@ -427,47 +425,6 @@ fun MainMenuFragmentCompose(
                 }
             }
         }
-    }
-
-    var showRecentCrashDialog by remember {
-        mutableStateOf(
-            if (isPreview) false
-            else LauncherPreferences.prefs.getBoolean("has_recent_crash", false)
-        )
-    }
-    var showGeminiDialog by remember { mutableStateOf(false) }
-
-    if (showRecentCrashDialog) {
-        HyperAlertDialog(
-            onDismissRequest = {
-                showRecentCrashDialog = false
-                LauncherPreferences.prefs.edit().putBoolean("has_recent_crash", false).apply()
-            },
-            title = { Text(text = translatedText("Game Crashed Previously")) },
-            text = {
-                Text(
-                    text = translatedText("The game exited unexpectedly on your last attempt. Would you like Gemini AI to inspect your game settings, renderer, instance files, and logs to diagnose the issue?"),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            },
-            confirmText = "Inspect using AI",
-            onConfirm = {
-                showRecentCrashDialog = false
-                LauncherPreferences.prefs.edit().putBoolean("has_recent_crash", false).apply()
-                showGeminiDialog = true
-            },
-            dismissText = "Cancel",
-            onDismiss = {
-                showRecentCrashDialog = false
-                LauncherPreferences.prefs.edit().putBoolean("has_recent_crash", false).apply()
-            }
-        )
-    }
-
-    if (showGeminiDialog) {
-        GeminiAiDialog(
-            onDismiss = { showGeminiDialog = false }
-        )
     }
 }
 

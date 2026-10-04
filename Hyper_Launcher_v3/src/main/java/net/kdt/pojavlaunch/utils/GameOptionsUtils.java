@@ -36,6 +36,11 @@ public class GameOptionsUtils {
         else if(fullscreen.equals("1")) MCOptionUtils.set("fullscreen","0");
     }
 
+    private static void enableCape() {
+        MCOptionUtils.set("showCape", "true");
+        MCOptionUtils.set("modelPart_cape", "true");
+    }
+
     public static void fixOptions(boolean isLtw) {
         try {
             MCOptionUtils.load();
@@ -46,6 +51,7 @@ public class GameOptionsUtils {
         if(isLtw) fixDeathCloud();
         disableFullscreen();
         disableNarrator();
+        enableCape();
 
         try {
             MCOptionUtils.save();

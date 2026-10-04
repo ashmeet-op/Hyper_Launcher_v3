@@ -37,6 +37,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -57,22 +58,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ashmeet.hyperlauncher.components.HyperAlertDialog
+import com.ashmeet.hyperlauncher.components.text.MarkdownText
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.utils.GeminiCrashAnalyzer
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import kotlinx.coroutines.launch
 import net.ashmeet.hyperlauncher.R
-
-fun cleanMarkdownText(raw: String): String {
-    return raw
-        .replace(Regex("#{1,6}\\s*"), "") // remove markdown headers like ### or ##
-        .replace(Regex("\\*\\*|__"), "") // remove bold markers
-        .replace(Regex("[*_]"), "") // remove italic markers
-        .replace(Regex("`{1,3}"), "") // remove code backticks
-        .replace(Regex("^- ", RegexOption.MULTILINE), "• ") // convert bullets
-        .trim()
-}
 
 @Suppress("UNUSED_PARAMETER")
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -112,7 +104,7 @@ fun ExitScreen(
             isAnalyzing = false
             result.fold(
                 onSuccess = { answer ->
-                    aiResult = cleanMarkdownText(answer)
+                    aiResult = answer
                     viewingAiResult = true
                 },
                 onFailure = { error ->
@@ -155,7 +147,19 @@ fun ExitScreen(
                         selectedTabIndex = if (viewingAiResult) 1 else 0,
                         containerColor = Color.Transparent,
                         contentColor = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        divider = {},
+                        indicator = @Composable {
+                            val selectedIndex = if (viewingAiResult) 1 else 0
+                            TabRowDefaults.SecondaryIndicator(
+                                modifier = Modifier
+                                    .tabIndicatorOffset(selectedIndex)
+                                    .padding(horizontal = 24.dp)
+                                    .clip(RoundedCornerShape(16.dp)),
+                                height = 4.dp,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     ) {
                         Tab(
                             selected = !viewingAiResult,
@@ -200,12 +204,11 @@ fun ExitScreen(
                                         visible = true,
                                         enter = fadeIn() + expandVertically()
                                     ) {
-                                        Text(
-                                            text = aiResult ?: "",
+                                        MarkdownText(
+                                            markdown = aiResult ?: "",
                                             color = MaterialTheme.colorScheme.onBackground,
-                                            fontSize = 13.sp,
-                                            lineHeight = 18.sp,
-                                            fontFamily = FontFamily.SansSerif
+                                            baseFontSize = 13.sp,
+                                            baseLineHeight = 18.sp
                                         )
                                     }
                                 }

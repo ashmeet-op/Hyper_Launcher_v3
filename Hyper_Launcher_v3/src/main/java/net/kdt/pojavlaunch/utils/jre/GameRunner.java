@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
+import com.ashmeet.hyperlauncher.skin.SkinManager;
 import com.ashmeet.hyperlauncher.utils.Architecture;
 import com.ashmeet.hyperlauncher.utils.DateUtils;
 import com.ashmeet.hyperlauncher.utils.Tools;
@@ -351,8 +352,15 @@ public class GameRunner {
 
     private static void addAuthlibInjectorArgs(List<String> javaArgList, Account account) {
         String injectorUrl = account.authType.injectorUrl;
-        if(injectorUrl == null) return;
-        javaArgList.add("-javaagent:"+Tools.DIR_DATA+"/authlib-injector/authlib-injector.jar="+injectorUrl);
+        if (injectorUrl == null || account.capePath != null || account.skinPath != null) {
+            String localUrl = SkinManager.getInstance().registerAndStartServer(account);
+            if (localUrl != null) {
+                injectorUrl = localUrl;
+            }
+        }
+        if (injectorUrl != null) {
+            javaArgList.add("-javaagent:" + Tools.DIR_DATA + "/authlib-injector/authlib-injector.jar=" + injectorUrl);
+        }
     }
 
     // Skip setting essential flags from the version JSON as we already override them

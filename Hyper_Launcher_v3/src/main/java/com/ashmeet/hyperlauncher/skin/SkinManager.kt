@@ -1,24 +1,24 @@
 package com.ashmeet.hyperlauncher.skin
 
+import android.util.Log
 import com.ashmeet.hyperlauncher.skin.model.SkinModelType
 import com.ashmeet.hyperlauncher.skin.server.OfflineYggdrasilServer
 import com.ashmeet.hyperlauncher.utils.LocalUuidUtils
 import com.ashmeet.hyperlauncher.utils.LocalUuidUtils.toFormattedUuid
 import com.ashmeet.hyperlauncher.utils.Tools
+import net.kdt.pojavlaunch.authenticator.accounts.Account
 import java.io.File
-
 
 class SkinManager(private val analyzer: SkinAnalyzerFacade) {
 
-
     interface SkinAnalyzerFacade {
-
         fun prepareSkin(bytes: ByteArray): PlayerSkin?
         fun prepareCape(bytes: ByteArray): PlayerCape
     }
 
     val server = OfflineYggdrasilServer()
     private var port: Int = 0
+    private var isStarted = false
 
     @Throws(InvalidSkinException::class)
     fun prepareAccount(
@@ -45,10 +45,10 @@ class SkinManager(private val analyzer: SkinAnalyzerFacade) {
         val profileId = LocalUuidUtils.generateProfileId(username, model)
 
         server.addCharacter(
-            username  = username,
+            username = username,
             profileId = profileId,
-            skin      = skin,
-            cape      = cape
+            skin = skin,
+            cape = cape
         )
 
         val permanentSkin = skinFile?.takeIf { it.exists() }?.let {
@@ -68,25 +68,74 @@ class SkinManager(private val analyzer: SkinAnalyzerFacade) {
         }
 
         return PreparedAccount(
-            username      = username,
-            profileId     = profileId,
+            username = username,
+            profileId = profileId,
             formattedUuid = profileId.toFormattedUuid(),
-            skinModel     = model,
-            skinPath      = permanentSkin,
-            capePath      = permanentCape
+            skinModel = model,
+            skinPath = permanentSkin,
+            capePath = permanentCape
         )
     }
 
+    @Synchronized
+    fun registerAndStartServer(account: Account): String? {
+        val skinFile = account.skinPath?.let { File(it) }?.takeIf { it.exists() }
+        val capeFile = account.capePath?.let { File(it) }?.takeIf { it.exists() }
+
+        if (skinFile == null && capeFile == null && !account.isLocal) {
+            return null
+        }
+
+        val skinBytes = skinFile?.readBytes()
+        val capeBytes = capeFile?.readBytes()
+
+        val skin: PlayerSkin? = skinBytes?.let { analyzer.prepareSkin(it) }
+        val cape: PlayerCape? = capeBytes?.let { analyzer.prepareCape(it) }
+
+        val model = account.skinModel ?: skin?.model ?: SkinModelType.NONE
+        val profileId = if (account.profileId.isNullOrEmpty() || account.profileId.contains("00000000")) {
+            LocalUuidUtils.generateProfileId(account.username, model)
+        } else {
+            account.profileId
+        }
+
+        server.addCharacter(
+            username = account.username,
+            profileId = profileId,
+            skin = skin,
+            cape = cape
+        )
+
+        if (!isStarted) {
+            try {
+                port = server.start()
+                isStarted = true
+            } catch (e: Exception) {
+                Log.e("SkinManager", "Failed to start offline Yggdrasil skin server", e)
+                return null
+            }
+        }
+
+        return authlibUrl
+    }
 
     fun startServer(): Int {
-        port = server.start()
+        if (!isStarted) {
+            port = server.start()
+            isStarted = true
+        }
         return port
     }
 
-
     val authlibUrl: String get() = "http://127.0.0.1:$port"
-}
 
+    companion object {
+        @JvmStatic
+        val instance: SkinManager by lazy {
+            SkinManager(androidSkinAnalyzerFacade)
+        }
+    }
+}
 
 data class PreparedAccount(
     val username: String,

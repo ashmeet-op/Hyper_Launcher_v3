@@ -62,6 +62,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.edit
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.skin.SkinManager
 import com.ashmeet.hyperlauncher.skin.SkinPreview
 import com.ashmeet.hyperlauncher.skin.model.SkinModelType
 import com.ashmeet.hyperlauncher.utils.SkinUtils
@@ -120,6 +121,7 @@ fun AuthLayout(
                 currentAccount?.let { acc ->
                     acc.skinPath = path
                     acc.save()
+                    SkinManager.instance.registerAndStartServer(acc)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -144,6 +146,7 @@ fun AuthLayout(
                 currentAccount?.let { acc ->
                     acc.capePath = path
                     acc.save()
+                    SkinManager.instance.registerAndStartServer(acc)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

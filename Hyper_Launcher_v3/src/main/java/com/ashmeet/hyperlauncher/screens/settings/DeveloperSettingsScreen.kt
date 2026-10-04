@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Translate
@@ -32,6 +33,7 @@ import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsScreenWrapper
 import com.ashmeet.hyperlauncher.screens.settings.preferences.PreferenceCategory
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsActionItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSwitchItem
+import com.ashmeet.hyperlauncher.screens.settings.preferences.TextInputDialog
 import com.ashmeet.hyperlauncher.utils.translation.Translator
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
@@ -43,6 +45,8 @@ fun DeveloperSettingsScreen(
     val context = LocalContext.current
     val fclPlugins = remember { PluginLoader.allPlugins }
     var forceEnglish by remember { mutableStateOf(LauncherPreferences.PREF_FORCE_ENGLISH) }
+    var geminiApiKey by remember { mutableStateOf(LauncherPreferences.PREF_GEMINI_API_KEY ?: "") }
+    var showGeminiApiKeyDialog by remember { mutableStateOf(false) }
 
     SettingsScreenWrapper(
         title = translatedText("Developer options"),
@@ -74,7 +78,7 @@ fun DeveloperSettingsScreen(
 
             PreferenceCategory(title = translatedText("Development"))
 
-            SettingsCard(position = CardPosition.SINGLE, useSurface = true) {
+            SettingsCard(position = CardPosition.TOP, useSurface = true) {
                 SettingsSwitchItem(
                     title = translatedText(stringResource(R.string.preference_force_english_title)),
                     summary = translatedText(stringResource(R.string.preference_force_english_description)),
@@ -88,6 +92,19 @@ fun DeveloperSettingsScreen(
                             Translator.prefetchTranslations(context)
                         }
                     }
+                )
+            }
+
+            SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
+                SettingsActionItem(
+                    title = translatedText("Custom Gemini API Key"),
+                    summary = if (geminiApiKey.isNotBlank()) {
+                        if (geminiApiKey.length > 8) "••••••••" + geminiApiKey.takeLast(4) else "••••••••"
+                    } else {
+                        translatedText("Use a custom Google Gemini API key for AI crash inspection")
+                    },
+                    icon = Icons.Default.AutoAwesome,
+                    onClick = { showGeminiApiKeyDialog = true }
                 )
             }
 
@@ -132,5 +149,19 @@ fun DeveloperSettingsScreen(
                 }
             }
         }
+    }
+
+    if (showGeminiApiKeyDialog) {
+        TextInputDialog(
+            title = translatedText("Custom Gemini API Key"),
+            initialValue = geminiApiKey,
+            onConfirm = { newValue ->
+                geminiApiKey = newValue.trim()
+                LauncherPreferences.prefs.edit { putString("geminiApiKey", geminiApiKey) }
+                LauncherPreferences.loadPreferences(context)
+                showGeminiApiKeyDialog = false
+            },
+            onDismiss = { showGeminiApiKeyDialog = false }
+        )
     }
 }

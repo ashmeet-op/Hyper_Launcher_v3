@@ -19,6 +19,10 @@ object GeminiCrashAnalyzer {
     private const val TAG = "GeminiCrashAnalyzer"
 
     fun getApiKey(context: Context): String {
+        val customKey = LauncherPreferences.PREF_GEMINI_API_KEY
+        if (!customKey.isNullOrBlank()) {
+            return customKey.trim()
+        }
         return runCatching { context.getString(R.string.hyper_launcher_api_key) }.getOrDefault("")
     }
 
@@ -119,6 +123,8 @@ object GeminiCrashAnalyzer {
             2. Provide clear, concise, bullet-point steps explaining how the user can fix the issue.
             3. If the crash is an internal launcher or native C/C++ crash (e.g. native segfault in .so library, MojoExec, JNI hook error, or system GPU driver crash), explicitly tell the user: "This appears to be an internal launcher or native driver issue. Please contact HyperLauncher support with your crash log."
             4. Keep your response friendly, well-formatted, and concise.
+            5. No emojis or symbols
+            6. note: mobileglues renderer is not supported on minecraft 26.3 and mods like Distant Horizons are supported but only old versions, also blaze client is fully supported.
         """.trimIndent()
 
         val models = listOf("gemini-3.7-flash", "gemini-3.5-flash-lite", "gemini-3-flash-preview")
