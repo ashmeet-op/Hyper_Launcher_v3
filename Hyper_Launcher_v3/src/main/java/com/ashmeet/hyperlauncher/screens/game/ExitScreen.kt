@@ -202,7 +202,7 @@ fun ExitScreen(
                                     ) {
                                         Text(
                                             text = aiResult ?: "",
-                                            color = Color.White,
+                                            color = MaterialTheme.colorScheme.onBackground,
                                             fontSize = 13.sp,
                                             lineHeight = 18.sp,
                                             fontFamily = FontFamily.SansSerif
