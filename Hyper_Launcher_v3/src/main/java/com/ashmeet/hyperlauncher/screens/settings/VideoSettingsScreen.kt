@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import com.ashmeet.hyperlauncher.activity.BaseActivity
+import com.ashmeet.hyperlauncher.plugin.renderer.RendererPluginManager
 import com.ashmeet.hyperlauncher.plugin.renderer_v2.RendererV2PluginManager
 import com.ashmeet.hyperlauncher.screens.settings.layouts.CardPosition
 import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsCard
@@ -105,13 +106,28 @@ fun VideoSettingsScreen(
             }
 
             val v2Plugins = remember { RendererV2PluginManager.getRendererList() }
-            if (v2Plugins.isNotEmpty()) {
+            val v1ConfigurablePlugins = remember { RendererPluginManager.getRendererList().filter { it.isConfigurable } }
+            val isCurrentRendererConfigurable = remember(renderer) {
+                RendererPluginManager.isConfigurablePlugin(renderer) || RendererPluginManager.selectedRendererPlugin?.isConfigurable == true
+            }
+
+            if (v2Plugins.isNotEmpty() || v1ConfigurablePlugins.isNotEmpty() || isCurrentRendererConfigurable) {
                 SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
                     SettingsActionItem(
                         title = translatedText("Renderer Plugin Config"),
-                        summary = translatedText("Configure environment variables for renderer plugins"),
+                        summary = translatedText("Configure environment variables and settings for renderer plugins"),
                         icon = Icons.Default.Tune,
-                        onClick = { onNavigateToRendererConfig?.invoke() }
+                        onClick = {
+                            val currentV1Plugin = RendererPluginManager.selectedRendererPlugin
+                            if (currentV1Plugin?.isConfigurable == true) {
+                                val launchIntent = context.packageManager.getLaunchIntentForPackage(currentV1Plugin.packageName)
+                                if (launchIntent != null) {
+                                    context.startActivity(launchIntent)
+                                    return@SettingsActionItem
+                                }
+                            }
+                            onNavigateToRendererConfig?.invoke()
+                        }
                     )
                 }
             }

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Launch
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Edit
@@ -24,9 +25,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.ashmeet.hyperlauncher.components.HyperAlertDialog
 import com.ashmeet.hyperlauncher.components.switch.DefaultSwitch
+import com.ashmeet.hyperlauncher.plugin.renderer.RendererPluginManager
 import com.ashmeet.hyperlauncher.plugin.renderer_v2.RendererV2Data
 import com.ashmeet.hyperlauncher.plugin.renderer_v2.RendererV2PluginManager
 import com.ashmeet.hyperlauncher.plugin.renderer_v2.data.EnvSettingUnit
@@ -44,7 +47,10 @@ import com.ashmeet.hyperlauncher.utils.translation.translatedText
 fun RendererConfigScreen(
     onBack: () -> Unit
 ) {
-    val plugins = remember { RendererV2PluginManager.getRendererList() }
+    val context = LocalContext.current
+    val v1Plugins = remember { RendererPluginManager.getRendererList().filter { it.isConfigurable } }
+    val v2Plugins = remember { RendererV2PluginManager.getRendererList() }
+
     var selectedPluginIndex by remember { mutableStateOf(0) }
     var showPluginSelectDialog by remember { mutableStateOf(false) }
 
@@ -56,96 +62,125 @@ fun RendererConfigScreen(
         onBack = onBack,
         addTopGap = true
     ) {
-        if (plugins.isEmpty()) {
+        if (v1Plugins.isEmpty() && v2Plugins.isEmpty()) {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 SettingsCard(position = CardPosition.SINGLE, useSurface = true) {
                     SettingsActionItem(
                         title = translatedText("No Renderer Plugins Found"),
-                        summary = translatedText("Install a renderer plugin (V2) to configure environment settings."),
+                        summary = translatedText("Install a renderer plugin to configure settings."),
                         icon = Icons.Default.Tune,
                         onClick = {}
                     )
                 }
             }
         } else {
-            val currentPlugin: RendererV2Data? = plugins.getOrNull(selectedPluginIndex.coerceIn(0, plugins.lastIndex))
-
-            if (plugins.size > 1) {
-                PreferenceCategory(title = translatedText("Selected Plugin"))
-                SettingsCard(position = CardPosition.SINGLE, useSurface = true) {
-                    SettingsActionItem(
-                        title = currentPlugin?.renderer?.displayName ?: translatedText("Select Plugin"),
-                        summary = currentPlugin?.summary ?: translatedText("Choose which renderer plugin to configure"),
-                        icon = Icons.Default.Build,
-                        onClick = { showPluginSelectDialog = true }
-                    )
+            if (v1Plugins.isNotEmpty()) {
+                PreferenceCategory(title = translatedText("External Configurable Plugins"))
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    v1Plugins.forEachIndexed { index, plugin ->
+                        val position = when {
+                            v1Plugins.size == 1 -> CardPosition.SINGLE
+                            index == 0 -> CardPosition.TOP
+                            index == v1Plugins.lastIndex -> CardPosition.BOTTOM
+                            else -> CardPosition.MIDDLE
+                        }
+                        SettingsCard(position = position, useSurface = true) {
+                            SettingsActionItem(
+                                title = plugin.displayName,
+                                summary = plugin.summary ?: translatedText("Tap to open plugin configuration app"),
+                                icon = Icons.AutoMirrored.Filled.Launch,
+                                onClick = {
+                                    val launchIntent = context.packageManager.getLaunchIntentForPackage(plugin.packageName)
+                                    if (launchIntent != null) {
+                                        context.startActivity(launchIntent)
+                                    }
+                                }
+                            )
+                        }
+                    }
                 }
             }
 
-            if (currentPlugin != null) {
-                val configurableUnits = remember(currentPlugin) {
-                    currentPlugin.env.getConfigurableUnits()
-                }
+            if (v2Plugins.isNotEmpty()) {
+                val currentPlugin: RendererV2Data? = v2Plugins.getOrNull(selectedPluginIndex.coerceIn(0, v2Plugins.lastIndex))
 
-                PreferenceCategory(title = translatedText("${currentPlugin.renderer.displayName} Options"))
-
-                if (configurableUnits.isEmpty()) {
+                if (v2Plugins.size > 1) {
+                    PreferenceCategory(title = translatedText("Selected Plugin"))
                     SettingsCard(position = CardPosition.SINGLE, useSurface = true) {
                         SettingsActionItem(
-                            title = translatedText("No Configurable Options"),
-                            summary = translatedText("This plugin has no configurable environment variables."),
-                            icon = Icons.Default.Tune,
-                            onClick = {}
+                            title = currentPlugin?.renderer?.displayName ?: translatedText("Select Plugin"),
+                            summary = currentPlugin?.summary ?: translatedText("Choose which renderer plugin to configure"),
+                            icon = Icons.Default.Build,
+                            onClick = { showPluginSelectDialog = true }
                         )
                     }
-                } else {
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        configurableUnits.forEachIndexed { index, unit ->
-                            val position = when {
-                                configurableUnits.size == 1 -> CardPosition.SINGLE
-                                index == 0 -> CardPosition.TOP
-                                index == configurableUnits.lastIndex -> CardPosition.BOTTOM
-                                else -> CardPosition.MIDDLE
-                            }
+                }
 
-                            val title = unit.summary?.takeIf { it.isNotBlank() } ?: unit.key
+                if (currentPlugin != null) {
+                    val configurableUnits = remember(currentPlugin) {
+                        currentPlugin.env.getConfigurableUnits()
+                    }
 
-                            SettingsCard(position = position, useSurface = true) {
-                                when (unit) {
-                                    is EnvSettingUnit.Selectable -> {
-                                        val displaySummary = if (unit.rawEnv.check != null && !unit.isEnabled) {
-                                            translatedText("Disabled")
-                                        } else {
-                                            translatedText("Value: ${unit.state}")
+                    PreferenceCategory(title = translatedText("${currentPlugin.renderer.displayName} Options"))
+
+                    if (configurableUnits.isEmpty()) {
+                        SettingsCard(position = CardPosition.SINGLE, useSurface = true) {
+                            SettingsActionItem(
+                                title = translatedText("No Configurable Options"),
+                                summary = translatedText("This plugin has no configurable environment variables."),
+                                icon = Icons.Default.Tune,
+                                onClick = {}
+                            )
+                        }
+                    } else {
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            configurableUnits.forEachIndexed { index, unit ->
+                                val position = when {
+                                    configurableUnits.size == 1 -> CardPosition.SINGLE
+                                    index == 0 -> CardPosition.TOP
+                                    index == configurableUnits.lastIndex -> CardPosition.BOTTOM
+                                    else -> CardPosition.MIDDLE
+                                }
+
+                                val title = unit.summary?.takeIf { it.isNotBlank() } ?: unit.key
+
+                                SettingsCard(position = position, useSurface = true) {
+                                    when (unit) {
+                                        is EnvSettingUnit.Selectable -> {
+                                            val displaySummary = if (unit.rawEnv.check != null && !unit.isEnabled) {
+                                                translatedText("Disabled")
+                                            } else {
+                                                translatedText("Value: ${unit.state}")
+                                            }
+
+                                            SettingsActionItem(
+                                                title = title,
+                                                summary = displaySummary,
+                                                icon = Icons.AutoMirrored.Filled.List,
+                                                onClick = { activeSelectableUnit = unit }
+                                            )
                                         }
 
-                                        SettingsActionItem(
-                                            title = title,
-                                            summary = displaySummary,
-                                            icon = Icons.AutoMirrored.Filled.List,
-                                            onClick = { activeSelectableUnit = unit }
-                                        )
-                                    }
+                                        is EnvSettingUnit.Customizable -> {
+                                            SettingsActionItem(
+                                                title = title,
+                                                summary = if (unit.state.isNotEmpty()) unit.state else translatedText("Default: ${unit.defaultValue}"),
+                                                icon = Icons.Default.Edit,
+                                                onClick = { activeCustomizableUnit = unit }
+                                            )
+                                        }
 
-                                    is EnvSettingUnit.Customizable -> {
-                                        SettingsActionItem(
-                                            title = title,
-                                            summary = if (unit.state.isNotEmpty()) unit.state else translatedText("Default: ${unit.defaultValue}"),
-                                            icon = Icons.Default.Edit,
-                                            onClick = { activeCustomizableUnit = unit }
-                                        )
-                                    }
-
-                                    is EnvSettingUnit.Toggleable -> {
-                                        SettingsSwitchItem(
-                                            title = title,
-                                            summary = if (unit.isEnabled) translatedText("Enabled") else translatedText("Disabled"),
-                                            icon = Icons.Default.Tune,
-                                            checked = unit.isEnabled,
-                                            onCheckedChange = { checked ->
-                                                unit.save(if (checked) unit.envValue else "")
-                                            }
-                                        )
+                                        is EnvSettingUnit.Toggleable -> {
+                                            SettingsSwitchItem(
+                                                title = title,
+                                                summary = if (unit.isEnabled) translatedText("Enabled") else translatedText("Disabled"),
+                                                icon = Icons.Default.Tune,
+                                                checked = unit.isEnabled,
+                                                onCheckedChange = { checked ->
+                                                    unit.save(if (checked) unit.envValue else "")
+                                                }
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -156,11 +191,11 @@ fun RendererConfigScreen(
         }
     }
 
-    if (showPluginSelectDialog && plugins.size > 1) {
+    if (showPluginSelectDialog && v2Plugins.size > 1) {
         SingleChoiceDialog(
             title = translatedText("Select Renderer Plugin"),
-            options = plugins.map { it.renderer.displayName },
-            optionValues = plugins.indices.map { it.toString() },
+            options = v2Plugins.map { it.renderer.displayName },
+            optionValues = v2Plugins.indices.map { it.toString() },
             selectedValue = selectedPluginIndex.toString(),
             onValueChange = { newValue ->
                 selectedPluginIndex = newValue.toIntOrNull() ?: 0

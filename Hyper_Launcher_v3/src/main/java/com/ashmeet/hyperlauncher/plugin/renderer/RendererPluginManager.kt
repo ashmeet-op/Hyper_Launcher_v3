@@ -36,7 +36,7 @@ object RendererPluginManager: ApkPluginManager() {
             val currentRenderer = runCatching {
                 Renderers.getCurrentRenderer().getUniqueIdentifier()
             }.getOrNull()
-            return rendererPluginList.find { it.packageName == currentRenderer }
+            return rendererPluginList.find { it.packageName == currentRenderer || it.id == currentRenderer }
         }
 
     /**
@@ -51,7 +51,7 @@ object RendererPluginManager: ApkPluginManager() {
      */
     @JvmStatic
     fun isConfigurablePlugin(rendererUniqueIdentifier: String): Boolean {
-        val renderer = rendererPluginList.find { it.packageName == rendererUniqueIdentifier }
+        val renderer = rendererPluginList.find { it.packageName == rendererUniqueIdentifier || it.id == rendererUniqueIdentifier }
         return renderer?.isConfigurable == true
     }
 
