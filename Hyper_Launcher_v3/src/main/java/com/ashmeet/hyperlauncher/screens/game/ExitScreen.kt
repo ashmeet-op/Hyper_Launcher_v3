@@ -226,7 +226,7 @@ fun ExitScreen(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .verticalScroll(logScrollState),
-                                color = Color.White.copy(alpha = 0.85f),
+                                color = MaterialTheme.colorScheme.onBackground,
                                 fontSize = 11.sp,
                                 fontFamily = FontFamily.Monospace
                             )
