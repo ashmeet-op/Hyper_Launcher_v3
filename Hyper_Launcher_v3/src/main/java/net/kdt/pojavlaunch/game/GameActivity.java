@@ -34,7 +34,6 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
@@ -83,14 +82,21 @@ import net.kdt.pojavlaunch.utils.jre.GameRunner;
 
 import java.io.File;
 import java.io.IOException;
+import net.kdt.pojavlaunch.extra.ExtraConstants;
+import net.kdt.pojavlaunch.extra.ExtraCore;
+
 import java.lang.ref.WeakReference;
 import java.util.Objects;
 import androidx.compose.ui.platform.ComposeView;
+
+import kotlin.Unit;
 
 
 public class GameActivity extends BaseActivity implements ControlButtonMenuListener, EditorExitable, ServiceConnection {
     public static final String INTENT_LAUNCH_VERSION = "intent_version";
     public static final String INTENT_LAUNCH_CLASSPATH = "intent_classpath";
+    public static final String INTENT_QUICK_PLAY_WORLD = "intent_quick_play_world";
+    public static final String INTENT_QUICK_PLAY_SERVER = "intent_quick_play_server";
 
     public static TouchCharInput touchCharInput;
     private GameView launcherGLView;
@@ -227,9 +233,9 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
                 loggerView,
                 launcherGLView,
                 true,
-                isOpen -> kotlin.Unit.INSTANCE,
-                controller -> { mDrawerController = controller; return kotlin.Unit.INSTANCE; },
-                action -> { onAction(action); return kotlin.Unit.INSTANCE; }
+                isOpen -> Unit.INSTANCE,
+                controller -> { mDrawerController = controller; return Unit.INSTANCE; },
+                action -> { onAction(action); return Unit.INSTANCE; }
         );
 
         mControlLayout.setOnControlEditListener(new ControlLayout.OnControlEditListener() {
@@ -264,6 +270,19 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
                 classpath = extras.getSerializable(INTENT_LAUNCH_CLASSPATH, File[].class);
             } else {
                 classpath = (File[]) extras.getSerializable(INTENT_LAUNCH_CLASSPATH);
+            }
+
+            if (extras.containsKey(INTENT_QUICK_PLAY_WORLD)) {
+                String quickPlayWorld = extras.getString(INTENT_QUICK_PLAY_WORLD);
+                if (quickPlayWorld != null) {
+                    ExtraCore.setValue(ExtraConstants.QUICK_PLAY_WORLD, quickPlayWorld);
+                }
+            }
+            if (extras.containsKey(INTENT_QUICK_PLAY_SERVER)) {
+                String quickPlayServer = extras.getString(INTENT_QUICK_PLAY_SERVER);
+                if (quickPlayServer != null) {
+                    ExtraCore.setValue(ExtraConstants.QUICK_PLAY_SERVER, quickPlayServer);
+                }
             }
 
             setTitle("HyperLauncher (" + version + ")");
@@ -365,9 +384,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
         touchCharInput.setLayoutParams(new FrameLayout.LayoutParams((int)Tools.dpToPx(1), (int)Tools.dpToPx(1)));
 
         int imeOptions = EditorInfo.IME_FLAG_NO_FULLSCREEN | EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_DONE;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            imeOptions |= EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING;
-        }
+        imeOptions |= EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING;
         touchCharInput.setImeOptions(imeOptions);
         touchCharInput.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
 
@@ -509,9 +526,9 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
                 loggerView,
                 launcherGLView,
                 true,
-                isOpen -> kotlin.Unit.INSTANCE,
-                controller -> { mDrawerController = controller; return kotlin.Unit.INSTANCE; },
-                action -> { onAction(action); return kotlin.Unit.INSTANCE; }
+                isOpen -> Unit.INSTANCE,
+                controller -> { mDrawerController = controller; return Unit.INSTANCE; },
+                action -> { onAction(action); return Unit.INSTANCE; }
         );
         mControlLayout.setModifiable(true);
     }
@@ -532,7 +549,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
                 @Override
                 public void onGyroStateChanged() {
                     mGyroControl.updateOrientation();
-                    if (LauncherPreferences.PREF_ENABLE_GYRO) {
+                    if (PREF_ENABLE_GYRO) {
                         mGyroControl.enable();
                     } else {
                         mGyroControl.disable();
@@ -651,9 +668,9 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
                 loggerView,
                 launcherGLView,
                 true,
-                isOpen -> kotlin.Unit.INSTANCE,
-                controller -> { mDrawerController = controller; return kotlin.Unit.INSTANCE; },
-                action -> { onAction(action); return kotlin.Unit.INSTANCE; }
+                isOpen -> Unit.INSTANCE,
+                controller -> { mDrawerController = controller; return Unit.INSTANCE; },
+                action -> { onAction(action); return Unit.INSTANCE; }
         );
     }
 
@@ -667,25 +684,19 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
-
     }
 
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private boolean checkCaptureDispatchConditions(MotionEvent event) {
         int eventSource = event.getSource();
-
-
-
-
         return (eventSource & InputDevice.SOURCE_MOUSE_RELATIVE) != 0 ||
-                (eventSource & InputDevice.SOURCE_MOUSE) != 0;
+        (eventSource & InputDevice.SOURCE_MOUSE) != 0;
     }
 
     @Override
     public boolean dispatchTrackballEvent(MotionEvent ev) {
         if(Tools.isAndroid8OrHigher() && checkCaptureDispatchConditions(ev))
-            return launcherGLView.dispatchCapturedPointerEvent(ev);
+        return launcherGLView.dispatchCapturedPointerEvent(ev);
         else return super.dispatchTrackballEvent(ev);
     }
 }

@@ -448,11 +448,101 @@ public class GameRunner {
             clientArgs.addAll(splitAndFilterEmpty(versionInfo.minecraftArguments));
         }
         String quickPlayWorld = (String) ExtraCore.consumeValue(ExtraConstants.QUICK_PLAY_WORLD);
-        if (quickPlayWorld != null && !quickPlayWorld.isEmpty()) {
-            clientArgs.add("--quickPlaySingleplayer");
-            clientArgs.add(quickPlayWorld);
+        if (quickPlayWorld != null && !quickPlayWorld.trim().isEmpty()) {
+            String worldName = quickPlayWorld.trim();
+            varArgMap.put("quickPlaySingleplayer", worldName);
+            if (isQuickPlaySingleplayerSupported(versionInfo)) {
+                if (!clientArgs.contains("--quickPlaySingleplayer")) {
+                    clientArgs.add("--quickPlaySingleplayer");
+                    clientArgs.add(worldName);
+                }
+            } else {
+                Log.w("GameRunner", "Quick Play for singleplayer is not supported on this Minecraft version and has been skipped.");
+            }
+        }
+
+        String quickPlayServer = (String) ExtraCore.consumeValue(ExtraConstants.QUICK_PLAY_SERVER);
+        if (quickPlayServer != null && !quickPlayServer.trim().isEmpty()) {
+            String serverAddress = quickPlayServer.trim();
+            varArgMap.put("quickPlayMultiplayer", serverAddress);
+            varArgMap.put("quickPlayServer", serverAddress);
+            if (isQuickPlayServerSupported(versionInfo)) {
+                if (!clientArgs.contains("--quickPlayMultiplayer") && !clientArgs.contains("--quickPlayServer")) {
+                    clientArgs.add("--quickPlayMultiplayer");
+                    clientArgs.add(serverAddress);
+                }
+            } else {
+                if (!clientArgs.contains("--server")) {
+                    if (serverAddress.contains(":")) {
+                        String[] parts = serverAddress.split(":", 2);
+                        clientArgs.add("--server");
+                        clientArgs.add(parts[0]);
+                        clientArgs.add("--port");
+                        clientArgs.add(parts[1]);
+                    } else {
+                        clientArgs.add("--server");
+                        clientArgs.add(serverAddress);
+                    }
+                }
+            }
         }
         return JSONUtils.insertJSONValueList(clientArgs, varArgMap);
+    }
+
+    private static boolean isQuickPlaySingleplayerSupported(JVersionList.Version versionInfo) {
+        if (versionInfo == null) return false;
+        if (versionInfo.arguments != null && versionInfo.arguments.game != null) {
+            for (Object arg : versionInfo.arguments.game) {
+                if (arg instanceof String && (((String) arg).contains("quickPlaySingleplayer") || ((String) arg).contains("quickPlay"))) {
+                    return true;
+                }
+                if (arg instanceof JVersionList.Arguments.ArgValue) {
+                    JVersionList.Arguments.ArgValue argValue = (JVersionList.Arguments.ArgValue) arg;
+                    if (argValue.value != null && (argValue.value.contains("quickPlaySingleplayer") || argValue.value.contains("quickPlay"))) {
+                        return true;
+                    }
+                    if (argValue.values != null) {
+                        for (String v : argValue.values) {
+                            if (v != null && (v.contains("quickPlaySingleplayer") || v.contains("quickPlay"))) return true;
+                        }
+                    }
+                }
+            }
+        }
+        try {
+            Date creationDate = DateUtils.getOriginalReleaseDate(versionInfo);
+            return !DateUtils.dateBefore(creationDate, 2023, 3, 1);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private static boolean isQuickPlayServerSupported(JVersionList.Version versionInfo) {
+        if (versionInfo == null) return false;
+        if (versionInfo.arguments != null && versionInfo.arguments.game != null) {
+            for (Object arg : versionInfo.arguments.game) {
+                if (arg instanceof String && (((String) arg).contains("quickPlayMultiplayer") || ((String) arg).contains("quickPlayServer") || ((String) arg).contains("quickPlay"))) {
+                    return true;
+                }
+                if (arg instanceof JVersionList.Arguments.ArgValue) {
+                    JVersionList.Arguments.ArgValue argValue = (JVersionList.Arguments.ArgValue) arg;
+                    if (argValue.value != null && (argValue.value.contains("quickPlayMultiplayer") || argValue.value.contains("quickPlayServer") || argValue.value.contains("quickPlay"))) {
+                        return true;
+                    }
+                    if (argValue.values != null) {
+                        for (String v : argValue.values) {
+                            if (v != null && (v.contains("quickPlayMultiplayer") || v.contains("quickPlayServer") || v.contains("quickPlay"))) return true;
+                        }
+                    }
+                }
+            }
+        }
+        try {
+            Date creationDate = DateUtils.getOriginalReleaseDate(versionInfo);
+            return !DateUtils.dateBefore(creationDate, 2023, 3, 1);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private static List<String> splitAndFilterEmpty(String argStr) {

@@ -25,4 +25,6 @@ public class ExtraConstants {
     public static final String REFRESH_ACCOUNT_SPINNER = "refresh_account_spinner";
 
     public static final String QUICK_PLAY_WORLD = "quick_play_world";
+
+    public static final String QUICK_PLAY_SERVER = "quick_play_server";
 }
