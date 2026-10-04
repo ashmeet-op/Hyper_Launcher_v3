@@ -12,8 +12,10 @@ import static net.kdt.pojavlaunch.game.renderer.def.Renderers.ZINK_RENDERER;
 import android.content.Context;
 import android.content.res.Resources;
 
-import com.ashmeet.hyperlauncher.plugins.interfaces.NativePlugin;
-import com.ashmeet.hyperlauncher.plugins.manager.NativePluginManager;
+import com.ashmeet.hyperlauncher.plugin.driver.Driver;
+import com.ashmeet.hyperlauncher.plugin.driver.DriverPluginManager;
+import com.ashmeet.hyperlauncher.renderer.RendererInterface;
+import com.ashmeet.hyperlauncher.renderer.Renderers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,14 +58,14 @@ public class RendererCache {
             rendererNames.add(resources.getString(r.displayName()));
         }
 
-        for (NativePlugin plugin : NativePluginManager.getPlugins()) {
-            String rendererId = plugin.getRendererName();
+        for (RendererInterface renderer : Renderers.INSTANCE.getRenderers()) {
+            String rendererId = renderer.getUniqueIdentifier();
             if (rendererId != null && !rendererIds.contains(rendererId)) {
                 rendererIds.add(rendererId);
-                String displayName = plugin.getDisplayName() != null ? plugin.getDisplayName() : ("FCL: " + rendererId);
-                String pluginName = plugin.getName();
-                if (pluginName != null) {
-                    rendererNames.add(displayName + " (from " + pluginName + " plugin)");
+                String displayName = renderer.getRendererName();
+                String summary = renderer.getRendererSummary();
+                if (summary != null) {
+                    rendererNames.add(displayName + " (" + summary + ")");
                 } else {
                     rendererNames.add(displayName);
                 }
@@ -82,14 +84,14 @@ public class RendererCache {
         driverIds.add("default");
         driverNames.add("Default");
 
-        for (NativePlugin plugin : NativePluginManager.getPlugins()) {
-            String driverId = plugin.getDriverName();
+        for (Driver driver : DriverPluginManager.INSTANCE.getDriverList()) {
+            String driverId = driver.getId();
             if (driverId != null && !driverIds.contains(driverId)) {
                 driverIds.add(driverId);
-                String displayName = plugin.getDisplayName() != null ? plugin.getDisplayName() : ("FCL: " + driverId);
-                String pluginName = plugin.getName();
-                if (pluginName != null) {
-                    driverNames.add(displayName + " (from " + pluginName + " plugin)");
+                String displayName = driver.getName();
+                String summary = driver.getSummary();
+                if (summary != null) {
+                    driverNames.add(displayName + " (" + summary + ")");
                 } else {
                     driverNames.add(displayName);
                 }

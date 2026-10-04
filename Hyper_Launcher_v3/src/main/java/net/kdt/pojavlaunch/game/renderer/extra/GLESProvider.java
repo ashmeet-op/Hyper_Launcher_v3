@@ -10,8 +10,8 @@ import static net.kdt.pojavlaunch.game.renderer.def.GLESConstants.NATIVE_GLES;
 import android.content.Context;
 
 
-import com.ashmeet.hyperlauncher.plugins.natives.LibraryPlugin;
 import com.ashmeet.hyperlauncher.utils.Architecture;
+import com.ashmeet.hyperlauncher.utils.Tools;
 
 import net.kdt.pojavlaunch.game.renderer.impl.GLESRenderSpec;
 
@@ -31,14 +31,7 @@ public interface GLESProvider {
      */
     static GLESProvider getGlesProvider(Context context, boolean preferAngle) {
         if (!preferAngle) return new NativeGLESProvider();
-        GLESProvider provider;
-        // External ANGLE takes priority over system ANGLE so we can override it easily
-        LibraryPlugin anglePlugin = LibraryPlugin.discoverPlugin(context, LibraryPlugin.ID_ANGLE_PLUGIN);
-        provider = new GLESProvider.ExternalAngleProvider(anglePlugin);
-        if (provider.supported()) {
-            return provider;
-        }
-        provider = new GLESProvider.SystemAngleProvider();
+        GLESProvider provider = new SystemAngleProvider(context);
         if (provider.supported()) {
             return provider;
         }
@@ -136,62 +129,53 @@ public interface GLESProvider {
     }
 
     /**
-     * System ANGLE provider. Android 15+ devices often have ANGLE libraries located in their system partition, so we can take advantage of them
+     * ANGLE provider. Checks for bundled ANGLE in native library directory first, then falls back to system ANGLE.
      */
     class SystemAngleProvider implements GLESProvider {
-        private static final String BASE_PATH = Architecture.is64BitsDevice() ? "/system/lib64/" : "/system/lib";
-        public String type() {
-            return "System ANGLE";
-        }
-        public String eglPath() {
-            return gles().getAbsolutePath();
-        }
-        public String glesPath() {
-            return gles().getAbsolutePath();
-        }
-        public File egl() {
-            return new File(BASE_PATH, ANGLE_EGL);
-        }
-        public File gles() {
-            return new File(BASE_PATH, ANGLE_EGL);
-        }
-        public boolean supported() {
-            return egl().exists() && gles().exists();
-        }
-        public boolean requiresNamespace() {
-            return true;
-        }
-    }
+        private final Context context;
 
-    /**
-     * External ANGLE provider. Loads ANGLE libraries through {@link LibraryPlugin} (AnglePlugin) hence requires it to be installed on the device.
-     * Useful for using newer ANGLE, patching ANGLE to overcome OpenGL ES restrictions or when nsbypass misbehaves on this device
-     */
-    class ExternalAngleProvider implements GLESProvider {
-        private final LibraryPlugin plugin;
-        public ExternalAngleProvider(LibraryPlugin plugin) {
-            this.plugin = plugin;
+        public SystemAngleProvider(Context context) {
+            this.context = context;
         }
+
         public String type() {
-            return "External ANGLE";
+            return "ANGLE Driver";
         }
         public String eglPath() {
-            return plugin.resolve(ANGLE_EGL).getAbsolutePath();
+            File file = egl();
+            return file != null ? file.getAbsolutePath() : ANGLE_EGL;
         }
         public String glesPath() {
-            return gles().getAbsolutePath();
+            File file = gles();
+            return file != null ? file.getAbsolutePath() : ANGLE_GLES;
         }
         public File egl() {
-            return plugin.resolve(ANGLE_EGL);
+            if (context != null && context.getApplicationInfo() != null && context.getApplicationInfo().nativeLibraryDir != null) {
+                File local = new File(context.getApplicationInfo().nativeLibraryDir, ANGLE_EGL);
+                if (local.exists()) return local;
+            }
+            if (Tools.NATIVE_LIB_DIR != null) {
+                File localTools = new File(Tools.NATIVE_LIB_DIR, ANGLE_EGL);
+                if (localTools.exists()) return localTools;
+            }
+            String basePath = Architecture.is64BitsDevice() ? "/system/lib64/" : "/system/lib/";
+            File systemFile = new File(basePath, ANGLE_EGL);
+            if (systemFile.exists()) return systemFile;
+            return null;
         }
         public File gles() {
-            return plugin.resolve(ANGLE_GLES);
+            return egl();
         }
         public boolean supported() {
-            return plugin != null && plugin.checkLibraries(ANGLE_EGL, ANGLE_GLES);
+            File file = egl();
+            return file != null && file.exists();
         }
         public boolean requiresNamespace() {
-            return false;
+            File file = egl();
+            if (file != null && Tools.NATIVE_LIB_DIR != null && file.getAbsolutePath().startsWith(Tools.NATIVE_LIB_DIR)) {
+                return false;
+            }
+            return true;
         }
     }
     // One might add other OpenGLES providers (such as Mesa and/or bundled ANGLE), but this is not something we want right now

@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import coil.compose.rememberAsyncImagePainter
+import com.ashmeet.hyperlauncher.plugin.PluginLoader
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.screens.settings.layouts.CardPosition
 import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsCard
@@ -34,14 +35,13 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSwitchItem
 import com.ashmeet.hyperlauncher.utils.translation.Translator
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
-import com.ashmeet.hyperlauncher.plugins.natives.LibraryPlugin
 
 @Composable
 fun DeveloperSettingsScreen(
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
-    val fclPlugins = remember { LibraryPlugin.discoverAllPlugins(context) }
+    val fclPlugins = remember { PluginLoader.allPlugins }
     var forceEnglish by remember { mutableStateOf(LauncherPreferences.PREF_FORCE_ENGLISH) }
 
     SettingsScreenWrapper(
@@ -112,18 +112,17 @@ fun DeveloperSettingsScreen(
                     }
 
                     SettingsCard(position = position, useSurface = true) {
-                        val description = plugin.getMetaData().getString(LibraryPlugin.METADATA_FCL_DESCRIPTION)
-                        val pluginIcon = remember(plugin.appId) {
+                        val pluginIcon = remember(plugin.packageName) {
                             try {
-                                context.packageManager.getApplicationIcon(plugin.appId)
+                                context.packageManager.getApplicationIcon(plugin.packageName)
                             } catch (_: Exception) {
                                 null
                             }
                         }
 
                         SettingsActionItem(
-                            title = plugin.appId,
-                            summary = translatedText(description ?: "No description provided."),
+                            title = plugin.appName,
+                            summary = translatedText("${plugin.packageName} v${plugin.appVersion}"),
                             icon = if (pluginIcon == null) Icons.Default.Extension else null,
                             iconPainter = if (pluginIcon != null) rememberAsyncImagePainter(pluginIcon) else null,
                             tintIcon = pluginIcon == null,

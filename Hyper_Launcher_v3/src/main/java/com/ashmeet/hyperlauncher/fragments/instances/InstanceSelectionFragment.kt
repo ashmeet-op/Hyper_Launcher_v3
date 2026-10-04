@@ -7,18 +7,17 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
-import com.ashmeet.hyperlauncher.components.dialog.SimpleAlertDialog
+import com.ashmeet.hyperlauncher.activity.PojavApplication
 import com.ashmeet.hyperlauncher.components.dialog.DialogTextInput
 import com.ashmeet.hyperlauncher.components.dialog.GenericComposeDialogFragment
+import com.ashmeet.hyperlauncher.components.dialog.SimpleAlertDialog
 import com.ashmeet.hyperlauncher.fragments.installer.ContentInstallerFragment
 import com.ashmeet.hyperlauncher.fragments.selection.ProfileTypeSelectFragment
 import com.ashmeet.hyperlauncher.screens.instances.InstanceSelectionScreen
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.utils.ShortcutUtils
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import net.ashmeet.hyperlauncher.R
-import com.ashmeet.hyperlauncher.activity.PojavApplication
 import com.ashmeet.hyperlauncher.utils.Tools
+import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.instances.Instance
 import net.kdt.pojavlaunch.instances.Instances
 

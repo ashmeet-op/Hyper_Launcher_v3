@@ -111,6 +111,7 @@
     <string name="mcl_setting_renderer_mesa_desktop">Mesa (Desktop OpenGL)</string>
     <string name="mcl_setting_renderer_mesa_desktop_ext">Mesa (External)</string>
     <string name="mcl_setting_renderer_vulkan_lzink">Zink (Legacy Vulkan)</string>
+    <string name="settings_renderer_from_plugins">Renderer from %s plugin</string>
     <string name="mcl_setting_veroption_release">Release</string>
     <string name="mcl_setting_veroption_snapshot">Snapshot</string>
     <string name="mcl_setting_veroption_oldalpha">Old-alpha</string>

@@ -1,30 +1,63 @@
 package net.kdt.pojavlaunch.game.renderer.impl;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.util.Log;
 
-import com.ashmeet.hyperlauncher.plugins.interfaces.NativePlugin;
+import com.ashmeet.hyperlauncher.plugin.Plugin;
+import com.ashmeet.hyperlauncher.plugin.natives.NativePlugin;
+import com.ashmeet.hyperlauncher.plugin.renderer.RendererPlugin;
+import com.ashmeet.hyperlauncher.renderer.RendererInterface;
 
 import net.ashmeet.hyperlauncher.R;
 import net.kdt.pojavlaunch.game.renderer.RenderSpec;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 import git.artdeell.mojoexec.MojoExec;
 
 /**
- * FCLRenderSpec represents a dynamic render spec provided by NativePlugin.
+ * FCLRenderSpec represents a dynamic render spec provided by NativePlugin, RendererPlugin, or RendererInterface.
  */
 public class FCLRenderSpec implements RenderSpec {
+    private static final String TAG = "FCLRenderSpec";
     private final NativePlugin plugin;
+    private final RendererPlugin rendererPlugin;
+    private final RendererInterface rendererInterface;
 
     public FCLRenderSpec(NativePlugin plugin) {
         this.plugin = plugin;
+        this.rendererPlugin = null;
+        this.rendererInterface = null;
+    }
+
+    public FCLRenderSpec(RendererPlugin rendererPlugin) {
+        this.plugin = null;
+        this.rendererPlugin = rendererPlugin;
+        this.rendererInterface = rendererPlugin;
+    }
+
+    public FCLRenderSpec(RendererInterface rendererInterface) {
+        this.rendererInterface = rendererInterface;
+        this.rendererPlugin = (rendererInterface instanceof RendererPlugin) ? (RendererPlugin) rendererInterface : null;
+        this.plugin = null;
     }
 
     @Override
     public String name() {
-        return plugin.getDisplayName() != null ? plugin.getDisplayName() : plugin.getRendererName();
+        if (rendererInterface != null) {
+            return rendererInterface.getRendererName();
+        }
+        if (rendererPlugin != null) {
+            return rendererPlugin.getDisplayName();
+        }
+        if (plugin != null) {
+            plugin.getDisplayName();
+            return plugin.getDisplayName();
+        }
+        return "FCL Renderer Plugin";
     }
 
     @Override
@@ -34,18 +67,30 @@ public class FCLRenderSpec implements RenderSpec {
 
     @Override
     public String tag() {
-        return plugin.getRendererName();
+        if (rendererInterface != null) {
+            return rendererInterface.getUniqueIdentifier();
+        }
+        if (rendererPlugin != null) {
+            return rendererPlugin.getId();
+        }
+        if (plugin != null) {
+            return plugin.getPackageName();
+        }
+        return "fcl_renderer";
     }
 
-    @SuppressWarnings("DataFlowIssue")
     @Override
     public String library() {
-        Map<String, String> env = plugin.getJVMEnv();
-        if (env.containsKey("POJAVEXEC_EGL") && !env.get("POJAVEXEC_EGL").isEmpty()) return env.get("POJAVEXEC_EGL");
-        if (env.containsKey("LIBGL_EGL") && !env.get("LIBGL_EGL").isEmpty()) return env.get("LIBGL_EGL");
-        if (env.containsKey("POJAV_EGL") && !env.get("POJAV_EGL").isEmpty()) return env.get("POJAV_EGL");
-        for (String path : plugin.getPaths()) {
-            File dir = new File(path);
+        if (rendererInterface != null) {
+            String egl = rendererInterface.getRendererEGL();
+            if (egl != null && !egl.isEmpty()) return egl;
+            return rendererInterface.getRendererLibrary();
+        }
+        if (rendererPlugin != null) {
+            return rendererPlugin.getRendererEGL();
+        }
+        if (plugin != null) {
+            File dir = new File(plugin.getPath());
             if (dir.exists() && dir.isDirectory()) {
                 File[] soFiles = dir.listFiles((d, name) -> name.endsWith(".so"));
                 if (soFiles != null && soFiles.length > 0) {
@@ -57,18 +102,64 @@ public class FCLRenderSpec implements RenderSpec {
     }
 
     @Override
-    public void setupEnvironment(Context context, Map<String, String> envMap) {
-        envMap.putAll(plugin.getJVMEnv());
+    public String librarySearchPath() {
+        if (rendererInterface instanceof Plugin) {
+            return ((Plugin) rendererInterface).getNativeLibPath();
+        }
+        if (rendererPlugin != null) {
+            return rendererPlugin.getPath();
+        }
+        if (plugin != null) {
+            return plugin.getPath();
+        }
+        return null;
     }
 
     @Override
+    public void setupEnvironment(Context context, Map<String, String> envMap) {
+        if (rendererInterface != null) {
+            envMap.putAll(rendererInterface.getRendererEnv().getValue());
+        } else if (rendererPlugin != null) {
+            envMap.putAll(rendererPlugin.getRendererEnv().getValue());
+        } else if (plugin != null) {
+            for (String envStr : plugin.getEnvList()) {
+                if (envStr.contains("=")) {
+                    String[] parts = envStr.split("=", 2);
+                    envMap.put(parts[0], parts[1]);
+                }
+            }
+        }
+    }
+
+    @SuppressLint("UnsafeDynamicallyLoadedCode")
+    @Override
     public boolean setupRenderer() {
         MojoExec.preloadVulkan();
+        if (rendererInterface != null) {
+            List<String> dlLibs = rendererInterface.getDlopenLibrary().getValue();
+            if (dlLibs != null) {
+                for (String dlLib : dlLibs) {
+                    try {
+                        System.load(dlLib);
+                    } catch (Throwable t) {
+                        Log.w(TAG, "Failed to load dlopen library: " + dlLib, t);
+                    }
+                }
+            }
+        } else if (rendererPlugin != null) {
+            for (String dlLib : rendererPlugin.getDlopenLibrary().getValue()) {
+                try {
+                    System.load(dlLib);
+                } catch (Throwable t) {
+                    Log.w(TAG, "Failed to load dlopen library: " + dlLib, t);
+                }
+            }
+        }
         return MojoExec.prepareEgl(library(), true, true, 3);
     }
 
     @Override
     public boolean compatibleDevice(Context context) {
-        return plugin.supportsVersion(null);
+        return true;
     }
 }

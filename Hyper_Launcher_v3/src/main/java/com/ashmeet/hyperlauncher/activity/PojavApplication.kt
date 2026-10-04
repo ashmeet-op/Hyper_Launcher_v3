@@ -1,3 +1,5 @@
+@file:Suppress("SimplifyBooleanWithConstants")
+
 package com.ashmeet.hyperlauncher.activity
 
 import android.annotation.SuppressLint
@@ -10,7 +12,7 @@ import android.content.res.Configuration
 import android.os.Build
 import android.util.Log
 import androidx.core.app.ActivityCompat
-import com.ashmeet.hyperlauncher.plugins.manager.NativePluginManager
+import com.ashmeet.hyperlauncher.plugin.PluginLoader
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.utils.Architecture
 import com.ashmeet.hyperlauncher.utils.LoggerProxy
@@ -87,7 +89,7 @@ class PojavApplication : Application() {
             LoggerProxy.init()
 
             Tools.DEVICE_ARCHITECTURE = Architecture.getDeviceArchitecture()
-            NativePluginManager.discoverAarPlugins(this)
+            PluginLoader.loadAllPlugins(this)
 
             if (Architecture.isx86Device() && Architecture.is32BitsDevice()) {
                 val info = applicationInfo

@@ -11,11 +11,12 @@ import android.system.ErrnoException;
 import android.system.Os;
 import android.util.Log;
 
-import com.ashmeet.hyperlauncher.plugins.interfaces.NativePlugin;
-import com.ashmeet.hyperlauncher.plugins.manager.NativePluginManager;
+import com.ashmeet.hyperlauncher.plugin.natives.NativePlugin;
+import com.ashmeet.hyperlauncher.plugin.natives.NativePluginManager;
+import com.ashmeet.hyperlauncher.renderer.RendererInterface;
+import com.ashmeet.hyperlauncher.renderer.Renderers;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 import com.ashmeet.hyperlauncher.utils.Tools;
-import net.kdt.pojavlaunch.game.renderer.def.Renderers;
 import net.kdt.pojavlaunch.game.renderer.impl.FCLRenderSpec;
 import net.kdt.pojavlaunch.game.renderer.impl.GLESRenderSpec;
 import net.kdt.pojavlaunch.game.renderer.impl.MesaRenderSpec;
@@ -27,9 +28,9 @@ import git.artdeell.mojoexec.MojoExec;
  * Class for managing game renderers (OpenGL ES & Vulkan)
  */
 public class GameRenderer {
-    public static final String LTW_RENDERER = Renderers.LTW_RENDERER;
-    public static final String GL4ES_RENDERER = Renderers.GL4ES_RENDERER;
-    public static final String MOBILEGLUES_RENDERER = Renderers.MOBILEGLUES_RENDERER;
+    public static final String LTW_RENDERER = net.kdt.pojavlaunch.game.renderer.def.Renderers.LTW_RENDERER;
+    public static final String GL4ES_RENDERER = net.kdt.pojavlaunch.game.renderer.def.Renderers.GL4ES_RENDERER;
+    public static final String MOBILEGLUES_RENDERER = net.kdt.pojavlaunch.game.renderer.def.Renderers.MOBILEGLUES_RENDERER;
 
     private final static String TAG = "Renderer";
     private final static String FALLBACK_RENDERER = GL4ES_RENDERER;
@@ -62,8 +63,15 @@ public class GameRenderer {
             case MESA_RENDERER_EXT: return new MesaRenderSpec.ExtMesaRenderSpec();
             case LEGACYZINK_RENDERER: return new MesaRenderSpec.LegacyZinkRenderSpec();
             default:
-                for (NativePlugin plugin : NativePluginManager.getPlugins()) {
-                    if (renderer.equals(plugin.getRendererName())) {
+                for (RendererInterface pluginRenderer : Renderers.INSTANCE.getRenderers()) {
+                    if (renderer.equals(pluginRenderer.getUniqueIdentifier()) ||
+                        renderer.equals(pluginRenderer.getRendererId()) ||
+                        renderer.equals(pluginRenderer.getRendererName())) {
+                        return new FCLRenderSpec(pluginRenderer);
+                    }
+                }
+                for (NativePlugin plugin : NativePluginManager.INSTANCE.getPlugins()) {
+                    if (renderer.equals(plugin.getPackageName()) || renderer.equals(plugin.getAppName())) {
                         return new FCLRenderSpec(plugin);
                     }
                 }

@@ -7,7 +7,7 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.ashmeet.hyperlauncher.plugins.natives.LibraryPlugin;
+import com.ashmeet.hyperlauncher.plugin.ffmpeg.FFmpegPluginManager;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 import com.ashmeet.hyperlauncher.utils.Tools;
 
@@ -86,23 +86,31 @@ public class JREUtils {
     }
 
     // Sets up ANGLE driver environment
-    public static void setupAngleEnv(Context ctx, Map<String, String> envMap) {
+    public static void setupAngleEnv(Map<String, String> envMap) {
         if (!LauncherPreferences.PREF_USE_ANGLE) return;
-        LibraryPlugin angle = LibraryPlugin.discoverPlugin(ctx, LibraryPlugin.ID_ANGLE_PLUGIN);
-        if (angle == null) return;
-        String[] angleLibs = {"libEGL_angle.so", "libGLESv2_angle.so"};
-        if (!angle.checkLibraries(angleLibs)) {
-            Log.e("AngleEnvSetup", "AnglePlugin exists, but the ANGLE libraries are not present. Is the plugin corrupted?");
-            return;
+        File angleFile = null;
+        if (Tools.NATIVE_LIB_DIR != null) {
+            angleFile = new File(Tools.NATIVE_LIB_DIR, "libEGL_angle.so");
         }
-        envMap.put("LIBGL_EGL", angle.resolveAbsolutePath(angleLibs[0]));
-        envMap.put("LIBGL_GLES", angle.resolveAbsolutePath(angleLibs[1]));
+        if (angleFile == null || !angleFile.exists()) {
+            angleFile = new File("/system/lib64/libEGL_angle.so");
+        }
+        if (!angleFile.exists()) {
+            angleFile = new File("/system/lib/libEGL_angle.so");
+        }
+        if (angleFile.exists()) {
+            envMap.put("LIBGL_EGL", angleFile.getAbsolutePath());
+            envMap.put("LIBGL_GLES", angleFile.getAbsolutePath());
+        }
     }
 
     public static void setupFfmpegEnv(Context ctx, Map<String, String> envMap) {
-        LibraryPlugin ffmpeg = LibraryPlugin.discoverPlugin(ctx, LibraryPlugin.ID_FFMPEG_PLUGIN);
-        if(ffmpeg == null) return;
-        envMap.put("POJAV_FFMPEG_PATH", ffmpeg.resolveAbsolutePath("libffmpeg.so"));
+        if (FFmpegPluginManager.INSTANCE.isAvailable()) {
+            String path = FFmpegPluginManager.INSTANCE.getExecutablePath();
+            if (path != null) {
+                envMap.put("POJAV_FFMPEG_PATH", path);
+            }
+        }
     }
 
     public static void setGameEnvironment(Context context, GameRenderer renderer) throws Throwable {
@@ -114,7 +122,7 @@ public class JREUtils {
         }
         envMap.put("MOD_ANDROID_RUNTIME", modRuntimeDir.getAbsolutePath());
 
-        setupAngleEnv(context, envMap);
+        setupAngleEnv(envMap);
         setupFfmpegEnv(context, envMap);
 
         renderer.setupEnvironment(context, envMap);

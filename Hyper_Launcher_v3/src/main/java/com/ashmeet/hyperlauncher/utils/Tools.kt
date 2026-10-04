@@ -34,7 +34,6 @@ import android.view.WindowInsetsController
 import android.view.WindowManager
 import androidx.core.view.WindowCompat
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.Text
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
@@ -64,7 +63,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import com.ashmeet.hyperlauncher.components.dialog.SimpleAlertDialog
 import com.ashmeet.hyperlauncher.components.dialog.GenericComposeDialogFragment
-import com.ashmeet.hyperlauncher.plugins.manager.HyperPluginManager
+import com.ashmeet.hyperlauncher.plugin.natives.NativePluginManager
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -122,6 +121,8 @@ object Tools {
     var DIR_DATA: String? = null
     @JvmField
     var DIR_CACHE: File? = null
+    @JvmField
+    var DIR_CACHE_APP_ICON: File? = null
     @JvmField
     var MULTIRT_HOME: String? = null
     @JvmField
@@ -219,6 +220,7 @@ object Tools {
     @JvmStatic
     fun initEarlyConstants(ctx: Context) {
         DIR_CACHE = ctx.cacheDir
+        DIR_CACHE_APP_ICON = File(DIR_CACHE, "app_icons").apply { mkdirs() }
         DIR_DATA = ctx.filesDir.parent
         MULTIRT_HOME = "$DIR_DATA/runtimes"
         DIR_ACCOUNT_NEW = "$DIR_DATA/accounts"
@@ -1095,9 +1097,9 @@ object Tools {
     }
 
     @JvmStatic
-    fun applyHyperPluginHooks(activity: AppCompatActivity?, javaArgList: MutableList<String>?, versionId: String?, gameDir: File?) {
-        if (activity != null && javaArgList != null && versionId != null && gameDir != null) {
-            HyperPluginManager.applyHooks(activity, javaArgList, versionId, gameDir)
+    fun applyHyperPluginHooks(javaArgList: MutableList<String>?, versionId: String?, gameDir: File?) {
+        if (javaArgList != null) {
+            javaArgList.addAll(NativePluginManager.getJVMEnv())
         }
     }
 

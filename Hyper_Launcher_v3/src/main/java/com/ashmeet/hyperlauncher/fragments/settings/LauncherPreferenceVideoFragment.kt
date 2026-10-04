@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
-import com.ashmeet.hyperlauncher.plugins.natives.LibraryPlugin
 import com.ashmeet.hyperlauncher.screens.settings.VideoSettingsScreen
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
@@ -16,6 +15,7 @@ import com.ashmeet.hyperlauncher.utils.Tools
 import net.kdt.pojavlaunch.instances.Instances
 import net.kdt.pojavlaunch.utils.GpuUtils
 import net.kdt.pojavlaunch.utils.MCOptionUtils
+import java.io.File
 
 class LauncherPreferenceVideoFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -25,7 +25,10 @@ class LauncherPreferenceVideoFragment : Fragment(), SharedPreferences.OnSharedPr
         savedInstanceState: Bundle?
     ): View {
         updateGraphicsBackendPreference()
-        val isAngleAvailable = LibraryPlugin.discoverPlugin(requireContext(), LibraryPlugin.ID_ANGLE_PLUGIN) != null
+        val nativeLibDir = context?.applicationInfo?.nativeLibraryDir ?: Tools.NATIVE_LIB_DIR
+        val isAngleAvailable = (nativeLibDir != null && File(nativeLibDir, "libEGL_angle.so").exists()) ||
+                File("/system/lib64/libEGL_angle.so").exists() ||
+                File("/system/lib/libEGL_angle.so").exists()
         val supportsTurnip = GpuUtils.checkVulkanSupport(requireContext().packageManager) && GpuUtils.getGlInfo().isAdreno
         return ComposeView(requireContext()).apply {
             setContent {
@@ -33,7 +36,10 @@ class LauncherPreferenceVideoFragment : Fragment(), SharedPreferences.OnSharedPr
                     VideoSettingsScreen(
                         onBack = { requireActivity().onBackPressedDispatcher.onBackPressed() },
                         isAngleAvailable = isAngleAvailable,
-                        isZinkPreferSystemDriverVisible = supportsTurnip
+                        isZinkPreferSystemDriverVisible = supportsTurnip,
+                        onNavigateToRendererConfig = {
+                            Tools.swapFragment(requireActivity(), LauncherPreferenceRendererConfigFragment::class.java, null, null)
+                        }
                     )
                 }
             }

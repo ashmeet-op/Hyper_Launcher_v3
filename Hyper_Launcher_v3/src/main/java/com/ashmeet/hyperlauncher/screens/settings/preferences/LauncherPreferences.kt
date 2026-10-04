@@ -6,12 +6,11 @@ import android.os.Build
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
-import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.utils.Architecture
 import com.ashmeet.hyperlauncher.utils.Tools
-import net.kdt.pojavlaunch.multirt.MultiRTUtils
-import net.kdt.pojavlaunch.utils.JREUtils
 import git.artdeell.mojoexec.MojoExec
+import net.ashmeet.hyperlauncher.R
+import net.kdt.pojavlaunch.utils.JREUtils
 import java.io.IOException
 import kotlin.math.ceil
 

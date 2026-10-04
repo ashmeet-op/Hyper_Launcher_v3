@@ -4,7 +4,6 @@ import static android.os.Build.VERSION.SDK_INT;
 
 import android.content.Context;
 
-import com.ashmeet.hyperlauncher.plugins.natives.LibraryPlugin;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 import com.ashmeet.hyperlauncher.utils.Tools;
 
@@ -101,15 +100,8 @@ public class MesaRenderSpec implements RenderSpec {
         }
     }
     public static class ExtMesaRenderSpec extends MesaRenderSpec {
-        private LibraryPlugin provider;
-        protected String plugin() {
-            return LibraryPlugin.ID_MESA_PLUGIN;
-        }
         public String name() {
             return "Mesa (external)";
-        }
-        public String librarySearchPath() {
-            return provider.getLibraryPath();
         }
         public String tag() {
             return Renderers.MESA_RENDERER_EXT;
@@ -117,26 +109,11 @@ public class MesaRenderSpec implements RenderSpec {
         public int displayName() {
             return R.string.mcl_setting_renderer_mesa_desktop_ext;
         }
-        private boolean discover(Context context) {
-            if(provider == null) provider = LibraryPlugin.discoverPlugin(context, plugin());
-            return provider != null;
-        }
         public boolean compatibleDevice(Context context) {
-            return discover(context) && provider.checkLibraries(library());
-        }
-        public void setupEnvironment(Context context, Map<String, String> envMap) {
-            discover(context);
-            super.setupEnvironment(context, envMap);
-        }
-        public boolean setupRenderer() {
-            if(provider == null) return false;
-            return MojoExec.prepareEgl(provider.resolveAbsolutePath(library()), true, false, 0);
+            return false;
         }
     }
     public static class LegacyZinkRenderSpec extends ExtMesaRenderSpec {
-        protected String plugin() {
-            return LibraryPlugin.ID_ZINK_PLUGIN;
-        }
         public String name() {
             return "ZINK (Legacy)";
         }
@@ -157,7 +134,7 @@ public class MesaRenderSpec implements RenderSpec {
             return super.setupRenderer();
         }
         public boolean compatibleDevice(Context context) {
-            return GpuUtils.checkVulkanSupport(context.getPackageManager()) && super.compatibleDevice(context);
+            return false;
         }
         public String library() {
             return "libEGL_legacy.so";

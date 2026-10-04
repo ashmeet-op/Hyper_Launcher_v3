@@ -1,5 +1,6 @@
 package com.ashmeet.hyperlauncher.screens.settings
 
+import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
@@ -7,14 +8,13 @@ import androidx.compose.material.icons.filled.Architecture
 import androidx.compose.material.icons.filled.AspectRatio
 import androidx.compose.material.icons.filled.Brush
 import androidx.compose.material.icons.filled.Download
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.Monitor
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -26,7 +26,9 @@ import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
+import androidx.core.net.toUri
 import com.ashmeet.hyperlauncher.activity.BaseActivity
+import com.ashmeet.hyperlauncher.plugin.renderer_v2.RendererV2PluginManager
 import com.ashmeet.hyperlauncher.screens.settings.layouts.CardPosition
 import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsCard
 import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsScreenWrapper
@@ -35,20 +37,19 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsActionItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSliderItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSwitchItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SingleChoiceDialog
-import androidx.compose.material.icons.filled.Settings
-import net.kdt.pojavlaunch.game.renderer.RendererCache
 import com.ashmeet.hyperlauncher.utils.Tools
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
+import net.kdt.pojavlaunch.game.renderer.RendererCache
 import net.kdt.pojavlaunch.instances.Instances
 import net.kdt.pojavlaunch.utils.MCOptionUtils
-import androidx.core.net.toUri
 
 @Composable
 fun VideoSettingsScreen(
     onBack: () -> Unit,
     isAngleAvailable: Boolean,
-    isZinkPreferSystemDriverVisible: Boolean
+    isZinkPreferSystemDriverVisible: Boolean,
+    onNavigateToRendererConfig: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
     var renderer by remember { mutableStateOf(LauncherPreferences.PREF_RENDERER) }
@@ -101,6 +102,18 @@ fun VideoSettingsScreen(
                     },
                     onClick = { showRendererDialog = true }
                 )
+            }
+
+            val v2Plugins = remember { RendererV2PluginManager.getRendererList() }
+            if (v2Plugins.isNotEmpty()) {
+                SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
+                    SettingsActionItem(
+                        title = translatedText("Renderer Plugin Config"),
+                        summary = translatedText("Configure environment variables for renderer plugins"),
+                        icon = Icons.Default.Tune,
+                        onClick = { onNavigateToRendererConfig?.invoke() }
+                    )
+                }
             }
 
             SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
@@ -278,7 +291,7 @@ fun VideoSettingsScreen(
                 }
 
                 if (isAngleAvailable) {
-                    val anglePos = if (isZinkUsed) CardPosition.MIDDLE else CardPosition.TOP
+                    val anglePos = if (isZinkUsed) CardPosition.TOP else CardPosition.SINGLE
                     SettingsCard(position = anglePos, useSurface = true) {
                         SettingsSwitchItem(
                             title = translatedText(stringResource(R.string.preference_use_angle_title)),

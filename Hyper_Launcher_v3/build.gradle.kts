@@ -68,7 +68,7 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
 
     defaultConfig {
         applicationId = "net.ashmeet.hyperlauncher"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 37
 
         val propVersionCode = localProperties.getProperty("VERSION_CODE")?.toIntOrNull()
@@ -382,6 +382,8 @@ dependencies {
     implementation("com.github.Mathias-Boulay:ExtendedView:1.0.0")
     implementation("com.github.Mathias-Boulay:android_gamepad_remapper:2.0.3")
     implementation("com.github.Mathias-Boulay:virtual-joystick-android:1.14")
+
+    implementation("com.tencent:mmkv-kmp:2.4.2")
 
     implementation("org.tukaani:xz:1.12")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
