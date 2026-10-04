@@ -30,6 +30,20 @@ fun getCFApiKey(): String {
     return "DUMMY"
 }
 
+fun getHyperLauncherApiKey(): String {
+    val key = System.getenv("HYPER_LAUNCHER_API_KEY")
+    if (key != null) return key
+    val keyFile = File("../hyper_launcher_api_key.txt")
+    if (keyFile.canRead() && keyFile.isFile) {
+        return keyFile.readText().trim()
+    }
+    val rootKeyFile = File("hyper_launcher_api_key.txt")
+    if (rootKeyFile.canRead() && rootKeyFile.isFile) {
+        return rootKeyFile.readText().trim()
+    }
+    return "AIzaSy_HYPER_LAUNCHER_SECRET_KEY_PLACEHOLDER"
+}
+
 configurations {
     create("instrumentedClasspath") {
         isCanBeConsumed = false
@@ -80,6 +94,7 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
         versionName = if (hyperVersionSuffix.isBlank()) hyperVersionNumber else "$hyperVersionNumber-$hyperVersionSuffix"
         multiDexEnabled = false
         resValue("string", "curseforge_api_key", getCFApiKey())
+        resValue("string", "hyper_launcher_api_key", getHyperLauncherApiKey())
         resValue("string", "group_id", "git.artdeell")
 
         manifestPlaceholders["driver"] = "default"

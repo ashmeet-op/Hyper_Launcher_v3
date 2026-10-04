@@ -1,11 +1,8 @@
 package com.ashmeet.hyperlauncher.activity
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.platform.ComposeView
 import com.ashmeet.hyperlauncher.utils.Tools
@@ -42,24 +39,14 @@ class FatalErrorActivity : AppCompatActivity() {
             getString(R.string.error_fatal),
             finalLogs,
             {
-
                 val intent = Intent(Intent.ACTION_SEND)
                 intent.type = "text/plain"
                 intent.putExtra(Intent.EXTRA_TEXT, finalLogs)
                 startActivity(Intent.createChooser(intent, getString(R.string.main_share_logs)))
-                Unit
-            },
-            {
-                val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                val clip = ClipData.newPlainText("error", finalLogs)
-                clipboard.setPrimaryClip(clip)
-                Toast.makeText(this, "Error copied to clipboard", Toast.LENGTH_SHORT).show()
-                Unit
             },
             {
                 startActivity(Intent(this, LauncherActivity::class.java))
                 finish()
-                Unit
             },
             {
                 if (strSavePath != null) {

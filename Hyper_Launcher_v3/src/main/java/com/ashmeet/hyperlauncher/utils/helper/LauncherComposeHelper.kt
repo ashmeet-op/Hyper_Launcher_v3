@@ -85,11 +85,10 @@ object LauncherComposeHelper {
         title: String,
         logs: String,
         onShareClick: () -> Unit,
-        onCopyClick: () -> Unit,
         onRestartClick: () -> Unit,
         onOpenCrashReport: (String) -> Unit
     ) {
-        ExitComposeHelper.setExitContent(composeView, title, logs, onShareClick, onCopyClick, onRestartClick, onOpenCrashReport)
+        ExitComposeHelper.setExitContent(composeView, title, logs, onShareClick, onRestartClick, onOpenCrashReport)
     }
 
     @JvmStatic

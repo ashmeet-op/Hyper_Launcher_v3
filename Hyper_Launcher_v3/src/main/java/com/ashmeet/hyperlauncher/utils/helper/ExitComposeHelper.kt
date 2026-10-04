@@ -11,7 +11,6 @@ object ExitComposeHelper {
         title: String,
         logs: String,
         onShareClick: () -> Unit,
-        onCopyClick: () -> Unit,
         onRestartClick: () -> Unit,
         onOpenCrashReport: (String) -> Unit
     ) {
@@ -22,7 +21,6 @@ object ExitComposeHelper {
                     title = title,
                     logs = logs,
                     onShareClick = onShareClick,
-                    onCopyClick = onCopyClick,
                     onRestartClick = onRestartClick,
                     onOpenCrashReport = onOpenCrashReport
                 )

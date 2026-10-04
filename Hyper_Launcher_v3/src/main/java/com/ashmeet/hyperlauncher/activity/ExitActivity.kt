@@ -4,16 +4,14 @@
 package net.kdt.pojavlaunch
 
 import android.annotation.SuppressLint
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.Keep
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.platform.ComposeView
+import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.utils.Tools
 import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
 import net.ashmeet.hyperlauncher.R
@@ -50,12 +48,6 @@ class ExitActivity : AppCompatActivity() {
             title,
             logs,
             onShareClick = { Tools.shareLog(this) },
-            onCopyClick = {
-                val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-                val clip = ClipData.newPlainText("logs", logs)
-                clipboard.setPrimaryClip(clip)
-                Toast.makeText(this, "Logs copied to clipboard", Toast.LENGTH_SHORT).show()
-            },
             onRestartClick = { Tools.restartLauncherActivity(this) },
             onOpenCrashReport = { path -> Tools.openPath(this, File(path), false) }
         )
@@ -74,6 +66,11 @@ class ExitActivity : AppCompatActivity() {
             if (!isSignal && code == 0) {
                 ctx?.let { Tools.restartLauncherActivity(it) }
                 exitProcess(0)
+            }
+
+            ctx?.let {
+                LauncherPreferences.prefs.edit()
+                    .putBoolean("has_recent_crash", true).apply()
             }
 
             val lock = Any()
