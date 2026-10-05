@@ -7,7 +7,6 @@ import android.util.Log;
 import com.ashmeet.hyperlauncher.plugin.Plugin;
 import com.ashmeet.hyperlauncher.plugin.natives.NativePlugin;
 import com.ashmeet.hyperlauncher.plugin.renderer.RendererPlugin;
-import com.ashmeet.hyperlauncher.plugin.renderer.RendererPluginManager;
 import com.ashmeet.hyperlauncher.renderer.RendererInterface;
 
 import net.ashmeet.hyperlauncher.R;
@@ -74,19 +73,16 @@ public class FCLRenderSpec implements RenderSpec {
         return "fcl_renderer";
     }
 
+
+
+
     @Override
     public String library() {
-        String preferredEgl = RendererPluginManager.getPreferredEgl();
-        if (preferredEgl != null && !preferredEgl.isEmpty()) {
-            return preferredEgl;
-        }
         if (rendererInterface != null) {
-            String egl = rendererInterface.getRendererEGL();
-            if (egl != null && !egl.isEmpty()) return egl;
             return rendererInterface.getRendererLibrary();
         }
         if (rendererPlugin != null) {
-            return rendererPlugin.getRendererEGL();
+            return rendererPlugin.getRendererLibrary();
         }
         if (plugin != null) {
             File dir = new File(plugin.getPath());
@@ -152,7 +148,7 @@ public class FCLRenderSpec implements RenderSpec {
                 }
             }
         }
-        return MojoExec.prepareEgl(library(), true, true, 4);
+        return MojoExec.prepareEgl(library(), true, true, 3);
     }
 
     @Override

@@ -123,7 +123,11 @@ object RendererPluginManager: ApkPluginManager() {
                     minMCVer = metaData.getVersionString("minMCVer"),
                     maxMCVer = metaData.getVersionString("maxMCVer"),
                     glName = renderer[1],
-                    eglName = renderer[2].progressEglName(nativeLibraryDir),
+                    eglName = if (renderer.size > 2 && renderer[2].isNotEmpty() && renderer[2] != renderer[1]) {
+                        renderer[2].progressEglName(nativeLibraryDir)
+                    } else {
+                        "libEGL.so"
+                    },
                     path = nativeLibraryDir,
                     env = envList,
                     dlopen = dlopenList,

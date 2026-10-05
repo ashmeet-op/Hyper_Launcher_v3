@@ -61,22 +61,6 @@ object Renderers {
     }
 
     /**
-     * Set the current renderer
-     * @param uniqueIdentifier Unique identifier of the renderer to find and set
-     * @param retryToFirstOnFailure Fallback to first renderer if not found
-     */
-    fun setCurrentRenderer(uniqueIdentifier: String, retryToFirstOnFailure: Boolean = true) {
-        if (!isInitialized) throw IllegalStateException("Uninitialized renderer!")
-        currentRenderer = renderers.find { it.getUniqueIdentifier() == uniqueIdentifier } ?: run {
-            if (retryToFirstOnFailure) {
-                val renderer = renderers[0]
-                Log.w(TAG, "Incompatible renderer $uniqueIdentifier will be replaced with ${renderer.getUniqueIdentifier()} (${renderer.getRendererName()})")
-                renderer
-            } else null
-        }
-    }
-
-    /**
      * Get current selected renderer
      */
     fun getCurrentRenderer(): RendererInterface {
