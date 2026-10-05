@@ -3,7 +3,6 @@ package com.ashmeet.hyperlauncher.screens.auth
 
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentContainerView
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -57,12 +56,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.edit
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
-import com.ashmeet.hyperlauncher.skin.SkinManager
 import com.ashmeet.hyperlauncher.skin.SkinPreview
 import com.ashmeet.hyperlauncher.skin.model.SkinModelType
 import com.ashmeet.hyperlauncher.utils.SkinUtils
@@ -70,12 +67,9 @@ import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.authenticator.AuthType
 import net.kdt.pojavlaunch.authenticator.accounts.Accounts
-import net.kdt.pojavlaunch.contracts.OpenDocumentWithExtension
 import net.kdt.pojavlaunch.extra.ExtraConstants
 import net.kdt.pojavlaunch.extra.ExtraCore
 import net.kdt.pojavlaunch.extra.ExtraListener
-import java.io.File
-import java.io.FileOutputStream
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -83,6 +77,8 @@ fun AuthLayout(
     title: String,
     isFullScreen: Boolean = false,
     onBack: (() -> Unit)? = null,
+    onSkinLibraryClick: () -> Unit = {},
+    onCapeLibraryClick: () -> Unit = {},
     onFragmentViewCreated: (ViewGroup) -> Unit
 ) {
     val animations = listOf("NewIdle", "DefaultIdle", "Walking", "Running", "Flying", "Wave", "Crouch", "Hit")
@@ -97,62 +93,11 @@ fun AuthLayout(
         mutableStateOf(try { Accounts.getCurrent() } catch (_: Exception) { null })
     }
 
-    val context = LocalContext.current
     var skinModel by remember(currentAccount) {
         mutableStateOf(SkinUtils.getModelType(currentAccount))
     }
     var customSkinPath by remember(currentAccount) { mutableStateOf(currentAccount?.skinPath) }
     var customCapePath by remember(currentAccount) { mutableStateOf(currentAccount?.capePath) }
-
-    val skinPickerLauncher = rememberLauncherForActivityResult(
-        contract = OpenDocumentWithExtension("image/png")
-    ) { uri ->
-        uri?.let {
-            val skinFile = File(context.filesDir, "skins/skin_${currentAccount?.username}_${System.currentTimeMillis()}.png")
-            skinFile.parentFile?.mkdirs()
-            try {
-                context.contentResolver.openInputStream(it)?.use { input ->
-                    FileOutputStream(skinFile).use { output ->
-                        input.copyTo(output)
-                    }
-                }
-                val path = skinFile.absolutePath
-                customSkinPath = path
-                currentAccount?.let { acc ->
-                    acc.skinPath = path
-                    acc.save()
-                    SkinManager.instance.registerAndStartServer(acc)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    val capePickerLauncher = rememberLauncherForActivityResult(
-        contract = OpenDocumentWithExtension("image/png")
-    ) { uri ->
-        uri?.let {
-            val capeFile = File(context.filesDir, "capes/cape_${currentAccount?.username}_${System.currentTimeMillis()}.png")
-            capeFile.parentFile?.mkdirs()
-            try {
-                context.contentResolver.openInputStream(it)?.use { input ->
-                    FileOutputStream(capeFile).use { output ->
-                        input.copyTo(output)
-                    }
-                }
-                val path = capeFile.absolutePath
-                customCapePath = path
-                currentAccount?.let { acc ->
-                    acc.capePath = path
-                    acc.save()
-                    SkinManager.instance.registerAndStartServer(acc)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
 
     DisposableEffect(Unit) {
         val accountListener = ExtraListener<Any> { _, _ ->
@@ -332,26 +277,29 @@ fun AuthLayout(
                                         }
                                     }
                                 ) {
-                                    FloatingActionButtonMenuItem(
-                                        onClick = {
-                                            fabMenuExpanded = false
-                                            skinPickerLauncher.launch(null)
-                                        },
-                                        icon = { Icon(Icons.Rounded.AddReaction, contentDescription = null) },
-                                        text = { Text(text = translatedText("Add Skin")) },
-                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                    )
-                                    FloatingActionButtonMenuItem(
-                                        onClick = {
-                                            fabMenuExpanded = false
-                                            capePickerLauncher.launch(null)
-                                        },
-                                        icon = { Icon(Icons.Rounded.Sell, contentDescription = null) },
-                                        text = { Text(text = translatedText("Add Cape")) },
-                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                    )
+                                    val isMicrosoftOrElyBy = currentAccount?.authType == AuthType.MICROSOFT || currentAccount?.authType == AuthType.ELY_BY
+                                    if (!isMicrosoftOrElyBy) {
+                                        FloatingActionButtonMenuItem(
+                                            onClick = {
+                                                fabMenuExpanded = false
+                                                onSkinLibraryClick()
+                                            },
+                                            icon = { Icon(Icons.Rounded.AddReaction, contentDescription = null) },
+                                            text = { Text(text = translatedText("Skins Library")) },
+                                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+                                        FloatingActionButtonMenuItem(
+                                            onClick = {
+                                                fabMenuExpanded = false
+                                                onCapeLibraryClick()
+                                            },
+                                            icon = { Icon(Icons.Rounded.Sell, contentDescription = null) },
+                                            text = { Text(text = translatedText("Capes Library")) },
+                                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+                                    }
                                     FloatingActionButtonMenuItem(
                                         onClick = {
                                             fabMenuExpanded = false

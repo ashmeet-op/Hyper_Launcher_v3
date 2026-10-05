@@ -40,6 +40,14 @@ object RendererPluginManager: ApkPluginManager() {
         }
 
     /**
+     * Get preferred EGL if plugin renderer is selected
+     */
+    @JvmStatic
+    fun getPreferredEgl(): String? {
+        return selectedRendererPlugin?.getRendererEGL()
+    }
+
+    /**
      * Clear renderer plugins
      */
     fun clearPlugin() {

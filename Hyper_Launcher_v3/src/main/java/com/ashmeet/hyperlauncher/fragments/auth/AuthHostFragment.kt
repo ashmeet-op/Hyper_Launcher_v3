@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.derivedStateOf
@@ -15,9 +16,12 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.ashmeet.hyperlauncher.screens.auth.AuthLayout
+import com.ashmeet.hyperlauncher.screens.auth.skin.TextureType
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
+import com.kdt.mcgui.ProgressLayout
 import net.ashmeet.hyperlauncher.R
+import net.kdt.pojavlaunch.progresskeeper.ProgressKeeper
 
 class AuthHostFragment : Fragment() {
 
@@ -74,6 +78,8 @@ class AuthHostFragment : Fragment() {
                         onBack = if (backStackCount > 0) {
                             { requireActivity().onBackPressedDispatcher.onBackPressed() }
                         } else null,
+                        onSkinLibraryClick = { launchTextureFragment(TextureType.SKIN) },
+                        onCapeLibraryClick = { launchTextureFragment(TextureType.CAPE) },
                         onFragmentViewCreated = {
                             val fm = childFragmentManager
                             if (fm.findFragmentById(R.id.container_fragment_auth) == null) {
@@ -91,6 +97,20 @@ class AuthHostFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun launchTextureFragment(type: TextureType) {
+        if (ProgressKeeper.hasProgressKey(ProgressLayout.AUTHENTICATE)) {
+            Toast.makeText(requireContext(), R.string.tasks_ongoing, Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val fragment = TextureSelectionFragment.newInstance(type)
+        childFragmentManager.beginTransaction()
+            .setCustomAnimations(R.anim.fade_enter, R.anim.fade_exit, R.anim.fade_pop_enter, R.anim.fade_pop_exit)
+            .replace(R.id.container_fragment_auth, fragment, TextureSelectionFragment.TAG)
+            .addToBackStack(TextureSelectionFragment.TAG)
+            .commit()
     }
 
     companion object {

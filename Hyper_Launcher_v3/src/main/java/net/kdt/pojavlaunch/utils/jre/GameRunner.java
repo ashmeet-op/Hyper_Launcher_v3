@@ -17,7 +17,9 @@ import com.ashmeet.hyperlauncher.utils.Tools;
 
 import net.ashmeet.hyperlauncher.R;
 import net.kdt.pojavlaunch.JVersionList;
+import net.kdt.pojavlaunch.authenticator.AuthType;
 import net.kdt.pojavlaunch.authenticator.accounts.Account;
+import net.kdt.pojavlaunch.authenticator.impl.MicrosoftBackgroundLogin;
 import net.kdt.pojavlaunch.game.renderer.GameRenderer;
 import net.kdt.pojavlaunch.game.renderer.RenderSpec;
 import net.kdt.pojavlaunch.game.renderer.impl.GLESRenderSpec;
@@ -152,6 +154,13 @@ public class GameRunner {
 
     public static void launchGame(final AppCompatActivity activity, Account account,
                                   Instance instance, String versionId, File[] classpath, GameRenderer gameRenderer) throws Throwable {
+        if (account != null && account.authType == AuthType.MICROSOFT) {
+            try {
+                account = MicrosoftBackgroundLogin.performRefresh(account);
+            } catch (Exception e) {
+                Log.e("GameRunner", "Failed to refresh Microsoft account token", e);
+            }
+        }
         int freeDeviceMemory = Tools.getFreeDeviceMemory(activity);
         int localeString;
         int freeAddressSpace = Architecture.is32BitsDevice() ? Tools.getMaxContinuousAddressSpaceSize() : -1;
@@ -351,8 +360,11 @@ public class GameRunner {
     }
 
     private static void addAuthlibInjectorArgs(List<String> javaArgList, Account account) {
-        String injectorUrl = account.authType.injectorUrl;
-        if (injectorUrl == null || account.capePath != null || account.skinPath != null) {
+        if (account != null && (account.authType == AuthType.MICROSOFT || account.authType == AuthType.ELY_BY)) {
+            return;
+        }
+        String injectorUrl = account != null && account.authType != null ? account.authType.injectorUrl : null;
+        if (injectorUrl == null || (account != null && (account.capePath != null || account.skinPath != null))) {
             String localUrl = SkinManager.getInstance().registerAndStartServer(account);
             if (localUrl != null) {
                 injectorUrl = localUrl;

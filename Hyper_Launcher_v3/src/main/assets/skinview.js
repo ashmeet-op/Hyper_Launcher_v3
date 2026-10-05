@@ -302,18 +302,34 @@ setTimeout(() => clearInterval(resizeInterval), 2000);
 
 resize();
 
+function setShowSkin(show) {
+    if (skinViewer && skinViewer.playerObject && skinViewer.playerObject.skin) {
+        skinViewer.playerObject.skin.visible = show;
+    }
+}
+
 function loadSkin(skinUrl, model = "auto-detect") {
-    if (!skinUrl || skinUrl === "null" || skinUrl === "undefined") {
-        skinViewer.loadSkin("steve.png", { model: "default" });
+    if (!skinUrl || skinUrl === "null" || skinUrl === "undefined" || skinUrl === "none") {
+        if (skinUrl === "none") {
+            setShowSkin(false);
+        } else {
+            skinViewer.loadSkin("steve.png", { model: "default" }).then(() => {
+                setShowSkin(true);
+            }).catch(() => {});
+        }
     } else {
-        skinViewer.loadSkin(skinUrl, { model: model }).catch(() => {
-            skinViewer.loadSkin("steve.png", { model: "default" });
+        skinViewer.loadSkin(skinUrl, { model: model }).then(() => {
+            setShowSkin(true);
+        }).catch(() => {
+            skinViewer.loadSkin("steve.png", { model: "default" }).then(() => {
+                setShowSkin(true);
+            }).catch(() => {});
         });
     }
 }
 
 function loadCape(capeUrl) {
-    if (capeUrl && capeUrl !== "null" && capeUrl !== "undefined") {
+    if (capeUrl && capeUrl !== "null" && capeUrl !== "undefined" && capeUrl !== "none") {
         skinViewer.loadCape(capeUrl);
     } else {
         skinViewer.loadCape(null);
@@ -331,6 +347,7 @@ function setBackEquipment(type) {
 // Ensure functions are exposed to WebView
 window.loadSkin = loadSkin;
 window.loadCape = loadCape;
+window.setShowSkin = setShowSkin;
 window.setBackEquipment = setBackEquipment;
 window.startAnim = startAnim;
 window.setAzimuthAndPitch = setAzimuthAndPitch;

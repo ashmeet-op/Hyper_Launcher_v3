@@ -7,6 +7,7 @@ import android.util.Log;
 import com.ashmeet.hyperlauncher.plugin.Plugin;
 import com.ashmeet.hyperlauncher.plugin.natives.NativePlugin;
 import com.ashmeet.hyperlauncher.plugin.renderer.RendererPlugin;
+import com.ashmeet.hyperlauncher.plugin.renderer.RendererPluginManager;
 import com.ashmeet.hyperlauncher.renderer.RendererInterface;
 
 import net.ashmeet.hyperlauncher.R;
@@ -31,12 +32,6 @@ public class FCLRenderSpec implements RenderSpec {
         this.plugin = plugin;
         this.rendererPlugin = null;
         this.rendererInterface = null;
-    }
-
-    public FCLRenderSpec(RendererPlugin rendererPlugin) {
-        this.plugin = null;
-        this.rendererPlugin = rendererPlugin;
-        this.rendererInterface = rendererPlugin;
     }
 
     public FCLRenderSpec(RendererInterface rendererInterface) {
@@ -81,6 +76,10 @@ public class FCLRenderSpec implements RenderSpec {
 
     @Override
     public String library() {
+        String preferredEgl = RendererPluginManager.getPreferredEgl();
+        if (preferredEgl != null && !preferredEgl.isEmpty()) {
+            return preferredEgl;
+        }
         if (rendererInterface != null) {
             String egl = rendererInterface.getRendererEGL();
             if (egl != null && !egl.isEmpty()) return egl;
@@ -137,13 +136,11 @@ public class FCLRenderSpec implements RenderSpec {
         MojoExec.preloadVulkan();
         if (rendererInterface != null) {
             List<String> dlLibs = rendererInterface.getDlopenLibrary().getValue();
-            if (dlLibs != null) {
-                for (String dlLib : dlLibs) {
-                    try {
-                        System.load(dlLib);
-                    } catch (Throwable t) {
-                        Log.w(TAG, "Failed to load dlopen library: " + dlLib, t);
-                    }
+            for (String dlLib : dlLibs) {
+                try {
+                    System.load(dlLib);
+                } catch (Throwable t) {
+                    Log.w(TAG, "Failed to load dlopen library: " + dlLib, t);
                 }
             }
         } else if (rendererPlugin != null) {
@@ -155,7 +152,7 @@ public class FCLRenderSpec implements RenderSpec {
                 }
             }
         }
-        return MojoExec.prepareEgl(library(), true, true, 3);
+        return MojoExec.prepareEgl(library(), true, true, 4);
     }
 
     @Override

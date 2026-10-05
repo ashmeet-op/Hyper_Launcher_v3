@@ -84,8 +84,4 @@ object Renderers {
         return currentRenderer ?: throw IllegalStateException("Current renderer not set")
     }
 
-    /**
-     * Whether current renderer is set
-     */
-    fun isCurrentRendererValid(): Boolean = isInitialized && currentRenderer != null
 }

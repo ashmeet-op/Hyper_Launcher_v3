@@ -1,6 +1,7 @@
 package com.ashmeet.hyperlauncher.skin
 
 import android.annotation.SuppressLint
+import android.view.View
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
@@ -24,14 +25,15 @@ fun SkinPreview(
     modifier: Modifier = Modifier,
     skinUrl: String? = null,
     capeUrl: String? = null,
+    showSkin: Boolean = true,
     backEquipment: String = "cape",
     animation: String = "NewIdle",
     model: String = "default",
+    azimuth: Float = 0f,
     onLoadingStateChanged: (Boolean) -> Unit = {},
     onWebViewCreated: (WebView) -> Unit = {}
 ) {
     if (LocalInspectionMode.current) {
-
         Box(modifier = modifier.background(MaterialTheme.colorScheme.primaryContainer))
         return
     }
@@ -43,7 +45,6 @@ fun SkinPreview(
         factory = { context ->
             onLoadingStateChanged(true)
             WebView(context).apply {
-
                 stopLoading()
                 loadUrl("about:blank")
 
@@ -60,7 +61,7 @@ fun SkinPreview(
                 settings.setSupportZoom(false)
                 settings.builtInZoomControls = false
                 settings.displayZoomControls = false
-                overScrollMode = android.view.View.OVER_SCROLL_NEVER
+                overScrollMode = View.OVER_SCROLL_NEVER
                 setBackgroundColor(0)
 
                 webViewClient = object : WebViewClient() {
@@ -85,33 +86,36 @@ fun SkinPreview(
                     override fun onPageFinished(view: WebView?, url: String?) {
                         isPageLoaded = true
                         onLoadingStateChanged(false)
-                        val finalSkinUrl = if (skinUrl?.startsWith("file://") == true) {
-                        val path = skinUrl.substring(7)
-                        val file = File(path)
-                        if (file.exists()) "https://local-skin.pojavlauncher.net/texture?path=" + URLEncoder.encode(path, StandardCharsets.UTF_8.toString())
-                        else "steve.png"
-                    } else if (!skinUrl.isNullOrEmpty()) {
-                        skinUrl
-                    } else {
-                        "steve.png"
-                    }
+                        val finalSkinUrl = if (!showSkin) {
+                            "none"
+                        } else if (skinUrl?.startsWith("file://") == true) {
+                            val path = skinUrl.substring(7)
+                            val file = File(path)
+                            if (file.exists()) "https://local-skin.pojavlauncher.net/texture?path=" + URLEncoder.encode(path, StandardCharsets.UTF_8.toString())
+                            else "steve.png"
+                        } else if (!skinUrl.isNullOrEmpty()) {
+                            skinUrl
+                        } else {
+                            "steve.png"
+                        }
 
-                    val finalCapeUrl = if (capeUrl?.startsWith("file://") == true) {
-                        val path = capeUrl.substring(7)
-                        val file = File(path)
-                        if (file.exists()) "https://local-skin.pojavlauncher.net/texture?path=" + URLEncoder.encode(path, StandardCharsets.UTF_8.toString())
-                        else ""
-                    } else if (!capeUrl.isNullOrEmpty()) {
-                        capeUrl
-                    } else {
-                        ""
-                    }
+                        val finalCapeUrl = if (capeUrl?.startsWith("file://") == true) {
+                            val path = capeUrl.substring(7)
+                            val file = File(path)
+                            if (file.exists()) "https://local-skin.pojavlauncher.net/texture?path=" + URLEncoder.encode(path, StandardCharsets.UTF_8.toString())
+                            else ""
+                        } else if (!capeUrl.isNullOrEmpty()) {
+                            capeUrl
+                        } else {
+                            ""
+                        }
 
-                    view?.evaluateJavascript("loadSkin('$finalSkinUrl', '$model'); loadCape('$finalCapeUrl'); setBackEquipment('$backEquipment'); startAnim('$animation');", null)
+                        val dist = if (showSkin) 190 else 80
+                        view?.evaluateJavascript("loadSkin('$finalSkinUrl', '$model'); loadCape('$finalCapeUrl'); setBackEquipment('$backEquipment'); setShowSkin(${showSkin}); startAnim('$animation'); setAzimuthAndPitch($azimuth, 10, $dist);", null)
                     }
                 }
 
-                val encodedUrl = try { URLEncoder.encode(skinUrl ?: "", StandardCharsets.UTF_8.toString()) } catch (_: Exception) { "" }
+                val encodedUrl = try { URLEncoder.encode(if (showSkin) skinUrl ?: "" else "", StandardCharsets.UTF_8.toString()) } catch (_: Exception) { "" }
                 val finalUrl = "file:///android_asset/skinview.html" + (if (encodedUrl.isNotEmpty()) "?skin=$encodedUrl&model=$model" else "")
                 loadUrl(finalUrl)
                 onWebViewCreated(this)
@@ -119,9 +123,13 @@ fun SkinPreview(
         },
         update = { webView ->
             if (isPageLoaded) {
-                val skin = if (skinUrl?.startsWith("file://") == true) {
+                val skin = if (!showSkin) {
+                    "none"
+                } else if (skinUrl?.startsWith("file://") == true) {
                     val path = skinUrl.substring(7)
-                    "https://local-skin.pojavlauncher.net/texture?path=" + URLEncoder.encode(path, StandardCharsets.UTF_8.toString())
+                    val file = File(path)
+                    if (file.exists()) "https://local-skin.pojavlauncher.net/texture?path=" + URLEncoder.encode(path, StandardCharsets.UTF_8.toString())
+                    else "steve.png"
                 } else if (!skinUrl.isNullOrEmpty()) {
                     skinUrl
                 } else {
@@ -130,17 +138,22 @@ fun SkinPreview(
 
                 val cape = if (capeUrl?.startsWith("file://") == true) {
                     val path = capeUrl.substring(7)
-                    "https://local-skin.pojavlauncher.net/texture?path=" + URLEncoder.encode(path, StandardCharsets.UTF_8.toString())
+                    val file = File(path)
+                    if (file.exists()) "https://local-skin.pojavlauncher.net/texture?path=" + URLEncoder.encode(path, StandardCharsets.UTF_8.toString())
+                    else ""
                 } else if (!capeUrl.isNullOrEmpty()) {
                     capeUrl
                 } else {
                     ""
                 }
 
+                val dist = if (showSkin) 190 else 80
                 webView.evaluateJavascript("loadSkin('$skin', '$model');", null)
                 webView.evaluateJavascript("loadCape('$cape');", null)
+                webView.evaluateJavascript("setShowSkin(${showSkin});", null)
                 webView.evaluateJavascript("setBackEquipment('$backEquipment');", null)
                 webView.evaluateJavascript("startAnim('$animation');", null)
+                webView.evaluateJavascript("setAzimuthAndPitch($azimuth, 10, $dist);", null)
                 webView.evaluateJavascript("resize();", null)
             }
         }

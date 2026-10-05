@@ -34,7 +34,7 @@ import java.util.concurrent.Callable;
 
 
 public class MicrosoftBackgroundLogin implements BackgroundLogin{
-    public static final BackgroundLogin.Creator CREATOR = MicrosoftBackgroundLogin::new;
+    public static final Creator CREATOR = MicrosoftBackgroundLogin::new;
 
     private static final String authTokenUrl = "https://login.live.com/oauth20_token.srf";
     private static final String xblAuthUrl = "https://user.auth.xboxlive.com/user/authenticate";
@@ -123,6 +123,26 @@ public class MicrosoftBackgroundLogin implements BackgroundLogin{
             Tools.runOnUiThread(() -> loginListener.onLoginDone(account));
             return null;
         }, account.refreshToken, true);
+    }
+
+    public static Account performRefresh(Account account) throws Exception {
+        if (account == null || account.authType != AuthType.MICROSOFT) return account;
+        if (account.refreshToken == null || account.refreshToken.equals("0") || account.refreshToken.isEmpty()) {
+            return account;
+        }
+        MicrosoftBackgroundLogin login = new MicrosoftBackgroundLogin();
+        String accessToken = login.acquireAccessToken(true, account.refreshToken);
+        String xboxLiveToken = login.acquireXBLToken(accessToken);
+        String[] xsts = login.acquireXsts(xboxLiveToken);
+        String token = login.acquireToken(xsts[0], xsts[1]);
+        login.fetchOwnedItems(token);
+        login.checkProfile(token);
+        login.msXsts = xsts[0];
+        if (login.doesOwnGame) {
+            login.fillAccount(account);
+            account.save();
+        }
+        return account;
     }
 
     private String acquireAccessToken(boolean isRefresh, String code) throws IOException {
