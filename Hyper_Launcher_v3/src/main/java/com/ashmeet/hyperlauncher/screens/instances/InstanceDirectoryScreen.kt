@@ -140,7 +140,7 @@ fun InstanceDirectoryContent(
 
     val instanceVersion = remember(selectedInstance) {
         selectedInstance?.let {
-            if (it.versionId == "latest_release" || it.versionId == "latest_snapshot") {
+            if (it.versionId.isNullOrEmpty() || it.versionId == "latest_release" || it.versionId == "latest_snapshot") {
                 return@let null
             }
 
@@ -151,7 +151,7 @@ fun InstanceDirectoryContent(
             }
             if (v != null && v.inheritsFrom != null) return@let v.inheritsFrom
 
-            val id = it.versionId
+            val id = it.versionId ?: return@let null
             if (id.contains("-")) {
                 val lastPart = id.substringAfterLast("-")
                 if (lastPart.contains(".") && lastPart.any { char -> char.isDigit() }) {

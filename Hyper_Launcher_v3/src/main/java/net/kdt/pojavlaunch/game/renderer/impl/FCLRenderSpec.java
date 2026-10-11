@@ -10,6 +10,7 @@ import com.ashmeet.hyperlauncher.plugin.renderer.RendererPlugin;
 import com.ashmeet.hyperlauncher.renderer.RendererInterface;
 
 import net.ashmeet.hyperlauncher.R;
+import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.game.renderer.RenderSpec;
 
 import java.io.File;
@@ -73,18 +74,18 @@ public class FCLRenderSpec implements RenderSpec {
         return "fcl_renderer";
     }
 
-
-
-
     @Override
     public String library() {
+        String lib;
+        String searchPath;
         if (rendererInterface != null) {
-            return rendererInterface.getRendererLibrary();
-        }
-        if (rendererPlugin != null) {
-            return rendererPlugin.getRendererLibrary();
-        }
-        if (plugin != null) {
+            lib = rendererInterface.getRendererLibrary();
+            searchPath = (rendererInterface instanceof Plugin) ? ((Plugin) rendererInterface).getNativeLibPath() : Tools.NATIVE_LIB_DIR;
+        } else if (rendererPlugin != null) {
+            lib = rendererPlugin.getRendererLibrary();
+            searchPath = rendererPlugin.getPath();
+        } else if (plugin != null) {
+            searchPath = plugin.getPath();
             File dir = new File(plugin.getPath());
             if (dir.exists() && dir.isDirectory()) {
                 File[] soFiles = dir.listFiles((d, name) -> name.endsWith(".so"));
@@ -92,6 +93,18 @@ public class FCLRenderSpec implements RenderSpec {
                     return soFiles[0].getAbsolutePath();
                 }
             }
+            lib = null;
+        } else {
+            searchPath = Tools.NATIVE_LIB_DIR;
+            lib = null;
+        }
+        if (lib != null) {
+            if (lib.startsWith("/")) return lib;
+            File f = new File(searchPath, lib);
+            if (f.exists()) return f.getAbsolutePath();
+            File f2 = new File(Tools.NATIVE_LIB_DIR, lib);
+            if (f2.exists()) return f2.getAbsolutePath();
+            return f.getAbsolutePath();
         }
         return "libgl4es_114.so";
     }
@@ -107,7 +120,7 @@ public class FCLRenderSpec implements RenderSpec {
         if (plugin != null) {
             return plugin.getPath();
         }
-        return null;
+        return Tools.NATIVE_LIB_DIR;
     }
 
     @Override
@@ -148,7 +161,7 @@ public class FCLRenderSpec implements RenderSpec {
                 }
             }
         }
-        return MojoExec.prepareEgl(library(), true, true, 3);
+        return MojoExec.prepareEgl("libEGL.so", true, true, 3);
     }
 
     @Override

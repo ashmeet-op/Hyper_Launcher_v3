@@ -687,8 +687,14 @@ object Tools {
     }
 
     @JvmStatic
-    fun getVersionInfo(versionName: String): JVersionList.Version {
-        return getVersionInfo(versionName, false)
+    fun getVersionInfo(versionName: String?): JVersionList.Version? {
+        if (versionName == null || versionName.isEmpty()) return null
+        return try {
+            getVersionInfo(versionName, false)
+        } catch (e: Exception) {
+            Log.e(APP_NAME, "Failed to get version info for $versionName", e)
+            null
+        }
     }
 
     @JvmStatic
