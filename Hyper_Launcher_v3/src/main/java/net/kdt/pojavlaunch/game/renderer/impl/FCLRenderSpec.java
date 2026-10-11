@@ -57,7 +57,7 @@ public class FCLRenderSpec implements RenderSpec {
 
     @Override
     public int displayName() {
-        return R.string.mcl_setting_renderer_holy;
+        return R.string.mcl_setting_renderer_ltw;
     }
 
     @Override
