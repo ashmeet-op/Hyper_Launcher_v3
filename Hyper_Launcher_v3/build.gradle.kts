@@ -7,12 +7,11 @@ import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
-    id("com.android.application") version "9.4.1"
+    id("com.android.application")
     id("de.undercouch.download") version "5.7.0"
-    id("org.jetbrains.kotlin.plugin.compose") version "2.4.20"
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.4.20"
+    id("org.jetbrains.kotlin.plugin.compose")
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
-
 
 val localProperties = Properties()
 val localPropertiesFile = project.file("local.properties")
@@ -56,8 +55,6 @@ val hyperVersionNumber = localProperties.getProperty("VERSION_NUMBER")
 val hyperVersionSuffix = localProperties.getProperty("VERSION_NAME")
     ?: (project.findProperty("VERSION_NAME")?.toString() ?: "saturn")
 
-val isBundle = gradle.startParameter.taskNames.any { it.contains("bundle", ignoreCase = true) }
-
 configure<com.android.build.api.dsl.ApplicationExtension> {
     namespace = "net.ashmeet.hyperlauncher"
 
@@ -100,7 +97,8 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
         manifestPlaceholders["driver"] = "default"
 
         ndk {
-            abiFilters.addAll(setOf("armeabi-v7a", "arm64-v8a", "x86_64"))
+            // Exclude x86_64 from native builds for the AAB
+            abiFilters.addAll(setOf("armeabi-v7a", "arm64-v8a"))
         }
 
         @Suppress("UnstableApiUsage")
@@ -108,15 +106,6 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
             cmake {
                 arguments("-DCMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=16384")
             }
-        }
-    }
-
-    splits {
-        abi {
-            isEnable = !isBundle
-            reset()
-            include("armeabi-v7a", "arm64-v8a", "x86_64")
-            isUniversalApk = true
         }
     }
 
@@ -193,6 +182,8 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
     packaging {
         jniLibs {
             useLegacyPackaging = true
+            // Strip any accidental x86_64 .so files brought in by third-party dependencies
+            excludes += "**/x86_64/**"
         }
         resources {
             pickFirsts.add("**/libbytehook.so")
@@ -264,7 +255,7 @@ class AssetTaskRegistrar(private val project: Project) {
         project.tasks.matching {
             val name = it.name
             (name.equals("pre${currentVariantName}Build", ignoreCase = true) || name.equals("preBuild${currentVariantName}", ignoreCase = true)) ||
-            (name.contains("Lint", ignoreCase = true) && name.contains(currentVariantName, ignoreCase = true))
+                    (name.contains("Lint", ignoreCase = true) && name.contains(currentVariantName, ignoreCase = true))
         }.configureEach {
             dependsOn(taskProvider)
         }
@@ -354,10 +345,8 @@ androidComponents.onVariants { variant ->
     registrar.setVariant(variant)
 
     variant.outputs.forEach { output ->
-        val abiFilter = output.filters.find { it.filterType == FilterConfiguration.FilterType.ABI }?.identifier
-        val archSuffix = if (abiFilter != null) "-$abiFilter" else ""
         @Suppress("UnstableApiUsage")
-        output.outputFileName.set(output.versionName.map { "hyper_launcher-$it$archSuffix.apk" })
+        output.outputFileName.set(output.versionName.map { "hyper_launcher-$it.aab" })
     }
 
     registrar.projectJarDependency(project(":forge_installer"), "components/forge_installer")
@@ -389,7 +378,7 @@ dependencies {
     implementation("androidx.viewpager2:viewpager2:1.1.0")
     implementation("androidx.annotation:annotation:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.2.2")
-    implementation("androidx.compose.material3:material3:1.5.0-alpha29")
+    implementation("androidx.compose.material3:material3:1.5.0-beta01")
 
     implementation("com.github.duanhong169:checkerboarddrawable:1.0.2")
     implementation("com.github.PojavLauncherTeam:portrait-sdp:ed33e89cbc")

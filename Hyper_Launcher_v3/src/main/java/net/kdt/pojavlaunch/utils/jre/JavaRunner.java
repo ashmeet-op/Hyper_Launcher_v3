@@ -112,15 +112,10 @@ public class JavaRunner {
                 "-Dpojav.path.minecraft=" + Tools.DIR_GAME_NEW,
                 "-Dpojav.path.private.account=" + Tools.DIR_ACCOUNT_NEW,
                 "-Duser.timezone=" + TimeZone.getDefault().getID(),
-
                 "-Dorg.lwjgl.vulkan.libname=libvulkan.so",
                 "-Dorg.lwjgl.spvc.libname=spirv-cross-c-shared",
                 "-Dorg.lwjgl.sdl.libname=" + new File(Tools.NATIVE_LIB_DIR, "libSDL3.so").getAbsolutePath(),
                 "-Dorg.lwjgl.system.allocator=system",
-
-
-
-
                 "-Dext.net.resolvPath=" +resolvFile,
                 "-Dlog4j2.formatMsgNoLookups=true",
                 "-Dfml.earlyprogresswindow=false",
