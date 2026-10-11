@@ -12,7 +12,6 @@ import net.kdt.pojavlaunch.game.renderer.RenderSpec;
 import net.kdt.pojavlaunch.game.renderer.def.Renderers;
 import net.kdt.pojavlaunch.game.renderer.extra.GLESProvider;
 import net.kdt.pojavlaunch.utils.JREUtils;
-
 import java.io.File;
 import java.util.Map;
 import git.artdeell.mojoexec.MojoExec;
