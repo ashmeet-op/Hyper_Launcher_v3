@@ -24,6 +24,9 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import kotlin.math.max
 
@@ -40,6 +43,29 @@ fun LauncherBackground(
     var launcherVideoMuted by remember { mutableStateOf(LauncherPreferences.PREF_LAUNCHER_VIDEO_MUTED) }
     var launcherVideoVolume by remember { mutableFloatStateOf(LauncherPreferences.PREF_LAUNCHER_VIDEO_VOLUME.toFloat()) }
     var launcherVideoLoop by remember { mutableStateOf(LauncherPreferences.PREF_LAUNCHER_VIDEO_LOOP) }
+    var mediaPlayerInstance by remember { mutableStateOf<MediaPlayer?>(null) }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_PAUSE || event == Lifecycle.Event.ON_STOP) {
+                try {
+                    mediaPlayerInstance?.stop()
+                    mediaPlayerInstance?.release()
+                } catch (_: Exception) {}
+                mediaPlayerInstance = null
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            try {
+                mediaPlayerInstance?.stop()
+                mediaPlayerInstance?.release()
+            } catch (_: Exception) {}
+            mediaPlayerInstance = null
+        }
+    }
 
     DisposableEffect(Unit) {
         val prefListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
@@ -110,6 +136,7 @@ fun LauncherBackground(
                     val root = FrameLayout(context)
                     val textureView = TextureView(context)
                     val mediaPlayer = MediaPlayer()
+                    mediaPlayerInstance = mediaPlayer
 
                     textureView.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
                         override fun onSurfaceTextureAvailable(st: SurfaceTexture, width: Int, height: Int) {
@@ -125,7 +152,15 @@ fun LauncherBackground(
 
                         override fun onSurfaceTextureSizeChanged(st: SurfaceTexture, width: Int, height: Int) {}
                         override fun onSurfaceTextureDestroyed(st: SurfaceTexture): Boolean {
+                            try {
+                                if (mediaPlayer.isPlaying) {
+                                    mediaPlayer.stop()
+                                }
+                            } catch (_: Exception) {}
                             mediaPlayer.release()
+                            if (mediaPlayerInstance == mediaPlayer) {
+                                mediaPlayerInstance = null
+                            }
                             return true
                         }
                         override fun onSurfaceTextureUpdated(st: SurfaceTexture) {}

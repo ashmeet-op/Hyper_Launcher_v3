@@ -76,37 +76,40 @@ public class FCLRenderSpec implements RenderSpec {
 
     @Override
     public String library() {
-        String lib;
-        String searchPath;
+        String lib = null, searchPath = Tools.NATIVE_LIB_DIR;
+
         if (rendererInterface != null) {
             lib = rendererInterface.getRendererLibrary();
-            searchPath = (rendererInterface instanceof Plugin) ? ((Plugin) rendererInterface).getNativeLibPath() : Tools.NATIVE_LIB_DIR;
+            if (rendererInterface instanceof Plugin)
+                searchPath = ((Plugin) rendererInterface).getNativeLibPath();
         } else if (rendererPlugin != null) {
             lib = rendererPlugin.getRendererLibrary();
             searchPath = rendererPlugin.getPath();
         } else if (plugin != null) {
             searchPath = plugin.getPath();
-            File dir = new File(plugin.getPath());
-            if (dir.exists() && dir.isDirectory()) {
-                File[] soFiles = dir.listFiles((d, name) -> name.endsWith(".so"));
-                if (soFiles != null && soFiles.length > 0) {
-                    return soFiles[0].getAbsolutePath();
+            File[] so = new File(searchPath).listFiles((d, n) -> n.endsWith(".so"));
+            if (so != null && so.length > 0) {
+                java.util.Arrays.sort(so);
+                for (File f : so) {
+                    String n = f.getName().toLowerCase();
+                    if (n.contains("egl") || n.contains("gl4es") || n.contains("angle")) {
+                        Log.i(TAG, "Picked " + f);
+                        return f.getAbsolutePath();
+                    }
                 }
+                return so[0].getAbsolutePath();
             }
-            lib = null;
-        } else {
-            searchPath = Tools.NATIVE_LIB_DIR;
-            lib = null;
         }
-        if (lib != null) {
-            if (lib.startsWith("/")) return lib;
-            File f = new File(searchPath, lib);
+
+        if (lib == null) lib = "libltw.so";
+        if (lib.startsWith("/")) return lib;
+
+        for (String dir : new String[]{searchPath, Tools.NATIVE_LIB_DIR}) {
+            File f = new File(dir, lib);
             if (f.exists()) return f.getAbsolutePath();
-            File f2 = new File(Tools.NATIVE_LIB_DIR, lib);
-            if (f2.exists()) return f2.getAbsolutePath();
-            return f.getAbsolutePath();
         }
-        return "libgl4es_114.so";
+        Log.e(TAG, "Renderer lib not found: " + lib + " in " + searchPath);
+        return lib;
     }
 
     @Override
@@ -161,7 +164,7 @@ public class FCLRenderSpec implements RenderSpec {
                 }
             }
         }
-        return MojoExec.prepareEgl("libEGL.so", true, true, 3);
+        return MojoExec.prepareEgl(library(), true, true,4);
     }
 
     @Override
