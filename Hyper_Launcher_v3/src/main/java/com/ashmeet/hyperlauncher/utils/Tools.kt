@@ -688,7 +688,7 @@ object Tools {
 
     @JvmStatic
     fun getVersionInfo(versionName: String?): JVersionList.Version? {
-        if (versionName == null || versionName.isEmpty()) return null
+        if (versionName.isNullOrEmpty()) return null
         return try {
             getVersionInfo(versionName, false)
         } catch (e: Exception) {
@@ -1105,9 +1105,7 @@ object Tools {
 
     @JvmStatic
     fun applyHyperPluginHooks(javaArgList: MutableList<String>?, versionId: String?, gameDir: File?) {
-        if (javaArgList != null) {
-            javaArgList.addAll(NativePluginManager.getJVMEnv())
-        }
+        javaArgList?.addAll(NativePluginManager.getJVMEnv())
     }
 
     @JvmStatic
@@ -1117,7 +1115,7 @@ object Tools {
             if (ctx is FragmentActivity) return ctx
             ctx = ctx.baseContext
         }
-        return ctx as? FragmentActivity
+        return null
     }
 
     @JvmStatic

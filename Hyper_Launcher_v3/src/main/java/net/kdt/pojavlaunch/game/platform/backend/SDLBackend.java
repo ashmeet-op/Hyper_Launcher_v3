@@ -6,7 +6,6 @@ import android.view.Surface;
 
 import net.kdt.pojavlaunch.game.GameView;
 import net.kdt.pojavlaunch.game.platform.Platform;
-import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 
 import git.mojo.sdl.SDL;
 import git.mojo.sdl.SDLActivity;
@@ -16,7 +15,9 @@ import git.mojo.sdl.SDLCursor;
 import net.kdt.pojavlaunch.game.platform.cursor.PlatformCursor;
 import net.kdt.pojavlaunch.game.platform.cursor.CursorUtils;
 
-
+/**
+ * SDL3 Platform implementation
+ */
 public class SDLBackend implements PlatformBackend {
 
     public SDLBackend() {
@@ -52,22 +53,25 @@ public class SDLBackend implements PlatformBackend {
                 Platform.setCursor(null, 0, 0);
             }
         });
+        SDLActivity.setCursorWarpCallback((x, y) -> {
+            Platform.setCursorPosition(x, y);
+            // Avoid sending a huge delta after the cursor warps
+            prevX = Platform.cursorX;
+            prevY = Platform.cursorY;
+        });
     }
 
     private static void handleGrabStateChange(boolean isGrabbing) {
-        if (isGrabbing) {
-            Platform.cursorX = 0;
-            Platform.cursorY = 0;
-        }
         Platform.grabStateChanged(isGrabbing);
     }
 
     public static void initialize(Activity activity) {
+        // TODO: check what can be moved to the initialize point
+        // we need to setup enough SDL for the game to not crash to initialize it later
         SDL.initialize();
         SDL.setContext(activity);
         SDL.setupJNI();
         SDLControllerManager.initializeDeviceListener();
-        SDLActivity.setDynamicOrientationEnabled(LauncherPreferences.PREF_DYNAMIC_ORIENTATION);
     }
 
     @Override
@@ -75,7 +79,7 @@ public class SDLBackend implements PlatformBackend {
         if (SDLActivity.getNativeSurface() != null) SDLActivity.onNativeSurfaceDestroyed();
         SDLActivity.setNativeSurface(surface);
         SDLActivity.onNativeSurfaceCreated();
-        this.surfaceUpdated();
+        this.surfaceUpdated(); // Update initial size
         SDLActivity.onNativeSurfaceChanged();
     }
 
@@ -93,20 +97,38 @@ public class SDLBackend implements PlatformBackend {
         SDLActivity.onNativeSurfaceDestroyed();
     }
 
+    private double prevX;
+    private double prevY;
+
     @Override
     public void sendMousePosition() {
-        SDLActivity.onNativeMouse(0, MotionEvent.ACTION_MOVE, (float) Platform.cursorX, (float) Platform.cursorY, Platform.isGrabbing());
-        if (Platform.isGrabbing()) {
-
+        // In grabbing (relative) mode SDL expects relative cursor coordinates with center located at 0,0
+        // We need to accumulate a delta between mouse positions to correctly handle such position changes
+        double x = Platform.cursorX;
+        double y = Platform.cursorY;
+        boolean relative = Platform.isGrabbing();
+        double deltaX, deltaY;
+        if(relative) {
+            deltaX = x - prevX;
+            deltaY = y - prevY;
+        } else {
+            deltaX = x;
+            deltaY = y;
+        }
+        SDLActivity.onNativeMouse(0, MotionEvent.ACTION_MOVE, (float) deltaX, (float) deltaY, relative);
+        prevX = x;
+        prevY = y;
+        if (relative) {
             Platform.cursorX = 0;
             Platform.cursorY = 0;
+            prevX = 0;
+            prevY = 0;
         }
     }
 
-
     @Override
     public void sendMouseEvent(int button, int state, int mods) {
-        SDLActivity.onNativeMouseButton(button, state, (float) Platform.cursorX, (float) Platform.cursorY, Platform.isGrabbing());
+        SDLActivity.onNativeMouseButton(button, state);
     }
 
     @Override

@@ -27,6 +27,7 @@ import com.ashmeet.hyperlauncher.fragments.instances.InstanceDirectoryFragment
 import com.ashmeet.hyperlauncher.fragments.recorder.RecordingsGalleryFragment
 import com.ashmeet.hyperlauncher.fragments.settings.LauncherPreferenceFragment
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.utils.Architecture
 import com.ashmeet.hyperlauncher.utils.ShortcutUtils
 import com.ashmeet.hyperlauncher.utils.Tools
 import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
@@ -247,6 +248,7 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
             }
         }
         checkNotificationPermission()
+        checkX86_64Warning()
         if (LauncherPreferences.PREF_MIGRATION_NOTICE)
             PojavApplication.sExecutorService.submit { checkPreviousInstalls() }
 
@@ -389,6 +391,23 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
         LauncherPreferences.PREF_SKIP_NOTIFICATION_PERMISSION_CHECK = true
         LauncherPreferences.DEFAULT_PREF?.edit {
             putBoolean(LauncherPreferences.PREF_KEY_SKIP_NOTIFICATION_CHECK, true)
+        }
+    }
+
+    private fun checkX86_64Warning() {
+        if (Architecture.getDeviceArchitecture() == Architecture.ARCH_X86_64) {
+            val shown = LauncherPreferences.DEFAULT_PREF?.getBoolean("x86_64_warning_shown", false) ?: false
+            if (!shown) {
+                Tools.runOnUiThread {
+                    MaterialAlertDialogBuilder(this)
+                        .setTitle("x86_64 Architecture Warning")
+                        .setMessage("Some native libraries may be missing on x86_64. Please use a native launcher for Windows or Linux if supported.")
+                        .setPositiveButton(android.R.string.ok) { _, _ ->
+                            LauncherPreferences.DEFAULT_PREF?.edit { putBoolean("x86_64_warning_shown", true) }
+                        }
+                        .show()
+                }
+            }
         }
     }
 
