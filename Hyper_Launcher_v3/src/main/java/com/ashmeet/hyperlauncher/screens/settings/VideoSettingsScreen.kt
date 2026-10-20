@@ -65,7 +65,6 @@ fun VideoSettingsScreen(
     var vsyncInZink by remember { mutableStateOf(LauncherPreferences.PREF_VSYNC_IN_ZINK) }
     var zinkPreferSystemDriver by remember { mutableStateOf(LauncherPreferences.PREF_ZINK_PREFER_SYSTEM_DRIVER) }
     var zinkForceLegacy by remember { mutableStateOf(LauncherPreferences.PREF_ZINK_FORCE_LEGACY) }
-    var dynamicOrientation by remember { mutableStateOf(LauncherPreferences.PREF_DYNAMIC_ORIENTATION) }
     var driver by remember { mutableStateOf(LauncherPreferences.PREF_DRIVER) }
     var showRendererDialog by remember { mutableStateOf(false) }
     var showBackendDialog by remember { mutableStateOf(false) }
@@ -209,22 +208,6 @@ fun VideoSettingsScreen(
 
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             SettingsCard(position = CardPosition.TOP, useSurface = true) {
-                SettingsSwitchItem(
-                    title = translatedText("Dynamic Orientation"),
-                    summary = translatedText("Allow the game to change screen orientation dynamically. If disabled, horizontal mode is forced."),
-                    icon = Icons.Default.AspectRatio,
-                    checked = dynamicOrientation,
-                    onCheckedChange = {
-                        dynamicOrientation = it
-                        LauncherPreferences.prefs.edit { putBoolean("dynamic_orientation", it) }
-                        LauncherPreferences.loadPreferences(context)
-                        (context as? BaseActivity)?.updateOrientation()
-                        git.mojo.sdl.SDLActivity.setDynamicOrientationEnabled(it)
-                    }
-                )
-            }
-
-            SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
                 SettingsSwitchItem(
                     title = translatedText(stringResource(R.string.mcl_setting_title_use_surface_view)),
                     summary = translatedText(stringResource(R.string.mcl_setting_subtitle_use_surface_view)),

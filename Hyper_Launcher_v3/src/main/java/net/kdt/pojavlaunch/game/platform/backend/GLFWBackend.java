@@ -1,6 +1,7 @@
 package net.kdt.pojavlaunch.game.platform.backend;
 
 
+import android.content.Context;
 import android.view.MotionEvent;
 import android.view.Surface;
 
@@ -30,17 +31,43 @@ public class GLFWBackend implements PlatformBackend {
                 int shapeName = -1;
                 switch (shape) {
                     case 0:
-                    case LwjglGlfwKeycode.GLFW_ARROW_CURSOR: shapeName = 0; break;
-                    case LwjglGlfwKeycode.GLFW_IBEAM_CURSOR: shapeName = 1; break;
-                    case LwjglGlfwKeycode.GLFW_CROSSHAIR_CURSOR: shapeName = 2; break;
-                    case LwjglGlfwKeycode.GLFW_HAND_CURSOR: shapeName = 3; break;
-                    case LwjglGlfwKeycode.GLFW_HRESIZE_CURSOR: shapeName = 4; break;
-                    case LwjglGlfwKeycode.GLFW_VRESIZE_CURSOR: shapeName = 5; break;
-                    case LwjglGlfwKeycode.GLFW_RESIZE_ALL_CURSOR: shapeName = 6; break;
-                    case LwjglGlfwKeycode.GLFW_NOT_ALLOWED_CURSOR: shapeName = 7; break;
+                    case LwjglGlfwKeycode.GLFW_ARROW_CURSOR:
+                        shapeName = 0;
+                        break;
+                    case 1:
+                    case LwjglGlfwKeycode.GLFW_IBEAM_CURSOR:
+                        shapeName = 1;
+                        break;
+                    case 2:
+                    case LwjglGlfwKeycode.GLFW_CROSSHAIR_CURSOR:
+                        shapeName = 2;
+                        break;
+                    case 3:
+                    case LwjglGlfwKeycode.GLFW_HAND_CURSOR:
+                        shapeName = 3;
+                        break;
+                    case 4:
+                    case LwjglGlfwKeycode.GLFW_HRESIZE_CURSOR:
+                        shapeName = 4;
+                        break;
+                    case 5:
+                    case LwjglGlfwKeycode.GLFW_VRESIZE_CURSOR:
+                        shapeName = 5;
+                        break;
+                    case 6:
+                    case LwjglGlfwKeycode.GLFW_RESIZE_NWSE_CURSOR:
+                    case LwjglGlfwKeycode.GLFW_RESIZE_NESW_CURSOR:
+                    case LwjglGlfwKeycode.GLFW_RESIZE_ALL_CURSOR:
+                        shapeName = 6;
+                        break;
+                    case 7:
+                    case LwjglGlfwKeycode.GLFW_NOT_ALLOWED_CURSOR:
+                        shapeName = 7;
+                        break;
                 }
-                if (shapeName != -1) {
-                    PlatformCursor cursor = CursorUtils.loadStandardCursor(Platform.getCursorImplementor().getImplementorContext(), shapeName);
+                Context context = Platform.getCursorImplementor() != null ? Platform.getCursorImplementor().getImplementorContext() : null;
+                if (shapeName != -1 && context != null) {
+                    PlatformCursor cursor = CursorUtils.loadStandardCursor(context, shapeName);
                     if (cursor != null) {
                         Platform.setCursor(cursor.bitmap, cursor.hotX, cursor.hotY);
                         return;

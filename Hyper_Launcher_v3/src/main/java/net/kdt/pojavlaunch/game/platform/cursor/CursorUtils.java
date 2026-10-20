@@ -25,6 +25,11 @@ public class CursorUtils {
                 customPath = LauncherPreferences.PREF_POINTER_ICON_PATH_ARROW;
                 customHotX = LauncherPreferences.PREF_POINTER_HOTSPOT_X_ARROW;
                 customHotY = LauncherPreferences.PREF_POINTER_HOTSPOT_Y_ARROW;
+                if (customPath == null) {
+                    customPath = LauncherPreferences.PREF_POINTER_ICON_PATH;
+                    customHotX = LauncherPreferences.PREF_POINTER_HOTSPOT_X;
+                    customHotY = LauncherPreferences.PREF_POINTER_HOTSPOT_Y;
+                }
                 break;
             case 1:
                 customPath = LauncherPreferences.PREF_POINTER_ICON_PATH_IBEAM;

@@ -120,7 +120,9 @@ public class Platform {
 
     public static void setCursor(Bitmap bitmap, int xhot, int yhot) {
         mPlatformCursor = bitmap == null ? null : new PlatformCursor(bitmap, xhot, yhot);
-        mCursorImplementor.onCursorChanged();
+        if (mCursorImplementor != null) {
+            mCursorImplementor.onCursorChanged();
+        }
     }
 
 
@@ -151,7 +153,9 @@ public class Platform {
         cursorX = x;
         cursorY = y;
         clampCursorPosition();
-        mCursorImplementor.onCursorPosition();
+        if (mCursorImplementor != null) {
+            mCursorImplementor.onCursorPosition();
+        }
     }
 
 

@@ -12,7 +12,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_DYNAMIC_ORIENTATION
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_FULLSCREEN_LAUNCHER
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_IGNORE_NOTCH
 import com.ashmeet.hyperlauncher.utils.Tools
@@ -50,11 +49,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
 
     open fun updateOrientation() {
-        requestedOrientation = if (PREF_DYNAMIC_ORIENTATION) {
-            ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
-        } else {
-            ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
-        }
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
     }
 
 

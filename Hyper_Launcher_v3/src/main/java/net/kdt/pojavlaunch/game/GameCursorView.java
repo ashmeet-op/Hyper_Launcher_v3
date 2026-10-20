@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.view.PointerIcon;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -66,13 +67,42 @@ public class GameCursorView extends View implements PlatformCursorImplementor {
 
     @Override
     public void onCursorChanged() {
-        post(this::invalidate);
+        post(() -> {
+            invalidate();
+            updatePointerIcon();
+        });
     }
 
     @Override
     public void onGrabState(boolean isGrabbing) {
         noDraw = isGrabbing;
-        invalidate();
+        post(() -> {
+            invalidate();
+            updatePointerIcon();
+        });
+    }
+
+    public void updatePointerIcon() {
+        if (noDraw) {
+            setPointerIcon(PointerIcon.getSystemIcon(getContext(), PointerIcon.TYPE_NULL));
+            if (getParent() instanceof View) {
+                ((View) getParent()).setPointerIcon(PointerIcon.getSystemIcon(getContext(), PointerIcon.TYPE_NULL));
+            }
+            return;
+        }
+        PlatformCursor cursor = Platform.getCursor();
+        PointerIcon icon;
+        if (cursor != null && cursor.bitmap != null && !cursor.bitmap.isRecycled()) {
+            int hX = Math.max(0, Math.min(cursor.hotX, cursor.bitmap.getWidth() - 1));
+            int hY = Math.max(0, Math.min(cursor.hotY, cursor.bitmap.getHeight() - 1));
+            icon = PointerIcon.create(cursor.bitmap, hX, hY);
+        } else {
+            icon = PointerIcon.getSystemIcon(getContext(), PointerIcon.TYPE_ARROW);
+        }
+        setPointerIcon(icon);
+        if (getParent() instanceof View) {
+            ((View) getParent()).setPointerIcon(icon);
+        }
     }
 
     public void setCursorScale(float scale) {

@@ -1,6 +1,7 @@
 package net.kdt.pojavlaunch.game.platform.backend;
 
 import android.app.Activity;
+import android.content.Context;
 import android.view.MotionEvent;
 import android.view.Surface;
 
@@ -34,17 +35,36 @@ public class SDLBackend implements PlatformBackend {
             public void onSystemCursorChange(int systemCursorID) {
                 int shape = -1;
                 switch (systemCursorID) {
-                    case 0: shape = 0; break;
-                    case 1: shape = 1; break;
-                    case 3: shape = 2; break;
-                    case 7: shape = 4; break;
-                    case 8: shape = 5; break;
-                    case 9: shape = 6; break;
-                    case 10: shape = 7; break;
-                    case 11: shape = 3; break;
+                    case 0: shape = 0; break; // SDL_SYSTEM_CURSOR_DEFAULT -> ARROW
+                    case 1: shape = 1; break; // SDL_SYSTEM_CURSOR_TEXT -> IBEAM
+                    case 2: shape = 0; break; // SDL_SYSTEM_CURSOR_WAIT
+                    case 3: shape = 2; break; // SDL_SYSTEM_CURSOR_CROSSHAIR
+                    case 4: shape = 0; break; // SDL_SYSTEM_CURSOR_PROGRESS
+                    case 5: shape = 6; break; // SDL_SYSTEM_CURSOR_NWSE_RESIZE -> ALL_RESIZE
+                    case 6: shape = 6; break; // SDL_SYSTEM_CURSOR_NESW_RESIZE -> ALL_RESIZE
+                    case 7: shape = 4; break; // SDL_SYSTEM_CURSOR_EW_RESIZE -> HRESIZE
+                    case 8: shape = 5; break; // SDL_SYSTEM_CURSOR_NS_RESIZE -> VRESIZE
+                    case 9: shape = 6; break; // SDL_SYSTEM_CURSOR_MOVE -> ALL_RESIZE
+                    case 10: shape = 7; break; // SDL_SYSTEM_CURSOR_NOT_ALLOWED
+                    case 11: shape = 3; break; // SDL_SYSTEM_CURSOR_POINTER -> HAND
+                    case 12: shape = 6; break; // SDL_SYSTEM_CURSOR_NW_RESIZE
+                    case 13: shape = 5; break; // SDL_SYSTEM_CURSOR_N_RESIZE
+                    case 14: shape = 6; break; // SDL_SYSTEM_CURSOR_NE_RESIZE
+                    case 15: shape = 4; break; // SDL_SYSTEM_CURSOR_E_RESIZE
+                    case 16: shape = 6; break; // SDL_SYSTEM_CURSOR_SE_RESIZE
+                    case 17: shape = 5; break; // SDL_SYSTEM_CURSOR_S_RESIZE
+                    case 18: shape = 6; break; // SDL_SYSTEM_CURSOR_SW_RESIZE
+                    case 19: shape = 4; break; // SDL_SYSTEM_CURSOR_W_RESIZE
+                    case 23: shape = 1; break; // SDL_SYSTEM_CURSOR_VERTICAL_TEXT -> IBEAM
+                    case 26: shape = 7; break; // SDL_SYSTEM_CURSOR_NO_DROP -> NOT_ALLOWED
+                    case 27: case 28: shape = 3; break; // SDL_SYSTEM_CURSOR_GRAB / GRABBING -> HAND
+                    case 29: shape = 4; break; // SDL_SYSTEM_CURSOR_COL_RESIZE
+                    case 30: shape = 5; break; // SDL_SYSTEM_CURSOR_ROW_RESIZE
+                    case 31: shape = 6; break; // SDL_SYSTEM_CURSOR_ALL_SCROLL
                 }
-                if (shape != -1) {
-                    PlatformCursor cursor = CursorUtils.loadStandardCursor(Platform.getCursorImplementor().getImplementorContext(), shape);
+                Context context = Platform.getCursorImplementor() != null ? Platform.getCursorImplementor().getImplementorContext() : null;
+                if (shape != -1 && context != null) {
+                    PlatformCursor cursor = CursorUtils.loadStandardCursor(context, shape);
                     if (cursor != null) {
                         Platform.setCursor(cursor.bitmap, cursor.hotX, cursor.hotY);
                         return;
