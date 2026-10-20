@@ -345,7 +345,7 @@ androidComponents.onVariants { variant ->
 
     variant.outputs.forEach { output ->
         @Suppress("UnstableApiUsage")
-        output.outputFileName.set(output.versionName.map { "hyper_launcher-$it.aab" })
+        output.outputFileName.set(output.versionName.map { "hyper_launcher-$it.apk" })
     }
 
     registrar.projectJarDependency(project(":forge_installer"), "components/forge_installer")
