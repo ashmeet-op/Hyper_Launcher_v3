@@ -1,5 +1,6 @@
 package net.kdt.pojavlaunch.game.platform;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -52,6 +53,7 @@ public class Platform {
     private static PlatformGamepad mPlatformGamepad = null;
     private static PlatformCursor mPlatformCursor = null;
     private static AndroidClipboard mClipboard;
+    @SuppressLint("StaticFieldLeak")
     private static GameView mHostView;
     private static RemapperManager mInputManager;
 
