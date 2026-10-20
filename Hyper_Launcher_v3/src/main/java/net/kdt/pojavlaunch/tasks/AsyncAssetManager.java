@@ -105,6 +105,7 @@ public class AsyncAssetManager {
             tryUnpackComponent(ctx, "arc_dns_injector", true);
             tryUnpackComponent(ctx, "forge_installer", true);
             tryUnpackComponent(ctx, "authlib-injector", true);
+            tryUnpackComponent(ctx, "launcher", false);
 
             ProgressLayout.clearProgress(ProgressLayout.EXTRACT_COMPONENTS);
         });

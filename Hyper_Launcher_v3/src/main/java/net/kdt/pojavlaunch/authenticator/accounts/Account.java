@@ -36,10 +36,10 @@ public class Account {
     public String skinPath;
     public String capePath;
     public SkinModelType skinModel;
-    private transient Bitmap mFaceCache;
     private transient boolean mIsUpdatingSkin = false;
 
-    public Account() {}
+    public Account() {
+    }
 
     public void updateSkinFace() {
         if (mIsUpdatingSkin) return;
@@ -113,16 +113,6 @@ public class Account {
             return null;
         }
      }
-
-    public Bitmap getSkinFace(){
-        if(mFaceCache != null) return mFaceCache;
-        if(isLocal()) return null;
-        File skinFaceFile = getSkinFaceFile();
-        if(mFaceCache == null) {
-            mFaceCache = BitmapFactory.decodeFile(skinFaceFile.getAbsolutePath());
-        }
-        return mFaceCache;
-    }
 
     private File getSkinFaceFile() {
         return new File(Tools.DIR_CACHE,  "skin-face-" + profileId +"-"+authType.name() + ".webp");

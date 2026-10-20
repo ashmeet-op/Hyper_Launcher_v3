@@ -26,6 +26,8 @@ import net.kdt.pojavlaunch.progresskeeper.ProgressKeeper
 class AuthHostFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        savedInstanceState?.remove("android:support:fragments")
+        savedInstanceState?.remove("androidx:fragment:1")
         super.onCreate(savedInstanceState)
 
         requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
@@ -82,14 +84,21 @@ class AuthHostFragment : Fragment() {
                         onCapeLibraryClick = { launchTextureFragment(TextureType.CAPE) },
                         onFragmentViewCreated = {
                             val fm = childFragmentManager
-                            if (fm.findFragmentById(R.id.container_fragment_auth) == null) {
+                            val f = fm.findFragmentById(R.id.container_fragment_auth)
+                            if (f == null) {
                                 fm.beginTransaction()
+                                    .setReorderingAllowed(true)
                                     .replace(
                                         R.id.container_fragment_auth,
                                         SelectAuthFragment::class.java,
                                         null,
                                         SelectAuthFragment.TAG
                                     )
+                                    .commitAllowingStateLoss()
+                            } else {
+                                fm.beginTransaction()
+                                    .setReorderingAllowed(true)
+                                    .replace(R.id.container_fragment_auth, f, f.tag)
                                     .commitAllowingStateLoss()
                             }
                         }

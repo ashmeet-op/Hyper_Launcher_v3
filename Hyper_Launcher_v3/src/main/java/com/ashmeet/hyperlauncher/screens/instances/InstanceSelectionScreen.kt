@@ -88,8 +88,10 @@ fun InstanceSelectionScreen(
         PojavApplication.sExecutorService.execute {
             try {
                 val loaded = Instances.loadDisplay()
-                instances = loaded.list
-                selectedIndex = loaded.selectedIndex
+                val selectedInst = if (loaded.selectedIndex >= 0 && loaded.selectedIndex < loaded.list.size) loaded.list[loaded.selectedIndex] else null
+                val sortedList = loaded.list.sortedWith(compareByDescending<DisplayInstance> { it.isPinned }.thenBy { it.name })
+                instances = sortedList
+                selectedIndex = if (selectedInst != null) sortedList.indexOf(selectedInst) else -1
                 isLoading = false
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -114,6 +116,11 @@ fun InstanceSelectionScreen(
         onRenameInstance = { instance -> onRenameInstance(instance) { refreshKey++ } },
         onDeleteInstance = { instance -> onDeleteInstance(instance) { refreshKey++ } },
         onAddShortcut = onAddShortcut,
+        onPinInstance = { instance ->
+            instance.isPinned = !instance.isPinned
+            instance.maybeWrite()
+            refreshKey++
+        },
         onSelectInstance = { instance, index ->
             Instances.setSelectedInstance(instance)
             selectedIndex = index
@@ -135,6 +142,7 @@ private fun InstanceSelectionContent(
     onRenameInstance: (DisplayInstance) -> Unit,
     onDeleteInstance: (DisplayInstance) -> Unit,
     onAddShortcut: (DisplayInstance) -> Unit,
+    onPinInstance: (DisplayInstance) -> Unit,
     onSelectInstance: (DisplayInstance, Int) -> Unit
 ) {
     val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
@@ -328,7 +336,8 @@ private fun InstanceSelectionContent(
                         onEdit = { onEditInstance(instance) },
                         onRename = { onRenameInstance(instance) },
                         onDelete = { onDeleteInstance(instance) },
-                        onAddShortcut = { onAddShortcut(instance) }
+                        onAddShortcut = { onAddShortcut(instance) },
+                        onPin = { onPinInstance(instance) }
                     )
                 }
             }
@@ -370,6 +379,7 @@ fun InstanceSelectionScreenPreview() {
             onRenameInstance = {},
             onDeleteInstance = {},
             onAddShortcut = {},
+            onPinInstance = {},
             onSelectInstance = { _, _ -> }
         )
     }

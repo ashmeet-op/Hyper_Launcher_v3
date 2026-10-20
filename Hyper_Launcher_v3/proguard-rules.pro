@@ -8,8 +8,8 @@
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
 # General optimization settings
--dontoptimize
 -allowaccessmodification
+-repackageclasses ''
 
 # The "Reverse" Approach: Keep everything outside com.ashmeet.hyperlauncher intact
 # This allows R8 to shrink, optimize, and obfuscate only com.ashmeet.hyperlauncher

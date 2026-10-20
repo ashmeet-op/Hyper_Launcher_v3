@@ -23,6 +23,15 @@ import androidx.fragment.app.Fragment;
 import com.ashmeet.hyperlauncher.activity.PojavApplication;
 import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperlauncher.utils.Tools;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import coil.Coil;
+import coil.request.ImageRequest;
+import coil.target.Target;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import net.kdt.pojavlaunch.imgcropper.BitmapCropBehaviour;
 import net.kdt.pojavlaunch.imgcropper.CropperBehaviour;
 import net.kdt.pojavlaunch.imgcropper.CropperView;
@@ -126,6 +135,45 @@ public class CropperUtils {
             }
         }
 
+
+        Context context = cropImageView.getContext();
+        if (context != null) {
+            try {
+                CountDownLatch latch = new CountDownLatch(1);
+                final Bitmap[] resultBitmap = new Bitmap[1];
+                ImageRequest request = new ImageRequest.Builder(context)
+                        .data(selectedUri)
+                        .size(2048, 2048)
+                        .allowHardware(false)
+                        .target(new Target() {
+                            @Override
+                            public void onSuccess(@NonNull Drawable result) {
+                                if (result instanceof BitmapDrawable) {
+                                    resultBitmap[0] = ((BitmapDrawable) result).getBitmap();
+                                }
+                                latch.countDown();
+                            }
+
+                            @Override
+                            public void onError(@Nullable Drawable errorDrawable) {
+                                latch.countDown();
+                            }
+                        })
+                        .build();
+                Coil.imageLoader(context).enqueue(request);
+                try {
+                    latch.await(10, TimeUnit.SECONDS);
+                } catch (InterruptedException ignored) {}
+
+                if (resultBitmap[0] != null) {
+                    BitmapCropBehaviour cropBehaviour = new BitmapCropBehaviour(cropImageView);
+                    cropBehaviour.setBitmap(resultBitmap[0]);
+                    return cropBehaviour;
+                }
+            } catch (Exception e) {
+                Log.w("CropperUtils", "Failed to load image via Coil", e);
+            }
+        }
 
         try (InputStream inputStream = contentResolver.openInputStream(selectedUri)) {
             if(inputStream == null) return null;

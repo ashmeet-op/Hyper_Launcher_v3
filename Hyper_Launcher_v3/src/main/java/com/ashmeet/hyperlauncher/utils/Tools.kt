@@ -919,7 +919,8 @@ object Tools {
 
         transaction.setReorderingAllowed(true)
             .addToBackStack(fragmentClass.name)
-            .replace(R.id.container_fragment, fragmentClass, bundle, fragmentTag).commit()
+            .replace(R.id.container_fragment, fragmentClass, bundle, fragmentTag)
+            .commitAllowingStateLoss()
     }
 
     @JvmStatic

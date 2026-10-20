@@ -166,7 +166,7 @@ fun InstanceDirectoryContent(
 
     val instanceLoader = remember(selectedInstance) {
         selectedInstance?.let {
-            val vId = it.versionId.lowercase()
+            val vId = it.versionId?.lowercase() ?: return@let null
             when {
                 vId.contains("fabric") -> "fabric"
                 vId.contains("forge") -> "forge"

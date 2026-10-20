@@ -25,6 +25,7 @@ import net.kdt.pojavlaunch.game.renderer.RenderSpec;
 import net.kdt.pojavlaunch.game.renderer.impl.GLESRenderSpec;
 import net.kdt.pojavlaunch.instances.Instance;
 import net.kdt.pojavlaunch.lifecycle.LifecycleAwareAlertDialog;
+import net.kdt.pojavlaunch.modloaders.Lwjgl3ifyUtils;
 import net.kdt.pojavlaunch.multirt.MultiRTUtils;
 import net.kdt.pojavlaunch.multirt.Runtime;
 import net.kdt.pojavlaunch.utils.FileUtils;
@@ -40,12 +41,12 @@ import net.kdt.pojavlaunch.extra.ExtraConstants;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class GameRunner {
     /**
@@ -95,7 +96,7 @@ public class GameRunner {
      * @return whether the GPU is affected by the Large Thin Wrapper render distance issue on vanilla
      */
 
-    private static boolean affectedByRenderDistanceIssue(JVersionList.Version version) throws ParseException {
+    private static boolean affectedByRenderDistanceIssue(JVersionList.Version version) {
         if(LauncherPreferences.PREF_USE_ANGLE) return false;
         GpuUtils.GLInfo info = GpuUtils.getGlInfo();
         return info.isAdreno() &&
@@ -104,7 +105,7 @@ public class GameRunner {
                 DateUtils.dateBefore(DateUtils.getOriginalReleaseDate(version), 2025, 2, 25);
     }
 
-    private static boolean checkRenderDistance(JVersionList.Version version, File gamedir) throws ParseException {
+    private static boolean checkRenderDistance(JVersionList.Version version, File gamedir) {
         if(!affectedByRenderDistanceIssue(version)) return false;
         if(hasSodium(gamedir)) return false;
         try {
@@ -118,11 +119,11 @@ public class GameRunner {
         return renderDistance > 7;
     }
 
-    private static boolean isGl4esCompatible(JVersionList.Version version) throws Exception{
+    private static boolean isGl4esCompatible(JVersionList.Version version) {
         return DateUtils.dateBefore(DateUtils.getOriginalReleaseDate(version), 2025, 1, 7);
     }
 
-    private static boolean isCompatContext(JVersionList.Version version) throws Exception{
+    private static boolean isCompatContext(JVersionList.Version version) {
         // Day before the release date of 21w10a, the first OpenGL 3 Core Minecraft version
         return DateUtils.dateBefore(DateUtils.getOriginalReleaseDate(version), 2021, 3, 9);
     }
@@ -154,7 +155,13 @@ public class GameRunner {
 
     public static void launchGame(final AppCompatActivity activity, Account account,
                                   Instance instance, String versionId, File[] classpath, GameRenderer gameRenderer) throws Throwable {
-        if (account != null && account.authType == AuthType.MICROSOFT) {
+        if (account == null) {
+            account = new Account();
+            account.username = "Steve";
+            account.accessToken = "0";
+            account.profileId = "00000000-0000-0000-0000-000000000000";
+        }
+        if (account.authType == AuthType.MICROSOFT) {
             try {
                 if (System.currentTimeMillis() > account.expiresAt) {
                     account = MicrosoftBackgroundLogin.performRefresh(account);
@@ -184,6 +191,7 @@ public class GameRunner {
 
                 if (!showAddressMemoryWarning) {
                     builder.setNegativeButton(R.string.option_do_not_show_again, (d, w) -> {
+                        assert LauncherPreferences.DEFAULT_PREF != null;
                         LauncherPreferences.DEFAULT_PREF.edit().putBoolean("showMemoryWarning", false).apply();
                         Toast.makeText(activity, R.string.notification_permission_toast, Toast.LENGTH_SHORT).show();
                     });
@@ -199,6 +207,7 @@ public class GameRunner {
         File gamedir = instance.getGameDirectory();
         JVersionList.Version versionInfo = Tools.getVersionInfo(versionId);
         // We don't need the library list, the asset index, client download info for the code below
+        assert versionInfo != null;
         versionInfo.libraries = null;
         versionInfo.downloads = null;
 
@@ -210,7 +219,7 @@ public class GameRunner {
         }
 
         boolean isGl4es = renderer instanceof GLESRenderSpec.GL4ESRenderSpec;
-        boolean ltwSupported = GameRenderer.getKnownRenderer(GameRenderer.LTW_RENDERER).compatibleDevice(activity);
+        boolean ltwSupported = Objects.requireNonNull(GameRenderer.getKnownRenderer(GameRenderer.LTW_RENDERER)).compatibleDevice(activity);
         // Block Sodium from running with GL4ES on 1.17+
         if(!isCompatContext(versionInfo) && isGl4es && hasSodium(gamedir)) {
             switchRendererifSupported(ltwSupported, GameRenderer.LTW_RENDERER, gameRenderer, instance, activity, R.string.compat_sodium_not_supported);
@@ -254,9 +263,27 @@ public class GameRunner {
         // Select the appropriate openGL version
         OldVersionsUtils.selectOpenGlVersion(versionInfo);
 
-        ArrayList<String> launchClassPath = new ArrayList<>(classpath.length);
+
+        //mio impl
+        File launcherDir = new File(Tools.DIR_GAME_HOME, "launcher");
+        File mioLaunchWrapper = new File(launcherDir, "MioLaunchWrapper.jar");
+        File mioLibPatcher = new File(launcherDir, "MioLibPatcher.jar");
+
+        List<String> javaArgList = new ArrayList<>();
+
+        if (mioLibPatcher.exists()) {
+            javaArgList.add("-javaagent:" + mioLibPatcher.getAbsolutePath());
+        }
+
+        ArrayList<String> launchClassPath = new ArrayList<>(classpath.length + 1);
+        if (mioLaunchWrapper.exists()) {
+            launchClassPath.add(mioLaunchWrapper.getAbsolutePath());
+        }
+
+
         for(int i = 0; i < classpath.length; i++) {
             File classpathEntry = classpath[i];
+            if(classpathEntry == null) continue;
             String entryPath = classpathEntry.getAbsolutePath();
             if(!classpathEntry.exists()) {
                 Log.w("GameRunner", "Skipped classpath entry " + entryPath + " because it is missing");
@@ -265,9 +292,8 @@ public class GameRunner {
             // Unreference the classpath entry to avoid retaining it on heap
             classpath[i] = null;
         }
-        launchClassPath.trimToSize();
 
-        List<String> javaArgList = new ArrayList<>();
+        launchClassPath.trimToSize();
 
         if (versionInfo.logging != null && versionInfo.logging.client != null && versionInfo.logging.client.file != null) {
             String configFile = Tools.DIR_DATA + "/security/" + versionInfo.logging.client.file.id.replace("client", "log4j-rce-patch");
@@ -322,7 +348,19 @@ public class GameRunner {
 
         Log.i("GameRunner", "Running with "+ launchArgs.toString());
 
+        boolean hasLwjgl3ify = false;
+        try {
+            hasLwjgl3ify = Lwjgl3ifyUtils.detectLwjgl3ifyJar(gamedir) != null;
+        } catch (Exception ignored) {}
+        if (!hasLwjgl3ify && versionInfo.mainClass != null && versionInfo.mainClass.contains("lwjgl3ify")) {
+            hasLwjgl3ify = true;
+        }
+
         String mainClass = versionInfo.mainClass;
+        if (hasLwjgl3ify && mioLaunchWrapper.exists()) {
+            mainClass = "mio.Wrapper";
+            launchArgs.add(0, versionInfo.mainClass);
+        }
 
         try {
             JavaRunner.nativeSetupExit(activity);
@@ -362,11 +400,11 @@ public class GameRunner {
     }
 
     private static void addAuthlibInjectorArgs(List<String> javaArgList, Account account) {
-        if (account != null && (account.authType == AuthType.MICROSOFT || account.authType == AuthType.ELY_BY)) {
+        if (account.authType == AuthType.MICROSOFT || account.authType == AuthType.ELY_BY) {
             return;
         }
-        String injectorUrl = account != null && account.authType != null ? account.authType.injectorUrl : null;
-        if (injectorUrl == null || (account != null && (account.capePath != null || account.skinPath != null))) {
+        String injectorUrl = account.authType != null ? account.authType.injectorUrl : null;
+        if (injectorUrl == null || (account.capePath != null || account.skinPath != null)) {
             String localUrl = SkinManager.getInstance().registerAndStartServer(account);
             if (localUrl != null) {
                 injectorUrl = localUrl;

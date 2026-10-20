@@ -130,23 +130,23 @@ public class ControlData {
 
     public ControlData(ControlData controlData) {
         this(
-                controlData.name,
-                controlData.keycodes,
-                controlData.dynamicX,
-                controlData.dynamicY,
-                controlData.width,
-                controlData.height,
-                controlData.isToggle,
-                controlData.opacity,
-                controlData.bgColor,
-                controlData.strokeColor,
-                controlData.strokeWidth,
-                controlData.cornerRadius,
-                controlData.displayInGame,
-                controlData.displayInMenu,
-                controlData.isSwipeable,
-                controlData.passThruEnabled,
-                controlData.bitmapTag
+                controlData != null ? controlData.name : "button",
+                controlData != null ? controlData.keycodes : new int[]{},
+                controlData != null ? controlData.dynamicX : "0",
+                controlData != null ? controlData.dynamicY : "0",
+                controlData != null ? controlData.width : 50f,
+                controlData != null ? controlData.height : 50f,
+                controlData != null && controlData.isToggle,
+                controlData != null ? controlData.opacity : 1f,
+                controlData != null ? controlData.bgColor : 0x4D000000,
+                controlData != null ? controlData.strokeColor : 0xFFFFFFFF,
+                controlData != null ? controlData.strokeWidth : 0f,
+                controlData != null ? controlData.cornerRadius : 0f,
+                controlData == null || controlData.displayInGame,
+                controlData == null || controlData.displayInMenu,
+                controlData != null && controlData.isSwipeable,
+                controlData != null && controlData.passThruEnabled,
+                controlData != null ? controlData.bitmapTag : null
         );
     }
 
@@ -190,7 +190,9 @@ public class ControlData {
 
     private static int[] inflateKeycodeArray(int[] keycodes) {
         int[] inflatedArray = new int[]{KeyEvent.KEYCODE_UNKNOWN, KeyEvent.KEYCODE_UNKNOWN, KeyEvent.KEYCODE_UNKNOWN, KeyEvent.KEYCODE_UNKNOWN};
-        System.arraycopy(keycodes, 0, inflatedArray, 0, keycodes.length);
+        if (keycodes != null) {
+            System.arraycopy(keycodes, 0, inflatedArray, 0, Math.min(keycodes.length, inflatedArray.length));
+        }
         return inflatedArray;
     }
 

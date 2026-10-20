@@ -186,6 +186,8 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        savedInstanceState?.remove("android:support:fragments")
+        savedInstanceState?.remove("androidx:fragment:1")
         super.onCreate(savedInstanceState)
         LauncherComposeHelper.setContent(
             this,
@@ -199,7 +201,13 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
                     val f = fm.findFragmentById(R.id.container_fragment)
                     if (f == null) {
                         fm.beginTransaction()
+                            .setReorderingAllowed(true)
                             .replace(R.id.container_fragment, MainMenuFragment::class.java, null, MainMenuFragment.TAG)
+                            .commitAllowingStateLoss()
+                    } else {
+                        fm.beginTransaction()
+                            .setReorderingAllowed(true)
+                            .replace(R.id.container_fragment, f, f.tag)
                             .commitAllowingStateLoss()
                     }
                 }

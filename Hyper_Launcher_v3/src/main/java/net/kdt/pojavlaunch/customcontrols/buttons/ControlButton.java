@@ -125,23 +125,31 @@ public class ControlButton extends TextView implements ControlInterface {
 
 
     public void cloneButton(){
-        ControlData cloneData = new ControlData(getProperties());
+        ControlData props = getProperties();
+        ControlData cloneData = props != null ? new ControlData(props) : new ControlData();
         cloneData.dynamicX = "0.5 * ${screen_width}";
         cloneData.dynamicY = "0.5 * ${screen_height}";
-        ((ControlLayout) getParent()).addControlButton(cloneData);
+        ControlLayout parent = (ControlLayout) getParent();
+        if (parent != null) {
+            parent.addControlButton(cloneData);
+        }
     }
 
 
     public void removeButton() {
         ControlLayout parent = getControlLayoutParent();
         if(parent == null) return;
-        parent.getLayout().mControlDataList.remove(getProperties());
+        ControlData props = getProperties();
+        if(props != null && parent.getLayout() != null && parent.getLayout().mControlDataList != null) {
+            parent.getLayout().mControlDataList.remove(props);
+        }
         parent.removeView(this);
     }
 
     @Override
     public void handlePressed() {
-        if(!getProperties().isToggle){
+        ControlData props = getProperties();
+        if(props != null && !props.isToggle){
             sendKeyPresses(true);
         }
     }
@@ -163,17 +171,22 @@ public class ControlButton extends TextView implements ControlInterface {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_POINTER_UP:
-                if(properties.passThruEnabled){
-
-                    View gameSurface = getControlLayoutParent().getGameSurface();
-                    if(gameSurface != null) gameSurface.dispatchTouchEvent(event);
+                if(properties != null && properties.passThruEnabled){
+                    ControlLayout parent = getControlLayoutParent();
+                    if(parent != null) {
+                        View gameSurface = parent.getGameSurface();
+                        if(gameSurface != null) gameSurface.dispatchTouchEvent(event);
+                    }
                 }
                 break;
         }
 
-        if(getProperties().isSwipeable) {
-            getControlLayoutParent().onTouch(this, event);
-            return true;
+        if(properties != null && properties.isSwipeable) {
+            ControlLayout parent = getControlLayoutParent();
+            if(parent != null) {
+                parent.onTouch(this, event);
+                return true;
+            }
         }
 
         switch (action){

@@ -35,6 +35,7 @@ import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.FolderOpen
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material.icons.rounded.Update
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.DropdownMenuItem
@@ -535,7 +536,8 @@ fun InstanceListItem(
     onEdit: () -> Unit,
     onRename: () -> Unit,
     onDelete: () -> Unit,
-    onAddShortcut: () -> Unit
+    onAddShortcut: () -> Unit,
+    onPin: () -> Unit
 ) {
     val context = LocalContext.current
     val icon = remember(instance) {
@@ -621,6 +623,15 @@ fun InstanceListItem(
                 )
             }
 
+            IconButton(onClick = onPin) {
+                Icon(
+                    imageVector = Icons.Rounded.PushPin,
+                    contentDescription = translatedText(if (instance.isPinned) "Unpin" else "Pin"),
+                    modifier = Modifier.size(20.dp),
+                    tint = if (instance.isPinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                )
+            }
+
             Box {
                 IconButton(onClick = { menuExpanded = true }) {
                     Icon(
@@ -635,6 +646,27 @@ fun InstanceListItem(
                     expanded = menuExpanded,
                     onDismissRequest = { menuExpanded = false }
                 ) {
+                    DropdownMenuItem(
+                        text = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Rounded.PushPin,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp),
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(
+                                    text = translatedText(if (instance.isPinned) "Unpin" else "Pin to Top"),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        },
+                        onClick = {
+                            menuExpanded = false
+                            onPin()
+                        }
+                    )
                     DropdownMenuItem(
                         text = {
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -752,7 +784,8 @@ fun InstanceListItemPreviewContent(darkTheme: Boolean) {
                 onEdit = {},
                 onRename = {},
                 onDelete = {},
-                onAddShortcut = {}
+                onAddShortcut = {},
+                onPin = {}
             )
             InstanceListItem(
                 instance = dummyInstance,
@@ -761,7 +794,8 @@ fun InstanceListItemPreviewContent(darkTheme: Boolean) {
                 onEdit = {},
                 onRename = {},
                 onDelete = {},
-                onAddShortcut = {}
+                onAddShortcut = {},
+                onPin = {}
             )
         }
     }

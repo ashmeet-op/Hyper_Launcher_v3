@@ -118,7 +118,7 @@ object Translator {
 
     fun getTargetLanguage(): String {
         if (LauncherPreferences.PREF_FORCE_ENGLISH) return "english"
-        var lang = LauncherPreferences.PREF_LANGUAGE ?: "system"
+        var lang = LauncherPreferences.PREF_LANGUAGE
         if (lang == "system") {
             lang = Locale.getDefault().language
         }
