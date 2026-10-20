@@ -14,20 +14,34 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.rememberGraphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.utils.blur.BackgroundGlassBlur
+import com.ashmeet.hyperlauncher.utils.blur.backgroundCapture
+import com.ashmeet.hyperlauncher.utils.blur.whiteOverlayAlpha
+import java.io.File
 import kotlin.math.max
 
 @Composable
@@ -40,6 +54,7 @@ fun LauncherBackground(
     var launcherBgOverlayOpacity by remember { mutableFloatStateOf(LauncherPreferences.PREF_LAUNCHER_BACKGROUND_OVERLAY_OPACITY.toFloat()) }
     var launcherBgBlurEnabled by remember { mutableStateOf(LauncherPreferences.PREF_LAUNCHER_BACKGROUND_BLUR_ENABLED) }
     var launcherBgBlur by remember { mutableFloatStateOf(LauncherPreferences.PREF_LAUNCHER_BACKGROUND_BLUR.toFloat()) }
+    var liquidGlassElementsEnabled by remember { mutableStateOf(LauncherPreferences.PREF_LIQUID_GLASS_ELEMENTS_ENABLED) }
     var launcherVideoMuted by remember { mutableStateOf(LauncherPreferences.PREF_LAUNCHER_VIDEO_MUTED) }
     var launcherVideoVolume by remember { mutableFloatStateOf(LauncherPreferences.PREF_LAUNCHER_VIDEO_VOLUME.toFloat()) }
     var launcherVideoLoop by remember { mutableStateOf(LauncherPreferences.PREF_LAUNCHER_VIDEO_LOOP) }
@@ -79,6 +94,7 @@ fun LauncherBackground(
                 "launcher_video_muted" -> launcherVideoMuted = LauncherPreferences.prefs.getBoolean("launcher_video_muted", true)
                 "launcher_video_volume" -> launcherVideoVolume = LauncherPreferences.prefs.getInt("launcher_video_volume", 50).toFloat()
                 "launcher_video_loop" -> launcherVideoLoop = LauncherPreferences.prefs.getBoolean("launcher_video_loop", true)
+                "liquid_glass_elements_enabled" -> liquidGlassElementsEnabled = LauncherPreferences.prefs.getBoolean("liquid_glass_elements_enabled", false)
             }
         }
         LauncherPreferences.prefs.registerOnSharedPreferenceChangeListener(prefListener)
@@ -86,6 +102,30 @@ fun LauncherBackground(
             LauncherPreferences.prefs.unregisterOnSharedPreferenceChangeListener(prefListener)
         }
     }
+
+    val context = LocalContext.current
+    val backgroundFile = remember(launcherBgPath) { launcherBgPath?.let { File(it) } }
+    val glassBlur = remember(backgroundFile, context) { BackgroundGlassBlur(backgroundFile, context) }
+
+    val glassLayer = rememberGraphicsLayer()
+    val captureLayer = rememberGraphicsLayer()
+
+    LaunchedEffect(glassBlur, glassLayer, captureLayer) {
+        glassBlur.attachGlassLayer(glassLayer)
+        glassBlur.attachCaptureLayer(captureLayer)
+    }
+
+    LaunchedEffect(backgroundFile, launcherBgBlurEnabled, launcherBgBlur, liquidGlassElementsEnabled) {
+        val shouldBlur = (launcherBgBlurEnabled && launcherBgBlur > 0f) || liquidGlassElementsEnabled
+        if (backgroundFile != null && shouldBlur) {
+            val blurRadius = if (launcherBgBlur > 0f) launcherBgBlur.toInt() else 20
+            glassBlur.refreshStaticDisplayBitmap(blurRadius)
+        } else {
+            glassBlur.clearBlurredBackground()
+        }
+    }
+
+    val blurredImageBitmap = glassBlur.blurredBackground
 
     val backgroundBitmap = remember(launcherBgPath, launcherBgType) {
         if (launcherBgPath != null && launcherBgType == "image") {
@@ -116,15 +156,30 @@ fun LauncherBackground(
         } else null
     }
 
-    Box(modifier = modifier.fillMaxSize().background(if (launcherBgPath != null) Color.Black else Color.Transparent)) {
-        if (launcherBgType == "image" && backgroundBitmap != null) {
+    val density = LocalDensity.current
+    val blurRadiusPx = with(density) { (if (launcherBgBlur > 0f) launcherBgBlur else 25f).dp.toPx() }
+    val overlayAlpha = whiteOverlayAlpha(launcherBgBlur.toInt().coerceAtLeast(25))
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(if (launcherBgPath != null) Color.Black else Color.Transparent)
+            .backgroundCapture(
+                store = glassBlur,
+                recordContent = liquidGlassElementsEnabled || launcherBgBlurEnabled,
+                blurRadiusPx = blurRadiusPx,
+                whiteOverlayAlpha = overlayAlpha
+            )
+    ) {
+        val imageBitmapToDraw = if (launcherBgBlurEnabled) blurredImageBitmap else backgroundBitmap?.asImageBitmap()
+        if (launcherBgType == "image" && imageBitmapToDraw != null) {
             Image(
-                bitmap = backgroundBitmap.asImageBitmap(),
+                bitmap = imageBitmapToDraw,
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxSize()
                     .then(
-                        if (launcherBgBlurEnabled && launcherBgBlur > 0)
+                        if (launcherBgBlurEnabled && launcherBgBlur > 0 && blurredImageBitmap == null)
                             Modifier.blur(launcherBgBlur.dp)
                         else Modifier
                     ),

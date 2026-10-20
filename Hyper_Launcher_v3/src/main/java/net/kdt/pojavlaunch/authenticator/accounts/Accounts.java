@@ -80,6 +80,12 @@ public class Accounts {
 		if(acc.authType == null) {
 			acc.authType = acc.isMicrosoft ? AuthType.MICROSOFT : AuthType.LOCAL;
 		}
+		if (acc.expiresAt == 0 && !acc.refreshToken.equals("0") && !acc.refreshToken.isEmpty()) {
+			acc.expiresAt = System.currentTimeMillis() + 86400000;
+			try {
+				acc.save();
+			} catch (IOException ignored) {}
+		}
 		return acc;
 	}
 

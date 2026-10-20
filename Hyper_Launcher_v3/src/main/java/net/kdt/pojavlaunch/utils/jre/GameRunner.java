@@ -156,7 +156,9 @@ public class GameRunner {
                                   Instance instance, String versionId, File[] classpath, GameRenderer gameRenderer) throws Throwable {
         if (account != null && account.authType == AuthType.MICROSOFT) {
             try {
-                account = MicrosoftBackgroundLogin.performRefresh(account);
+                if (System.currentTimeMillis() > account.expiresAt) {
+                    account = MicrosoftBackgroundLogin.performRefresh(account);
+                }
             } catch (Exception e) {
                 Log.e("GameRunner", "Failed to refresh Microsoft account token", e);
             }

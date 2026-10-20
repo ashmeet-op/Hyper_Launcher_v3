@@ -45,7 +45,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
@@ -264,7 +263,7 @@ fun AccountSpinnerUI(
     hideDivider: Boolean = false,
     containerColor: Color = MaterialTheme.colorScheme.surface
 ) {
-    val isMatte = LauncherPreferences.PREF_BLURRED_ELEMENTS_ENABLED
+    val isMatte = LauncherPreferences.PREF_LIQUID_GLASS_ELEMENTS_ENABLED
 
     Box(modifier = modifier) {
         Surface(
@@ -282,7 +281,7 @@ fun AccountSpinnerUI(
                     Box(
                         modifier = Modifier
                             .matchParentSize()
-                            .blur(16.dp)
+
                     )
                 }
                 Row(

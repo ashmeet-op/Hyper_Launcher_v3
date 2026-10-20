@@ -1,6 +1,9 @@
+@file:Suppress("DEPRECATION")
+
 package com.ashmeet.hyperlauncher.components.dialog
 
 
+//noinspection SuspiciousImport
 import android.R
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
@@ -68,7 +71,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
@@ -284,13 +286,13 @@ fun DialogCard(
     val topRadius = if (position == CardPosition.TOP || position == CardPosition.SINGLE) outerShape else innerShape
     val bottomRadius = if (position == CardPosition.BOTTOM || position == CardPosition.SINGLE) outerShape else innerShape
 
-    val isMatte = LauncherPreferences.PREF_BLURRED_ELEMENTS_ENABLED
+    val isMatte = LauncherPreferences.PREF_LIQUID_GLASS_ELEMENTS_ENABLED
 
     val cardColor = containerColor ?: if (useSurface) {
-        if (isMatte) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+        if (isMatte) MaterialTheme.colorScheme.surface.copy(alpha = 0.4f)
         else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
     } else {
-        if (isMatte) MaterialTheme.colorScheme.surface.copy(alpha = 0.3f)
+        if (isMatte) MaterialTheme.colorScheme.surface.copy(alpha = 0.4f)
         else MaterialTheme.colorScheme.background
     }
 
@@ -339,7 +341,6 @@ fun DialogCard(
                     Box(
                         modifier = Modifier
                             .matchParentSize()
-                            .blur(12.dp)
                             .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.1f))
                     )
                 }

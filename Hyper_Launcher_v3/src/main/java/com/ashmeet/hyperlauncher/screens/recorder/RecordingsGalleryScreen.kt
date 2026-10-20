@@ -71,7 +71,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
@@ -133,11 +132,11 @@ fun RecordingsGalleryScreen(
         refreshList()
     }
 
-    val isBlurred = LauncherPreferences.PREF_BLURRED_ELEMENTS_ENABLED
+    val isLiquidGlass = LauncherPreferences.PREF_LIQUID_GLASS_ELEMENTS_ENABLED
     val hasBackground = LauncherPreferences.PREF_LAUNCHER_BACKGROUND_PATH != null
 
-    val panelColor = if (isBlurred) {
-        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+    val panelColor = if (isLiquidGlass) {
+        MaterialTheme.colorScheme.surface.copy(alpha = 0.3f)
     } else if (hasBackground) {
         MaterialTheme.colorScheme.surface.copy(alpha = 0.3f)
     } else {
@@ -154,8 +153,8 @@ fun RecordingsGalleryScreen(
                 .fillMaxSize()
                 .padding(16.dp),
             shape = RoundedCornerShape(32.dp),
-            color = if (isBlurred) {
-                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+            color = if (isLiquidGlass) {
+                MaterialTheme.colorScheme.surface.copy(alpha = 0.4f)
             } else {
                 MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
             },
@@ -170,11 +169,11 @@ fun RecordingsGalleryScreen(
                         })
                     }
             ) {
-                if (isBlurred) {
+                if (isLiquidGlass) {
                     Box(
                         modifier = Modifier
                             .matchParentSize()
-                            .blur(16.dp)
+
                     )
                 }
 
@@ -216,7 +215,7 @@ fun RecordingsGalleryScreen(
                                 .weight(1f)
                                 .fillMaxHeight(),
                             shape = RoundedCornerShape(24.dp),
-                            color = panelColor,
+                            color = panelColor as Color,
                             tonalElevation = 0.dp
                         ) {
                             LazyColumn(
@@ -241,7 +240,7 @@ fun RecordingsGalleryScreen(
                                 .weight(1.3f)
                                 .fillMaxHeight(),
                             shape = RoundedCornerShape(24.dp),
-                            color = panelColor,
+                            color = panelColor as Color,
                             tonalElevation = 0.dp
                         ) {
                             if (selectedItem != null) {
@@ -392,7 +391,7 @@ fun RecordingListItemCard(
     onDeleteClick: () -> Unit
 ) {
     var thumbnail by remember(item.file.absolutePath) { mutableStateOf<Bitmap?>(null) }
-    val isBlurred = LauncherPreferences.PREF_BLURRED_ELEMENTS_ENABLED
+    val isLiquidGlass = LauncherPreferences.PREF_LIQUID_GLASS_ELEMENTS_ENABLED
 
     LaunchedEffect(item.file.absolutePath) {
         withContext(Dispatchers.IO) {
@@ -414,7 +413,7 @@ fun RecordingListItemCard(
     val cardColor = if (isSelected) {
         MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
     } else {
-        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (isBlurred) 0.4f else 0.2f)
+        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (isLiquidGlass) 0.4f else 0.2f)
     }
 
     Surface(
@@ -531,7 +530,7 @@ fun BuiltInMediaPlayerView(
 
     fun updateSpeed(newSpeed: Float) {
         playbackSpeed = newSpeed
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && isPrepared) {
+        if (isPrepared) {
             try {
                 mediaPlayer?.let { mp ->
                     val params = mp.playbackParams

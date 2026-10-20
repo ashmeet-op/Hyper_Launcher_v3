@@ -132,7 +132,7 @@ fun AppearanceSettingsScreen(
     var launcherVideoMuted by remember { mutableStateOf(LauncherPreferences.PREF_LAUNCHER_VIDEO_MUTED) }
     var launcherVideoVolume by remember { mutableFloatStateOf(LauncherPreferences.PREF_LAUNCHER_VIDEO_VOLUME.toFloat()) }
     var launcherVideoLoop by remember { mutableStateOf(LauncherPreferences.PREF_LAUNCHER_VIDEO_LOOP) }
-    var launcherBlurredElementsEnabled by remember { mutableStateOf(LauncherPreferences.PREF_BLURRED_ELEMENTS_ENABLED) }
+    var liquidGlassElementsEnabled by remember { mutableStateOf(LauncherPreferences.PREF_LIQUID_GLASS_ELEMENTS_ENABLED) }
 
     val context = LocalContext.current
 
@@ -609,14 +609,14 @@ fun AppearanceSettingsScreen(
 
             SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
                 SettingsSwitchItem(
-                    title = translatedText("Blurred Elements"),
-                    summary = translatedText("Apply a blurred matte finish to UI components"),
+                    title = translatedText("Liquid Glass Elements"),
+                    summary = translatedText("Apply a liquid glass finish to UI components"),
                     icon = Icons.Rounded.BlurOn,
-                    checked = launcherBlurredElementsEnabled,
+                    checked = liquidGlassElementsEnabled,
                     onCheckedChange = {
-                        launcherBlurredElementsEnabled = it
-                        LauncherPreferences.prefs.edit { putBoolean("blurred_elements_enabled", it) }
-                        LauncherPreferences.PREF_BLURRED_ELEMENTS_ENABLED = it
+                        liquidGlassElementsEnabled = it
+                        LauncherPreferences.prefs.edit { putBoolean("liquid_glass_elements_enabled", it) }
+                        LauncherPreferences.PREF_LIQUID_GLASS_ELEMENTS_ENABLED = it
                     }
                 )
             }

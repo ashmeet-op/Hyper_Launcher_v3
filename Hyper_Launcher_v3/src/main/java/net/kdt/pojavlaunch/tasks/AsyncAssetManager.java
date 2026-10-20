@@ -103,7 +103,6 @@ public class AsyncAssetManager {
             tryUnpackComponent(ctx, "lwjgl3/3.4.1", false);
             tryUnpackComponent(ctx, "security", true);
             tryUnpackComponent(ctx, "arc_dns_injector", true);
-            tryUnpackComponent(ctx, "MioLibPatcher", true);
             tryUnpackComponent(ctx, "forge_installer", true);
             tryUnpackComponent(ctx, "authlib-injector", true);
 

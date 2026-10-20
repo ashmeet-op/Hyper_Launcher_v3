@@ -180,20 +180,22 @@ fun AuthLayout(
                                 LoadingIndicator()
                             }
 
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(120.dp)
-                                    .align(Alignment.BottomCenter)
-                                    .background(
-                                        brush = Brush.verticalGradient(
-                                            colors = listOf(
-                                                Color.Transparent,
-                                                MaterialTheme.colorScheme.background
+                            if (LauncherPreferences.PREF_LAUNCHER_BACKGROUND_PATH == null) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(120.dp)
+                                        .align(Alignment.BottomCenter)
+                                        .background(
+                                            brush = Brush.verticalGradient(
+                                                colors = listOf(
+                                                    Color.Transparent,
+                                                    MaterialTheme.colorScheme.background
+                                                )
                                             )
                                         )
-                                    )
-                            )
+                                )
+                            }
                         }
 
                         Spacer(modifier = Modifier.height(12.dp))

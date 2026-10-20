@@ -34,7 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
+import com.ashmeet.hyperlauncher.utils.blur.backgroundGlass
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -65,7 +65,7 @@ fun PojavLauncherScreen(
 ) {
     var taskCount by remember { mutableIntStateOf(ProgressKeeper.getTaskCount()) }
     var launcherBgPath by remember { mutableStateOf(LauncherPreferences.PREF_LAUNCHER_BACKGROUND_PATH) }
-    var launcherBlurredElementsEnabled by remember { mutableStateOf(LauncherPreferences.PREF_BLURRED_ELEMENTS_ENABLED) }
+    var liquidGlassElementsEnabled by remember { mutableStateOf(LauncherPreferences.PREF_LIQUID_GLASS_ELEMENTS_ENABLED) }
 
     val recordingState by RecordingManager.recordingState.collectAsState()
     val isRecording = recordingState is RecordingState.Recording
@@ -78,7 +78,7 @@ fun PojavLauncherScreen(
         val prefListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             when (key) {
                 "launcher_background_path" -> launcherBgPath = LauncherPreferences.prefs.getString("launcher_background_path", null)
-                "blurred_elements_enabled" -> launcherBlurredElementsEnabled = LauncherPreferences.prefs.getBoolean("blurred_elements_enabled", false)
+                "liquid_glass_elements_enabled" -> liquidGlassElementsEnabled = LauncherPreferences.prefs.getBoolean("liquid_glass_elements_enabled", false)
             }
         }
         ProgressKeeper.addTaskCountListener(listener)
@@ -107,12 +107,11 @@ fun PojavLauncherScreen(
                         .height(56.dp)
                         .zIndex(1f)
                 ) {
-                    if (launcherBlurredElementsEnabled) {
+                    if (liquidGlassElementsEnabled) {
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .blur(16.dp)
-                                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.1f))
+                                .backgroundGlass(blur = 30, color = MaterialTheme.colorScheme.surface.copy(alpha = 0.2f), enabled = true)
                         )
                     } else {
                         Box(

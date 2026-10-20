@@ -70,7 +70,8 @@
             android:name="com.ashmeet.hyperlauncher.activity.LauncherActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation|uiMode"
             android:screenOrientation="sensorLandscape"
-            android:windowSoftInputMode="adjustResize"/>
+            android:windowSoftInputMode="adjustResize"
+            android:exported="true"/>
         <activity
             android:name="com.ashmeet.hyperlauncher.activity.ImportControlActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation|uiMode"

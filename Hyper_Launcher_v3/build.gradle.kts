@@ -1,6 +1,5 @@
 @file:Suppress("AvoidApplyPluginMethod")
 
-import com.android.build.api.variant.FilterConfiguration
 import de.undercouch.gradle.tasks.download.Download
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
@@ -350,7 +349,6 @@ androidComponents.onVariants { variant ->
     }
 
     registrar.projectJarDependency(project(":forge_installer"), "components/forge_installer")
-    registrar.projectJarDependency(project(":MioLibPatcher"), "components/MioLibPatcher")
 
     if (variant.name.lowercase().contains("full")) {
         registrar.jreRuntimeDependency(8, "components/jre")
@@ -365,11 +363,11 @@ androidComponents.onVariants { variant ->
 
 dependencies {
     implementation("androidx.compose.material3:material3:1.4.0")
-    implementation("org.ow2.asm:asm:9.10.1")
+    implementation("org.ow2.asm:asm:9.11.1")
     //noinspection GradleDependency
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.4.0")
     implementation("javax.annotation:javax.annotation-api:1.3.2")
-    implementation("commons-codec:commons-codec:1.22.1")
+    implementation("commons-codec:commons-codec:1.23.0")
 
     implementation("androidx.preference:preference:1.2.1")
     implementation("androidx.activity:activity:1.13.0")
@@ -379,7 +377,6 @@ dependencies {
     implementation("androidx.annotation:annotation:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.2.2")
     implementation("androidx.compose.material3:material3:1.5.0-beta01")
-
     implementation("com.github.duanhong169:checkerboarddrawable:1.0.2")
     implementation("com.github.PojavLauncherTeam:portrait-sdp:ed33e89cbc")
     implementation("com.github.PojavLauncherTeam:portrait-ssp:6c02fd739b")
@@ -387,7 +384,7 @@ dependencies {
     implementation("com.github.Mathias-Boulay:android_gamepad_remapper:2.0.3")
     implementation("com.github.Mathias-Boulay:virtual-joystick-android:1.14")
 
-    implementation("com.tencent:mmkv-kmp:2.4.2")
+    implementation("com.tencent:mmkv-kmp:2.4.3")
 
     implementation("org.tukaani:xz:1.12")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
@@ -406,7 +403,7 @@ dependencies {
     implementation("io.ktor:ktor-client-android:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.12.0")
 
     implementation(project(":glfw:android-gradle"))
     implementation(project(":sdl:android-gradle"))

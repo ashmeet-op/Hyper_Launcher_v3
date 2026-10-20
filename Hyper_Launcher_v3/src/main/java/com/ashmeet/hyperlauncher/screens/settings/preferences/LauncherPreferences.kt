@@ -326,7 +326,7 @@ object LauncherPreferences {
     var PREF_LAUNCHER_VIDEO_LOOP = true
 
     @JvmField
-    var PREF_BLURRED_ELEMENTS_ENABLED = false
+    var PREF_LIQUID_GLASS_ELEMENTS_ENABLED = false
 
     @JvmField
     var PREF_VOLUME_KEYS_CONTROL_ENABLED = false
@@ -481,7 +481,7 @@ object LauncherPreferences {
         PREF_LAUNCHER_VIDEO_VOLUME = pref.getInt("launcher_video_volume", 50)
         PREF_LAUNCHER_VIDEO_MUTED = pref.getBoolean("launcher_video_muted", true)
         PREF_LAUNCHER_VIDEO_LOOP = pref.getBoolean("launcher_video_loop", true)
-        PREF_BLURRED_ELEMENTS_ENABLED = pref.getBoolean("blurred_elements_enabled", false)
+        PREF_LIQUID_GLASS_ELEMENTS_ENABLED = pref.getBoolean("liquid_glass_elements_enabled", pref.getBoolean("blurred_elements_enabled", false))
         PREF_VOLUME_KEYS_CONTROL_ENABLED = pref.getBoolean("volume_keys_control_enabled", false)
         PREF_VOLUME_UP_KEYBIND = pref.getInt("volume_up_keybind", 24)
         PREF_VOLUME_DOWN_KEYBIND = pref.getInt("volume_down_keybind", 25)

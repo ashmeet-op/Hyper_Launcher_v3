@@ -12,12 +12,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.FloatingActionButtonMenuScope
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.FloatingActionButtonMenuScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
@@ -25,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.ashmeet.hyperlauncher.components.rail.SideRail
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.utils.blur.backgroundGlass
 
 @Composable
 fun ScreenLayout(
@@ -56,17 +56,17 @@ fun ScreenLayout(
                 sideRailExtra?.invoke(this)
             }
 
+            val blur = if (LauncherPreferences.PREF_LAUNCHER_BACKGROUND_BLUR > 0) LauncherPreferences.PREF_LAUNCHER_BACKGROUND_BLUR else 25
+            val glassColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+
             Surface(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .padding(top = 16.dp, bottom = 16.dp, end = if (sidebar == null) 16.dp else 0.dp),
+                    .padding(top = 16.dp, bottom = 16.dp, end = if (sidebar == null) 16.dp else 0.dp)
+                    .backgroundGlass(blur, glassColor, enabled = LauncherPreferences.PREF_LIQUID_GLASS_ELEMENTS_ENABLED),
                 shape = RoundedCornerShape(32.dp),
-                color = if (LauncherPreferences.PREF_BLURRED_ELEMENTS_ENABLED) {
-                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
-                } else {
-                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
-                },
+                color = glassColor,
                 tonalElevation = 2.dp
             ) {
                 Box(
@@ -78,13 +78,6 @@ fun ScreenLayout(
                             })
                         }
                 ) {
-                    if (LauncherPreferences.PREF_BLURRED_ELEMENTS_ENABLED) {
-                        Box(
-                            modifier = Modifier
-                                .matchParentSize()
-                                .blur(16.dp)
-                        )
-                    }
                     Column(modifier = Modifier.fillMaxSize()) {
                         header()
                         content()
@@ -98,23 +91,13 @@ fun ScreenLayout(
                     modifier = Modifier
                         .width(280.dp)
                         .fillMaxHeight()
-                        .padding(end = 16.dp, top = 16.dp, bottom = 16.dp),
+                        .padding(end = 16.dp, top = 16.dp, bottom = 16.dp)
+                        .backgroundGlass(blur, glassColor, enabled = LauncherPreferences.PREF_LIQUID_GLASS_ELEMENTS_ENABLED),
                     shape = RoundedCornerShape(32.dp),
-                    color = if (LauncherPreferences.PREF_BLURRED_ELEMENTS_ENABLED) {
-                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
-                    } else {
-                        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
-                    },
+                    color = glassColor,
                     tonalElevation = 4.dp
                 ) {
                     Box(modifier = Modifier.fillMaxSize()) {
-                        if (LauncherPreferences.PREF_BLURRED_ELEMENTS_ENABLED) {
-                            Box(
-                                modifier = Modifier
-                                    .matchParentSize()
-                                    .blur(16.dp)
-                            )
-                        }
                         sidebar()
                     }
                 }
