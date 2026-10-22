@@ -7,3 +7,7 @@
 [submodule "sdl"]
 	path = sdl
 	url = https://github.com/hollowlauncher/HyperSDL.git
+[submodule "NoBlocklist"]
+	path = NoBlocklist
+	url = https://github.com/MojoLauncher/NoBlocklist
+

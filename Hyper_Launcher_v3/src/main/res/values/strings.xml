@@ -386,6 +386,19 @@
     <string name="preference_vulkan_driver_system_title">Use system Vulkan driver</string>
     <string name="preference_vulkan_driver_system_description">Force the launcher to use the system Vulkan driver instead of Turnip on Adreno GPUs. Only affects Zink and mods that use Vulkan.</string>
 
+    <string name="driver_config_title">Vulkan Driver Manager</string>
+    <string name="driver_config_import">Import Driver (.zip)</string>
+    <string name="driver_config_delete">Delete</string>
+    <string name="driver_default_name">Built-in Driver</string>
+    <string name="driver_default_extra_name">System Default / Freedreno</string>
+    <string name="driver_config_use">Use</string>
+    <string name="driver_config_already_used">In Use</string>
+    <string name="driver_config_import_invalid">Invalid driver package file</string>
+    <string name="driver_config_import_notify">Select a Vulkan driver zip package</string>
+    <string name="driver_config_remove_failed">Failed to remove driver</string>
+    <string name="driver_progress_validate">Validating driver package…</string>
+    <string name="driver_progress_install">Installing driver package…</string>
+
     <string name="generic_install">Install</string>
     <string name="generic_apply">Apply</string>
     <string name="generic_debug">Debug</string>
@@ -512,6 +525,11 @@
     <string name="preference_verify_game_files_description">Verify downloaded game files against the checksum and size set in the metadata. Metadata JSON files are verified regardless of this setting.</string>
     <string name="preference_go_vroom_title">Fast game startup</string>
     <string name="preference_go_vroom_description">Don\'t verify file checksums upon sequential restarts. Makes the game start-up very fast.</string>
+    <string name="preference_clear_cache_title">Clear launcher cache</string>
+    <string name="preference_clear_cache_description">Clear launcher cache files</string>
+    <string name="preference_clear_cache_success">Launcher cache cleared successfully</string>
+    <string name="pref_blocklist_disable_title">Disable server blocklist</string>
+    <string name="pref_blocklist_disable_description">Prevent the MC server blocklist from loading.</string>
     <string name="vml_fail_load_runtime">Failed to load the Java virtual machine: %s</string>
     <string name="vml_fail_create_runtime">Failed to create the Java virtual machine: %s</string>
     <string name="vml_fail_find_hooks_native">Failed to find native hooks.</string>

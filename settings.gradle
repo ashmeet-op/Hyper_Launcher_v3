@@ -26,6 +26,7 @@ include ':Hyper_Launcher_v3'
 project(':Hyper_Launcher_v3').projectDir = new File(settingsDir, 'Hyper_Launcher_v3')
 
 include ':forge_installer'
+include ':NoBlocklist'
 include ':glfw:android-gradle'
 include ':sdl:android-gradle'
 include ':mojoexec:android-gradle'

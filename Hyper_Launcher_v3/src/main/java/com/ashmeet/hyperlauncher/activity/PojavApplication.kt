@@ -85,7 +85,11 @@ class PojavApplication : Application() {
                 Tools.initEarlyConstants(this)
             }
 
-            System.loadLibrary("pojavexec")
+            try {
+                System.loadLibrary("mojort")
+            } catch (_: UnsatisfiedLinkError) {
+                System.loadLibrary("pojavexec")
+            }
             LoggerProxy.init()
 
             Tools.DEVICE_ARCHITECTURE = Architecture.getDeviceArchitecture()

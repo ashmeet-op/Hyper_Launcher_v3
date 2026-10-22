@@ -37,4 +37,26 @@ class RendererV2Data(
     override fun getDlopenLibrary(): Lazy<List<String>> = lazy { renderer.dlopenLibPaths }
     override fun getRendererLibrary(): String = renderer.rendererGLPath
     override fun getRendererEGL(): String = renderer.rendererEGLPath
+
+    override fun useGles(): Boolean = renderer.useGles ?: autoDetectUseGles()
+    override fun glesVersion(): Int = renderer.glesVersion ?: autoDetectGlesVersion()
+
+    private fun autoDetectUseGles(): Boolean {
+        val id = renderer.rendererId.lowercase()
+        val path = renderer.rendererGLPath.lowercase()
+        if (id.contains("zink") || id.contains("mesa") || id.contains("virgl") ||
+            id.contains("freedreno") || id.contains("panfrost") || id.contains("desktopgl") || id.contains("desktop") ||
+            path.contains("libgl.so") || path.contains("libglxshim.so") || path.contains("libegl_mesa.so")) {
+            return false
+        }
+        return true
+    }
+
+    private fun autoDetectGlesVersion(): Int {
+        val id = renderer.rendererId.lowercase()
+        if (id.contains("opengles2") || id.contains("gles2")) {
+            return 2
+        }
+        return 3
+    }
 }

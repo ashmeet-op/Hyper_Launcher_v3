@@ -18,6 +18,7 @@ import net.ashmeet.hyperlauncher.R
 import java.io.File
 import java.io.IOException
 import kotlin.system.exitProcess
+import androidx.core.content.edit
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @Keep
@@ -69,8 +70,9 @@ class ExitActivity : AppCompatActivity() {
             }
 
             ctx?.let {
-                LauncherPreferences.prefs.edit()
-                    .putBoolean("has_recent_crash", true).apply()
+                LauncherPreferences.prefs.edit {
+                    putBoolean("has_recent_crash", true)
+                }
             }
 
             val lock = Any()

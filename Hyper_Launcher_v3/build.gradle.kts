@@ -1,5 +1,6 @@
 @file:Suppress("AvoidApplyPluginMethod")
 
+import com.android.build.api.variant.FilterConfiguration
 import de.undercouch.gradle.tasks.download.Download
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
@@ -54,6 +55,8 @@ val hyperVersionNumber = localProperties.getProperty("VERSION_NUMBER")
 val hyperVersionSuffix = localProperties.getProperty("VERSION_NAME")
     ?: (project.findProperty("VERSION_NAME")?.toString() ?: "saturn")
 
+val isBundle = gradle.startParameter.taskNames.any { it.contains("bundle", ignoreCase = true) }
+
 configure<com.android.build.api.dsl.ApplicationExtension> {
     namespace = "net.ashmeet.hyperlauncher"
 
@@ -96,8 +99,7 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
         manifestPlaceholders["driver"] = "default"
 
         ndk {
-            // Exclude x86_64 from native builds for the AAB
-            abiFilters.addAll(setOf("armeabi-v7a", "arm64-v8a"))
+            abiFilters.addAll(setOf("armeabi-v7a", "arm64-v8a", "x86_64"))
         }
 
         @Suppress("UnstableApiUsage")
@@ -105,6 +107,15 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
             cmake {
                 arguments("-DCMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=16384")
             }
+        }
+    }
+
+    splits {
+        abi {
+            isEnable = !isBundle
+            reset()
+            include("armeabi-v7a", "arm64-v8a", "x86_64")
+            isUniversalApk = true
         }
     }
 
@@ -158,7 +169,7 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
         }
     }
 
-    ndkVersion = "29.0.14206865"
+    ndkVersion = "30.0.16248370"
 
     externalNativeBuild {
         cmake {
@@ -178,11 +189,14 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
         }
     }
 
+    // i dont care about x86 support we will first fix the 16KB app page issue
     packaging {
         jniLibs {
             useLegacyPackaging = true
-            // Strip any accidental x86_64 .so files brought in by third-party dependencies
-            excludes += "**/x86_64/**"
+            excludes += "**/x86/libshaderc.so"
+            excludes += "**/x86/libspirv-cross-c-shared.so"
+            excludes += "**/x86_64/libshaderc.so"
+            excludes += "**/x86_64/libspirv-cross-c-shared.so"
         }
         resources {
             pickFirsts.add("**/libbytehook.so")
@@ -297,7 +311,7 @@ class AssetTaskRegistrar(private val project: Project) {
             description = "Copy project jar for ${targetProject.name} to assets"
             from(jarTargetDir)
             into(assetTargetDir)
-            dependsOn(":${targetProject.name}:jar")
+            dependsOn(targetProject.tasks.withType<org.gradle.jvm.tasks.Jar>())
             doLast {
                 writeVersion(assetTargetDir)
             }
@@ -344,11 +358,14 @@ androidComponents.onVariants { variant ->
     registrar.setVariant(variant)
 
     variant.outputs.forEach { output ->
+        val abiFilter = output.filters.find { it.filterType == FilterConfiguration.FilterType.ABI }?.identifier
+        val archSuffix = if (abiFilter != null) "-$abiFilter" else ""
         @Suppress("UnstableApiUsage")
-        output.outputFileName.set(output.versionName.map { "hyper_launcher-$it.apk" })
+        output.outputFileName.set(output.versionName.map { "hyper_launcher-$it$archSuffix.apk" })
     }
 
     registrar.projectJarDependency(project(":forge_installer"), "components/forge_installer")
+    registrar.projectJarDependency(project(":NoBlocklist"), "components/noblocklist")
 
     if (variant.name.lowercase().contains("full")) {
         registrar.jreRuntimeDependency(8, "components/jre")

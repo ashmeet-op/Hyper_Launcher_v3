@@ -26,4 +26,8 @@ interface RendererInterface {
     fun getRendererLibrary(): String
 
     fun getRendererEGL(): String? = null
+
+    fun useGles(): Boolean = true
+
+    fun glesVersion(): Int = 3
 }

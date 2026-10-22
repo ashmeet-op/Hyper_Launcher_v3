@@ -39,42 +39,72 @@ static void invokeReceiveInput(jint type, jint i1, jint i2, jint i3, jint i4) {
 
 JNIEXPORT void JNICALL
 Java_net_kdt_pojavlaunch_awt_AWTBridge_nativeSendCursorPos(JNIEnv *env,
-                                                                              jclass clazz, jint x,
-                                                                              jint y) {
+                                                              jclass clazz, jint x,
+                                                              jint y) {
     invokeReceiveInput(EVENT_TYPE_CURSOR_POS, (jint)((float) x * inputXRatio), (jint) ((float) y * inputYRatio), 0, 0);
+}
+
+JNIEXPORT void JNICALL
+Java_git_artdeell_mojo_awt_AWTBridge_nativeSendCursorPos(JNIEnv *env,
+                                                              jclass clazz, jint x,
+                                                              jint y) {
+    Java_net_kdt_pojavlaunch_awt_AWTBridge_nativeSendCursorPos(env, clazz, x, y);
 }
 
 JNIEXPORT jboolean JNICALL
 Java_net_kdt_pojavlaunch_awt_AWTBridge_nativeSendKeyEvent(JNIEnv *env,
-                                                                             jclass clazz,
-                                                                             jint keycode,
-                                                                             jint state, jint mods,
-                                                                             jint codepoint) {
+                                                             jclass clazz,
+                                                             jint keycode,
+                                                             jint state, jint mods,
+                                                             jint codepoint) {
     jint translated_code = translate_awt_keycode(keycode);
     if(keycode != 0 && translated_code == 0) return false;
     invokeReceiveInput(EVENT_TYPE_KEY, codepoint, translated_code, state, 0);
     return true;
 }
 
+JNIEXPORT jboolean JNICALL
+Java_git_artdeell_mojo_awt_AWTBridge_nativeSendKeyEvent(JNIEnv *env,
+                                                             jclass clazz,
+                                                             jint keycode,
+                                                             jint state, jint mods,
+                                                             jint codepoint) {
+    return Java_net_kdt_pojavlaunch_awt_AWTBridge_nativeSendKeyEvent(env, clazz, keycode, state, mods, codepoint);
+}
+
 JNIEXPORT void JNICALL
 Java_net_kdt_pojavlaunch_awt_AWTBridge_nativeSendMouseEvent(JNIEnv *env,
-                                                                               jclass clazz,
-                                                                               jint button,
-                                                                               jint state,
-                                                                               jint mods) {
+                                                               jclass clazz,
+                                                               jint button,
+                                                               jint state,
+                                                               jint mods) {
     jint translated_key = translate_awt_mouse(button);
     if(translated_key == -1) return;
     invokeReceiveInput(EVENT_TYPE_MOUSE_BUTTON, translated_key, state, 0, 0);
 }
 
 JNIEXPORT void JNICALL
+Java_git_artdeell_mojo_awt_AWTBridge_nativeSendMouseEvent(JNIEnv *env,
+                                                               jclass clazz,
+                                                               jint button,
+                                                               jint state,
+                                                               jint mods) {
+    Java_net_kdt_pojavlaunch_awt_AWTBridge_nativeSendMouseEvent(env, clazz, button, state, mods);
+}
+
+JNIEXPORT void JNICALL
 Java_net_kdt_pojavlaunch_awt_AWTBridge_nativeTypeChars(JNIEnv *env, jclass clazz,
-                                                                          jstring chars) {
+                                                          jstring chars) {
     jsize len = (*env)->GetStringLength(env, chars);
     const jchar* nchars = (*env)->GetStringChars(env, chars, NULL);
-    // Dogshit
     for(jsize i = 0; i < len; i++) {
         invokeReceiveInput(EVENT_TYPE_CHAR, (jint)nchars[i], 0, 0 ,0);
     }
     (*env)->ReleaseStringChars(env, chars, nchars);
+}
+
+JNIEXPORT void JNICALL
+Java_git_artdeell_mojo_awt_AWTBridge_nativeTypeChars(JNIEnv *env, jclass clazz,
+                                                          jstring chars) {
+    Java_net_kdt_pojavlaunch_awt_AWTBridge_nativeTypeChars(env, clazz, chars);
 }

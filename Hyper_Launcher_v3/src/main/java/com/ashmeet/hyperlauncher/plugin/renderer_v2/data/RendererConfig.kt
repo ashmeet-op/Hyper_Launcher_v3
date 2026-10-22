@@ -32,6 +32,10 @@ data class RendererConfig(
     val minMCVer: String?,
     @SerialName("maxMCVer")
     val maxMCVer: String?,
+    @SerialName("useGles")
+    val useGles: Boolean? = null,
+    @SerialName("glesVersion")
+    val glesVersion: Int? = null,
 ) {
     @Serializable
     sealed interface Env {

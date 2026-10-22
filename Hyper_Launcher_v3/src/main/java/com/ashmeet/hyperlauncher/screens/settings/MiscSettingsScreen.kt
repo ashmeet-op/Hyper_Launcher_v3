@@ -2,11 +2,15 @@ package com.ashmeet.hyperlauncher.screens.settings
 
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Input
+import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Numbers
@@ -29,6 +33,9 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSwitchItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SingleChoiceDialog
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.utils.Tools
+import net.kdt.pojavlaunch.game.renderer.RendererCache
+import java.io.File
 
 @Composable
 fun MiscSettingsScreen(
@@ -42,6 +49,7 @@ fun MiscSettingsScreen(
     var fastStartupCheck by remember { mutableStateOf(LauncherPreferences.PREF_RAPID_START) }
     var downloadSource by remember { mutableStateOf(LauncherPreferences.PREF_DOWNLOAD_SOURCE) }
     var verifyManifest by remember { mutableStateOf(LauncherPreferences.PREF_VERIFY_MANIFEST) }
+    var disableBlocklist by remember { mutableStateOf(LauncherPreferences.PREF_DISABLE_BLOCKLIST) }
 
     var showDownloadSourceDialog by remember { mutableStateOf(false) }
 
@@ -61,6 +69,8 @@ fun MiscSettingsScreen(
             onDismiss = { showDownloadSourceDialog = false }
         )
     }
+
+    val clearCacheSuccessMessage = stringResource(R.string.preference_clear_cache_success)
 
     SettingsScreenWrapper(
         title = translatedText(stringResource(R.string.preference_misc_title)),
@@ -105,7 +115,7 @@ fun MiscSettingsScreen(
                 )
             }
 
-            SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
+            SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
                 SettingsSwitchItem(
                     title = translatedText(stringResource(R.string.preference_verify_manifest_title)),
                     summary = translatedText(stringResource(R.string.preference_verify_manifest_description)),
@@ -114,6 +124,20 @@ fun MiscSettingsScreen(
                     onCheckedChange = {
                         verifyManifest = it
                         LauncherPreferences.prefs.edit { putBoolean("verifyManifest", it) }
+                        LauncherPreferences.loadPreferences(context)
+                    }
+                )
+            }
+
+            SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
+                SettingsSwitchItem(
+                    title = translatedText(stringResource(R.string.pref_blocklist_disable_title)),
+                    summary = translatedText(stringResource(R.string.pref_blocklist_disable_description)),
+                    icon = Icons.Default.Block,
+                    checked = disableBlocklist,
+                    onCheckedChange = {
+                        disableBlocklist = it
+                        LauncherPreferences.prefs.edit { putBoolean("disableServerBlocklist", it) }
                         LauncherPreferences.loadPreferences(context)
                     }
                 )
@@ -141,6 +165,30 @@ fun MiscSettingsScreen(
                     icon = Icons.AutoMirrored.Filled.Input,
                     warningTooltip = "Data migration may overwrite existing instances and control maps. Ensure you have backups before proceeding.",
                     onClick = onRunDataMigrationClick
+                )
+            }
+
+            visibleItems.add {
+                SettingsActionItem(
+                    title = translatedText(stringResource(R.string.preference_clear_cache_title)),
+                    summary = translatedText(stringResource(R.string.preference_clear_cache_description)),
+                    icon = Icons.Default.CleaningServices,
+                    onClick = {
+                        try {
+                            context.cacheDir?.deleteRecursively()
+                            context.externalCacheDir?.deleteRecursively()
+                            context.cacheDir?.mkdirs()
+                            Tools.DIR_CACHE_APP_ICON = File(context.cacheDir, "app_icons").apply { mkdirs() }
+                            RendererCache.releaseRendererCache()
+                            Toast.makeText(
+                                context,
+                                clearCacheSuccessMessage,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } catch (e: Exception) {
+                            Log.e("MiscSettings", "Failed to clear launcher cache", e)
+                        }
+                    }
                 )
             }
 

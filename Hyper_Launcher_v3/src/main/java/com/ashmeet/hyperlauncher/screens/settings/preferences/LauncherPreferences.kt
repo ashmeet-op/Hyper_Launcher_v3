@@ -34,6 +34,13 @@ object LauncherPreferences {
     @JvmField
     var PREF_DRIVER = "default"
 
+    @JvmStatic
+    var PREF_VULKAN_DRIVER: String?
+        get() = if (PREF_DRIVER == "default") null else PREF_DRIVER
+        set(value) {
+            PREF_DRIVER = value ?: "default"
+        }
+
     @JvmField
     var PREF_IGNORE_NOTCH = false
 
@@ -136,6 +143,9 @@ object LauncherPreferences {
 
     @JvmField
     var PREF_VERIFY_MANIFEST = true
+
+    @JvmField
+    var PREF_DISABLE_BLOCKLIST = true
 
     @JvmField
     var PREF_DOWNLOAD_SOURCE = "default"
@@ -399,6 +409,7 @@ object LauncherPreferences {
         PREF_FULLSCREEN_LAUNCHER = pref.getBoolean("fullscreen_launcher", true)
         PREF_DEVELOPER_OPTIONS = pref.getBoolean("developer_options", false)
         PREF_VERIFY_FILES = pref.getBoolean("checkGameFiles", true)
+        PREF_DISABLE_BLOCKLIST = pref.getBoolean("disableServerBlocklist", true)
         PREF_RAPID_START = pref.getBoolean("fastStartupCheck", true)
         PREF_FREEDRENO_SYSMEM = pref.getBoolean("freedrenoSysmem", false)
         PREF_KEYBOARD_AUTOPANNING = pref.getBoolean("keyboardAutoPanning", true)

@@ -319,6 +319,7 @@ public class GameRunner {
         javaArgList.add("-Dorg.lwjgl.system.SharedLibraryExtractPath="+lwjglExtractDir.getAbsolutePath());
 
         addAuthlibInjectorArgs(javaArgList, account);
+        addNoBlocklistArgs(javaArgList);
 
         mergeMoJsonArgs(javaArgList, getMoJsonJvmArgs(versionId));
 
@@ -411,7 +412,39 @@ public class GameRunner {
             }
         }
         if (injectorUrl != null) {
-            javaArgList.add("-javaagent:" + Tools.DIR_DATA + "/authlib-injector/authlib-injector.jar=" + injectorUrl);
+            File authlibJar = new File(Tools.DIR_DATA, "authlib-injector/authlib-injector.jar");
+            if (authlibJar.exists() && authlibJar.isFile() && authlibJar.length() > 0) {
+                javaArgList.add("-javaagent:" + authlibJar.getAbsolutePath() + "=" + injectorUrl);
+            } else {
+                Log.w("GameRunner", "authlib-injector jar not found at " + authlibJar.getAbsolutePath());
+            }
+        }
+    }
+
+    private static void addNoBlocklistArgs(List<String> javaArgList) {
+        if (!LauncherPreferences.PREF_DISABLE_BLOCKLIST) return;
+        File noBlocklistDir = new File(Tools.DIR_DATA, "noblocklist");
+        File jarToUse = null;
+        File[] jarFiles = noBlocklistDir.listFiles((dir, name) -> name.endsWith(".jar"));
+        if (jarFiles != null) {
+            for (File file : jarFiles) {
+                if (file.exists() && file.isFile() && file.length() > 0) {
+                    jarToUse = file;
+                    break;
+                }
+            }
+        }
+        if (jarToUse == null) {
+            File defaultFile = new File(noBlocklistDir, "NoBlocklist-1.0-SNAPSHOT-all.jar");
+            if (defaultFile.exists() && defaultFile.isFile() && defaultFile.length() > 0) {
+                jarToUse = defaultFile;
+            }
+        }
+        if (jarToUse != null) {
+            Log.i("GameRunner", "Using NoBlocklist jar: " + jarToUse.getAbsolutePath());
+            javaArgList.add("-javaagent:" + jarToUse.getAbsolutePath());
+        } else {
+            Log.w("GameRunner", "NoBlocklist is enabled, but no valid jar found in " + noBlocklistDir.getAbsolutePath());
         }
     }
 

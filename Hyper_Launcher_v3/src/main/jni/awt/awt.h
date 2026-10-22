@@ -33,6 +33,7 @@ extern JNIEnv* JNIEnv_InputRuntime;
 
 void register_methods_clipboard(JNIEnv* env);
 void register_methods_util(JNIEnv* env);
+jclass ensure_AWTBridge(JNIEnv *env);
 
 jint translate_awt_mouse(jint android_mousekey);
 jint translate_awt_keycode(jint android_keycode);

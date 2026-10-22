@@ -1,3 +1,5 @@
+@file:Suppress("SameReturnValue")
+
 package net.kdt.pojavlaunch.awt
 
 import android.annotation.SuppressLint
@@ -39,6 +41,7 @@ import java.io.IOException
 import java.nio.ByteBuffer
 import java.util.jar.JarFile
 
+@Suppress("DEPRECATION")
 class AWTActivity : BaseActivity() {
 
     private var mIsTrusted = false

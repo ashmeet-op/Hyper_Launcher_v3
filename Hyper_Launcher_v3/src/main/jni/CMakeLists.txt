@@ -1,4 +1,3 @@
-
 cmake_minimum_required(VERSION 3.22.1)
 
 # ------ MojoExec ------
@@ -34,10 +33,25 @@ target_link_libraries(SDL3-shared PRIVATE mojoexec)
 
 # ----------------------
 
-project("MojoLauncher")
+project("HyperLauncher")
+
+add_library(mojort SHARED
+        jvm_hooks/emui_iterator_fix_hook.c
+        jvm_hooks/java_exec_hooks.c
+        jvm_hooks/lwjgl_dlopen_hook.c
+        jre_launcher/jre_launcher.c
+        jre_launcher/native_library_hook.c
+        jre_launcher/elf_hinter.c
+        jre_launcher/abort_wait.c
+        utils.c
+        stdio_is.c
+        minibridge.c
+)
+
+target_include_directories(mojort PRIVATE .)
+target_link_libraries(mojort PRIVATE log mojoexec)
 
 add_library(pojavexec SHARED
-        affinity.c
         jvm_hooks/emui_iterator_fix_hook.c
         jvm_hooks/java_exec_hooks.c
         jvm_hooks/lwjgl_dlopen_hook.c
@@ -53,7 +67,7 @@ add_library(pojavexec SHARED
 target_include_directories(pojavexec PRIVATE .)
 target_link_libraries(pojavexec PRIVATE log mojoexec)
 
-add_library(pojavexec_awt SHARED
+add_library(mojoawt SHARED
 		awt/awt.c
 		awt/awt_window.c
 		awt/awt_util.c
@@ -62,6 +76,27 @@ add_library(pojavexec_awt SHARED
         awt/awt_mapper.c
 )
 
+target_link_libraries(mojoawt PRIVATE android log)
+
+add_library(pojavawt SHARED
+		awt/awt.c
+		awt/awt_window.c
+		awt/awt_util.c
+		awt/awt_input.c
+		awt/awt_clipboard.c
+        awt/awt_mapper.c
+)
+
+target_link_libraries(pojavawt PRIVATE android log)
+
+add_library(pojavexec_awt SHARED
+		awt/awt.c
+		awt/awt_window.c
+		awt/awt_util.c
+		awt/awt_input.c
+		awt/awt_clipboard.c
+        awt/awt_mapper.c
+)
 
 target_link_libraries(pojavexec_awt PRIVATE android log)
 

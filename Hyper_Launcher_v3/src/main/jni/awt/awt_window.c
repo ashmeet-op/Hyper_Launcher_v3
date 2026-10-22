@@ -143,10 +143,10 @@ static void update_dims(jint width, jint height) {
 
 JNIEXPORT void JNICALL
 Java_net_kdt_pojavlaunch_awt_AWTBridge_nativeBeginRendering(JNIEnv *env,
-                                                                               jclass clazz,
-                                                                               jobject surface,
-                                                                               jint bridge_width,
-                                                                               jint bridge_height) {
+                                                               jclass clazz,
+                                                               jobject surface,
+                                                               jint bridge_width,
+                                                               jint bridge_height) {
     ANativeWindow *window = ANativeWindow_fromSurface(env, surface);
     ANativeWindow_setBuffersGeometry(window, CANVAS_WIDTH, CANVAS_HEIGHT, AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM);
     if(render_thread) {
@@ -157,9 +157,18 @@ Java_net_kdt_pojavlaunch_awt_AWTBridge_nativeBeginRendering(JNIEnv *env,
 }
 
 JNIEXPORT void JNICALL
+Java_git_artdeell_mojo_awt_AWTBridge_nativeBeginRendering(JNIEnv *env,
+                                                               jobject clazz,
+                                                               jobject surface,
+                                                               jint bridge_width,
+                                                               jint bridge_height) {
+    Java_net_kdt_pojavlaunch_awt_AWTBridge_nativeBeginRendering(env, clazz, surface, bridge_width, bridge_height);
+}
+
+JNIEXPORT void JNICALL
 Java_net_kdt_pojavlaunch_awt_AWTBridge_nativeMoveWindow(JNIEnv *env,
-                                                                           jclass clazz, jint xoff,
-                                                                           jint yoff) {
+                                                           jclass clazz, jint xoff,
+                                                           jint yoff) {
     if (JNIEnv_InputRuntime == NULL) {
         if (runtimeVM == NULL) {
             return;
@@ -192,14 +201,34 @@ Java_net_kdt_pojavlaunch_awt_AWTBridge_nativeMoveWindow(JNIEnv *env,
 }
 
 JNIEXPORT void JNICALL
+Java_git_artdeell_mojo_awt_AWTBridge_nativeMoveWindow(JNIEnv *env,
+                                                           jclass clazz, jint xoff,
+                                                           jint yoff) {
+    Java_net_kdt_pojavlaunch_awt_AWTBridge_nativeMoveWindow(env, clazz, xoff, yoff);
+}
+
+JNIEXPORT void JNICALL
 Java_net_kdt_pojavlaunch_awt_AWTBridge_nativeEndRendering(JNIEnv *env,
-                                                                             jclass clazz) {
+                                                             jclass clazz) {
     render_loop_shutdown();
 }
 
 JNIEXPORT void JNICALL
+Java_git_artdeell_mojo_awt_AWTBridge_nativeEndRendering(JNIEnv *env,
+                                                             jclass clazz) {
+    Java_net_kdt_pojavlaunch_awt_AWTBridge_nativeEndRendering(env, clazz);
+}
+
+JNIEXPORT void JNICALL
 Java_net_kdt_pojavlaunch_awt_AWTBridge_nativeResize(JNIEnv *env, jclass clazz,
-                                                                       jint bridge_width,
-                                                                       jint bridge_height) {
+                                                       jint bridge_width,
+                                                       jint bridge_height) {
     update_dims(bridge_width, bridge_height);
+}
+
+JNIEXPORT void JNICALL
+Java_git_artdeell_mojo_awt_AWTBridge_nativeResize(JNIEnv *env, jclass clazz,
+                                                       jint bridge_width,
+                                                       jint bridge_height) {
+    Java_net_kdt_pojavlaunch_awt_AWTBridge_nativeResize(env, clazz, bridge_width, bridge_height);
 }

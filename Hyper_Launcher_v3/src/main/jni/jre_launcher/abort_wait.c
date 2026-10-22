@@ -65,6 +65,10 @@ Java_net_kdt_pojavlaunch_utils_jre_JavaRunner_nativeSetupExit(JNIEnv *env, jclas
                                                               jobject context) {
     (*env)->GetJavaVM(env, &vm_exit_data.vm);
     jclass class = (*env)->FindClass(env, "net/kdt/pojavlaunch/ExitActivity");
+    if ((*env)->ExceptionCheck(env) == JNI_TRUE) {
+        (*env)->ExceptionClear(env);
+        class = (*env)->FindClass(env, "git/artdeell/mojo/ExitActivity");
+    }
     vm_exit_data.exit_class  = (*env)->NewGlobalRef(env, class);
     vm_exit_data.exit_method = (*env)->GetStaticMethodID(env, class, "showExitMessage", "(Landroid/content/Context;IZ)V");
     if(vm_exit_data.context != NULL) {
@@ -74,4 +78,10 @@ Java_net_kdt_pojavlaunch_utils_jre_JavaRunner_nativeSetupExit(JNIEnv *env, jclas
     }else {
         vm_exit_data.context = (*env)->NewGlobalRef(env, context);
     }
+}
+
+JNIEXPORT void JNICALL
+Java_git_artdeell_mojo_utils_jre_JavaRunner_nativeSetupExit(JNIEnv *env, jclass clazz,
+                                                              jobject context) {
+    Java_net_kdt_pojavlaunch_utils_jre_JavaRunner_nativeSetupExit(env, clazz, context);
 }

@@ -27,7 +27,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import androidx.core.net.toUri
-import com.ashmeet.hyperlauncher.activity.BaseActivity
 import com.ashmeet.hyperlauncher.plugin.renderer.RendererPluginManager
 import com.ashmeet.hyperlauncher.plugin.renderer_v2.RendererV2PluginManager
 import com.ashmeet.hyperlauncher.screens.settings.layouts.CardPosition
@@ -44,6 +43,8 @@ import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.game.renderer.RendererCache
 import net.kdt.pojavlaunch.instances.Instances
 import net.kdt.pojavlaunch.utils.MCOptionUtils
+import net.kdt.pojavlaunch.vulkan.DriverManager
+import net.kdt.pojavlaunch.vulkan.ui.VulkanDriverDialog
 
 @Composable
 fun VideoSettingsScreen(
@@ -71,7 +72,6 @@ fun VideoSettingsScreen(
     var showDriverDialog by remember { mutableStateOf(false) }
 
     val compatibleRenderers = remember(context) { RendererCache.getCompatibleRenderers(context) }
-    val compatibleDrivers = remember(context) { RendererCache.getCompatibleDrivers(context) }
 
     SettingsScreenWrapper(
         title = translatedText(stringResource(R.string.preference_category_video)),
@@ -83,10 +83,8 @@ fun VideoSettingsScreen(
             if (index != -1) compatibleRenderers.rendererDisplayNames[index] else renderer
         }
 
-        val driverDisplayName = remember(driver, compatibleDrivers) {
-            val index = compatibleDrivers.rendererIds.indexOf(driver)
-            if (index != -1) compatibleDrivers.rendererDisplayNames[index] else driver
-        }
+        val currentPreferredDriver = remember(driver) { DriverManager.getPreferredDriver() }
+        val driverDisplayName = currentPreferredDriver?.name ?: "Built-in"
 
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             SettingsCard(position = CardPosition.TOP, useSurface = true) {
@@ -364,17 +362,12 @@ fun VideoSettingsScreen(
     }
 
     if (showDriverDialog) {
-        SingleChoiceDialog(
-            title = translatedText("Vulkan Driver"),
-            options = compatibleDrivers.rendererDisplayNames.toList(),
-            optionValues = compatibleDrivers.rendererIds,
-            selectedValue = driver,
-            onValueChange = { newValue ->
-                driver = newValue
-                LauncherPreferences.prefs.edit { putString("driver", newValue) }
+        VulkanDriverDialog(
+            onDismiss = { showDriverDialog = false },
+            onDriverChanged = {
+                driver = LauncherPreferences.PREF_DRIVER
                 LauncherPreferences.loadPreferences(context)
-            },
-            onDismiss = { showDriverDialog = false }
+            }
         )
     }
 }

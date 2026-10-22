@@ -33,6 +33,7 @@ public class ProgressLayout extends ConstraintLayout implements TaskCountListene
     public static final String INSTALL_MODPACK = "install_modpack";
     public static final String EXTRACT_COMPONENTS = "extract_components";
     public static final String EXTRACT_SINGLE_FILES = "extract_single_files";
+    public static final String DRIVER_INSTALL = "driver_install";
     public static final String INSTANCE_INSTALL = "instance_install";
     public static final String DATA_MIGRATION = "data_migration";
     public static final String DOWNLOAD_TRANSLATIONS = "download_translations";
