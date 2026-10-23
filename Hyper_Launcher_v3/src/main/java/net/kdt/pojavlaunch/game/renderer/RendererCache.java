@@ -11,9 +11,6 @@ import static net.kdt.pojavlaunch.game.renderer.def.Renderers.ZINK_RENDERER;
 
 import android.content.Context;
 import android.content.res.Resources;
-
-import com.ashmeet.hyperlauncher.plugin.driver.Driver;
-import com.ashmeet.hyperlauncher.plugin.driver.DriverPluginManager;
 import com.ashmeet.hyperlauncher.renderer.RendererInterface;
 import com.ashmeet.hyperlauncher.renderer.Renderers;
 
@@ -60,7 +57,7 @@ public class RendererCache {
 
         for (RendererInterface renderer : Renderers.INSTANCE.getRenderers()) {
             String rendererId = renderer.getUniqueIdentifier();
-            if (rendererId != null && !rendererIds.contains(rendererId)) {
+            if (!rendererIds.contains(rendererId)) {
                 rendererIds.add(rendererId);
                 String displayName = renderer.getRendererName();
                 String summary = renderer.getRendererSummary();
@@ -77,29 +74,6 @@ public class RendererCache {
         return (sCompatibleRenderers = new RendererCache(rendererIds, rendererNames.toArray(new String[0])));
     }
 
-    public static RendererCache getCompatibleDrivers(Context context) {
-        ArrayList<String> driverIds = new ArrayList<>();
-        ArrayList<String> driverNames = new ArrayList<>();
-
-        driverIds.add("default");
-        driverNames.add("Default");
-
-        for (Driver driver : DriverPluginManager.INSTANCE.getDriverList()) {
-            String driverId = driver.getId();
-            if (driverId != null && !driverIds.contains(driverId)) {
-                driverIds.add(driverId);
-                String displayName = driver.getName();
-                String summary = driver.getSummary();
-                if (summary != null) {
-                    driverNames.add(displayName + " (" + summary + ")");
-                } else {
-                    driverNames.add(displayName);
-                }
-            }
-        }
-
-        return new RendererCache(driverIds, driverNames.toArray(new String[0]));
-    }
 
     public static boolean checkRendererCompatible(Context context, String rendererName) {
         return getCompatibleRenderers(context).rendererIds.contains(rendererName);

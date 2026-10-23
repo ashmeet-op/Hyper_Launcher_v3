@@ -55,15 +55,4 @@ object SurfaceRecorderHook {
         }
     }
 
-    @JvmStatic
-    fun getActiveRecorderSurface(): Surface? = activeRecorderSurface
-
-    @JvmStatic
-    fun isRecordingActive(): Boolean = activeRecorderSurface != null
-
-    @JvmStatic
-    fun getSurfaceWidth(): Int = surfaceWidth
-
-    @JvmStatic
-    fun getSurfaceHeight(): Int = surfaceHeight
 }

@@ -16,7 +16,7 @@
 -keep class net.kdt.pojavlaunch.** { *; }
 -keep class git.artdeell.** { *; }
 -keep class git.mojo.** { *; }
--keep class com.kdt.mcgui.** { *; }
+-keep class com.ashmeet.hyperlauncher.filemanager.** { *; }
 
 
 # We use Reflection on the builder to avoid creating too many objects

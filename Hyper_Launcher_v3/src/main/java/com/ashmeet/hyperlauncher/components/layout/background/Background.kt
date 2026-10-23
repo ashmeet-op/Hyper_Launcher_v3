@@ -1,4 +1,4 @@
-package com.ashmeet.hyperlauncher.components.layout
+package com.ashmeet.hyperlauncher.components.layout.background
 
 import android.content.SharedPreferences
 import android.graphics.Bitmap

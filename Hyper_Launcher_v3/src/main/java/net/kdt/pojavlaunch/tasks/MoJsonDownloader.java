@@ -10,7 +10,7 @@ import androidx.annotation.Nullable;
 
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 import com.google.gson.JsonParseException;
-import com.kdt.mcgui.ProgressLayout;
+import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
 
 import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperlauncher.utils.Architecture;
@@ -66,7 +66,7 @@ public class MoJsonDownloader extends Downloader {
     private String mVersionName;
 
     public MoJsonDownloader() {
-        super(ProgressLayout.DOWNLOAD_GAME);
+        super(TrackerLayout.DOWNLOAD_GAME);
     }
 
     public static void prepareSubstitutionMap(AssetManager assetManager) {
@@ -92,7 +92,7 @@ public class MoJsonDownloader extends Downloader {
             } catch (Exception e) {
                 listener.onDownloadFailed(e);
             }
-            ProgressLayout.clearProgress(ProgressLayout.DOWNLOAD_GAME);
+            TrackerLayout.clearTracker(TrackerLayout.DOWNLOAD_GAME);
         });
     }
 
@@ -100,7 +100,7 @@ public class MoJsonDownloader extends Downloader {
     private void downloadGame(AssetManager assetManager, JVersionList.Version verInfo, String versionName) throws Exception {
 
 
-        ProgressLayout.setProgress(ProgressLayout.DOWNLOAD_GAME, 0, R.string.newdl_starting);
+        TrackerLayout.setTracker(TrackerLayout.DOWNLOAD_GAME, 0, R.string.newdl_starting);
 
         mTargetJarFile = createGameJarPath(versionName);
         mScheduledDownloadTasks = new ArrayList<>();
@@ -120,7 +120,7 @@ public class MoJsonDownloader extends Downloader {
         for(DependentLibrary dependentLibrary : mAllLibraries.values()) {
 
             if(dependentLibrary.name.startsWith("net.java.dev.jna:jna:") && !dependentLibrary.replaced) {
-                scheduleAarDownload(Tools.MAVEN_CENTRAL, dependentLibrary);
+                scheduleAarDownload(dependentLibrary);
             }
 
             if(dependentLibrary.downloads != null) processLibraryWithDownloads(dependentLibrary);
@@ -164,7 +164,7 @@ public class MoJsonDownloader extends Downloader {
         if(mDeclaredNatives.isEmpty()) return;
         int totalCount = mDeclaredNatives.size();
 
-        ProgressLayout.setProgress(ProgressLayout.DOWNLOAD_GAME, 0,
+        TrackerLayout.setTracker(TrackerLayout.DOWNLOAD_GAME, 0,
                 R.string.newdl_extracting_native_libraries, 0, totalCount);
 
         File targetDirectory = new File(Tools.DIR_CACHE, "natives/"+versionName);
@@ -175,7 +175,7 @@ public class MoJsonDownloader extends Downloader {
             if(extractable.extractInfo == null) nativesExtractor.extractFromAar(extractable.path);
             else nativesExtractor.extractMoJson(extractable.path, extractable.extractInfo);
             extractedCount++;
-            ProgressLayout.setProgress(ProgressLayout.DOWNLOAD_GAME, extractedCount * 100 / totalCount,
+            TrackerLayout.setTracker(TrackerLayout.DOWNLOAD_GAME, extractedCount * 100 / totalCount,
                     R.string.newdl_extracting_native_libraries, extractedCount, totalCount);
         }
     }
@@ -187,7 +187,7 @@ public class MoJsonDownloader extends Downloader {
         FileUtils.ensureParentDirectory(targetFile);
         try {
             DownloadUtils.ensureSha1(targetFile, LauncherPreferences.PREF_VERIFY_MANIFEST ? verInfo.sha1 : null, () -> {
-                ProgressLayout.setProgress(ProgressLayout.DOWNLOAD_GAME, 0,
+                TrackerLayout.setTracker(TrackerLayout.DOWNLOAD_GAME, 0,
                         R.string.newdl_downloading_metadata, targetFile.getName());
                 DownloadMirror.downloadFileMirrored(DownloadMirror.DOWNLOAD_CLASS_METADATA, verInfo.url, targetFile);
                 return null;
@@ -205,7 +205,7 @@ public class MoJsonDownloader extends Downloader {
         File targetFile = new File(Tools.ASSETS_PATH, "indexes"+ File.separator + verInfo.assets + ".json");
         FileUtils.ensureParentDirectory(targetFile);
         DownloadUtils.ensureSha1(targetFile, assetIndex.sha1, ()-> {
-            ProgressLayout.setProgress(ProgressLayout.DOWNLOAD_GAME, 0,
+            TrackerLayout.setTracker(TrackerLayout.DOWNLOAD_GAME, 0,
                     R.string.newdl_downloading_metadata, targetFile.getName());
             DownloadMirror.downloadFileMirrored(DownloadMirror.DOWNLOAD_CLASS_METADATA, assetIndex.url, targetFile);
             return null;
@@ -266,9 +266,9 @@ public class MoJsonDownloader extends Downloader {
     }
 
 
-    private void scheduleAarDownload(String baseRepository, DependentLibrary dependentLibrary) throws IOException {
+    private void scheduleAarDownload(DependentLibrary dependentLibrary) throws IOException {
         String path = MavenNameUtils.mavenNameToAarPath(dependentLibrary.name);
-        String downloadUrl = baseRepository + path;
+        String downloadUrl = Tools.MAVEN_CENTRAL + path;
         File targetPath = new File(Tools.DIR_HOME_LIBRARY, path);
         mDeclaredNatives.add(new NativeLibraryExtractable(targetPath, null));
         scheduleDownload(targetPath, DownloadMirror.DOWNLOAD_CLASS_LIBRARIES, downloadUrl, null, -1);

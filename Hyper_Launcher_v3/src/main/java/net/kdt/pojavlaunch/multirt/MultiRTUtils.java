@@ -7,7 +7,7 @@ import static org.apache.commons.io.FileUtils.write;
 import android.system.Os;
 import android.util.Log;
 
-import com.kdt.mcgui.ProgressLayout;
+import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
 
 import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperlauncher.utils.Tools;
@@ -81,7 +81,7 @@ public class MultiRTUtils {
             unpack200(nativeLibDir, RUNTIME_FOLDER + "/" + name);
             read(name);
         } finally {
-            ProgressLayout.clearProgress(ProgressLayout.UNPACK_RUNTIME);
+            TrackerLayout.clearTracker(TrackerLayout.UNPACK_RUNTIME);
         }
     }
 
@@ -117,7 +117,7 @@ public class MultiRTUtils {
             write(binpack_verfile, binpackVersion, StandardCharsets.UTF_8);
             forceReread(name);
         } finally {
-            ProgressLayout.clearProgress(ProgressLayout.UNPACK_RUNTIME);
+            TrackerLayout.clearTracker(TrackerLayout.UNPACK_RUNTIME);
         }
     }
 
@@ -247,7 +247,7 @@ public class MultiRTUtils {
             while ((tarEntry = tarIn.getNextTarEntry()) != null) {
 
                 final String tarEntryName = tarEntry.getName();
-                ProgressLayout.setProgress(ProgressLayout.UNPACK_RUNTIME, 100, R.string.global_unpacking, tarEntryName);
+                TrackerLayout.setTracker(TrackerLayout.UNPACK_RUNTIME, 100, R.string.global_unpacking, tarEntryName);
 
                 File destPath = new File(dest, tarEntry.getName());
                 net.kdt.pojavlaunch.utils.FileUtils.ensureParentDirectory(destPath);

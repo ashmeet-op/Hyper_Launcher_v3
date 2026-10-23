@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.util.Log
-import com.ashmeet.hyperlauncher.plugin.driver.DriverPluginManager
 import com.ashmeet.hyperlauncher.plugin.ffmpeg.FFmpegPluginManager
 import com.ashmeet.hyperlauncher.plugin.natives.NativePluginManager
 import com.ashmeet.hyperlauncher.plugin.renderer.RendererPluginManager
@@ -29,7 +28,7 @@ object PluginLoader {
 
         val apkPluginList: MutableList<ApkPlugin> = mutableListOf()
 
-        DriverPluginManager.initDriver(context)
+
         RendererPluginManager.clearPlugin()
         RendererV2PluginManager.clearPlugin()
         NativePluginManager.clearPlugin()
@@ -42,7 +41,6 @@ object PluginLoader {
         queryIntentActivities.forEach { resolve ->
             val applicationInfo = resolve.activityInfo.applicationInfo
             runCatching {
-                DriverPluginManager.parseApkPlugin(context, applicationInfo) { apkPluginList.add(it) }
                 RendererV2PluginManager.parseApkPlugin(context, applicationInfo) { apkPluginList.add(it) }
                 RendererPluginManager.parseApkPlugin(context, applicationInfo) { apkPluginList.add(it) }
                 NativePluginManager.parseApkPlugin(context, applicationInfo) { apkPluginList.add(it) }

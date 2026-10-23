@@ -3,7 +3,7 @@ package com.ashmeet.hyperlauncher.fragments.modloader
 import android.content.Context
 import com.ashmeet.hyperlauncher.screens.modloader.ModloaderVersionGroup
 import com.ashmeet.hyperlauncher.screens.modloader.ModloaderVersionItem
-import com.kdt.mcgui.ProgressLayout
+import com.ashmeet.hyperlauncher.tracker.TrackerLayout
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.instances.Instances
 import net.kdt.pojavlaunch.modloaders.ModloaderListenerProxy
@@ -39,7 +39,7 @@ class OptiFineInstallFragment : ModVersionListFragment<OptiFineUtils.OptiFineVer
 
     private fun createInstance(version: OptiFineUtils.OptiFineVersion, listenerProxy: ModloaderListenerProxy) {
         try {
-            ProgressLayout.setProgress(ProgressLayout.INSTALL_MODPACK, 0)
+            TrackerLayout.setTracker(TrackerLayout.INSTALL_MODPACK, 0)
             OptiFineDownloadTask(version).prepareForInstall()
             val instanceInstaller = OptiFineUtils.createInstaller(version)
             Instances.createInstance({ instance ->
@@ -48,7 +48,7 @@ class OptiFineInstallFragment : ModVersionListFragment<OptiFineUtils.OptiFineVer
                 instance.installer = instanceInstaller
                 instance.sharedData = true
             }, "OptiFine")
-            ProgressLayout.clearProgress(ProgressLayout.INSTALL_MODPACK)
+            TrackerLayout.clearTracker(TrackerLayout.INSTALL_MODPACK)
             instanceInstaller.start()
             listenerProxy.onDownloadFinished(null)
         } catch (e: Exception) {

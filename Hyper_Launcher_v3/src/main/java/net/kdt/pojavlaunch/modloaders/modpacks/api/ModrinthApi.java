@@ -2,7 +2,7 @@ package net.kdt.pojavlaunch.modloaders.modpacks.api;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.kdt.mcgui.ProgressLayout;
+import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
 
 import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperlauncher.utils.Tools;
@@ -167,9 +167,9 @@ public class ModrinthApi implements ModpackApi{
             }catch (InterruptedException e) {
                 throw new IOException("NIY: InterruptedException", e);
             }
-            ProgressLayout.setProgress(ProgressLayout.INSTALL_MODPACK, 0, R.string.modpack_download_applying_overrides, 1, 2);
+            TrackerLayout.setTracker(TrackerLayout.INSTALL_MODPACK, 0, R.string.modpack_download_applying_overrides, 1, 2);
             ZipUtils.zipExtract(modpackZipFile, "overrides/", instanceDestination);
-            ProgressLayout.setProgress(ProgressLayout.INSTALL_MODPACK, 50, R.string.modpack_download_applying_overrides, 2, 2);
+            TrackerLayout.setTracker(TrackerLayout.INSTALL_MODPACK, 50, R.string.modpack_download_applying_overrides, 2, 2);
             ZipUtils.zipExtract(modpackZipFile, "client-overrides/", instanceDestination);
             return createInfo(modrinthIndex, instanceDestination);
         }
@@ -181,7 +181,7 @@ public class ModrinthApi implements ModpackApi{
 
     static class ModrinthDownloader extends Downloader {
         public ModrinthDownloader() {
-            super(ProgressLayout.INSTALL_MODPACK);
+            super(TrackerLayout.INSTALL_MODPACK);
         }
 
         protected void startDownloads(ModrinthIndex.ModrinthIndexFile[] indexFiles, File instanceDestination) throws IOException, InterruptedException {

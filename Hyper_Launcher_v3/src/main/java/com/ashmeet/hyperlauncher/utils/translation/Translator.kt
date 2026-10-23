@@ -9,7 +9,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
-import com.kdt.mcgui.ProgressLayout
+import com.ashmeet.hyperlauncher.tracker.TrackerLayout
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.android.Android
@@ -109,7 +109,7 @@ object Translator {
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var prefetchJob: Job? = null
     private var appContext: Context? = null
-    private const val PROGRESS_KEY = ProgressLayout.DOWNLOAD_TRANSLATIONS
+    private const val PROGRESS_KEY = TrackerLayout.DOWNLOAD_TRANSLATIONS
     private var isInitialized = false
 
 

@@ -3,7 +3,7 @@ package com.ashmeet.hyperlauncher.fragments.modloader
 import android.content.Context
 import com.ashmeet.hyperlauncher.screens.modloader.ModloaderVersionGroup
 import com.ashmeet.hyperlauncher.screens.modloader.ModloaderVersionItem
-import com.kdt.mcgui.ProgressLayout
+import com.ashmeet.hyperlauncher.tracker.TrackerLayout
 import net.kdt.pojavlaunch.instances.Instances
 import net.kdt.pojavlaunch.modloaders.ForgelikeUtils
 import net.kdt.pojavlaunch.modloaders.ModloaderListenerProxy
@@ -64,14 +64,14 @@ abstract class ForgelikeInstallFragment(private val mUtils: ForgelikeUtils, mFra
 
     private fun createInstance(selectedVersion: String, listenerProxy: ModloaderListenerProxy) {
         try {
-            ProgressLayout.setProgress(ProgressLayout.INSTALL_MODPACK, 0)
+            TrackerLayout.setTracker(TrackerLayout.INSTALL_MODPACK, 0)
             val instanceInstaller = mUtils.createInstaller(selectedVersion)
             Instances.createInstance({ instance ->
                 instance.name = mUtils.name
                 instance.icon = mUtils.iconName
                 instance.installer = instanceInstaller
             }, selectedVersion)
-            ProgressLayout.clearProgress(ProgressLayout.INSTALL_MODPACK)
+            TrackerLayout.clearTracker(TrackerLayout.INSTALL_MODPACK)
             instanceInstaller.start()
             listenerProxy.onDownloadFinished(null)
         } catch (e: IOException) {

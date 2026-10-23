@@ -1,5 +1,8 @@
-package com.ashmeet.hyperlauncher.components.layout
+package com.ashmeet.hyperlauncher.components.layout.element
 
+import android.view.View
+import android.view.ViewGroup
+import androidx.compose.foundation.layout.PaddingValues
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 
 import androidx.compose.foundation.layout.Row
@@ -27,6 +30,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.customcontrols.buttons.ControlDrawer
 import net.kdt.pojavlaunch.customcontrols.buttons.ControlInterface
@@ -53,7 +57,7 @@ fun ActionRow(
     var rowWidth by remember { mutableFloatStateOf(0f) }
 
     LaunchedEffect(followedButton) {
-        val listener = android.view.View.OnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
+        val listener = View.OnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
             x = v.x
             y = v.y
             width = v.width
@@ -69,12 +73,12 @@ fun ActionRow(
                 width = view.width
                 height = view.height
             }
-            kotlinx.coroutines.delay(16)
+            delay(16)
         }
     }
 
     val rowHeight = with(density) { 40.dp.toPx() }
-    val parent = view.parent as? android.view.ViewGroup
+    val parent = view.parent as? ViewGroup
     val parentWidth = parent?.width ?: 0
 
     var side = 1
@@ -107,7 +111,7 @@ fun ActionRow(
                 onClick = onDelete,
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent, contentColor = MaterialTheme.colorScheme.error),
                 modifier = Modifier.height(36.dp),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp)
+                contentPadding = PaddingValues(horizontal = 12.dp)
             ) {
                 Text(translatedText(stringResource(R.string.global_delete)), style = MaterialTheme.typography.labelMedium)
             }
@@ -115,7 +119,7 @@ fun ActionRow(
                 onClick = onClone,
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent, contentColor = MaterialTheme.colorScheme.primary),
                 modifier = Modifier.height(36.dp),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp)
+                contentPadding = PaddingValues(horizontal = 12.dp)
             ) {
                 Text(translatedText(stringResource(R.string.global_clone)), style = MaterialTheme.typography.labelMedium)
             }
@@ -124,7 +128,7 @@ fun ActionRow(
                     onClick = onAddSub,
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent, contentColor = MaterialTheme.colorScheme.secondary),
                     modifier = Modifier.height(36.dp),
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp)
+                    contentPadding = PaddingValues(horizontal = 12.dp)
                 ) {
                     Text(translatedText(stringResource(R.string.customctrl_addsubbutton)), style = MaterialTheme.typography.labelMedium)
                 }

@@ -3,6 +3,7 @@ package com.ashmeet.hyperlauncher.screens.home.about
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Build
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -45,7 +46,6 @@ import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.BuildConfig
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.utils.Architecture
-import net.kdt.pojavlaunch.Logger
 import com.ashmeet.hyperlauncher.utils.Tools
 
 @SuppressLint("LocalContextGetResourceValueCall")
@@ -56,11 +56,90 @@ fun AboutScreen(
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        Logger.appendToLog("Info: Launcher version: " + BuildConfig.VERSION_NAME)
-        Logger.appendToLog("Info: Build type: " + BuildConfig.BUILD_TYPE)
-        Logger.appendToLog("Info: Architecture: " + Architecture.archAsString(Architecture.getDeviceArchitecture()))
-        Logger.appendToLog("Info: Device model: " + Build.MANUFACTURER + " " + Build.MODEL)
-        Logger.appendToLog("Info: API version: " + Build.VERSION.SDK_INT)
+        try {
+            val versionName = try { BuildConfig.VERSION_NAME } catch (_: Throwable) { "unknown" }
+            val buildType = try { BuildConfig.BUILD_TYPE } catch (_: Throwable) { "unknown" }
+            val arch = try { Architecture.archAsString(Architecture.getDeviceArchitecture()) } catch (_: Throwable) { "unknown" }
+            val manufacturer = try { Build.MANUFACTURER } catch (_: Throwable) { "unknown" }
+            val model = try { Build.MODEL } catch (_: Throwable) { "unknown" }
+            val sdkInt = try { Build.VERSION.SDK_INT } catch (_: Throwable) { -1 }
+
+            Log.i("AboutScreen", "Info: Launcher version: $versionName")
+            Log.i("AboutScreen", "Info: Build type: $buildType")
+            Log.i("AboutScreen", "Info: Architecture: $arch")
+            Log.i("AboutScreen", "Info: Device model: $manufacturer $model")
+            Log.i("AboutScreen", "Info: API version: $sdkInt")
+        } catch (e: Throwable) {
+            try {
+                Log.w("AboutScreen", "Failed to append to log", e)
+            } catch (_: Throwable) {}
+        }
+    }
+
+    val displayVersion = remember {
+        try {
+            val parts = BuildConfig.VERSION_NAME.split("-")
+            parts.getOrNull(0) ?: BuildConfig.VERSION_NAME
+        } catch (e: Throwable) {
+            "Unknown"
+        }
+    }
+
+    val displayBuild = remember {
+        try {
+            val parts = BuildConfig.VERSION_NAME.split("-")
+            parts.getOrNull(1)?.let { "${it}_build" }
+        } catch (e: Throwable) {
+            null
+        }
+    }
+
+    val versionCodeStr = remember {
+        try {
+            BuildConfig.VERSION_CODE.toString()
+        } catch (e: Throwable) {
+            "Unknown"
+        }
+    }
+
+    val packageName = remember {
+        try {
+            BuildConfig.APPLICATION_ID
+        } catch (_: Throwable) {
+            "Unknown"
+        }
+    }
+
+    val isDebugPackage = remember {
+        try {
+            packageName.contains("debug", ignoreCase = true)
+        } catch (e: Throwable) {
+            false
+        }
+    }
+
+    val deviceArch = remember {
+        try {
+            Architecture.archAsString(Architecture.getDeviceArchitecture())
+        } catch (e: Throwable) {
+            "Unknown"
+        }
+    }
+
+    val deviceModel = remember {
+        try {
+            "${Build.MANUFACTURER} ${Build.MODEL}"
+        } catch (e: Throwable) {
+            "Unknown"
+        }
+    }
+
+    val androidVersion = remember {
+        try {
+            "API ${Build.VERSION.SDK_INT}"
+        } catch (e: Throwable) {
+            "Unknown"
+        }
     }
 
     SettingsScreenWrapper(
@@ -75,15 +154,23 @@ fun AboutScreen(
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Spacer(modifier = Modifier.height(8.dp))
-                val appIcon = remember(context) { ContextCompat.getDrawable(context, R.drawable.ic_hyper_full) }
-                Image(
-                    painter = rememberDrawablePainter(appIcon),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(80.dp)
-                        .clip(RoundedCornerShape(16.dp)),
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
-                )
+                val appIcon = remember(context) {
+                    try {
+                        ContextCompat.getDrawable(context, R.drawable.ic_hyper_full)
+                    } catch (_: Throwable) {
+                        null
+                    }
+                }
+                if (appIcon != null) {
+                    Image(
+                        painter = rememberDrawablePainter(appIcon),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(RoundedCornerShape(16.dp)),
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                    )
+                }
 
                 Text(
                     text = "Hyper Launcher",
@@ -99,10 +186,6 @@ fun AboutScreen(
                 SettingsCard(position = CardPosition.TOP, useSurface = true) {
                     SettingsActionItem(title = translatedText("App Name"), summary = "Hyper Launcher 3", onClick = {})
                 }
-
-                val versionParts = remember { BuildConfig.VERSION_NAME.split("-") }
-                val displayVersion = versionParts.getOrNull(0) ?: BuildConfig.VERSION_NAME
-                val displayBuild = versionParts.getOrNull(1)?.let { "${it}_build" }
 
                 var developerClickCount by remember { mutableIntStateOf(0) }
                 SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
@@ -135,11 +218,9 @@ fun AboutScreen(
                 }
 
                 SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
-                    SettingsActionItem(title = translatedText("Version Code"), summary = BuildConfig.VERSION_CODE.toString(), onClick = {})
+                    SettingsActionItem(title = translatedText("Version Code"), summary = versionCodeStr, onClick = {})
                 }
 
-                val packageName = BuildConfig.APPLICATION_ID
-                val isDebugPackage = packageName.contains("debug", ignoreCase = true)
                 SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
                     SettingsActionItem(
                         title = translatedText("Package Name"),
@@ -173,7 +254,13 @@ fun AboutScreen(
                         title = translatedText("Discord"),
                         summary = translatedText("Join our community on Discord"),
                         iconPainter = painterResource(id = R.drawable.ic_discord),
-                        onClick = { (context as? Activity)?.let { Tools.openURL(it, context.getString(R.string.social_media_invite)) } }
+                        onClick = {
+                            (context as? Activity)?.let {
+                                try {
+                                    Tools.openURL(it, context.getString(R.string.social_media_invite))
+                                } catch (_: Throwable) {}
+                            }
+                        }
                     )
                 }
             }
@@ -181,13 +268,13 @@ fun AboutScreen(
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 PreferenceCategory(title = translatedText("Device Info"))
                 SettingsCard(position = CardPosition.TOP, useSurface = true) {
-                    SettingsActionItem(title = translatedText("Architecture"), summary = Architecture.archAsString(Architecture.getDeviceArchitecture()), onClick = {})
+                    SettingsActionItem(title = translatedText("Architecture"), summary = deviceArch, onClick = {})
                 }
                 SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
-                    SettingsActionItem(title = translatedText("Device Model"), summary = "${Build.MANUFACTURER} ${Build.MODEL}", onClick = {})
+                    SettingsActionItem(title = translatedText("Device Model"), summary = deviceModel, onClick = {})
                 }
                 SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
-                    SettingsActionItem(title = translatedText("Android Version"), summary = "API ${Build.VERSION.SDK_INT}", onClick = {})
+                    SettingsActionItem(title = translatedText("Android Version"), summary = androidVersion, onClick = {})
                 }
             }
 

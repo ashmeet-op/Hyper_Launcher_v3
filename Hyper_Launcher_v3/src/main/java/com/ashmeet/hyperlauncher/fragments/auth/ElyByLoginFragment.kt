@@ -66,9 +66,6 @@ class ElyByLoginFragment : Fragment() {
         Tools.backToMainMenu(activity)
     }
 
-    fun canGoBack(): Boolean = mWebView?.canGoBack() == true
-    fun goBack() { mWebView?.goBack() }
-
     companion object {
         const val TAG = "ELYBY_LOGIN_FRAGMENT"
     }

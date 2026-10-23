@@ -19,24 +19,6 @@ object NativePluginManager: ApkPluginManager() {
     fun getPlugins(): List<NativePlugin> = nativePlugins.toList()
 
     /**
-     * Get all enabled native library plugins
-     */
-    fun getCheckedPlugins(): List<NativePlugin> =
-        nativePlugins.filter { it.packageName !in disabledPlugins }
-
-    /**
-     * Get native library directories of all enabled plugins
-     */
-    fun getPaths(): List<String> {
-        return buildList {
-            nativePlugins.forEach { plugin ->
-                if (plugin.packageName in disabledPlugins) return@forEach
-                add(plugin.path)
-            }
-        }
-    }
-
-    /**
      * Get JVM environment arguments of all enabled plugins
      */
     fun getJVMEnv(): List<String> {
@@ -87,7 +69,6 @@ object NativePluginManager: ApkPluginManager() {
                     appName = appName,
                     appVersion = appVersion,
                     displayName = des,
-                    minMCVer = metaData.getVersionString("minMCVer"),
                     maxMCVer = metaData.getVersionString("maxMCVer"),
                     path = nativeLibraryDir,
                     envList = envList

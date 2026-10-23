@@ -1,4 +1,4 @@
-package com.ashmeet.hyperlauncher.components.layout
+package com.ashmeet.hyperlauncher.components.layout.element
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState

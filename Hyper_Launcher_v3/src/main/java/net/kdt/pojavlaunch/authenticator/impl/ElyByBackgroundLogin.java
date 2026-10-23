@@ -6,7 +6,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.kdt.mcgui.ProgressLayout;
+import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
 
 import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.authenticator.AuthType;
@@ -38,7 +38,7 @@ public class ElyByBackgroundLogin implements BackgroundLogin {
             @NonNull LoginListener loginListener, Callable<Void> continuation,
             String code, boolean isRefresh
     ) {
-        ProgressLayout.setProgress(ProgressLayout.AUTHENTICATE, 0);
+        TrackerLayout.setTracker(TrackerLayout.AUTHENTICATE, 0);
         sExecutorService.execute(() -> {
             loginListener.setMaxLoginProgress(2);
             try {
@@ -51,7 +51,7 @@ public class ElyByBackgroundLogin implements BackgroundLogin {
                 Log.e("MicroAuth", "Exception thrown during authentication", e);
                 Tools.runOnUiThread(()->loginListener.onLoginError(e));
             }
-            ProgressLayout.clearProgress(ProgressLayout.AUTHENTICATE);
+            TrackerLayout.clearTracker(TrackerLayout.AUTHENTICATE);
         });
     }
 
@@ -120,7 +120,7 @@ public class ElyByBackgroundLogin implements BackgroundLogin {
 
     private void notifyProgress(LoginListener listener, int step){
         Tools.runOnUiThread(() -> listener.onLoginProgress(step));
-        ProgressLayout.setProgress(ProgressLayout.AUTHENTICATE, step*50);
+        TrackerLayout.setTracker(TrackerLayout.AUTHENTICATE, step*50);
     }
 
     private static class ElyAccountInfo {

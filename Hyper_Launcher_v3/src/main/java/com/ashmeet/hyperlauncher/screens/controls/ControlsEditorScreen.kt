@@ -23,8 +23,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.ashmeet.hyperlauncher.components.layout.ActionRow
-import com.ashmeet.hyperlauncher.components.layout.LauncherBackground
+import com.ashmeet.hyperlauncher.components.layout.element.ActionRow
+import com.ashmeet.hyperlauncher.components.layout.background.LauncherBackground
 import com.ashmeet.hyperlauncher.components.HyperAlertDialog
 import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
 import com.ashmeet.hyperlauncher.fragments.dialog.EditControlSideDialog
@@ -32,8 +32,8 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreference
 import com.ashmeet.hyperlauncher.utils.SideDialogUtils
 import com.ashmeet.hyperlauncher.utils.Tools
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
-import com.kdt.pickafile.FileListView
-import com.kdt.pickafile.FileSelectedListener
+import com.ashmeet.hyperlauncher.filemanager.components.FileListView
+import com.ashmeet.hyperlauncher.filemanager.listeners.FileSelectedListener
 import kotlinx.coroutines.launch
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.customcontrols.ControlData

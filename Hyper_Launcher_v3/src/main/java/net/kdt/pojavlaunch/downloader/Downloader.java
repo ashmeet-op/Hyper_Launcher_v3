@@ -1,6 +1,6 @@
 package net.kdt.pojavlaunch.downloader;
 
-import com.kdt.mcgui.ProgressLayout;
+import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
 
 import net.ashmeet.hyperlauncher.R;
 import net.kdt.pojavlaunch.tasks.SpeedCalculator;
@@ -109,7 +109,7 @@ public class Downloader {
     private void reportCountProgress(int resource, int total) {
         int downloadedCount = mDownloadedFileCounter.get();
         int progress = (int) ((downloadedCount / (float)total) * 100f);
-        ProgressLayout.setProgress(mProgressKey, progress, resource,
+        TrackerLayout.setTracker(mProgressKey, progress, resource,
                 downloadedCount, total, getSpeed()
         );
     }
@@ -117,7 +117,7 @@ public class Downloader {
     private void reportSizeProgress(double totalMegabytes) {
         double downloadedMegabytes = mDownloadedSizeCounter.get() / ONE_MEGABYTE;
         int progress = (int) (downloadedMegabytes / totalMegabytes * 100d);
-        ProgressLayout.setProgress(mProgressKey, progress, R.string.newerdl_downloading_files_size,
+        TrackerLayout.setTracker(mProgressKey, progress, R.string.newerdl_downloading_files_size,
                 downloadedMegabytes, totalMegabytes, getSpeed()
         );
     }

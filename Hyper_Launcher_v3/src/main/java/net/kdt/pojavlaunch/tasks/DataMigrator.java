@@ -12,7 +12,7 @@ import android.provider.DocumentsContract;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.kdt.mcgui.ProgressLayout;
+import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
 
 import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperlauncher.utils.Tools;
@@ -40,7 +40,7 @@ public class DataMigrator {
 
     private void updateProgress(double step, String entry){
         progress += step;
-        ProgressLayout.setProgress(ProgressLayout.DATA_MIGRATION, Math.min(100, (int) progress), activity.getString(R.string.migration_progress_copying, entry));
+        TrackerLayout.setTracker(TrackerLayout.DATA_MIGRATION, Math.min(100, (int) progress), activity.getString(R.string.migration_progress_copying, entry));
     }
 
     private Uri getFilesUri(Uri uri){
@@ -64,7 +64,7 @@ public class DataMigrator {
             return;
         }
         Log.i("DataMigration", "Begin data migration!");
-        ProgressLayout.setProgress(ProgressLayout.DATA_MIGRATION, 0);
+        TrackerLayout.setTracker(TrackerLayout.DATA_MIGRATION, 0);
         try {
             activity.getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
             Uri treeUri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
@@ -78,7 +78,7 @@ public class DataMigrator {
         }
         progress = 0;
         Log.i("DataMigration", "End data migration!");
-        ProgressLayout.clearProgress(ProgressLayout.DATA_MIGRATION);
+        TrackerLayout.clearTracker(TrackerLayout.DATA_MIGRATION);
     }
 
     private Uri resolveSourceUri(Uri treeUri) {

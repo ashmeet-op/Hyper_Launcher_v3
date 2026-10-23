@@ -3,7 +3,7 @@ package net.kdt.pojavlaunch.modloaders.modpacks.api;
 
 import android.content.Context;
 
-import com.kdt.mcgui.ProgressLayout;
+import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
 
 import com.ashmeet.hyperlauncher.activity.PojavApplication;
 import net.ashmeet.hyperlauncher.R;
@@ -30,7 +30,7 @@ public interface ModpackApi {
     default void handleModpackInstallation(Context context, ModDetail modDetail, int selectedVersion) {
 
 
-        ProgressLayout.setProgress(ProgressLayout.INSTALL_MODPACK, 0, R.string.global_waiting);
+        TrackerLayout.setTracker(TrackerLayout.INSTALL_MODPACK, 0, R.string.global_waiting);
         PojavApplication.sExecutorService.execute(() -> {
             try {
                 installModpack(modDetail, selectedVersion);

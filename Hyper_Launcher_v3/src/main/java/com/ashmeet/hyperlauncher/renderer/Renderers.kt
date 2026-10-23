@@ -1,12 +1,6 @@
 package com.ashmeet.hyperlauncher.renderer
 
 import android.util.Log
-import com.ashmeet.hyperlauncher.renderer.renderers.FreedrenoRenderer
-import com.ashmeet.hyperlauncher.renderer.renderers.GL4ESRenderer
-import com.ashmeet.hyperlauncher.renderer.renderers.KopperZinkRenderer
-import com.ashmeet.hyperlauncher.renderer.renderers.NGGL4ESRenderer
-import com.ashmeet.hyperlauncher.renderer.renderers.PanfrostRenderer
-import com.ashmeet.hyperlauncher.renderer.renderers.VirGLRenderer
 
 
 private const val TAG = "Renderers"
@@ -26,15 +20,6 @@ object Renderers {
             renderers.clear()
             currentRenderer = null
         }
-
-        addRenderers(
-            NGGL4ESRenderer,
-            GL4ESRenderer,
-            KopperZinkRenderer,
-            VirGLRenderer,
-            FreedrenoRenderer,
-            PanfrostRenderer
-        )
     }
 
     /**

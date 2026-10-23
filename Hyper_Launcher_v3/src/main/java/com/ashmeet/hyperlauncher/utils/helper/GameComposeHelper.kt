@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.ashmeet.hyperlauncher.components.HyperAlertDialog
-import com.ashmeet.hyperlauncher.components.layout.LauncherBackground
+import com.ashmeet.hyperlauncher.components.layout.background.LauncherBackground
 import com.ashmeet.hyperlauncher.components.rail.SideNavigationRail
 import com.ashmeet.hyperlauncher.screens.controls.ControlsEditorScreen
 import com.ashmeet.hyperlauncher.screens.controls.GameControlsScreen

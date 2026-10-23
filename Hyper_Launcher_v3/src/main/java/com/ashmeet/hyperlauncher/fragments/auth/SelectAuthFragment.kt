@@ -9,7 +9,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import com.ashmeet.hyperlauncher.screens.auth.methods.SelectAuthMethodScreen
 import com.ashmeet.hyperlauncher.theme.PojavTheme
-import com.kdt.mcgui.ProgressLayout
+import com.ashmeet.hyperlauncher.tracker.TrackerLayout
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.progresskeeper.ProgressKeeper
 
@@ -45,7 +45,7 @@ class SelectAuthFragment : Fragment() {
     }
 
     private fun launchAuthFragment(fragmentClass: Class<out Fragment>, fragmentTag: String) {
-        if (ProgressKeeper.hasProgressKey(ProgressLayout.AUTHENTICATE)) {
+        if (ProgressKeeper.hasProgressKey(TrackerLayout.AUTHENTICATE)) {
             Toast.makeText(requireContext(), R.string.tasks_ongoing, Toast.LENGTH_SHORT).show()
             return
         }

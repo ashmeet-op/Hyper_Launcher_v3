@@ -2,7 +2,7 @@ package net.kdt.pojavlaunch.modloaders.modpacks.api;
 
 import android.util.Log;
 
-import com.kdt.mcgui.ProgressLayout;
+import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
 
 import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperlauncher.utils.Tools;
@@ -54,7 +54,7 @@ public class ModpackInstaller {
             throw e;
         } finally {
             modpackFile.delete();
-            ProgressLayout.clearProgress(ProgressLayout.INSTALL_MODPACK);
+            TrackerLayout.clearTracker(TrackerLayout.INSTALL_MODPACK);
         }
 
         return loaderInstaller;
@@ -96,7 +96,7 @@ public class ModpackInstaller {
             DownloadUtils.ensureSha1(modpackFile, versionHash, (Callable<Void>) () -> {
                 DownloadUtils.downloadFileMonitored(versionUrl, modpackFile, downloadBuffer,
                         new DownloaderProgressWrapper(R.string.modpack_download_downloading_metadata,
-                                ProgressLayout.INSTALL_MODPACK
+                                TrackerLayout.INSTALL_MODPACK
                         )
                 );
                 return null;

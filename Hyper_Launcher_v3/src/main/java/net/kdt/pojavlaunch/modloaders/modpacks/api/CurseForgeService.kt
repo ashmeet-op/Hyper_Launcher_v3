@@ -1,9 +1,5 @@
 package net.kdt.pojavlaunch.modloaders.modpacks.api
 
-import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
-import coil.imageLoader
-import coil.request.ImageRequest
 import com.ashmeet.hyperlauncher.utils.installer.ContentInstallerType
 import com.ashmeet.hyperlauncher.utils.installer.ModrinthProject
 import com.ashmeet.hyperlauncher.utils.installer.ModrinthVersion
@@ -11,7 +7,6 @@ import com.ashmeet.hyperlauncher.utils.installer.ModDependency
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.kdt.pojavlaunch.lifecycle.ContextExecutor
 import java.util.regex.Pattern
 
 object CurseForgeService {
@@ -241,18 +236,4 @@ object CurseForgeService {
         String.format("https://edge.forgecdn.net/files/%s/%s/%s", fileIdLong / 1000, fileIdLong % 1000, fileName)
     }
 
-    suspend fun loadIcon(url: String): Bitmap? = withContext(Dispatchers.IO) {
-        val context = ContextExecutor.getContext() ?: return@withContext null
-        try {
-            val loader = context.imageLoader
-            val request = ImageRequest.Builder(context)
-                .data(url)
-                .allowHardware(false)
-                .build()
-            val result = loader.execute(request)
-            (result.drawable as? BitmapDrawable)?.bitmap
-        } catch (e: Exception) {
-            null
-        }
-    }
 }

@@ -19,7 +19,7 @@ import com.ashmeet.hyperlauncher.screens.auth.AuthLayout
 import com.ashmeet.hyperlauncher.screens.auth.skin.TextureType
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
-import com.kdt.mcgui.ProgressLayout
+import com.ashmeet.hyperlauncher.tracker.TrackerLayout
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.progresskeeper.ProgressKeeper
 
@@ -109,7 +109,7 @@ class AuthHostFragment : Fragment() {
     }
 
     private fun launchTextureFragment(type: TextureType) {
-        if (ProgressKeeper.hasProgressKey(ProgressLayout.AUTHENTICATE)) {
+        if (ProgressKeeper.hasProgressKey(TrackerLayout.AUTHENTICATE)) {
             Toast.makeText(requireContext(), R.string.tasks_ongoing, Toast.LENGTH_SHORT).show()
             return
         }

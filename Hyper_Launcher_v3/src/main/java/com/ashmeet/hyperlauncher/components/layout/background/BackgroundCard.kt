@@ -1,4 +1,4 @@
-package com.ashmeet.hyperlauncher.components.layout
+package com.ashmeet.hyperlauncher.components.layout.background
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column

@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 
-import com.kdt.mcgui.ProgressLayout;
+import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
 
 import net.ashmeet.hyperlauncher.R;
 import net.kdt.pojavlaunch.awt.AWTActivity;
@@ -74,7 +74,7 @@ public class InstanceInstaller implements ContextExecutorTask {
         try {
             final byte[] buffer = new byte[8192];
             final DownloaderProgressWrapper wrapper = new DownloaderProgressWrapper(
-                    R.string.mcl_launch_downloading_progress, ProgressLayout.INSTANCE_INSTALL
+                    R.string.mcl_launch_downloading_progress, TrackerLayout.INSTANCE_INSTALL
             );
             wrapper.extraString = installerJar().getName();
             DownloadUtils.ensureSha1(installerJar(), installerSha1, ()->{
@@ -83,7 +83,7 @@ public class InstanceInstaller implements ContextExecutorTask {
             });
             ContextExecutor.execute(this);
         } finally {
-            ProgressLayout.clearProgress(ProgressLayout.INSTANCE_INSTALL);
+            TrackerLayout.clearTracker(TrackerLayout.INSTANCE_INSTALL);
         }
     }
 
@@ -115,7 +115,7 @@ public class InstanceInstaller implements ContextExecutorTask {
     }
 
     public void start() {
-        ProgressLayout.setProgress(ProgressLayout.INSTANCE_INSTALL, 0);
+        TrackerLayout.setTracker(TrackerLayout.INSTANCE_INSTALL, 0);
         PojavApplication.sExecutorService.execute(()->{
             try {
                 threadedStart();

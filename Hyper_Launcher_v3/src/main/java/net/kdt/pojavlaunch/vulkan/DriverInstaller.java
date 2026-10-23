@@ -7,7 +7,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.widget.Toast;
 
-import com.kdt.mcgui.ProgressLayout;
+import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,33 +21,33 @@ public class DriverInstaller {
     public static void installDriverFromUri(Context context, Uri uri, Runnable callback) {
         sExecutorService.execute(() -> {
             String target;
-            ProgressLayout.setProgress(ProgressLayout.DRIVER_INSTALL, 0, R.string.driver_progress_validate);
+            TrackerLayout.setTracker(TrackerLayout.DRIVER_INSTALL, 0, R.string.driver_progress_validate);
             try (InputStream is = context.getContentResolver().openInputStream(uri)) {
                 if (is == null || (target = DriverManager.validateDriver(is)) == null) {
                     runOnUiThread(() -> Toast.makeText(context, R.string.driver_config_import_invalid, Toast.LENGTH_LONG).show());
-                    ProgressLayout.clearProgress(ProgressLayout.DRIVER_INSTALL);
+                    TrackerLayout.clearTracker(TrackerLayout.DRIVER_INSTALL);
                     return;
                 }
             } catch (IOException e) {
-                ProgressLayout.clearProgress(ProgressLayout.DRIVER_INSTALL);
+                TrackerLayout.clearTracker(TrackerLayout.DRIVER_INSTALL);
                 Tools.showErrorRemote(e);
                 return;
             }
-            ProgressLayout.setProgress(ProgressLayout.DRIVER_INSTALL, 50, R.string.driver_progress_install);
+            TrackerLayout.setTracker(TrackerLayout.DRIVER_INSTALL, 50, R.string.driver_progress_install);
             // We need to open a new clean InputStream here
             try (InputStream is = context.getContentResolver().openInputStream(uri)) {
                 if (is != null) {
                     DriverManager.installDriverContent(target, is, true);
                 }
             } catch (IOException e) {
-                ProgressLayout.clearProgress(ProgressLayout.DRIVER_INSTALL);
+                TrackerLayout.clearTracker(TrackerLayout.DRIVER_INSTALL);
                 Tools.showErrorRemote(e);
                 return;
             }
             if (callback != null) {
                 runOnUiThread(callback);
             }
-            ProgressLayout.clearProgress(ProgressLayout.DRIVER_INSTALL);
+            TrackerLayout.clearTracker(TrackerLayout.DRIVER_INSTALL);
         });
     }
 

@@ -9,7 +9,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.kdt.mcgui.ProgressLayout;
+import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
 
 import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperlauncher.utils.Tools;
@@ -40,14 +40,14 @@ public class BTADownloadTask implements Runnable {
 
     @Override
     public void run() {
-        ProgressKeeper.submitProgress(ProgressLayout.INSTALL_MODPACK, 0, R.string.fabric_dl_progress, "BTA");
+        ProgressKeeper.submitProgress(TrackerLayout.INSTALL_MODPACK, 0, R.string.fabric_dl_progress, "BTA");
         try {
             runCatching() ;
             mListener.onDownloadFinished(null);
         }catch (IOException e) {
             mListener.onDownloadError(e);
         }
-        ProgressLayout.clearProgress(ProgressLayout.INSTALL_MODPACK);
+        TrackerLayout.clearTracker(TrackerLayout.INSTALL_MODPACK);
     }
 
     private void tryDownloadIcon(Instance targetInstance) {

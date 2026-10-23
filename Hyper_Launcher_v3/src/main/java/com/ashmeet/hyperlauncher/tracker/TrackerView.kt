@@ -1,5 +1,6 @@
-package com.ashmeet.hyperlauncher.components.layout
+package com.ashmeet.hyperlauncher.tracker
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
@@ -41,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -70,7 +72,7 @@ private val OBSERVED_PROGRESS_KEYS = listOf(
 )
 
 @Composable
-fun ProgressLayout(
+fun TrackerView(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -95,7 +97,7 @@ fun ProgressLayout(
                     activeTasks[key] = TaskProgressState(key)
                 }
 
-                @android.annotation.SuppressLint("LocalContextGetResourceValueCall")
+                @SuppressLint("LocalContextGetResourceValueCall")
                 override fun onProgressUpdated(progress: Int, resid: Int, vararg va: Any?) {
                     val now = System.currentTimeMillis()
                     if (now - lastUpdate < 50 && progress != 100) return
@@ -130,7 +132,7 @@ fun ProgressLayout(
         }
     }
 
-    ProgressLayoutContent(
+    TrackerContent(
         taskCount = taskCount,
         activeTasks = activeTaskList,
         modifier = modifier
@@ -139,7 +141,7 @@ fun ProgressLayout(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun ProgressLayoutContent(
+fun TrackerContent(
     taskCount: Int,
     activeTasks: List<TaskProgressState>,
     modifier: Modifier = Modifier
@@ -177,7 +179,7 @@ fun ProgressLayoutContent(
                         text = translatedText(stringResource(R.string.progresslayout_tasks_in_progress, taskCount)),
                         color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 14.sp,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
+                        fontWeight = FontWeight.Medium
                     )
 
                     IconButton(
@@ -218,13 +220,13 @@ fun TaskItem(task: TaskProgressState) {
             fontSize = 12.sp
         )
         Spacer(modifier = Modifier.height(2.dp))
-        TaskProgressIndicator(task)
+        TaskIndicator(task)
     }
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun TaskProgressIndicator(task: TaskProgressState) {
+fun TaskIndicator(task: TaskProgressState) {
     val isIndeterminate by remember { derivedStateOf { task.progress < 0 } }
     val animatedProgress by animateFloatAsState(
         targetValue = if (task.progress >= 0) task.progress / 100f else 0f,
@@ -256,9 +258,9 @@ fun TaskProgressIndicator(task: TaskProgressState) {
 
 @Preview
 @Composable
-fun ProgressLayoutPreview() {
+fun TrackerPreview() {
     PojavTheme {
-        ProgressLayoutContent(
+        TrackerContent(
             taskCount = 2,
             activeTasks = listOf(
                 TaskProgressState("download_minecraft", 50, "Downloading Minecraft..."),

@@ -69,6 +69,7 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.TextViewerDialog
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.utils.FileOperationUtils
 import com.ashmeet.hyperlauncher.utils.WorldMetadataReader
+import com.ashmeet.hyperlauncher.filemanager.utils.SortFileName
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
 import net.kdt.pojavlaunch.extra.ExtraCore
@@ -182,7 +183,7 @@ fun InstanceDirectoryContent(
         isLoading = true
         PojavApplication.sExecutorService.execute {
             try {
-                val list = dir.listFiles()?.asSequence()?.toList()?.sortedWith(compareBy({ !it.isDirectory }, { it.name.lowercase() })) ?: emptyList()
+                val list = dir.listFiles()?.asSequence()?.toList()?.sortedWith(compareBy<File> { !it.isDirectory }.then(SortFileName())) ?: emptyList()
                 files = list
                 currentDir = dir
                 isLoading = false

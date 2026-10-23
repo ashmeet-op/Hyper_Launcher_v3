@@ -14,8 +14,6 @@ interface RendererInterface {
     fun getMaxMCVersion(): String? = null
 
 
-    fun getDisplayMinMCVersion(): String? = getMinMCVersion()
-
     fun getDisplayMaxMCVersion(): String? = getMaxMCVersion()
 
     fun getRendererEnv(): Lazy<Map<String, String>>

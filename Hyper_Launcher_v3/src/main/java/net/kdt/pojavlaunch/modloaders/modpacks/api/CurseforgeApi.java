@@ -8,7 +8,7 @@ import androidx.annotation.Nullable;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.kdt.mcgui.ProgressLayout;
+import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
 
 import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.downloader.AcquireableTaskMetadata;
@@ -284,7 +284,7 @@ public class CurseforgeApi implements ModpackApi{
     class CurseDownloader extends Downloader {
 
         public CurseDownloader() {
-            super(ProgressLayout.INSTALL_MODPACK);
+            super(TrackerLayout.INSTALL_MODPACK);
         }
 
         public void start(CurseManifest curseManifest, File instanceDestination) throws IOException, InterruptedException {

@@ -119,14 +119,6 @@ class SkinManager(private val analyzer: SkinAnalyzerFacade) {
         return authlibUrl
     }
 
-    fun startServer(): Int {
-        if (!isStarted) {
-            port = server.start()
-            isStarted = true
-        }
-        return port
-    }
-
     val authlibUrl: String get() = "http://127.0.0.1:$port"
 
     companion object {

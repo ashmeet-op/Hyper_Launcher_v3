@@ -7,7 +7,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.kdt.mcgui.ProgressLayout;
+import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
 
 import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperlauncher.utils.Tools;
@@ -68,7 +68,7 @@ public class MicrosoftBackgroundLogin implements BackgroundLogin{
             @NonNull LoginListener loginListener, Callable<Void> continuation,
             String code, boolean isRefresh
     ) {
-        ProgressLayout.setProgress(ProgressLayout.AUTHENTICATE, 0);
+        TrackerLayout.setTracker(TrackerLayout.AUTHENTICATE, 0);
         sExecutorService.execute(() -> {
             loginListener.setMaxLoginProgress(5);
             try {
@@ -89,7 +89,7 @@ public class MicrosoftBackgroundLogin implements BackgroundLogin{
                 Log.e("MicroAuth", "Exception thrown during authentication", e);
                 Tools.runOnUiThread(()->loginListener.onLoginError(e));
             } finally {
-                ProgressLayout.clearProgress(ProgressLayout.AUTHENTICATE);
+                TrackerLayout.clearTracker(TrackerLayout.AUTHENTICATE);
             }
         });
     }
@@ -315,7 +315,7 @@ public class MicrosoftBackgroundLogin implements BackgroundLogin{
 
     private void notifyProgress(LoginListener listener, int step){
         Tools.runOnUiThread(() -> listener.onLoginProgress(step));
-        ProgressLayout.setProgress(ProgressLayout.AUTHENTICATE, step*20);
+        TrackerLayout.setTracker(TrackerLayout.AUTHENTICATE, step*20);
     }
 
 

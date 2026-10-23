@@ -3,7 +3,7 @@ package com.ashmeet.hyperlauncher.utils
 import android.content.res.AssetManager
 import android.util.Log
 import com.ashmeet.hyperlauncher.utils.Architecture.archAsString
-import com.kdt.mcgui.ProgressLayout
+import com.ashmeet.hyperlauncher.tracker.TrackerLayout
 import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.JVersionList
 import net.kdt.pojavlaunch.instances.Instances
@@ -69,7 +69,7 @@ object NewJREUtil {
         fun downloadAndVerify(component: String, output: File, progressString: Int): Boolean {
             DownloadUtils.downloadFileMonitored(
                 runtimePath + component, output, downloadBuffer,
-                DownloaderProgressWrapper(progressString, ProgressLayout.UNPACK_RUNTIME)
+                DownloaderProgressWrapper(progressString, TrackerLayout.UNPACK_RUNTIME)
             )
             val signature = signatures[component]
             FileInputStream(output).use { fileInputStream ->
@@ -118,7 +118,7 @@ object NewJREUtil {
         } catch (e: IOException) {
             throwInstallFail(internalRuntime, e)
         } finally {
-            ProgressLayout.clearProgress(ProgressLayout.UNPACK_RUNTIME)
+            TrackerLayout.clearTracker(TrackerLayout.UNPACK_RUNTIME)
             universalCache?.delete()
             platformCache?.delete()
         }

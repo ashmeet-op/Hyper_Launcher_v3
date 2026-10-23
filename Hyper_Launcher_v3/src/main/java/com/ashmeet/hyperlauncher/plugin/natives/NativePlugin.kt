@@ -8,7 +8,6 @@ class NativePlugin(
     appName: String,
     appVersion: String,
     val displayName: String,
-    val minMCVer: String? = null,
     val maxMCVer: String? = null,
     val path: String,
     val envList: List<String>

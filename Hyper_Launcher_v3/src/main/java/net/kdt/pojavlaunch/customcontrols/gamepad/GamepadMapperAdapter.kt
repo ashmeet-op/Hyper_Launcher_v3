@@ -10,7 +10,6 @@ import net.kdt.pojavlaunch.game.platform.input.PlatformGrabListener
 import net.kdt.pojavlaunch.utils.KeycodeUtils
 
 class GamepadMapperAdapter(context: Context) : RecyclerView.Adapter<GamepadMapperAdapter.ViewHolder>(), GamepadDataProvider {
-    private val BUTTON_COUNT = 20
     private lateinit var mSimulatedGamepadMap: GamepadMap
     private lateinit var mRebinderButtons: Array<RebinderButton>
     private lateinit var mRealButtons: Array<GamepadEmulatedButton>

@@ -10,11 +10,13 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.util.Log;
 
-import com.kdt.mcgui.ProgressLayout;
+import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
 
 import com.ashmeet.hyperlauncher.utils.Tools;
 import net.kdt.pojavlaunch.multirt.MultiRTUtils;
 
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -61,7 +63,7 @@ public class AsyncAssetManager {
 
 
     public static void unpackSingleFiles(Context ctx){
-        ProgressLayout.setProgress(ProgressLayout.EXTRACT_SINGLE_FILES, 0);
+        TrackerLayout.setTracker(TrackerLayout.EXTRACT_SINGLE_FILES, 0);
         sExecutorService.execute(() -> {
             try {
                 Tools.copyAssetFile(ctx, "options.txt", Tools.DIR_GAME_NEW, false);
@@ -69,7 +71,7 @@ public class AsyncAssetManager {
 
 
                 try (InputStream is = ctx.getAssets().open("default.json")) {
-                    String assetSha1 = new String(org.apache.commons.codec.binary.Hex.encodeHex(org.apache.commons.codec.digest.DigestUtils.sha1(is)));
+                    String assetSha1 = new String(Hex.encodeHex(DigestUtils.sha1(is)));
                     if (!Tools.compareSHA1(new File(Tools.CTRLDEF_FILE), assetSha1)) {
                         Tools.copyAssetFile(ctx, "default.json", Tools.CTRLMAP_PATH, "new_default.json" , false);
                     } else if (!new File(Tools.CTRLMAP_PATH+"/new_default.json").exists())
@@ -81,12 +83,12 @@ public class AsyncAssetManager {
             } catch (IOException e) {
                 Log.e("AsyncAssetManager", "Failed to unpack critical components !");
             }
-            ProgressLayout.clearProgress(ProgressLayout.EXTRACT_SINGLE_FILES);
+            TrackerLayout.clearTracker(TrackerLayout.EXTRACT_SINGLE_FILES);
         });
     }
 
     public static void unpackComponents(Context ctx){
-        ProgressLayout.setProgress(ProgressLayout.EXTRACT_COMPONENTS, 0);
+        TrackerLayout.setTracker(TrackerLayout.EXTRACT_COMPONENTS, 0);
         sExecutorService.execute(() -> {
             tryUnpackComponent(ctx, "caciocavallo", false);
             tryUnpackComponent(ctx, "caciocavallo17", false);
@@ -108,7 +110,7 @@ public class AsyncAssetManager {
             tryUnpackComponent(ctx, "noblocklist", true);
             tryUnpackComponent(ctx, "launcher", false);
 
-            ProgressLayout.clearProgress(ProgressLayout.EXTRACT_COMPONENTS);
+            TrackerLayout.clearTracker(TrackerLayout.EXTRACT_COMPONENTS);
         });
     }
 

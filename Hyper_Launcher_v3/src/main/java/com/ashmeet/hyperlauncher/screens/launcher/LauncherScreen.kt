@@ -40,13 +40,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
-import com.ashmeet.hyperlauncher.components.layout.LauncherBackground
-import com.ashmeet.hyperlauncher.components.layout.ProgressLayout
+import com.ashmeet.hyperlauncher.components.layout.background.LauncherBackground
 import com.ashmeet.hyperlauncher.components.spinner.AccountSpinnerCompose
 import com.ashmeet.hyperlauncher.recorder.RecordingManager
 import com.ashmeet.hyperlauncher.recorder.RecordingState
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.theme.PojavTheme
+import com.ashmeet.hyperlauncher.tracker.TrackerView
 import com.ashmeet.hyperlauncher.utils.drawable.MaterialIconUtil
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
@@ -213,7 +213,7 @@ fun PojavLauncherScreen(
                         modifier = Modifier.fillMaxSize()
                     )
 
-                    ProgressLayout(
+                    TrackerView(
                         modifier = Modifier.align(Alignment.BottomCenter)
                     )
                 }
