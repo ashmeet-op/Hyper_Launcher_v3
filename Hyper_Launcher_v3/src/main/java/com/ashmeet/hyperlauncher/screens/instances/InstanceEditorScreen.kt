@@ -56,7 +56,7 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.TextInputDialog
 import com.ashmeet.hyperlauncher.utils.drawable.rememberDrawablePainter
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.multirt.Runtime
+import com.ashmeet.hyperbackend.multirt.Runtime
 
 @Composable
 fun InstanceEditorScreen(

@@ -15,9 +15,9 @@ import com.ashmeet.hyperlauncher.skin.model.SkinModelType
 import com.ashmeet.hyperlauncher.utils.skin.SkinLoader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.kdt.pojavlaunch.authenticator.AuthType
-import net.kdt.pojavlaunch.authenticator.accounts.Account
-import net.kdt.pojavlaunch.authenticator.accounts.SkinHeadRenderer
+import com.ashmeet.hyperbackend.authenticator.AuthType
+import com.ashmeet.hyperbackend.authenticator.accounts.Account
+import com.ashmeet.hyperbackend.authenticator.accounts.SkinHeadRenderer
 
 object SkinUtils {
 

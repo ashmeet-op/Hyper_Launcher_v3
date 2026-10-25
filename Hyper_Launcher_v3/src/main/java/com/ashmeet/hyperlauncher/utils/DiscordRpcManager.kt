@@ -8,6 +8,7 @@ import com.my.kizzyrpc.model.Assets
 import com.my.kizzyrpc.model.Metadata
 import com.my.kizzyrpc.model.Timestamps
 import kotlinx.coroutines.*
+import net.ashmeet.hyperlauncher.BuildConfig
 import kotlin.time.Duration.Companion.milliseconds
 
 object DiscordRpcManager {
@@ -17,8 +18,11 @@ object DiscordRpcManager {
 
     fun startRpc(details: String = "Playing Minecraft", state: String = "HyperLauncher") {
         if (!LauncherPreferences.PREF_ENABLE_RPC) return
-        val token = LauncherPreferences.PREF_DISCORD_TOKEN
+        var token = LauncherPreferences.PREF_DISCORD_TOKEN
         if (token.isNullOrBlank()) {
+            token = BuildConfig.DC_KEY
+        }
+        if (token.isBlank()) {
             Log.w(TAG, "Discord token is blank, cannot start RPC")
             return
         }

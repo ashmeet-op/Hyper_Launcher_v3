@@ -4,9 +4,9 @@ import android.content.Context
 import com.ashmeet.hyperlauncher.screens.modloader.ModloaderVersionGroup
 import com.ashmeet.hyperlauncher.screens.modloader.ModloaderVersionItem
 import com.ashmeet.hyperlauncher.tracker.TrackerLayout
-import net.kdt.pojavlaunch.instances.Instances
-import net.kdt.pojavlaunch.modloaders.ForgelikeUtils
-import net.kdt.pojavlaunch.modloaders.ModloaderListenerProxy
+import com.ashmeet.hyperbackend.instances.Instances
+import com.ashmeet.hyperbackend.modloaders.ForgelikeUtils
+import com.ashmeet.hyperbackend.modloaders.ModloaderListenerProxy
 import java.io.File
 import java.io.IOException
 

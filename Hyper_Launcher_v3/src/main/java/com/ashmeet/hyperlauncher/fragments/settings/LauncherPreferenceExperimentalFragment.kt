@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import com.ashmeet.hyperlauncher.screens.settings.ExperimentalSettingsScreen
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
-import net.kdt.pojavlaunch.utils.GLInfoUtils
+import com.ashmeet.hyperbackend.utils.GLInfoUtils
 
 class LauncherPreferenceExperimentalFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener {
 

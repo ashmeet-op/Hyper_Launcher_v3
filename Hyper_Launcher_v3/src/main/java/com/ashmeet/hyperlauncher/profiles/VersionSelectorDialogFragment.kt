@@ -8,9 +8,9 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.DialogFragment
 import com.ashmeet.hyperlauncher.components.text.LegacyMigratedComponentsBridge
 import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
-import net.kdt.pojavlaunch.JVersionList
-import net.kdt.pojavlaunch.extra.ExtraConstants
-import net.kdt.pojavlaunch.extra.ExtraCore
+import com.ashmeet.hyperbackend.JVersionList
+import com.ashmeet.hyperbackend.extra.ExtraConstants
+import com.ashmeet.hyperbackend.extra.ExtraCore
 
 class VersionSelectorDialogFragment : DialogFragment() {
 

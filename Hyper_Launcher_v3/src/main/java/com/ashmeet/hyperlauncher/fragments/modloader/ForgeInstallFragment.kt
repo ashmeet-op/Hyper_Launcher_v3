@@ -1,7 +1,7 @@
 package com.ashmeet.hyperlauncher.fragments.modloader
 
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.modloaders.ForgelikeUtils
+import com.ashmeet.hyperbackend.modloaders.ForgelikeUtils
 
 class ForgeInstallFragment : ForgelikeInstallFragment(ForgelikeUtils.FORGE_UTILS, TAG) {
     override fun getTitleText(): Int = R.string.forge_dl_select_version

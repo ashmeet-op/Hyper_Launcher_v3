@@ -39,7 +39,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.Logger
+import com.ashmeet.hyperbackend.Logger
 import com.ashmeet.hyperlauncher.utils.LoggerProxy
 
 @Stable

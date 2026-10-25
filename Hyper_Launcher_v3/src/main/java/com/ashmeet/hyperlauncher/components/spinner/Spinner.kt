@@ -66,14 +66,14 @@ import com.ashmeet.hyperlauncher.utils.Tools
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import com.ashmeet.hyperlauncher.components.HyperAlertDialog
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.authenticator.AuthType
-import net.kdt.pojavlaunch.authenticator.accounts.Account
-import net.kdt.pojavlaunch.authenticator.accounts.Accounts
-import net.kdt.pojavlaunch.authenticator.listener.LoginListener
-import net.kdt.pojavlaunch.extra.ExtraConstants
-import net.kdt.pojavlaunch.extra.ExtraCore
-import net.kdt.pojavlaunch.extra.ExtraListener
-import net.kdt.pojavlaunch.progresskeeper.ProgressKeeper
+import com.ashmeet.hyperbackend.authenticator.AuthType
+import com.ashmeet.hyperbackend.authenticator.accounts.Account
+import com.ashmeet.hyperbackend.authenticator.accounts.Accounts
+import com.ashmeet.hyperbackend.authenticator.listener.LoginListener
+import com.ashmeet.hyperbackend.extra.ExtraConstants
+import com.ashmeet.hyperbackend.extra.ExtraCore
+import com.ashmeet.hyperbackend.extra.ExtraListener
+import com.ashmeet.hyperbackend.progresskeeper.ProgressKeeper
 import java.io.IOException
 
 @Composable

@@ -103,13 +103,13 @@
             android:theme="@style/Theme.Material3.DayNight.Dialog"
             android:screenOrientation="sensorLandscape" />
         <activity
-            android:name="net.kdt.pojavlaunch.ExitActivity"
+            android:name="com.ashmeet.hyperbackend.ExitActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|keyboard|navigation"
             android:theme="@style/AppTheme"
             android:screenOrientation="sensorLandscape" />
         <activity
             android:process=":gui_installer"
-            android:name="net.kdt.pojavlaunch.awt.AWTActivity"
+            android:name="com.ashmeet.hyperbackend.awt.AWTActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation|uiMode"
             android:screenOrientation="sensorLandscape" />
         <activity
@@ -124,14 +124,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="net.kdt.pojavlaunch.game.GameActivity"
+            android:name="com.ashmeet.hyperbackend.game.GameActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation|uiMode"
             android:launchMode="singleTop"
             android:process=":game"
             android:screenOrientation="sensorLandscape" />
 
         <provider
-            android:name="net.kdt.pojavlaunch.scoped.FolderProvider"
+            android:name="com.ashmeet.hyperbackend.scoped.FolderProvider"
             android:authorities="@string/storageProviderAuthorities"
             android:exported="true"
             android:grantUriPermissions="true"
@@ -141,9 +141,9 @@
             </intent-filter>
         </provider>
 
-        <service android:name="net.kdt.pojavlaunch.services.ProgressService"
+        <service android:name="com.ashmeet.hyperbackend.services.ProgressService"
             android:foregroundServiceType="dataSync"/>
-        <service android:name="net.kdt.pojavlaunch.services.GameService" android:process=":game"
+        <service android:name="com.ashmeet.hyperbackend.services.GameService" android:process=":game"
             android:foregroundServiceType="specialUse">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="This application is intended to run a 3rd-party piece of software which cannot be managed using the activity's saved instance state. This service is used for background persistence of this piece of software."/>

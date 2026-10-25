@@ -50,7 +50,7 @@ import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
 import com.ashmeet.hyperlauncher.components.slider.SimpleTextSlider
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.multirt.Runtime
+import com.ashmeet.hyperbackend.multirt.Runtime
 import java.io.File
 
 @Composable

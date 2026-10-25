@@ -21,7 +21,7 @@ import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import com.ashmeet.hyperlauncher.tracker.TrackerLayout
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.progresskeeper.ProgressKeeper
+import com.ashmeet.hyperbackend.progresskeeper.ProgressKeeper
 
 class AuthHostFragment : Fragment() {
 

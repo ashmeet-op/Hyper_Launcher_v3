@@ -91,7 +91,7 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreference
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import net.kdt.pojavlaunch.utils.KeycodeUtils
+import com.ashmeet.hyperbackend.utils.KeycodeUtils
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable

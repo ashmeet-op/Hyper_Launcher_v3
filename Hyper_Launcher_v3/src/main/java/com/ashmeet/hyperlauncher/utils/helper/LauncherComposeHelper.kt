@@ -11,8 +11,8 @@ import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.ashmeet.hyperlauncher.screens.game.LoggerView
-import net.kdt.pojavlaunch.customcontrols.ControlLayout
-import net.kdt.pojavlaunch.game.GameView
+import com.ashmeet.hyperbackend.customcontrols.ControlLayout
+import com.ashmeet.hyperbackend.game.GameView
 
 object LauncherComposeHelper {
     val isLoading get() = LoadingComposeHelper.isLoading

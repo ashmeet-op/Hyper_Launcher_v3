@@ -41,7 +41,7 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSliderItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSwitchItem
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.utils.KeycodeUtils
+import com.ashmeet.hyperbackend.utils.KeycodeUtils
 
 @Composable
 fun ControlSettingsScreen(

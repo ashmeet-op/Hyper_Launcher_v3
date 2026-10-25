@@ -18,8 +18,8 @@ import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.utils.ShortcutUtils
 import com.ashmeet.hyperlauncher.utils.Tools
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.instances.Instance
-import net.kdt.pojavlaunch.instances.Instances
+import com.ashmeet.hyperbackend.instances.Instance
+import com.ashmeet.hyperbackend.instances.Instances
 
 class InstanceSelectionFragment : Fragment() {
 

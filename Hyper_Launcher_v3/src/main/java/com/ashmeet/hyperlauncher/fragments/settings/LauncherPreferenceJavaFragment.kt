@@ -18,9 +18,9 @@ import com.ashmeet.hyperlauncher.utils.Tools
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.kdt.pojavlaunch.contracts.OpenDocumentWithExtension
-import net.kdt.pojavlaunch.multirt.MultiRTUtils
-import net.kdt.pojavlaunch.multirt.Runtime
+import com.ashmeet.hyperbackend.contracts.OpenDocumentWithExtension
+import com.ashmeet.hyperbackend.multirt.MultiRTUtils
+import com.ashmeet.hyperbackend.multirt.Runtime
 
 class LauncherPreferenceJavaFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener {
 

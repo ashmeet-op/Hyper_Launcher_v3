@@ -1,0 +1,64 @@
+package com.ashmeet.hyperbackend.customcontrols.mouse;
+
+import static com.ashmeet.hyperbackend.CallbackBridge.sendMouseButton;
+
+import android.os.Handler;
+import android.view.MotionEvent;
+
+import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
+import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperbackend.utils.MathUtils;
+
+public class LeftClickGesture extends DistanceGesture {
+    public static final int FINGER_STILL_THRESHOLD = (int) Tools.dpToPx(9);
+
+    private boolean mMouseActivated;
+
+    public LeftClickGesture(Handler handler) {
+        super(handler);
+    }
+
+    @Override
+    void onGestureSubmitted() {
+
+    }
+
+    @Override
+    boolean shouldSubmitGesture() {
+        return true;
+    }
+
+    @Override
+    protected int getGestureDelay() {
+        return LauncherPreferences.PREF_LONGPRESS_TRIGGER;
+    }
+
+    @Override
+    public boolean checkAndTrigger() {
+        boolean fingerStill = travelBelowThreshold(LeftClickGesture.FINGER_STILL_THRESHOLD);
+
+        if(fingerStill) {
+            sendMouseButton(MotionEvent.BUTTON_PRIMARY, true);
+            mMouseActivated = true;
+        }
+
+        return true;
+    }
+
+    @Override
+    public void onGestureCancelled(boolean isSwitching) {
+        if(mMouseActivated) {
+            sendMouseButton(MotionEvent.BUTTON_PRIMARY, false);
+            mMouseActivated = false;
+        }
+    }
+
+    public static boolean isFingerStill(float startX, float startY, float endX, float endY, float threshold) {
+        return MathUtils.dist(
+                endX,
+                endY,
+                startX,
+                startY
+        ) <= threshold;
+    }
+}

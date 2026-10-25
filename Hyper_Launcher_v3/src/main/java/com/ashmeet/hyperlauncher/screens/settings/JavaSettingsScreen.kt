@@ -32,8 +32,8 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSliderItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSwitchItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.TextInputDialog
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.multirt.MultiRTUtils
-import net.kdt.pojavlaunch.multirt.Runtime
+import com.ashmeet.hyperbackend.multirt.MultiRTUtils
+import com.ashmeet.hyperbackend.multirt.Runtime
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 
 @SuppressLint("LocalContextGetResourceValueCall")

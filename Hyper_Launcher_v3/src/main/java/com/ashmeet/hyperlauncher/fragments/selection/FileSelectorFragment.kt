@@ -28,8 +28,8 @@ import com.ashmeet.hyperlauncher.filemanager.components.FileListView
 import com.ashmeet.hyperlauncher.filemanager.listeners.FileSelectedListener
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.utils.Tools
-import net.kdt.pojavlaunch.extra.ExtraConstants
-import net.kdt.pojavlaunch.extra.ExtraCore
+import com.ashmeet.hyperbackend.extra.ExtraConstants
+import com.ashmeet.hyperbackend.extra.ExtraCore
 import java.io.File
 
 class FileSelectorFragment : Fragment() {

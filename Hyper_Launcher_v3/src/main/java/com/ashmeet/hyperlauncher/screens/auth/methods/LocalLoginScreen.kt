@@ -27,7 +27,7 @@ import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.contracts.OpenDocumentWithExtension
+import com.ashmeet.hyperbackend.contracts.OpenDocumentWithExtension
 import java.io.File
 import java.io.FileOutputStream
 

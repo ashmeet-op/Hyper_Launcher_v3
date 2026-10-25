@@ -7,9 +7,9 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.game.renderer.GameRenderer
-import net.kdt.pojavlaunch.game.renderer.impl.FCLRenderSpec
-import net.kdt.pojavlaunch.instances.Instances
+import com.ashmeet.hyperbackend.game.renderer.GameRenderer
+import com.ashmeet.hyperbackend.game.renderer.impl.FCLRenderSpec
+import com.ashmeet.hyperbackend.instances.Instances
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File

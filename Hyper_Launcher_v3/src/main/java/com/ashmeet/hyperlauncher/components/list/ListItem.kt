@@ -91,10 +91,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.instances.DisplayInstance
-import net.kdt.pojavlaunch.instances.Instance
-import net.kdt.pojavlaunch.instances.InstanceIconProvider
-import net.kdt.pojavlaunch.modloaders.modpacks.api.ModrinthService
+import com.ashmeet.hyperbackend.instances.DisplayInstance
+import com.ashmeet.hyperbackend.instances.Instance
+import com.ashmeet.hyperbackend.instances.InstanceIconProvider
+import com.ashmeet.hyperbackend.modloaders.modpacks.api.ModrinthService
 import java.io.File
 import java.net.URL
 import java.text.SimpleDateFormat

@@ -13,7 +13,7 @@
 
 # The "Reverse" Approach: Keep everything outside com.ashmeet.hyperlauncher intact
 # This allows R8 to shrink, optimize, and obfuscate only com.ashmeet.hyperlauncher
--keep class net.kdt.pojavlaunch.** { *; }
+-keep class com.ashmeet.hyperbackend.** { *; }
 -keep class git.artdeell.** { *; }
 -keep class git.mojo.** { *; }
 -keep class com.ashmeet.hyperlauncher.filemanager.** { *; }
@@ -34,8 +34,8 @@
 -keep class com.ashmeet.hyperlauncher.fragments.settings.LauncherPreferenceMiscellaneousFragment { *; }
 
 # Minecraft JSON classes (GSON mapping and Reflection)
--keep class net.kdt.pojavlaunch.JVersionList** { *; }
--keep class net.kdt.pojavlaunch.modloaders.modpacks.api.** { *; }
+-keep class com.ashmeet.hyperbackend.JVersionList** { *; }
+-keep class com.ashmeet.hyperbackend.modloaders.modpacks.api.** { *; }
 
 # JNI keep rules
 -keep class git.artdeell.dnbootstrap.glfw.GLFW { *; }
@@ -62,7 +62,7 @@
 -keep class com.google.gson.reflect.TypeToken
 -keep class * extends com.google.gson.TypeAdapter
 -keep class com.google.gson.stream.**
--keep class net.kdt.pojavlaunch.** {
+-keep class com.ashmeet.hyperbackend.** {
     @com.google.gson.annotations.SerializedName <fields>;
 }
 

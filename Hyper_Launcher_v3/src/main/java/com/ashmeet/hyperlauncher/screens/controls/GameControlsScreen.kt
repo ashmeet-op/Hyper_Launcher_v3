@@ -17,8 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.viewinterop.AndroidView
 import com.ashmeet.hyperlauncher.screens.game.LoggerView
 import kotlinx.coroutines.launch
-import net.kdt.pojavlaunch.customcontrols.ControlLayout
-import net.kdt.pojavlaunch.game.GameView
+import com.ashmeet.hyperbackend.customcontrols.ControlLayout
+import com.ashmeet.hyperbackend.game.GameView
 
 @Composable
 fun GameControlsScreen(

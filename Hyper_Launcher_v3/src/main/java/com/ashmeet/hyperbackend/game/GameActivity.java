@@ -1,0 +1,715 @@
+package com.ashmeet.hyperbackend.game;
+
+
+import static com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_ENABLE_GYRO;
+import static com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_SUSTAINED_PERFORMANCE;
+import static com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_USE_ALTERNATE_SURFACE;
+import static com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_VIRTUAL_MOUSE_START;
+import static com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_ZINK_PREFER_SYSTEM_DRIVER;
+import static com.ashmeet.hyperlauncher.utils.Tools.dialogForceClose;
+import static com.ashmeet.hyperbackend.game.platform.Platform.PLATFORM;
+
+
+import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.util.Log;
+import android.text.InputType;
+import android.view.InputDevice;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.widget.FrameLayout;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
+
+
+import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
+import com.ashmeet.hyperlauncher.fragments.dialog.EditControlSideDialog;
+import com.ashmeet.hyperlauncher.fragments.dialog.QuickSettingSideDialog;
+import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper;
+import com.ashmeet.hyperlauncher.utils.SideDialogUtils;
+import com.ashmeet.hyperlauncher.screens.game.LoggerView;
+
+import net.ashmeet.hyperlauncher.R;
+import com.ashmeet.hyperlauncher.activity.BaseActivity;
+import com.ashmeet.hyperbackend.CallbackBridge;
+import com.ashmeet.hyperbackend.Logger;
+import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperbackend.authenticator.accounts.Accounts;
+import com.ashmeet.hyperbackend.customcontrols.ControlButtonMenuListener;
+import com.ashmeet.hyperbackend.customcontrols.ControlData;
+import com.ashmeet.hyperbackend.customcontrols.ControlDrawerData;
+import com.ashmeet.hyperbackend.customcontrols.ControlJoystickData;
+import com.ashmeet.hyperbackend.customcontrols.ControlLayout;
+import com.ashmeet.hyperbackend.customcontrols.CustomControls;
+import com.ashmeet.hyperbackend.customcontrols.EditorExitable;
+import com.ashmeet.hyperbackend.customcontrols.buttons.ControlInterface;
+import com.ashmeet.hyperbackend.customcontrols.keyboard.TouchCharInput;
+import com.ashmeet.hyperbackend.customcontrols.mouse.GyroControl;
+import com.ashmeet.hyperbackend.customcontrols.mouse.HotbarView;
+import com.ashmeet.hyperbackend.instances.Instance;
+import com.ashmeet.hyperbackend.instances.Instances;
+import com.ashmeet.hyperbackend.lifecycle.ContextExecutor;
+import com.ashmeet.hyperbackend.game.platform.Platform;
+import com.ashmeet.hyperbackend.game.platform.backend.DummyBackend;
+
+import com.ashmeet.hyperbackend.services.GameService;
+import com.ashmeet.hyperbackend.tasks.AsyncAssetManager;
+import com.ashmeet.hyperbackend.utils.JREUtils;
+import com.ashmeet.hyperbackend.utils.MCOptionUtils;
+import com.ashmeet.hyperbackend.authenticator.accounts.Account;
+import com.ashmeet.hyperbackend.game.renderer.GameRenderer;
+import com.ashmeet.hyperbackend.game.renderer.RendererCache;
+import com.ashmeet.hyperbackend.utils.jre.GameRunner;
+
+import java.io.File;
+import java.io.IOException;
+import com.ashmeet.hyperbackend.extra.ExtraConstants;
+import com.ashmeet.hyperbackend.extra.ExtraCore;
+
+import java.lang.ref.WeakReference;
+import java.util.Objects;
+import androidx.compose.ui.platform.ComposeView;
+
+import kotlin.Unit;
+
+
+public class GameActivity extends BaseActivity implements ControlButtonMenuListener, EditorExitable, ServiceConnection {
+    public static final String INTENT_LAUNCH_VERSION = "intent_version";
+    public static final String INTENT_LAUNCH_CLASSPATH = "intent_classpath";
+    public static final String INTENT_QUICK_PLAY_WORLD = "intent_quick_play_world";
+    public static final String INTENT_QUICK_PLAY_SERVER = "intent_quick_play_server";
+
+    public static TouchCharInput touchCharInput;
+    private GameView launcherGLView;
+    private static WeakReference<GameCursorView> weakCursor;
+    private LoggerView loggerView;
+    private GyroControl mGyroControl = null;
+    private ControlLayout mControlLayout;
+    private HotbarView mHotbarView;
+    private View mLoadingScreen;
+    private ComposeView mMainComposeView;
+    private GameRenderer mGameRenderer;
+
+    Instance instance;
+    Account account;
+
+    private GameService.LocalBinder mServiceBinder;
+
+    private QuickSettingSideDialog mQuickSettingSideDialog;
+    private EditControlSideDialog mEditControlSideDialog;
+    private LauncherComposeHelper.DrawerController mDrawerController;
+
+    public static int mForcedPanningHeight = 0;
+    public static int mImeHeight = 0;
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        instance = Instances.loadSelectedInstance();
+        account = Accounts.getCurrent();
+        if(instance == null) {
+            Toast.makeText(this, R.string.instance_dir_missing, Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+        mGameRenderer = new GameRenderer(instance.getLaunchRenderer());
+        if(!PREF_ZINK_PREFER_SYSTEM_DRIVER) {
+            mGameRenderer.overrideVulkanDriver();
+        }
+        AsyncAssetManager.extractDefaultSettings(this, instance.getGameDirectory());
+        MCOptionUtils.load(instance.getGameDirectory().getAbsolutePath());
+
+        Intent gameServiceIntent = new Intent(this, GameService.class);
+
+        ContextCompat.startForegroundService(this, gameServiceIntent);
+        initLayout();
+
+        Platform.initialize(this, launcherGLView);
+
+        mGyroControl = new GyroControl(this);
+
+
+        if(PREF_USE_ALTERNATE_SURFACE) getWindow().setBackgroundDrawable(null);
+        else getWindow().setBackgroundDrawable(new ColorDrawable(Color.BLACK));
+
+
+        getWindow().setSustainedPerformanceMode(PREF_SUSTAINED_PERFORMANCE);
+
+
+
+        boolean androidCompat = Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q;
+        if(androidCompat)
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
+        ViewCompat.setOnApplyWindowInsetsListener(getWindow().getDecorView(), (view, insets) -> {
+            if(launcherGLView.mSurface == null)
+                return insets;
+            ViewPropertyAnimator animSurface = launcherGLView.mSurface.animate()
+                    .setDuration(100);
+            ViewPropertyAnimator animCursor = launcherGLView.mCursorView.animate()
+                    .setDuration(100);
+            if(!insets.isVisible(WindowInsetsCompat.Type.ime())){
+                animSurface.translationY(0).start();
+                animCursor.translationY(0).start();
+                mImeHeight = 0;
+                if(androidCompat) {
+
+                    view.postDelayed(() -> {
+                        WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(getWindow(), view);
+                        //noinspection ConstantValue
+                        if (controller != null) {
+                            controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+                            controller.hide(WindowInsetsCompat.Type.systemBars());
+                        }
+                    }, 150);
+                }
+                return insets;
+            }
+            if(mForcedPanningHeight == 0 && !LauncherPreferences.PREF_KEYBOARD_AUTOPANNING)
+                return insets;
+            mImeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
+            int translationY;
+
+            if(mForcedPanningHeight == 0) {
+                translationY = Tools.getTranslationFromCursorY(
+                        (int)(Platform.cursorY * launcherGLView.getCursorRatioY() + 100),
+                        launcherGLView.getHeight(),
+                        mImeHeight,
+                        0
+                );
+            } else
+                translationY = mForcedPanningHeight == -1 ? mImeHeight : Math.clamp(mImeHeight - mForcedPanningHeight, 0, mImeHeight);
+            animSurface.translationY(-translationY).start();
+            animCursor.translationY(-translationY).start();
+            return insets;
+        });
+
+
+        MCOptionUtils.MCOptionListener optionListener = MCOptionUtils::getMcScale;
+        MCOptionUtils.addMCOptionListener(optionListener);
+        mControlLayout.setModifiable(false);
+
+
+
+        ContextExecutor.setActivity(this);
+
+        bindService(gameServiceIntent, this, 0);
+    }
+
+    @SuppressWarnings("deprecation")
+    protected void initLayout() {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        bindValues();
+        mControlLayout.setMenuListener(this);
+
+        launcherGLView.mCursorView.setCursorScale(LauncherPreferences.PREF_MOUSESCALE);
+        weakCursor = new WeakReference<>(launcherGLView.mCursorView);
+
+        mMainComposeView = new ComposeView(this);
+        LauncherComposeHelper.ensureViewTreeOwners(mMainComposeView);
+        mMainComposeView.setClipChildren(false);
+        mMainComposeView.setClipToPadding(false);
+        setContentView(mMainComposeView);
+
+        LauncherComposeHelper.setBaseMainContent(
+                mMainComposeView,
+                isInEditor,
+                mControlLayout,
+                loggerView,
+                launcherGLView,
+                true,
+                isOpen -> Unit.INSTANCE,
+                controller -> { mDrawerController = controller; return Unit.INSTANCE; },
+                action -> { onAction(action); return Unit.INSTANCE; }
+        );
+
+        mControlLayout.setOnControlEditListener(new ControlLayout.OnControlEditListener() {
+            @Override
+            public void onEditControl(ControlInterface button) {
+                if (mEditControlSideDialog == null) {
+                    mEditControlSideDialog = new EditControlSideDialog();
+                }
+                mEditControlSideDialog.setCurrentlyEditedButton(button);
+                SideDialogUtils.show(mEditControlSideDialog, button.getControlView().getX() + button.getControlView().getWidth()/2f < mControlLayout.getWidth()/2f);
+            }
+
+            @Override
+            public boolean onDisappearLayer() {
+                if (mEditControlSideDialog != null) {
+                    return mEditControlSideDialog.disappearLayer();
+                }
+                return true;
+            }
+        });
+
+        try {
+            File latestLogFile = new File(Tools.DIR_GAME_HOME, "latestlog.txt");
+            if(!latestLogFile.exists() && !latestLogFile.createNewFile())
+                throw new IOException("Failed to create a new log file");
+            Logger.begin(latestLogFile.getAbsolutePath());
+
+            Bundle extras = Objects.requireNonNull(getIntent().getExtras());
+            String version = extras.getString(INTENT_LAUNCH_VERSION);
+            File[] classpath;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                classpath = extras.getSerializable(INTENT_LAUNCH_CLASSPATH, File[].class);
+            } else {
+                classpath = (File[]) extras.getSerializable(INTENT_LAUNCH_CLASSPATH);
+            }
+
+            if (extras.containsKey(INTENT_QUICK_PLAY_WORLD)) {
+                String quickPlayWorld = extras.getString(INTENT_QUICK_PLAY_WORLD);
+                if (quickPlayWorld != null) {
+                    ExtraCore.setValue(ExtraConstants.QUICK_PLAY_WORLD, quickPlayWorld);
+                }
+            }
+            if (extras.containsKey(INTENT_QUICK_PLAY_SERVER)) {
+                String quickPlayServer = extras.getString(INTENT_QUICK_PLAY_SERVER);
+                if (quickPlayServer != null) {
+                    ExtraCore.setValue(ExtraConstants.QUICK_PLAY_SERVER, quickPlayServer);
+                }
+            }
+
+            setTitle("HyperLauncher (" + version + ")");
+
+            launcherGLView.setSurfaceReadyListener(() -> {
+                try {
+                    Tools.runOnUiThread(() -> { if(PREF_VIRTUAL_MOUSE_START) launcherGLView.mCursorView.setVisibility(View.VISIBLE); });
+                    runCraft(version, classpath);
+                }catch (Throwable e){
+                    Tools.showErrorRemote(e);
+                }
+            });
+        } catch (Throwable e) {
+            Tools.showError(this, e, true);
+        }
+    }
+
+    private void onAction(int action) {
+        if (isInEditor) {
+            switch (action) {
+                case -1:
+                    break;
+                case 0: mControlLayout.addControlButton(new ControlData("New")); break;
+                case 1: mControlLayout.addDrawer(new ControlDrawerData()); break;
+                case 2: mControlLayout.addJoystickButton(new ControlJoystickData()); break;
+                case 3: mControlLayout.openLoadDialog(); break;
+                case 4: mControlLayout.openSaveDialog(this); break;
+                case 5: mControlLayout.openSetDefaultDialog(); break;
+                case 6: mControlLayout.openExitDialog(this); break;
+            }
+        } else {
+            switch (action) {
+                case 0: dialogForceClose(GameActivity.this); break;
+                case 1: openLogOutput(); break;
+                case 2: dialogSendCustomKey(); break;
+                case 3: openQuickSettings(); break;
+                case 4: openCustomControls(); break;
+            }
+        }
+    }
+
+    private void loadControls() {
+        try {
+
+            mControlLayout.loadLayout(instance.getLaunchControls());
+        } catch(IOException e) {
+            try {
+                Log.w("MainActivity", "Unable to load the control file, loading the default now", e);
+                mControlLayout.loadLayout(Tools.CTRLDEF_FILE);
+            } catch (IOException ioException) {
+                Tools.showError(this, ioException);
+            }
+        } catch (Throwable th) {
+            Tools.showError(this, th);
+        }
+        mControlLayout.toggleControlVisible();
+    }
+
+    @Override
+    public void onAttachedToWindow() {
+
+        mControlLayout.post(()->{
+            Tools.getDisplayMetrics(this);
+            loadControls();
+        });
+    }
+
+
+    private void bindValues(){
+        mControlLayout = new ControlLayout(this);
+        mControlLayout.setId(R.id.main_control_layout);
+        mControlLayout.setClipChildren(false);
+        mControlLayout.setClipToPadding(false);
+
+        launcherGLView = new GameView(this);
+        launcherGLView.setId(R.id.main_game_render_view);
+        launcherGLView.setClipChildren(false);
+        launcherGLView.setClipToPadding(false);
+
+        GameCursorView cursorView = new GameCursorView(this);
+        cursorView.setId(R.id.main_cursorview);
+        cursorView.setVisibility(View.GONE);
+        FrameLayout.LayoutParams cursorLp = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+        );
+        cursorView.setLayoutParams(cursorLp);
+        cursorView.setFocusable(false);
+        cursorView.setTranslationZ(Tools.dpToPx(1));
+        launcherGLView.addView(cursorView);
+        launcherGLView.mCursorView = cursorView;
+
+        loggerView = new LoggerView(this);
+        loggerView.setId(R.id.mainLoggerView);
+        loggerView.setVisibility(View.GONE);
+
+        touchCharInput = new TouchCharInput(this);
+        touchCharInput.setId(R.id.mainTouchCharInput);
+        touchCharInput.setLayoutParams(new FrameLayout.LayoutParams((int)Tools.dpToPx(1), (int)Tools.dpToPx(1)));
+
+        int imeOptions = EditorInfo.IME_FLAG_NO_FULLSCREEN | EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_DONE;
+        imeOptions |= EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING;
+        touchCharInput.setImeOptions(imeOptions);
+        touchCharInput.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
+
+        mHotbarView = new HotbarView(this);
+        mHotbarView.setId(R.id.hotbar_view);
+        mHotbarView.setLayoutParams(new FrameLayout.LayoutParams(0, 0));
+
+
+        mControlLayout.addView(launcherGLView);
+        mControlLayout.addView(touchCharInput);
+        mControlLayout.addView(mHotbarView);
+
+        LauncherComposeHelper.setLoadingText(getString(R.string.loading_screen_title));
+        LauncherComposeHelper.setLoadingWarning(getString(R.string.loading_screen_warning));
+        LauncherComposeHelper.setLoadingVisible(true);
+
+        Platform.setCursorImplementor(cursorView);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ContextExecutor.setActivity(this);
+        if(PREF_ENABLE_GYRO) mGyroControl.enable();
+        PLATFORM.setHovered(true);
+    }
+
+    @Override
+    protected void onPause() {
+        ContextExecutor.clearActivity();
+        mGyroControl.disable();
+
+        if (Platform.isGrabbing()){
+            CallbackBridge.sendKeyPress(KeyEvent.KEYCODE_ESCAPE);
+        }
+        if(mQuickSettingSideDialog != null) {
+            mQuickSettingSideDialog.cancel();
+        }
+        PLATFORM.setHovered(false);
+        super.onPause();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        PLATFORM.setVisible(true);
+    }
+
+    @Override
+    protected void onStop() {
+        PLATFORM.setVisible(false);
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (PLATFORM != null) {
+            PLATFORM.setVisible(false);
+        }
+        if (launcherGLView != null) {
+            launcherGLView.onSurfaceDestroyed();
+        }
+        ContextExecutor.clearActivity();
+        super.onDestroy();
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        if(mGyroControl != null) mGyroControl.updateOrientation();
+
+
+
+        if(mControlLayout == null) return;
+        mControlLayout.requestLayout();
+        mControlLayout.post(()->{
+
+            launcherGLView.refreshSize();
+            mControlLayout.refreshControlButtonPositions();
+        });
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        if(mLoadingScreen != null && !(PLATFORM instanceof DummyBackend)) hideLoadingScreen();
+        if(launcherGLView != null)
+            Tools.MAIN_HANDLER.postDelayed(() -> launcherGLView.refreshSize(), 500);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
+
+
+
+            if(!Tools.checkStorageRoot(this)) return;
+            LauncherPreferences.loadPreferences(getApplicationContext());
+            try {
+                mControlLayout.loadLayout(LauncherPreferences.PREF_DEFAULTCTRL_PATH);
+            } catch (IOException e) {
+                //noinspection CallToPrintStackTrace
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void runCraft(String versionId, File[] classpath) throws Throwable {
+        String renderer = instance.getLaunchRenderer();
+        if(!RendererCache.checkRendererCompatible(this, renderer)) {
+            RendererCache renderersList = RendererCache.getCompatibleRenderers(this);
+            String firstCompatibleRenderer = renderersList.rendererIds.get(0);
+            Log.w("runCraft","Incompatible renderer "+renderer+ " will be replaced with "+firstCompatibleRenderer);
+            renderer = firstCompatibleRenderer;
+        }
+        if (mGameRenderer == null) {
+            mGameRenderer = new GameRenderer(renderer);
+            if(!PREF_ZINK_PREFER_SYSTEM_DRIVER) {
+                mGameRenderer.overrideVulkanDriver();
+            }
+        } else {
+            mGameRenderer.setCurrentRenderer(renderer);
+        }
+        Logger.appendToLog("--------- Starting game with Launcher Debug!");
+        Tools.printLauncherInfo(versionId, instance.getLaunchArgs(), renderer, this);
+        JREUtils.redirectAndPrintJRELog();
+        GameRunner.launchGame(this, account, instance, versionId, classpath, mGameRenderer);
+
+        Tools.runOnUiThread(()-> mServiceBinder.isActive = false);
+    }
+
+    private void dialogSendCustomKey() {
+        Tools.dialogSendCustomKey(this);
+    }
+
+    boolean isInEditor;
+    private void openCustomControls() {
+        isInEditor = true;
+        LauncherComposeHelper.setBaseMainContent(
+                mMainComposeView,
+                isInEditor,
+                mControlLayout,
+                loggerView,
+                launcherGLView,
+                true,
+                isOpen -> Unit.INSTANCE,
+                controller -> { mDrawerController = controller; return Unit.INSTANCE; },
+                action -> { onAction(action); return Unit.INSTANCE; }
+        );
+        mControlLayout.setModifiable(true);
+    }
+
+    private void openLogOutput() {
+        loggerView.setVisibility(View.VISIBLE);
+    }
+
+    private void openQuickSettings() {
+        if(mQuickSettingSideDialog == null) {
+            mQuickSettingSideDialog = new QuickSettingSideDialog() {
+                @Override
+                public void onResolutionChanged() {
+                    launcherGLView.refreshSize();
+                    mHotbarView.onResolutionChanged();
+                }
+
+                @Override
+                public void onGyroStateChanged() {
+                    mGyroControl.updateOrientation();
+                    if (PREF_ENABLE_GYRO) {
+                        mGyroControl.enable();
+                    } else {
+                        mGyroControl.disable();
+                    }
+                }
+
+                @Override
+                public void onButtonTransparencyChanged() {
+                    mControlLayout.updateButtonOpacity();
+                }
+
+                @Override
+                public void onShowFpsChanged() {
+
+
+                }
+
+                @Override
+                public void onForceClose() {
+                    dialogForceClose(GameActivity.this);
+                }
+
+                @Override
+                public void onViewOutput() {
+                    openLogOutput();
+                }
+
+                @Override
+                public void onCustomKey() {
+                    dialogSendCustomKey();
+                }
+            };
+        }
+        SideDialogUtils.show(mQuickSettingSideDialog, true);
+    }
+
+    public static void toggleMouse(Context ctx) {
+
+        if (Platform.isGrabbing()) return;
+        GameCursorView cursorView = Tools.getWeakReference(weakCursor);
+        if(cursorView == null) return;
+        int toastString = 0;
+        switch (cursorView.getVisibility()) {
+            case View.GONE:
+            case View.INVISIBLE:
+                toastString = R.string.control_mouseon;
+                cursorView.setVisibility(View.VISIBLE);
+                break;
+            case View.VISIBLE:
+                toastString = R.string.control_mouseoff;
+                cursorView.setVisibility(View.GONE);
+                break;
+        }
+
+        if(toastString != 0) Toast.makeText(ctx, toastString, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if(isInEditor) {
+            if(event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+                if(event.getAction() == KeyEvent.ACTION_DOWN) mControlLayout.askToExit(this);
+                return true;
+            }
+            return super.dispatchKeyEvent(event);
+        }
+        boolean handleEvent;
+        if(!(handleEvent = launcherGLView.processKeyEvent(event))) {
+            if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && !touchCharInput.isEnabled()) {
+                if(event.getAction() != KeyEvent.ACTION_UP) return true;
+                CallbackBridge.sendKeyPress(KeyEvent.KEYCODE_ESCAPE);
+                return true;
+            }
+        }
+        return handleEvent;
+    }
+
+    public static void switchKeyboardState(boolean panning) {
+        if(touchCharInput != null) {
+            touchCharInput.switchKeyboardState();
+            GameActivity.mForcedPanningHeight = panning ? -1 : 0;
+        }
+    }
+
+    public void hideLoadingScreen(){
+        LauncherComposeHelper.setLoadingText(getString(R.string.loading_screen_booted, PLATFORM.backendName()));
+        Tools.MAIN_HANDLER.postDelayed(() -> {
+            LauncherComposeHelper.setLoadingVisible(false);
+            mLoadingScreen = null;
+        }, 1000);
+    }
+
+    @Override
+    public void onClickedMenu() {
+        if (mDrawerController != null) {
+            mDrawerController.open();
+        }
+    }
+
+    @Override
+    public void exitEditor() {
+        try {
+            mControlLayout.loadLayout((CustomControls)null);
+            mControlLayout.setModifiable(false);
+            System.gc();
+            mControlLayout.loadLayout(instance.getLaunchControls());
+        } catch (Exception e) {
+            Tools.showError(this,e);
+        }
+
+        isInEditor = false;
+        LauncherComposeHelper.setBaseMainContent(
+                mMainComposeView,
+                isInEditor,
+                mControlLayout,
+                loggerView,
+                launcherGLView,
+                true,
+                isOpen -> Unit.INSTANCE,
+                controller -> { mDrawerController = controller; return Unit.INSTANCE; },
+                action -> { onAction(action); return Unit.INSTANCE; }
+        );
+    }
+
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        GameService.LocalBinder localBinder = (GameService.LocalBinder) service;
+        mServiceBinder = localBinder;
+        launcherGLView.start(localBinder.isActive);
+        localBinder.isActive = true;
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+    }
+
+
+    private boolean checkCaptureDispatchConditions(MotionEvent event) {
+        int eventSource = event.getSource();
+        return (eventSource & InputDevice.SOURCE_MOUSE_RELATIVE) != 0 ||
+        (eventSource & InputDevice.SOURCE_MOUSE) != 0;
+    }
+
+    @Override
+    public boolean dispatchTrackballEvent(MotionEvent ev) {
+        if(Tools.isAndroid8OrHigher() && checkCaptureDispatchConditions(ev))
+        return launcherGLView.dispatchCapturedPointerEvent(ev);
+        else return super.dispatchTrackballEvent(ev);
+    }
+}

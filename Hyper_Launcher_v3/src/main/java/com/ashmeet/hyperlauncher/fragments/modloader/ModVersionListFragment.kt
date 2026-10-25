@@ -14,10 +14,10 @@ import com.ashmeet.hyperlauncher.screens.modloader.ModloaderVersionGroup
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.utils.Tools
-import net.kdt.pojavlaunch.extra.ExtraCore
-import net.kdt.pojavlaunch.modloaders.ModloaderDownloadListener
-import net.kdt.pojavlaunch.modloaders.ModloaderListenerProxy
-import net.kdt.pojavlaunch.progresskeeper.ProgressKeeper
+import com.ashmeet.hyperbackend.extra.ExtraCore
+import com.ashmeet.hyperbackend.modloaders.ModloaderDownloadListener
+import com.ashmeet.hyperbackend.modloaders.ModloaderListenerProxy
+import com.ashmeet.hyperbackend.progresskeeper.ProgressKeeper
 
 import java.io.File
 import java.io.IOException

@@ -14,9 +14,9 @@ import com.ashmeet.hyperlauncher.components.text.LegacyMigratedComponentsBridge
 import com.ashmeet.hyperlauncher.components.text.ProgressTaskState
 import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.progresskeeper.ProgressKeeper
-import net.kdt.pojavlaunch.progresskeeper.ProgressListener
-import net.kdt.pojavlaunch.progresskeeper.TaskCountListener
+import com.ashmeet.hyperbackend.progresskeeper.ProgressKeeper
+import com.ashmeet.hyperbackend.progresskeeper.ProgressListener
+import com.ashmeet.hyperbackend.progresskeeper.TaskCountListener
 import java.util.ArrayList
 
 class TrackerLayout : ConstraintLayout, TaskCountListener {

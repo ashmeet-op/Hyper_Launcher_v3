@@ -75,13 +75,13 @@ import com.ashmeet.hyperlauncher.utils.SkinUtils
 import com.ashmeet.hyperlauncher.utils.drawable.rememberDrawablePainter
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.authenticator.accounts.Accounts
-import net.kdt.pojavlaunch.extra.ExtraConstants
-import net.kdt.pojavlaunch.extra.ExtraCore
-import net.kdt.pojavlaunch.extra.ExtraListener
-import net.kdt.pojavlaunch.instances.DisplayInstance
-import net.kdt.pojavlaunch.instances.InstanceIconProvider
-import net.kdt.pojavlaunch.instances.Instances
+import com.ashmeet.hyperbackend.authenticator.accounts.Accounts
+import com.ashmeet.hyperbackend.extra.ExtraConstants
+import com.ashmeet.hyperbackend.extra.ExtraCore
+import com.ashmeet.hyperbackend.extra.ExtraListener
+import com.ashmeet.hyperbackend.instances.DisplayInstance
+import com.ashmeet.hyperbackend.instances.InstanceIconProvider
+import com.ashmeet.hyperbackend.instances.Instances
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable

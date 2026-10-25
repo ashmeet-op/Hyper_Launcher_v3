@@ -32,8 +32,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.customcontrols.buttons.ControlDrawer
-import net.kdt.pojavlaunch.customcontrols.buttons.ControlInterface
+import com.ashmeet.hyperbackend.customcontrols.buttons.ControlDrawer
+import com.ashmeet.hyperbackend.customcontrols.buttons.ControlInterface
 import kotlin.math.roundToInt
 
 @Composable

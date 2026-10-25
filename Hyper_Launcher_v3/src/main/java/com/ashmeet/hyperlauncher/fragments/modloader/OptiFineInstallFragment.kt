@@ -5,10 +5,10 @@ import com.ashmeet.hyperlauncher.screens.modloader.ModloaderVersionGroup
 import com.ashmeet.hyperlauncher.screens.modloader.ModloaderVersionItem
 import com.ashmeet.hyperlauncher.tracker.TrackerLayout
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.instances.Instances
-import net.kdt.pojavlaunch.modloaders.ModloaderListenerProxy
-import net.kdt.pojavlaunch.modloaders.OptiFineDownloadTask
-import net.kdt.pojavlaunch.modloaders.OptiFineUtils
+import com.ashmeet.hyperbackend.instances.Instances
+import com.ashmeet.hyperbackend.modloaders.ModloaderListenerProxy
+import com.ashmeet.hyperbackend.modloaders.OptiFineDownloadTask
+import com.ashmeet.hyperbackend.modloaders.OptiFineUtils
 import java.io.File
 import java.io.IOException
 

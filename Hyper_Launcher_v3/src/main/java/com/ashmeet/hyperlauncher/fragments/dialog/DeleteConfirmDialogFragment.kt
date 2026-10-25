@@ -12,8 +12,8 @@ import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.utils.Tools
-import net.kdt.pojavlaunch.instances.InstanceIconProvider
-import net.kdt.pojavlaunch.instances.Instances
+import com.ashmeet.hyperbackend.instances.InstanceIconProvider
+import com.ashmeet.hyperbackend.instances.Instances
 import java.io.IOException
 
 class DeleteConfirmDialogFragment : DialogFragment() {

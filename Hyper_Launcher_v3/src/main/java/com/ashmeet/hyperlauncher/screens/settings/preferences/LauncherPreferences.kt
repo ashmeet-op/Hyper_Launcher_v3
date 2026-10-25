@@ -10,7 +10,7 @@ import com.ashmeet.hyperlauncher.utils.Architecture
 import com.ashmeet.hyperlauncher.utils.Tools
 import git.artdeell.mojoexec.MojoExec
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.utils.JREUtils
+import com.ashmeet.hyperbackend.utils.JREUtils
 import java.io.IOException
 import kotlin.math.ceil
 

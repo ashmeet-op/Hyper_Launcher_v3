@@ -1,6 +1,6 @@
 package com.ashmeet.hyperlauncher.fragments.modloader
 
-import net.kdt.pojavlaunch.modloaders.FabriclikeUtils
+import com.ashmeet.hyperbackend.modloaders.FabriclikeUtils
 
 class FabricInstallFragment : FabriclikeInstallFragment(FabriclikeUtils.FABRIC_UTILS, TAG) {
     companion object {

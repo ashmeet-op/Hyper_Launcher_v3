@@ -41,8 +41,8 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreference
 import com.ashmeet.hyperlauncher.utils.installer.ModrinthVersion
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.modloaders.FabricVersion
-import net.kdt.pojavlaunch.modloaders.modpacks.api.ModrinthService
+import com.ashmeet.hyperbackend.modloaders.FabricVersion
+import com.ashmeet.hyperbackend.modloaders.modpacks.api.ModrinthService
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

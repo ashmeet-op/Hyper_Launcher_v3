@@ -8,8 +8,8 @@ import android.widget.BaseExpandableListAdapter
 import android.widget.TextView
 import com.ashmeet.hyperlauncher.utils.Tools
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.JVersionList
-import net.kdt.pojavlaunch.utils.FilteredSubList
+import com.ashmeet.hyperbackend.JVersionList
+import com.ashmeet.hyperbackend.utils.FilteredSubList
 import java.io.File
 
 class VersionListAdapter(versionList: Array<JVersionList.Version>, private val hideCustomVersions: Boolean, ctx: Context) : BaseExpandableListAdapter() {

@@ -10,8 +10,8 @@ import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import com.ashmeet.hyperlauncher.activity.TestStorageActivity
-import net.kdt.pojavlaunch.instances.DisplayInstance
-import net.kdt.pojavlaunch.instances.InstanceIconProvider
+import com.ashmeet.hyperbackend.instances.DisplayInstance
+import com.ashmeet.hyperbackend.instances.InstanceIconProvider
 
 object ShortcutUtils {
     const val EXTRA_INSTANCE_NAME = "instance_name"

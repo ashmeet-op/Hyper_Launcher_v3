@@ -12,9 +12,9 @@ import com.ashmeet.hyperlauncher.screens.settings.VideoSettingsScreen
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.utils.Tools
-import net.kdt.pojavlaunch.instances.Instances
-import net.kdt.pojavlaunch.utils.GpuUtils
-import net.kdt.pojavlaunch.utils.MCOptionUtils
+import com.ashmeet.hyperbackend.instances.Instances
+import com.ashmeet.hyperbackend.utils.GpuUtils
+import com.ashmeet.hyperbackend.utils.MCOptionUtils
 import java.io.File
 
 class LauncherPreferenceVideoFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener {

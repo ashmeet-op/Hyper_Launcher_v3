@@ -35,12 +35,12 @@ import com.ashmeet.hyperlauncher.components.dialog.DialogTextInput
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.activity.CustomControlsActivity
 import com.ashmeet.hyperlauncher.utils.Tools
-import net.kdt.pojavlaunch.customcontrols.ControlData
-import net.kdt.pojavlaunch.customcontrols.ControlJoystickData
-import net.kdt.pojavlaunch.customcontrols.buttons.ControlDrawer
-import net.kdt.pojavlaunch.customcontrols.buttons.ControlInterface
-import net.kdt.pojavlaunch.utils.CropperUtils
-import net.kdt.pojavlaunch.utils.KeycodeUtils
+import com.ashmeet.hyperbackend.customcontrols.ControlData
+import com.ashmeet.hyperbackend.customcontrols.ControlJoystickData
+import com.ashmeet.hyperbackend.customcontrols.buttons.ControlDrawer
+import com.ashmeet.hyperbackend.customcontrols.buttons.ControlInterface
+import com.ashmeet.hyperbackend.utils.CropperUtils
+import com.ashmeet.hyperbackend.utils.KeycodeUtils
 import kotlin.math.abs
 
 class EditControlSideDialog : SideDialogView() {

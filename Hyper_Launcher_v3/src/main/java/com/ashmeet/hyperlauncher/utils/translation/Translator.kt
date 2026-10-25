@@ -39,7 +39,7 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.progresskeeper.ProgressKeeper
+import com.ashmeet.hyperbackend.progresskeeper.ProgressKeeper
 import java.io.File
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap

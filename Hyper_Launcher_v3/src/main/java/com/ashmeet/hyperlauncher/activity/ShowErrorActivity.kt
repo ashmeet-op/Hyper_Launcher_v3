@@ -7,8 +7,8 @@ import android.os.Bundle
 import com.ashmeet.hyperlauncher.utils.Tools
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.lifecycle.ContextExecutorTask
-import net.kdt.pojavlaunch.utils.NotificationUtils
+import com.ashmeet.hyperbackend.lifecycle.ContextExecutorTask
+import com.ashmeet.hyperbackend.utils.NotificationUtils
 import java.io.Serializable
 
 class ShowErrorActivity : BaseActivity() {

@@ -2,7 +2,7 @@ package com.ashmeet.hyperlauncher.recorder
 
 import android.util.Log
 import android.view.Surface
-import net.kdt.pojavlaunch.game.platform.Platform
+import com.ashmeet.hyperbackend.game.platform.Platform
 import java.lang.reflect.Method
 
 

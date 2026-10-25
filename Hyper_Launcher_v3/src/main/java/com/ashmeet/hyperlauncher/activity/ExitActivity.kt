@@ -1,7 +1,7 @@
 
 @file:Suppress("PackageDirectoryMismatch")
 
-package net.kdt.pojavlaunch
+package com.ashmeet.hyperbackend
 
 import android.annotation.SuppressLint
 import android.content.Context

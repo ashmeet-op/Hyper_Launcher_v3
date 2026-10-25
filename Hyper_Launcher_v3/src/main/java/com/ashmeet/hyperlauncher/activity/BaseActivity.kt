@@ -15,7 +15,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_FULLSCREEN_LAUNCHER
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_IGNORE_NOTCH
 import com.ashmeet.hyperlauncher.utils.Tools
-import net.kdt.pojavlaunch.utils.LocaleUtils
+import com.ashmeet.hyperbackend.utils.LocaleUtils
 
 abstract class BaseActivity : AppCompatActivity() {
 

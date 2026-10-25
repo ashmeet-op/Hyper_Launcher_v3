@@ -48,8 +48,8 @@ import com.ashmeet.hyperlauncher.theme.PojavTheme
 import fr.spse.gamepad_remapper.RemapperManager
 import fr.spse.gamepad_remapper.RemapperView
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.customcontrols.gamepad.Gamepad
-import net.kdt.pojavlaunch.customcontrols.gamepad.GamepadMapperAdapter
+import com.ashmeet.hyperbackend.customcontrols.gamepad.Gamepad
+import com.ashmeet.hyperbackend.customcontrols.gamepad.GamepadMapperAdapter
 
 class GamepadMapperFragment : Fragment(), View.OnKeyListener, View.OnGenericMotionListener {
     companion object {

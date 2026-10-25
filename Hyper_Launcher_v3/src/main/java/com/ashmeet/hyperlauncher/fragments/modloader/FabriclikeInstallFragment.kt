@@ -16,19 +16,19 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.utils.Tools
-import net.kdt.pojavlaunch.extra.ExtraCore
-import net.kdt.pojavlaunch.instances.Instances
-import net.kdt.pojavlaunch.modloaders.FabricVersion
-import net.kdt.pojavlaunch.modloaders.FabriclikeUtils
-import net.kdt.pojavlaunch.modloaders.ModloaderDownloadListener
-import net.kdt.pojavlaunch.modloaders.ModloaderListenerProxy
-import net.kdt.pojavlaunch.progresskeeper.ProgressKeeper
+import com.ashmeet.hyperbackend.extra.ExtraCore
+import com.ashmeet.hyperbackend.instances.Instances
+import com.ashmeet.hyperbackend.modloaders.FabricVersion
+import com.ashmeet.hyperbackend.modloaders.FabriclikeUtils
+import com.ashmeet.hyperbackend.modloaders.ModloaderDownloadListener
+import com.ashmeet.hyperbackend.modloaders.ModloaderListenerProxy
+import com.ashmeet.hyperbackend.progresskeeper.ProgressKeeper
 import java.io.File
 import java.io.IOException
-import net.kdt.pojavlaunch.modloaders.modpacks.api.ModrinthService
+import com.ashmeet.hyperbackend.modloaders.modpacks.api.ModrinthService
 import java.net.URL
 import android.util.Log
-import net.kdt.pojavlaunch.instances.Instance
+import com.ashmeet.hyperbackend.instances.Instance
 
 abstract class FabriclikeInstallFragment(
     private val mFabriclikeUtils: FabriclikeUtils,

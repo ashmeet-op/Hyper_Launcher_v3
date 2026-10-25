@@ -38,7 +38,7 @@ import com.ashmeet.hyperlauncher.utils.DiscordRpcManager
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.utils.Tools
-import net.kdt.pojavlaunch.game.renderer.RendererCache
+import com.ashmeet.hyperbackend.game.renderer.RendererCache
 import java.io.File
 
 @Composable

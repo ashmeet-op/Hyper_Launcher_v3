@@ -1,0 +1,123 @@
+package com.ashmeet.hyperbackend.modloaders;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
+
+import net.ashmeet.hyperlauncher.R;
+import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperbackend.instances.Instance;
+import com.ashmeet.hyperbackend.instances.Instances;
+import com.ashmeet.hyperbackend.lifecycle.ContextExecutor;
+import com.ashmeet.hyperbackend.progresskeeper.ProgressKeeper;
+import com.ashmeet.hyperbackend.utils.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import coil.Coil;
+import coil.request.ImageRequest;
+import coil.target.Target;
+
+public class BTADownloadTask implements Runnable {
+    private static final String BASE_JSON = "{\"inheritsFrom\":\"b1.7.3\",\"mainClass\":\"net.minecraft.client.Minecraft\",\"libraries\":[{\"name\":\"bta-client:bta-client:%1$s\",\"downloads\":{\"artifact\":{\"path\":\"bta-client/bta-client-%1$s.jar\",\"url\":\"%2$s\"}}}],\"id\":\"%3$s\"}";
+    private final ModloaderDownloadListener mListener;
+    private final BTAUtils.BTAVersion mBtaVersion;
+
+    public BTADownloadTask(ModloaderDownloadListener mListener, BTAUtils.BTAVersion mBtaVersion) {
+        this.mListener = mListener;
+        this.mBtaVersion = mBtaVersion;
+    }
+
+    @Override
+    public void run() {
+        ProgressKeeper.submitProgress(TrackerLayout.INSTALL_MODPACK, 0, R.string.fabric_dl_progress, "BTA");
+        try {
+            runCatching() ;
+            mListener.onDownloadFinished(null);
+        }catch (IOException e) {
+            mListener.onDownloadError(e);
+        }
+        TrackerLayout.clearTracker(TrackerLayout.INSTALL_MODPACK);
+    }
+
+    private void tryDownloadIcon(Instance targetInstance) {
+        Context context = ContextExecutor.getContext();
+        if (context == null) return;
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        ImageRequest request = new ImageRequest.Builder(context)
+                .data(mBtaVersion.iconUrl)
+                .allowHardware(false)
+                .target(new Target() {
+                    @Override
+                    public void onStart(@Nullable Drawable placeholder) {}
+
+                    @Override
+                    public void onSuccess(@NonNull Drawable result) {
+                        if (result instanceof BitmapDrawable) {
+                            Bitmap iconBitmap = ((BitmapDrawable) result).getBitmap();
+                            try {
+                                targetInstance.encodeNewIcon(iconBitmap);
+                            } catch (IOException e) {
+                                Log.e("BTADownloadTask", "Failed to encode icon", e);
+                            }
+                        }
+                        latch.countDown();
+                    }
+
+                    @Override
+                    public void onError(@Nullable Drawable errorDrawable) {
+                        latch.countDown();
+                    }
+                })
+                .build();
+        Coil.imageLoader(context).enqueue(request);
+        try {
+            latch.await(30, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Log.w("BTADownloadTask", "Interrupted while downloading bta icon", e);
+        }
+    }
+
+    private void createJson(String btaVersionId) throws IOException {
+        String btaJson = String.format(BASE_JSON, mBtaVersion.versionName, mBtaVersion.downloadUrl, btaVersionId);
+        File jsonDir = new File(Tools.DIR_HOME_VERSION, btaVersionId);
+        File jsonFile = new File(jsonDir, btaVersionId+".json");
+        FileUtils.ensureDirectory(jsonDir);
+        Tools.write(jsonFile, btaJson);
+    }
+
+
+
+
+    private void removeOldClient() throws IOException{
+        File btaClientPath = new File(Tools.DIR_HOME_LIBRARY, String.format("bta-client/bta-client-%1$s.jar", mBtaVersion.versionName));
+        if(btaClientPath.exists() && !btaClientPath.delete())
+            throw new IOException("Failed to delete old client jar");
+    }
+
+    private void createProfile(String btaVersionId) throws IOException {
+        Instance instance = Instances.createInstance(i -> {
+            i.versionId = btaVersionId;
+            i.name = "Better than Adventure!";
+        }, "BTA-"+btaVersionId);
+        tryDownloadIcon(instance);
+    }
+
+    public void runCatching() throws IOException {
+        removeOldClient();
+        String btaVersionId = "bta-"+mBtaVersion.versionName;
+        createJson(btaVersionId);
+        createProfile(btaVersionId);
+    }
+}

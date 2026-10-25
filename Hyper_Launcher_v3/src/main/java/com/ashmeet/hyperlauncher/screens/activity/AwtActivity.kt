@@ -28,8 +28,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.ashmeet.hyperlauncher.screens.game.LoggerView
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.awt.AWTView
-import net.kdt.pojavlaunch.customcontrols.keyboard.TouchCharInput
+import com.ashmeet.hyperbackend.awt.AWTView
+import com.ashmeet.hyperbackend.customcontrols.keyboard.TouchCharInput
 
 
 @Composable

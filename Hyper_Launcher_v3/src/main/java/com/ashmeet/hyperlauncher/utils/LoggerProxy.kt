@@ -1,6 +1,6 @@
 package com.ashmeet.hyperlauncher.utils
 
-import net.kdt.pojavlaunch.Logger
+import com.ashmeet.hyperbackend.Logger
 import java.util.concurrent.CopyOnWriteArrayList
 
 object LoggerProxy : Logger.eventLogListener {

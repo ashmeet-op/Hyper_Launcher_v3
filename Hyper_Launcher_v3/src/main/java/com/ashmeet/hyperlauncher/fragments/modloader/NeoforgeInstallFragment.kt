@@ -1,7 +1,7 @@
 package com.ashmeet.hyperlauncher.fragments.modloader
 
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.modloaders.ForgelikeUtils
+import com.ashmeet.hyperbackend.modloaders.ForgelikeUtils
 
 class NeoforgeInstallFragment : ForgelikeInstallFragment(ForgelikeUtils.NEOFORGE_UTILS, TAG) {
     override fun getTitleText(): Int = R.string.neoforge_dl_select_version

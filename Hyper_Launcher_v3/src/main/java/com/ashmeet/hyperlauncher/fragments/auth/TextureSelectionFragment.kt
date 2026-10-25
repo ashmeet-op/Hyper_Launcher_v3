@@ -9,9 +9,9 @@ import androidx.fragment.app.Fragment
 import com.ashmeet.hyperlauncher.screens.auth.skin.TextureSelectionScreen
 import com.ashmeet.hyperlauncher.screens.auth.skin.TextureType
 import com.ashmeet.hyperlauncher.theme.PojavTheme
-import net.kdt.pojavlaunch.authenticator.accounts.Accounts
-import net.kdt.pojavlaunch.extra.ExtraConstants
-import net.kdt.pojavlaunch.extra.ExtraCore
+import com.ashmeet.hyperbackend.authenticator.accounts.Accounts
+import com.ashmeet.hyperbackend.extra.ExtraConstants
+import com.ashmeet.hyperbackend.extra.ExtraCore
 
 class TextureSelectionFragment : Fragment() {
 

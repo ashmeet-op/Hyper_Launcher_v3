@@ -11,12 +11,12 @@ import com.ashmeet.hyperlauncher.utils.Tools
 import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
 import com.google.gson.JsonSyntaxException
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.customcontrols.ControlData
-import net.kdt.pojavlaunch.customcontrols.ControlDrawerData
-import net.kdt.pojavlaunch.customcontrols.ControlJoystickData
-import net.kdt.pojavlaunch.customcontrols.ControlLayout
-import net.kdt.pojavlaunch.customcontrols.EditorExitable
-import net.kdt.pojavlaunch.utils.CropperUtils
+import com.ashmeet.hyperbackend.customcontrols.ControlData
+import com.ashmeet.hyperbackend.customcontrols.ControlDrawerData
+import com.ashmeet.hyperbackend.customcontrols.ControlJoystickData
+import com.ashmeet.hyperbackend.customcontrols.ControlLayout
+import com.ashmeet.hyperbackend.customcontrols.EditorExitable
+import com.ashmeet.hyperbackend.utils.CropperUtils
 import java.io.IOException
 
 class CustomControlsActivity : BaseActivity(), EditorExitable, CropperUtils.CropperReceiver {

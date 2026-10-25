@@ -1,0 +1,223 @@
+package com.ashmeet.hyperbackend.utils;
+
+import android.content.Context;
+import android.system.Os;
+import android.util.ArrayMap;
+import android.util.Log;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.ashmeet.hyperlauncher.plugin.ffmpeg.FFmpegPluginManager;
+import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
+import com.ashmeet.hyperlauncher.utils.NativeLibraryLoader;
+import com.ashmeet.hyperlauncher.utils.Tools;
+
+import com.ashmeet.hyperbackend.Logger;
+import com.ashmeet.hyperbackend.game.renderer.GameRenderer;
+import com.ashmeet.hyperbackend.multirt.Runtime;
+import git.artdeell.mojoexec.MojoExec;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public class JREUtils {
+    public static void redirectAndPrintJRELog() {
+        Log.v("jrelog","Log starts here");
+        new Thread(new Runnable(){
+            int failTime = 0;
+            ProcessBuilder logcatPb;
+            @Override
+            public void run() {
+                try {
+                    if (logcatPb == null) {
+                        // No filtering by tag anymore as that relied on incorrect log levels set in log.h
+                        logcatPb = new ProcessBuilder().command("logcat", /* "-G", "1mb", */ "-v", "brief", "-s", "jrelog", "LIBGL", "NativeInput").redirectErrorStream(true);
+                    }
+
+                    Log.i("jrelog-logcat","Clearing logcat");
+                    new ProcessBuilder().command("logcat", "-c").redirectErrorStream(true).start();
+                    Log.i("jrelog-logcat","Starting logcat");
+                    Process p = logcatPb.start();
+
+                    byte[] buf = new byte[1024];
+                    int len;
+                    while ((len = p.getInputStream().read(buf)) != -1) {
+                        String currStr = new String(buf, 0, len);
+                        Logger.appendToLog(currStr);
+                    }
+
+                    if (p.waitFor() != 0) {
+                        Log.e("jrelog-logcat", "Logcat exited with code " + p.exitValue());
+                        failTime++;
+                        Log.i("jrelog-logcat", (failTime <= 10 ? "Restarting logcat" : "Too many restart fails") + " (attempt " + failTime + "/10");
+                        if (failTime <= 10) {
+                            run();
+                        } else {
+                            Logger.appendToLog("ERROR: Unable to get more log.");
+                        }
+                    }
+                } catch (Throwable e) {
+                    Log.e("jrelog-logcat", "Exception on logging thread", e);
+                    Logger.appendToLog("Exception on logging thread:\n" + Log.getStackTraceString(e));
+                }
+            }
+        }).start();
+        Log.i("jrelog-logcat","Logcat thread started");
+
+    }
+
+    private static void overrideEnvVars(Map<String, String> envMap) throws IOException {
+        File customEnvFile = new File(Tools.DIR_GAME_HOME, "custom_env.txt");
+        if(!customEnvFile.exists() || !customEnvFile.isFile()) return;
+        BufferedReader reader = new BufferedReader(new FileReader(customEnvFile));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            // Not use split() as only split first one
+            int index = line.indexOf("=");
+            if (index != -1) {
+                envMap.put(line.substring(0, index), line.substring(index + 1));
+            }
+        }
+        reader.close();
+    }
+
+    // Sets up ANGLE driver environment
+    public static void setupAngleEnv(Map<String, String> envMap) {
+        if (!LauncherPreferences.PREF_USE_ANGLE) return;
+        File angleFile = null;
+        if (Tools.NATIVE_LIB_DIR != null) {
+            angleFile = new File(Tools.NATIVE_LIB_DIR, "libEGL_angle.so");
+        }
+        if (angleFile == null || !angleFile.exists()) {
+            angleFile = new File("/system/lib64/libEGL_angle.so");
+        }
+        if (!angleFile.exists()) {
+            angleFile = new File("/system/lib/libEGL_angle.so");
+        }
+        if (angleFile.exists()) {
+            envMap.put("LIBGL_EGL", angleFile.getAbsolutePath());
+            envMap.put("LIBGL_GLES", angleFile.getAbsolutePath());
+        }
+    }
+
+    public static void setupFfmpegEnv(Context ctx, Map<String, String> envMap) {
+        if (FFmpegPluginManager.INSTANCE.isAvailable()) {
+            String path = FFmpegPluginManager.INSTANCE.getExecutablePath();
+            if (path != null) {
+                envMap.put("POJAV_FFMPEG_PATH", path);
+            }
+        }
+    }
+
+    public static void setGameEnvironment(Context context, GameRenderer renderer) throws Throwable {
+        Map<String, String> envMap = new ArrayMap<>();
+        // This is currently required for YSM mod to function
+        File modRuntimeDir = new File(Tools.DIR_CACHE, "app_runtime_mod");
+        if (!modRuntimeDir.exists()) {
+            modRuntimeDir.mkdirs();
+        }
+        envMap.put("MOD_ANDROID_RUNTIME", modRuntimeDir.getAbsolutePath());
+
+        setupAngleEnv(envMap);
+        setupFfmpegEnv(context, envMap);
+
+        renderer.setupEnvironment(context, envMap);
+        MojoExec.setUseBigCoreAffinity(LauncherPreferences.PREF_BIG_CORE_AFFINITY);
+        if(LauncherPreferences.PREF_BIG_CORE_AFFINITY) envMap.put("POJAV_BIG_CORE_AFFINITY", "1");
+        if(LauncherPreferences.PREF_ALSOFT_FORCE_OPENSL) envMap.put("ALSOFT_DRIVERS", "opensl");
+
+        overrideEnvVars(envMap);
+
+        for (Map.Entry<String, String> env : envMap.entrySet()) {
+            Logger.appendToLog("Added custom env: " + env.getKey() + "=" + env.getValue());
+            try {
+                Os.setenv(env.getKey(), env.getValue(), true);
+            }catch (NullPointerException exception){
+                Log.e("JREUtils", exception.toString());
+            }
+        }
+    }
+
+    public static void launchJavaVM(final AppCompatActivity activity, final Runtime runtime, File gameDirectory, final List<String> JVMArgs, final String userArgsString) throws Throwable {
+
+        // Force LWJGL to use the Freetype library intended for it, instead of using the one
+        // that we ship with Java (since it may be older than what's needed)
+        //
+        Tools.fullyExit();
+    }
+
+    /**
+     * Parse and separate java arguments in a user friendly fashion
+     * It supports multi line and absence of spaces between arguments
+     * The function also supports auto-removal of improper arguments, although it may miss some.
+     *
+     * @param args The un-parsed argument list.
+     * @return Parsed args as an ArrayList
+     */
+    public static ArrayList<String> parseJavaArguments(String args){
+        ArrayList<String> parsedArguments = new ArrayList<>(0);
+        args = args.trim().replace(" ", "");
+        //For each prefixes, we separate args.
+        String[] separators = new String[]{"-XX:-","-XX:+", "-XX:","--", "-D", "-X", "-javaagent:", "-verbose"};
+        for(String prefix : separators){
+            while (true){
+                int start = args.indexOf(prefix);
+                if(start == -1) break;
+                //Get the end of the current argument by checking the nearest separator
+                int end = -1;
+                for(String separator: separators){
+                    int tempEnd = args.indexOf(separator, start + prefix.length());
+                    if(tempEnd == -1) continue;
+                    if(end == -1){
+                        end = tempEnd;
+                        continue;
+                    }
+                    end = Math.min(end, tempEnd);
+                }
+                //Fallback
+                if(end == -1) end = args.length();
+
+                //Extract it
+                String parsedSubString = args.substring(start, end);
+                args = args.replace(parsedSubString, "");
+
+                //Check if two args aren't bundled together by mistake
+                if(parsedSubString.indexOf('=') == parsedSubString.lastIndexOf('=')) {
+                    int arraySize = parsedArguments.size();
+                    if(arraySize > 0){
+                        String lastString = parsedArguments.get(arraySize - 1);
+                        // Looking for list elements
+                        if(lastString.charAt(lastString.length() - 1) == ',' ||
+                                parsedSubString.contains(",")){
+                            parsedArguments.set(arraySize - 1, lastString + parsedSubString);
+                            continue;
+                        }
+                    }
+                    parsedArguments.add(parsedSubString);
+                }
+                // --a-b= handling (with multiple signs so we don't accidentally remove mandatory args)
+                else if(parsedSubString.startsWith("--") && parsedSubString.indexOf('=') != -1) {
+                    parsedArguments.add(parsedSubString);
+                }
+                else Log.w("JAVA ARGS PARSER", "Removed improper arguments: " + parsedSubString);
+            }
+        }
+        return parsedArguments;
+    }
+
+    public static int getDetectedVersion() {
+        return GpuUtils.getGlInfo().glesMajorVersion;
+    }
+    public static native int chdir(String path);
+
+    public static native void setLdLibraryPath(String ldLibraryPath);
+    static {
+        NativeLibraryLoader.loadRuntime();
+        NativeLibraryLoader.loadAwt();
+    }
+}

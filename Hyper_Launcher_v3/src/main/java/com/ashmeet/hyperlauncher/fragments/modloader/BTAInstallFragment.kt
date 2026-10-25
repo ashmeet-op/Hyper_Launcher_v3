@@ -4,9 +4,9 @@ import android.content.Context
 import com.ashmeet.hyperlauncher.screens.modloader.ModloaderVersionGroup
 import com.ashmeet.hyperlauncher.screens.modloader.ModloaderVersionItem
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.modloaders.BTADownloadTask
-import net.kdt.pojavlaunch.modloaders.BTAUtils
-import net.kdt.pojavlaunch.modloaders.ModloaderListenerProxy
+import com.ashmeet.hyperbackend.modloaders.BTADownloadTask
+import com.ashmeet.hyperbackend.modloaders.BTAUtils
+import com.ashmeet.hyperbackend.modloaders.ModloaderListenerProxy
 import java.io.File
 import java.io.IOException
 

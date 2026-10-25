@@ -49,9 +49,9 @@ import com.ashmeet.hyperlauncher.utils.Tools
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import kotlinx.coroutines.launch
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.customcontrols.ControlLayout
-import net.kdt.pojavlaunch.game.GameView
-import net.kdt.pojavlaunch.utils.KeycodeUtils
+import com.ashmeet.hyperbackend.customcontrols.ControlLayout
+import com.ashmeet.hyperbackend.game.GameView
+import com.ashmeet.hyperbackend.utils.KeycodeUtils
 
 object GameComposeHelper {
 

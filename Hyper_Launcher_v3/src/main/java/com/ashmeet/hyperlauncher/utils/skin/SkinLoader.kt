@@ -10,7 +10,7 @@ import android.util.Log
 import com.ashmeet.hyperlauncher.utils.Tools
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.kdt.pojavlaunch.authenticator.accounts.Account
+import com.ashmeet.hyperbackend.authenticator.accounts.Account
 import java.io.File
 import kotlin.math.roundToInt
 import androidx.core.graphics.createBitmap

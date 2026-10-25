@@ -2,6 +2,7 @@
 
 package com.ashmeet.hyperlauncher.activity
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
@@ -15,15 +16,17 @@ import androidx.core.app.ActivityCompat
 import com.ashmeet.hyperlauncher.plugin.PluginLoader
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.utils.Architecture
+import com.ashmeet.hyperlauncher.utils.DiscordRpcManager
 import com.ashmeet.hyperlauncher.utils.LoggerProxy
+import com.ashmeet.hyperlauncher.utils.NativeLibraryLoader
 import com.ashmeet.hyperlauncher.utils.Tools
 import com.ashmeet.hyperlauncher.utils.translation.Translator
 import net.ashmeet.hyperlauncher.BuildConfig
-import net.kdt.pojavlaunch.lifecycle.ContextExecutor
-import net.kdt.pojavlaunch.tasks.AsyncAssetManager
-import net.kdt.pojavlaunch.tasks.MoJsonDownloader
-import net.kdt.pojavlaunch.utils.FileUtils
-import net.kdt.pojavlaunch.utils.LocaleUtils
+import com.ashmeet.hyperbackend.lifecycle.ContextExecutor
+import com.ashmeet.hyperbackend.tasks.AsyncAssetManager
+import com.ashmeet.hyperbackend.tasks.MoJsonDownloader
+import com.ashmeet.hyperbackend.utils.FileUtils
+import com.ashmeet.hyperbackend.utils.LocaleUtils
 import java.io.File
 import java.io.PrintStream
 import java.text.DateFormat
@@ -39,7 +42,7 @@ class PojavApplication : Application() {
         Thread.setDefaultUncaughtExceptionHandler { _, th ->
             val storagePermAllowed = (Build.VERSION.SDK_INT >= 29 || ActivityCompat.checkSelfPermission(
                 this,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
             ) == PackageManager.PERMISSION_GRANTED) && Tools.checkStorageRoot(this)
             val crashFile = File(if (storagePermAllowed) Tools.DIR_GAME_HOME else Tools.DIR_DATA, "latestcrash.txt")
             try {
@@ -79,6 +82,9 @@ class PojavApplication : Application() {
 
 
                 LauncherPreferences.loadPreferences(this)
+                if (LauncherPreferences.PREF_ENABLE_RPC) {
+                    DiscordRpcManager.startRpc()
+                }
             } else {
 
 
@@ -86,9 +92,9 @@ class PojavApplication : Application() {
             }
 
             try {
-                System.loadLibrary("mojort")
+                NativeLibraryLoader.loadRuntime()
             } catch (_: UnsatisfiedLinkError) {
-                System.loadLibrary("pojavexec")
+                System.loadLibrary("hyperrt")
             }
             LoggerProxy.init()
 

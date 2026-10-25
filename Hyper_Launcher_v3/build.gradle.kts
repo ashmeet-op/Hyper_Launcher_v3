@@ -43,6 +43,14 @@ fun getHyperLauncherApiKey(): String {
     return "AIzaSy_HYPER_LAUNCHER_SECRET_KEY_PLACEHOLDER"
 }
 
+fun getDcKey(): String {
+    val key = System.getenv("DC_KEY")
+    if (key != null) return key
+    val prop = localProperties.getProperty("DC_KEY")
+    if (prop != null) return prop
+    return ""
+}
+
 configurations {
     create("instrumentedClasspath") {
         isCanBeConsumed = false
@@ -94,6 +102,8 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
         multiDexEnabled = false
         resValue("string", "curseforge_api_key", getCFApiKey())
         resValue("string", "hyper_launcher_api_key", getHyperLauncherApiKey())
+        resValue("string", "dc_key", getDcKey())
+        buildConfigField("String", "DC_KEY", "\"${getDcKey()}\"")
         resValue("string", "group_id", "git.artdeell")
 
         manifestPlaceholders["driver"] = "default"

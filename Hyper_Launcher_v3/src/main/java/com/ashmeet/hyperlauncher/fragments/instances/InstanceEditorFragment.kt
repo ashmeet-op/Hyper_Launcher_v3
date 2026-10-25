@@ -21,17 +21,17 @@ import com.ashmeet.hyperlauncher.fragments.selection.FileSelectorFragment
 import com.ashmeet.hyperlauncher.profiles.VersionSelectorDialog
 import com.ashmeet.hyperlauncher.screens.instances.InstanceEditorScreen
 import com.ashmeet.hyperlauncher.theme.PojavTheme
-import net.kdt.pojavlaunch.game.renderer.RendererCache
+import com.ashmeet.hyperbackend.game.renderer.RendererCache
 import com.ashmeet.hyperlauncher.utils.Tools
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.extra.ExtraConstants
-import net.kdt.pojavlaunch.extra.ExtraCore
-import net.kdt.pojavlaunch.instances.Instance
-import net.kdt.pojavlaunch.instances.InstanceIconProvider
-import net.kdt.pojavlaunch.instances.Instances
-import net.kdt.pojavlaunch.multirt.MultiRTUtils
-import net.kdt.pojavlaunch.multirt.Runtime
-import net.kdt.pojavlaunch.utils.CropperUtils
+import com.ashmeet.hyperbackend.extra.ExtraConstants
+import com.ashmeet.hyperbackend.extra.ExtraCore
+import com.ashmeet.hyperbackend.instances.Instance
+import com.ashmeet.hyperbackend.instances.InstanceIconProvider
+import com.ashmeet.hyperbackend.instances.Instances
+import com.ashmeet.hyperbackend.multirt.MultiRTUtils
+import com.ashmeet.hyperbackend.multirt.Runtime
+import com.ashmeet.hyperbackend.utils.CropperUtils
 import java.io.IOException
 
 class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {

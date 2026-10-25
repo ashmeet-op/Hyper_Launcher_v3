@@ -45,12 +45,12 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.SingleChoiceDialog
 import com.ashmeet.hyperlauncher.utils.Tools
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.game.renderer.RendererCache
-import net.kdt.pojavlaunch.instances.Instances
-import net.kdt.pojavlaunch.utils.MCOptionUtils
-import net.kdt.pojavlaunch.vulkan.DriverInstaller
-import net.kdt.pojavlaunch.vulkan.DriverManager
-import net.kdt.pojavlaunch.vulkan.ui.VulkanDriverDialog
+import com.ashmeet.hyperbackend.game.renderer.RendererCache
+import com.ashmeet.hyperbackend.instances.Instances
+import com.ashmeet.hyperbackend.utils.MCOptionUtils
+import com.ashmeet.hyperbackend.vulkan.DriverInstaller
+import com.ashmeet.hyperbackend.vulkan.DriverManager
+import com.ashmeet.hyperbackend.vulkan.ui.VulkanDriverDialog
 
 @Composable
 fun VideoSettingsScreen(

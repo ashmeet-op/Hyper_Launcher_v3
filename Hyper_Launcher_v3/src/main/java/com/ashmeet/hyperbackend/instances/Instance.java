@@ -1,0 +1,109 @@
+package com.ashmeet.hyperbackend.instances;
+
+import android.graphics.Bitmap;
+import android.os.Build;
+import android.util.Log;
+
+import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
+import com.ashmeet.hyperbackend.utils.JSONUtils;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+public class Instance extends DisplayInstance {
+    public static final int ARGS_MODE_REPLACE = 0;
+    public static final int ARGS_MODE_MERGE_DEFAULT_FIRST = 1;
+    public static final int ARGS_MODE_MERGE_INSTANCE_FIRST = 2;
+    public static final int ARGS_MODE_LAST = ARGS_MODE_MERGE_INSTANCE_FIRST;
+
+    public static final String VERSION_LATEST_RELEASE = "latest_release";
+    public static final String VERSION_LATEST_SNAPSHOT = "latest_snapshot";
+
+    public InstanceInstaller installer;
+    public String renderer;
+    public String jvmArgs;
+    public int argsMode;
+    public String selectedRuntime;
+    public String controlLayout;
+    public boolean sharedData;
+    public String hyperClientVersion;
+
+    protected Instance() {
+    }
+
+    @Override
+    protected void sanitize() {
+        super.sanitize();
+        sanitizeArgs();
+    }
+
+    private void sanitizeArgs() {
+        if(argsMode > ARGS_MODE_LAST) {
+            argsMode = 0;
+            jvmArgs = null;
+        }
+    }
+
+
+    public void write() throws IOException {
+        JSONUtils.writeToFile(Instances.metadataLocation(mInstanceRoot), this);
+    }
+
+
+    public void maybeWrite() {
+        try {
+            write();
+        }catch (IOException e) {
+            Log.e("Instance", "Failed to write",e);
+        }
+    }
+
+
+    public void encodeNewIcon(Bitmap bitmap) throws IOException {
+        try(FileOutputStream fileOutputStream = new FileOutputStream(getInstanceIconLocation())) {
+            bitmap.compress(
+                    Build.VERSION.SDK_INT < Build.VERSION_CODES.R ?
+
+
+
+                            Bitmap.CompressFormat.WEBP:
+
+
+                            Bitmap.CompressFormat.WEBP_LOSSY,
+                    60,
+                    fileOutputStream
+            );
+        }
+    }
+
+    public String getLaunchRenderer() {
+        if(Tools.isValidString(renderer)) return renderer;
+        return LauncherPreferences.PREF_RENDERER;
+    }
+
+    public String getLaunchArgs() {
+        if(!Tools.isValidString(jvmArgs)) return LauncherPreferences.PREF_CUSTOM_JAVA_ARGS;
+        switch (argsMode) {
+            case ARGS_MODE_REPLACE:
+                return jvmArgs;
+            case ARGS_MODE_MERGE_DEFAULT_FIRST:
+                return LauncherPreferences.PREF_CUSTOM_JAVA_ARGS + " " + jvmArgs;
+            case ARGS_MODE_MERGE_INSTANCE_FIRST:
+                return jvmArgs + " " + LauncherPreferences.PREF_CUSTOM_JAVA_ARGS;
+            default:
+                throw new RuntimeException("Unknown value for argsMode: "+argsMode);
+        }
+    }
+
+    public String getLaunchControls() {
+        if(!Tools.isValidString(controlLayout)) return LauncherPreferences.PREF_DEFAULTCTRL_PATH;
+        return Tools.CTRLMAP_PATH + "/" + controlLayout;
+    }
+
+    public File getGameDirectory() {
+        if(sharedData) return Instances.SHARED_DATA_DIRECTORY;
+        return mInstanceRoot;
+    }
+}

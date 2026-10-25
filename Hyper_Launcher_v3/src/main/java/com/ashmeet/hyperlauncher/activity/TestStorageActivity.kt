@@ -18,7 +18,7 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreference
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.utils.Tools
 import net.ashmeet.hyperlauncher.R
-import net.kdt.pojavlaunch.tasks.AsyncAssetManager
+import com.ashmeet.hyperbackend.tasks.AsyncAssetManager
 
 class TestStorageActivity : BaseActivity() {
     private val REQUEST_STORAGE_REQUEST_CODE = 1

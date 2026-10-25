@@ -49,8 +49,8 @@ import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.kdt.pojavlaunch.authenticator.accounts.Account
-import net.kdt.pojavlaunch.contracts.OpenDocumentWithExtension
+import com.ashmeet.hyperbackend.authenticator.accounts.Account
+import com.ashmeet.hyperbackend.contracts.OpenDocumentWithExtension
 import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream

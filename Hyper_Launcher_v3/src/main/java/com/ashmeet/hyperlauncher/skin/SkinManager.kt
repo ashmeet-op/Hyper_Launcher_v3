@@ -6,7 +6,7 @@ import com.ashmeet.hyperlauncher.skin.server.OfflineYggdrasilServer
 import com.ashmeet.hyperlauncher.utils.LocalUuidUtils
 import com.ashmeet.hyperlauncher.utils.LocalUuidUtils.toFormattedUuid
 import com.ashmeet.hyperlauncher.utils.Tools
-import net.kdt.pojavlaunch.authenticator.accounts.Account
+import com.ashmeet.hyperbackend.authenticator.accounts.Account
 import java.io.File
 
 class SkinManager(private val analyzer: SkinAnalyzerFacade) {

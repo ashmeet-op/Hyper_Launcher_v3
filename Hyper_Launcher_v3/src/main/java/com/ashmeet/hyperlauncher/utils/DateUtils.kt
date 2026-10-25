@@ -1,6 +1,6 @@
 package com.ashmeet.hyperlauncher.utils
 
-import net.kdt.pojavlaunch.JVersionList
+import com.ashmeet.hyperbackend.JVersionList
 import java.text.SimpleDateFormat
 import java.util.*
 

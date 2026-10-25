@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <net.kdt.pojavlaunch.imgcropper.CropperView
+        <com.ashmeet.hyperbackend.imgcropper.CropperView
             android:id="@+id/crop_dialog_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

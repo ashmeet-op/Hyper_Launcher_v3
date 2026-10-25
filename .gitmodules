@@ -1,12 +1,12 @@
 [submodule "glfw"]
 	path = glfw
-	url = https://github.com/hollowlauncher/glfw.git
-[submodule "mojoexec"]
+	url = https://github.com/ashmeet-op/glfw.git
+[submodule "hyperexec"]
 	path = mojoexec
-	url = https://github.com/hollowlauncher/Hyperexec.git
-[submodule "sdl"]
+	url = https://github.com/ashmeet-op/Hyperexec.git
+[submodule "hypersdl"]
 	path = sdl
-	url = https://github.com/hollowlauncher/HyperSDL.git
+	url = https://github.com/ashmeet-op/HyperSDL.git
 [submodule "NoBlocklist"]
 	path = NoBlocklist
 	url = https://github.com/MojoLauncher/NoBlocklist

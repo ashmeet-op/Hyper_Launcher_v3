@@ -62,8 +62,8 @@ import com.ashmeet.hyperlauncher.components.list.InstanceListItem
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import com.google.gson.Gson
-import net.kdt.pojavlaunch.instances.DisplayInstance
-import net.kdt.pojavlaunch.instances.Instances
+import com.ashmeet.hyperbackend.instances.DisplayInstance
+import com.ashmeet.hyperbackend.instances.Instances
 import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
 
