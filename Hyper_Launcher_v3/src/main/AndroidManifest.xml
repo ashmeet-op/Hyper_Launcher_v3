@@ -152,9 +152,6 @@
         <meta-data
             android:name="fclPlugin"
             android:value="true" />
-        <meta-data
-            android:name="driver"
-            android:value="${driver}" />
     </application>
     <queries>
         <package android:name="git.mojo.ffmpeg"/>

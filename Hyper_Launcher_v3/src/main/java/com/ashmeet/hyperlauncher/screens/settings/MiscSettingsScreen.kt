@@ -12,8 +12,10 @@ import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.CleaningServices
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Numbers
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Verified
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,6 +33,8 @@ import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsScreenWrapper
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsActionItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSwitchItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SingleChoiceDialog
+import com.ashmeet.hyperlauncher.screens.settings.preferences.TextInputDialog
+import com.ashmeet.hyperlauncher.utils.DiscordRpcManager
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.utils.Tools
@@ -50,8 +54,11 @@ fun MiscSettingsScreen(
     var downloadSource by remember { mutableStateOf(LauncherPreferences.PREF_DOWNLOAD_SOURCE) }
     var verifyManifest by remember { mutableStateOf(LauncherPreferences.PREF_VERIFY_MANIFEST) }
     var disableBlocklist by remember { mutableStateOf(LauncherPreferences.PREF_DISABLE_BLOCKLIST) }
+    var enableRpc by remember { mutableStateOf(LauncherPreferences.PREF_ENABLE_RPC) }
+    var discordToken by remember { mutableStateOf(LauncherPreferences.PREF_DISCORD_TOKEN ?: "") }
 
     var showDownloadSourceDialog by remember { mutableStateOf(false) }
+    var showDiscordTokenDialog by remember { mutableStateOf(false) }
 
     if (showDownloadSourceDialog) {
         val names = stringArrayResource(R.array.download_source_names)
@@ -67,6 +74,23 @@ fun MiscSettingsScreen(
                 LauncherPreferences.loadPreferences(context)
             },
             onDismiss = { showDownloadSourceDialog = false }
+        )
+    }
+
+    if (showDiscordTokenDialog) {
+        TextInputDialog(
+            title = translatedText("Discord Token"),
+            initialValue = discordToken,
+            onConfirm = { newValue ->
+                discordToken = newValue.trim()
+                LauncherPreferences.prefs.edit { putString("discord_token", discordToken) }
+                LauncherPreferences.loadPreferences(context)
+                showDiscordTokenDialog = false
+                if (enableRpc) {
+                    DiscordRpcManager.startRpc()
+                }
+            },
+            onDismiss = { showDiscordTokenDialog = false }
         )
     }
 
@@ -129,7 +153,7 @@ fun MiscSettingsScreen(
                 )
             }
 
-            SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
+            SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
                 SettingsSwitchItem(
                     title = translatedText(stringResource(R.string.pref_blocklist_disable_title)),
                     summary = translatedText(stringResource(R.string.pref_blocklist_disable_description)),
@@ -140,6 +164,38 @@ fun MiscSettingsScreen(
                         LauncherPreferences.prefs.edit { putBoolean("disableServerBlocklist", it) }
                         LauncherPreferences.loadPreferences(context)
                     }
+                )
+            }
+
+            SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
+                SettingsSwitchItem(
+                    title = translatedText("Discord Rich Presence"),
+                    summary = translatedText("Show your Minecraft activity on Discord using KizzyRPC"),
+                    icon = Icons.Default.Share,
+                    checked = enableRpc,
+                    onCheckedChange = {
+                        enableRpc = it
+                        LauncherPreferences.prefs.edit { putBoolean("enable_discord_rpc", it) }
+                        LauncherPreferences.loadPreferences(context)
+                        if (it) {
+                            DiscordRpcManager.startRpc()
+                        } else {
+                            DiscordRpcManager.stopRpc()
+                        }
+                    }
+                )
+            }
+
+            SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
+                SettingsActionItem(
+                    title = translatedText("Discord Token"),
+                    summary = if (discordToken.isNotBlank()) {
+                        if (discordToken.length > 8) "••••••••" + discordToken.takeLast(4) else "••••••••"
+                    } else {
+                        translatedText("Tap to set Discord account token for Rich Presence")
+                    },
+                    icon = Icons.Default.Key,
+                    onClick = { showDiscordTokenDialog = true }
                 )
             }
         }

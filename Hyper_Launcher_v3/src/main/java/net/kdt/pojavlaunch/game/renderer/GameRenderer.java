@@ -134,9 +134,14 @@ public class GameRenderer {
     public boolean maybeSetupRenderer() {
         setRendererLibraryPath(Tools.NATIVE_LIB_DIR, currentRenderer.librarySearchPath());
         if (!currentRenderer.setupRenderer()) {
-            Log.e(TAG, "Failed to setup renderer " + currentRenderer.name() + ", falling back to " + FALLBACK_RENDERER);
-            // Hopefully (yes, it's going to be fun if it returns null for the fallback renderer. Shouldn't happen though)
-            return getKnownRenderer(FALLBACK_RENDERER).setupRenderer();
+            String fallback = (currentRenderer instanceof FCLRenderSpec) ? LTW_RENDERER : FALLBACK_RENDERER;
+            Log.e(TAG, "Failed to setup renderer " + currentRenderer.name() + ", falling back to " + fallback);
+            RenderSpec fallbackSpec = getKnownRenderer(fallback);
+            if (fallbackSpec != null) {
+                currentRenderer = fallbackSpec;
+                return currentRenderer.setupRenderer();
+            }
+            return false;
         }
         return true;
     }

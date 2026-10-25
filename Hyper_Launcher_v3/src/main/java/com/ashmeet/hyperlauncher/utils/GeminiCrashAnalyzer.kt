@@ -7,6 +7,8 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.ashmeet.hyperlauncher.R
+import net.kdt.pojavlaunch.game.renderer.GameRenderer
+import net.kdt.pojavlaunch.game.renderer.impl.FCLRenderSpec
 import net.kdt.pojavlaunch.instances.Instances
 import org.json.JSONArray
 import org.json.JSONObject
@@ -42,7 +44,14 @@ object GeminiCrashAnalyzer {
         val freeRam = Tools.getFreeDeviceMemory(context)
         sb.append("Allocated RAM: ").append(allocatedRam).append(" MB\n")
         sb.append("Free Device RAM: ").append(freeRam).append(" MB\n")
-        sb.append("Selected Renderer: ").append(LauncherPreferences.PREF_RENDERER).append("\n")
+        val selectedRenderer = LauncherPreferences.PREF_RENDERER
+        val rendererSpec = GameRenderer.getKnownRenderer(selectedRenderer)
+        val rendererType = if (rendererSpec is FCLRenderSpec) {
+            "FCL Renderer Plugin (${rendererSpec.name()})"
+        } else {
+            "Inbuilt Renderer ($selectedRenderer)"
+        }
+        sb.append("Selected Renderer: ").append(selectedRenderer).append(" [Type: ").append(rendererType).append("]\n")
         sb.append("Vulkan Driver: ").append(LauncherPreferences.PREF_DRIVER).append("\n")
         sb.append("Graphics Backend: ").append(LauncherPreferences.PREF_GRAPHICS_BACKEND).append("\n")
         sb.append("Use ANGLE: ").append(LauncherPreferences.PREF_USE_ANGLE).append("\n")
@@ -119,7 +128,7 @@ object GeminiCrashAnalyzer {
             $diagnosticInfo
             
             Instructions:
-            1. Identify the exact cause of the crash (e.g. incompatible mod, out of memory, wrong Java version, renderer/driver conflict like MobileGlues/Zink/GL4ES, corrupted file/config, or missing dependency).
+            1. Identify the exact cause of the crash (e.g. incompatible mod, out of memory, wrong Java version, renderer/driver conflict like MobileGlues/Zink/GL4ES, corrupted file/config, or missing dependency). Note the critical distinction between FCL Renderers (external plugin-based renderers) and Inbuilt Renderers (built-in native renderers like GL4ES, LTW, Zink) when evaluating graphics/renderer errors.
             2. Provide clear, concise, bullet-point steps explaining how the user can fix the issue.
             3. If the crash is an internal launcher or native C/C++ crash (e.g. native segfault in .so library, MojoExec, JNI hook error, or system GPU driver crash), explicitly tell the user: "This appears to be an internal launcher or native driver issue. Please contact HyperLauncher support with your crash log."
             4. Keep your response friendly, well-formatted, and concise.

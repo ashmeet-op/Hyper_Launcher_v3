@@ -81,7 +81,7 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
 
     defaultConfig {
         applicationId = "net.ashmeet.hyperlauncher"
-        minSdk = 26
+        minSdk = 27
         targetSdk = 37
 
         val propVersionCode = localProperties.getProperty("VERSION_CODE")?.toIntOrNull()
@@ -393,13 +393,16 @@ dependencies {
     implementation("androidx.viewpager2:viewpager2:1.1.0")
     implementation("androidx.annotation:annotation:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.2.2")
-    implementation("androidx.compose.material3:material3:1.5.0-beta01")
+    implementation("androidx.compose.material3:material3:1.5.0-beta02")
     implementation("com.github.duanhong169:checkerboarddrawable:1.0.2")
     implementation("com.github.PojavLauncherTeam:portrait-sdp:ed33e89cbc")
     implementation("com.github.PojavLauncherTeam:portrait-ssp:6c02fd739b")
     implementation("com.github.Mathias-Boulay:ExtendedView:1.0.0")
     implementation("com.github.Mathias-Boulay:android_gamepad_remapper:2.0.3")
     implementation("com.github.Mathias-Boulay:virtual-joystick-android:1.14")
+    implementation("com.github.dead8309:KizzyRPC:1.0.71") {
+        exclude(group = "com.google.code.gson", module = "gson")
+    }
 
     implementation("com.tencent:mmkv-kmp:2.4.3")
 

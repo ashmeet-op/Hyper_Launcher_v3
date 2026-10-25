@@ -2,6 +2,7 @@ package com.ashmeet.hyperlauncher.tracker
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
@@ -83,12 +84,26 @@ class TrackerLayout : ConstraintLayout, TaskCountListener {
             lastUpdate = now
             post {
                 state.progress.value = progress
-                if (resid != -1) {
-                    state.message.value = context.getString(resid, *va)
-                } else if (va.isNotEmpty() && va[0] != null) {
-                    state.message.value = va[0].toString()
+                val args = if (va.size == 1 && va[0] is Array<*>) {
+                    (va[0] as Array<*>).map { it }.toTypedArray()
                 } else {
-                    state.message.value = ""
+                    va
+                }
+
+                state.message.value = if (resid != -1) {
+                    try {
+                        context.getString(resid, *args)
+                    } catch (e: Exception) {
+                        Log.e("TrackerLayout", "Error formatting string resource $resid", e)
+                        context.getString(resid)
+                    }
+                } else {
+                    val rawVa = if (va.size == 1 && va[0] is Array<*>) {
+                        (va[0] as Array<*>).firstOrNull()?.toString()
+                    } else {
+                        va.firstOrNull()?.toString()
+                    }
+                    rawVa ?: ""
                 }
             }
         }

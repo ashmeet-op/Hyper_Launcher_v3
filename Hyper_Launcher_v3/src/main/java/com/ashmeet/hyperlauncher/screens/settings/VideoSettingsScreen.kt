@@ -4,6 +4,11 @@ import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Architecture
 import androidx.compose.material.icons.filled.AspectRatio
 import androidx.compose.material.icons.filled.Brush
@@ -43,6 +48,7 @@ import net.ashmeet.hyperlauncher.R
 import net.kdt.pojavlaunch.game.renderer.RendererCache
 import net.kdt.pojavlaunch.instances.Instances
 import net.kdt.pojavlaunch.utils.MCOptionUtils
+import net.kdt.pojavlaunch.vulkan.DriverInstaller
 import net.kdt.pojavlaunch.vulkan.DriverManager
 import net.kdt.pojavlaunch.vulkan.ui.VulkanDriverDialog
 
@@ -70,6 +76,18 @@ fun VideoSettingsScreen(
     var showRendererDialog by remember { mutableStateOf(false) }
     var showBackendDialog by remember { mutableStateOf(false) }
     var showDriverDialog by remember { mutableStateOf(false) }
+
+    val importLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            Toast.makeText(context, R.string.driver_config_import_notify, Toast.LENGTH_SHORT).show()
+            DriverInstaller.installDriverFromUri(context, uri) {
+                driver = LauncherPreferences.PREF_DRIVER
+                LauncherPreferences.loadPreferences(context)
+            }
+        }
+    }
 
     val compatibleRenderers = remember(context) { RendererCache.getCompatibleRenderers(context) }
 
@@ -134,11 +152,9 @@ fun VideoSettingsScreen(
                     title = translatedText("Vulkan Driver"),
                     summary = driverDisplayName,
                     icon = Icons.Default.Architecture,
-                    trailingIcon = Icons.Default.Download,
+                    trailingIcon = Icons.Default.Add,
                     onTrailingIconClick = {
-                        val intent = Intent(Intent.ACTION_VIEW,
-                            "https://github.com/FCL-Team/FCLDriverPlugin/releases/".toUri())
-                        context.startActivity(intent)
+                        importLauncher.launch("application/zip")
                     },
                     onClick = { showDriverDialog = true }
                 )

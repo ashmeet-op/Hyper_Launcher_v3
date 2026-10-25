@@ -133,6 +133,12 @@ object LauncherPreferences {
     var PREF_DEADZONE_SCALE = 1f
 
     @JvmField
+    var PREF_ENABLE_RPC = false
+
+    @JvmField
+    var PREF_DISCORD_TOKEN: String? = null
+
+    @JvmField
     var PREF_BIG_CORE_AFFINITY = false
 
     @JvmField
@@ -378,6 +384,8 @@ object LauncherPreferences {
         PREF_RAM_ALLOCATION = pref.getInt("allocation", findBestRAMAllocation(ctx))
         PREF_CUSTOM_JAVA_ARGS = pref.getString("javaArgs", "")
         PREF_GEMINI_API_KEY = pref.getString("geminiApiKey", "")
+        PREF_ENABLE_RPC = pref.getBoolean("enable_discord_rpc", false)
+        PREF_DISCORD_TOKEN = pref.getString("discord_token", "") ?: ""
         PREF_SUSTAINED_PERFORMANCE = pref.getBoolean("sustainedPerformance", isDevicePowerful)
         PREF_VIRTUAL_MOUSE_START = pref.getBoolean("mouse_start", false)
         PREF_USE_ALTERNATE_SURFACE = pref.getBoolean("alternate_surface", isDevicePowerful)

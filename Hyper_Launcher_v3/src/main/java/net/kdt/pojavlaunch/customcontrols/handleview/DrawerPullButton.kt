@@ -99,12 +99,12 @@ open class DrawerPullButton @JvmOverloads constructor(
             while (isActive && showFps) {
                 val nativeFps = withContext(Dispatchers.IO) {
                     try {
-                        CallbackBridge.nativeGetFps()
+                        CallbackBridge.windowRate
                     } catch (_: Throwable) {
-                        0
+                        60
                     }
                 }
-                fpsValue = nativeFps
+                fpsValue = nativeFps as Int
                 delay(1000.milliseconds)
             }
         }

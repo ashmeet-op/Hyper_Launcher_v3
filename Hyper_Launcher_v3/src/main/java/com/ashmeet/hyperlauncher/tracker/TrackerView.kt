@@ -1,6 +1,7 @@
 package com.ashmeet.hyperlauncher.tracker
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
@@ -103,9 +104,27 @@ fun TrackerView(
                     if (now - lastUpdate < 50 && progress != 100) return
                     lastUpdate = now
 
-                    val msg = if (resid != -1) context.getString(resid, *va)
-                    else if (va.isNotEmpty() && va[0] != null) va[0].toString()
-                    else ""
+                    val args = if (va.size == 1 && va[0] is Array<*>) {
+                        (va[0] as Array<*>).map { it }.toTypedArray()
+                    } else {
+                        va
+                    }
+
+                    val msg: String = if (resid != -1) {
+                        try {
+                            context.getString(resid, *args)
+                        } catch (e: Exception) {
+                            Log.e("TrackerView", "Error formatting string resource $resid", e)
+                            context.getString(resid)
+                        }
+                    } else {
+                        val rawVa = if (va.size == 1 && va[0] is Array<*>) {
+                            (va[0] as Array<*>).firstOrNull()?.toString()
+                        } else {
+                            va.firstOrNull()?.toString()
+                        }
+                        rawVa ?: ""
+                    }
 
                     val existing = activeTasks[key]
                     if (existing != null) {
