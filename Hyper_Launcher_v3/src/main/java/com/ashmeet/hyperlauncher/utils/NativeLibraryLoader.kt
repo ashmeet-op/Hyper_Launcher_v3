@@ -24,8 +24,9 @@ object NativeLibraryLoader {
         loadLibrary("hyperrt")
     }
 
+    //sometimes it requires pojavawt for no reason so.
     @JvmStatic
     fun loadAwt() {
-        loadLibrary("hyperawt")
+        loadLibrary("pojavexec_awt", "hyperawt")
     }
 }

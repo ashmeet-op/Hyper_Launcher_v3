@@ -51,6 +51,17 @@ add_library(hyperrt SHARED
 target_include_directories(hyperrt PRIVATE .)
 target_link_libraries(hyperrt PRIVATE log mojoexec)
 
+add_library(pojavexec_awt SHARED
+        awt/awt.c
+        awt/awt_window.c
+        awt/awt_util.c
+        awt/awt_input.c
+        awt/awt_clipboard.c
+        awt/awt_mapper.c
+)
+
+target_link_libraries(pojavexec_awt PRIVATE android log)
+
 add_library(hyperawt SHARED
         awt/awt.c
         awt/awt_window.c
