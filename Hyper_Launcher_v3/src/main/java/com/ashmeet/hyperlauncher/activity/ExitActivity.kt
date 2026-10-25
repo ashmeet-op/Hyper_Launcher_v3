@@ -1,7 +1,4 @@
-
-@file:Suppress("PackageDirectoryMismatch")
-
-package com.ashmeet.hyperbackend
+package com.ashmeet.hyperlauncher.activity
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -19,8 +16,6 @@ import java.io.File
 import java.io.IOException
 import kotlin.system.exitProcess
 import androidx.core.content.edit
-
-@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @Keep
 class ExitActivity : AppCompatActivity() {
 
@@ -55,6 +50,7 @@ class ExitActivity : AppCompatActivity() {
         setContentView(composeView)
     }
 
+    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     companion object {
         @Volatile
         @JvmField

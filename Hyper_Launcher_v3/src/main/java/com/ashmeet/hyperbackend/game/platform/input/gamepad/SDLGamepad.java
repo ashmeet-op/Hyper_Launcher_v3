@@ -3,7 +3,7 @@ package com.ashmeet.hyperbackend.game.platform.input.gamepad;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 
-import com.ashmeet.hyperbackend.ExitActivity;
+import com.ashmeet.hyperlauncher.activity.ExitActivity;
 import com.ashmeet.hyperbackend.game.platform.input.PlatformGamepad;
 
 import git.mojo.sdl.SDLControllerManager;

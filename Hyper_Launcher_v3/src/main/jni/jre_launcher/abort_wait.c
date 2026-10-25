@@ -64,7 +64,7 @@ JNIEXPORT void JNICALL
 Java_com_ashmeet_hyperbackend_utils_jre_JavaRunner_nativeSetupExit(JNIEnv *env, jclass clazz,
                                                                    jobject context) {
     (*env)->GetJavaVM(env, &vm_exit_data.vm);
-    jclass class = (*env)->FindClass(env, "com/ashmeet/hyperbackend/ExitActivity");
+    jclass class = (*env)->FindClass(env, "com/ashmeet/hyperlauncher/activity/ExitActivity");
     vm_exit_data.exit_class = (*env)->NewGlobalRef(env, class);
     vm_exit_data.exit_method = (*env)->GetStaticMethodID(env, class, "showExitMessage",
                                                          "(Landroid/content/Context;IZ)V");
