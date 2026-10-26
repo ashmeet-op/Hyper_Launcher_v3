@@ -183,7 +183,7 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
     }
 
     override fun setFullscreen(): Boolean {
-        return false
+        return LauncherPreferences.PREF_FULLSCREEN_LAUNCHER
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

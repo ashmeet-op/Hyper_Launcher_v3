@@ -329,9 +329,7 @@ object HyperUtils {
             return
         }
 
-        if (SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            WindowCompat.setDecorFitsSystemWindows(window, false)
-        }
+        WindowCompat.setDecorFitsSystemWindows(window, !ignoreNotch)
 
         val insetsController = window.insetsController
         if (insetsController != null) {
@@ -342,8 +340,10 @@ object HyperUtils {
 
         insetView.setOnApplyWindowInsetsListener { v, windowInsets ->
             var insetMask = 0
-            if (!finalNoSystemBars) insetMask = insetMask or WindowInsets.Type.systemBars()
-            if (!ignoreNotch) insetMask = insetMask or WindowInsets.Type.displayCutout()
+            if (!finalNoSystemBars) {
+                insetMask = insetMask or WindowInsets.Type.systemBars()
+                if (!ignoreNotch) insetMask = insetMask or WindowInsets.Type.displayCutout()
+            }
             if (insetMask != 0) {
                 val insets = windowInsets.getInsets(insetMask)
                 v.background = InsetBackground(insets, bgColor)

@@ -82,7 +82,6 @@ fun AccountSpinnerCompose(
     hideDivider: Boolean = false,
     containerColor: Color = MaterialTheme.colorScheme.surface
 ) {
-    val context = LocalContext.current
     var accounts by remember { mutableStateOf<List<Account>>(emptyList()) }
     var selectedIndex by remember { mutableIntStateOf(-1) }
     var expanded by remember { mutableStateOf(false) }
@@ -109,28 +108,6 @@ fun AccountSpinnerCompose(
         }
     }
 
-    val refreshAccount: (Account) -> Unit = { account ->
-        if (ProgressKeeper.getTaskCount() == 0) {
-            PojavApplication.sExecutorService.execute {
-                val refreshAccount = account.reload() ?: return@execute
-                val authType = refreshAccount.authType
-                if (authType.requiresLogin() && System.currentTimeMillis() > refreshAccount.expiresAt) {
-                    authType.createAuth().refreshAccount(loginListener, refreshAccount)
-                }
-            }
-        } else {
-            ProgressKeeper.waitUntilDone {
-                PojavApplication.sExecutorService.execute {
-                    val refreshAccount = account.reload() ?: return@execute
-                    val authType = refreshAccount.authType
-                    if (authType.requiresLogin() && System.currentTimeMillis() > refreshAccount.expiresAt) {
-                        authType.createAuth().refreshAccount(loginListener, refreshAccount)
-                    }
-                }
-            }
-        }
-    }
-
     val reloadAccounts: (Boolean) -> Unit = { notifyOthers ->
         PojavApplication.sExecutorService.execute {
             try {
@@ -139,9 +116,6 @@ fun AccountSpinnerCompose(
                     accounts = loadedAccounts.accounts
                     selectedIndex = loadedAccounts.selectionIndex
 
-                    if (selectedIndex >= 0 && selectedIndex < accounts.size) {
-                        refreshAccount(accounts[selectedIndex])
-                    }
                     if (notifyOthers) {
                         ExtraCore.setValue(ExtraConstants.REFRESH_ACCOUNT_SPINNER, true)
                     }

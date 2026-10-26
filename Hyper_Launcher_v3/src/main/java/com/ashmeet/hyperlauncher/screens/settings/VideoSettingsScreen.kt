@@ -184,6 +184,7 @@ fun VideoSettingsScreen(
                         ignoreNotch = it
                         LauncherPreferences.prefs.edit { putBoolean("ignoreNotch", it) }
                         LauncherPreferences.loadPreferences(context)
+                        HyperUtils.restartLauncherActivity(context)
                     }
                 )
             }
@@ -199,6 +200,7 @@ fun VideoSettingsScreen(
                         fullscreenLauncher = it
                         LauncherPreferences.prefs.edit { putBoolean("fullscreen_launcher", it) }
                         LauncherPreferences.loadPreferences(context)
+                        HyperUtils.restartLauncherActivity(context)
                     }
                 )
             }
