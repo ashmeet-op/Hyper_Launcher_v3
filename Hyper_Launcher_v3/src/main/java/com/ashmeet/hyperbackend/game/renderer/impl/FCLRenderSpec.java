@@ -19,9 +19,6 @@ import java.util.Map;
 
 import git.artdeell.mojoexec.MojoExec;
 
-/**
- * FCLRenderSpec represents a dynamic render spec provided by NativePlugin, RendererPlugin, or RendererInterface.
- */
 public class FCLRenderSpec implements RenderSpec {
     private static final String TAG = "FCLRenderSpec";
     private final NativePlugin plugin;
@@ -76,44 +73,83 @@ public class FCLRenderSpec implements RenderSpec {
 
     @Override
     public String library() {
-        String lib = null, searchPath = HyperUtils.NATIVE_LIB_DIR;
+        String lib;
+        String defaultDir = HyperUtils.NATIVE_LIB_DIR != null ? HyperUtils.NATIVE_LIB_DIR : "";
+        String searchPath = defaultDir;
 
         if (rendererInterface != null) {
             lib = rendererInterface.getRendererLibrary();
-            if (rendererInterface instanceof Plugin)
+            if (rendererInterface instanceof Plugin) {
                 searchPath = ((Plugin) rendererInterface).getNativeLibPath();
+            } else if (lib.startsWith("/")) {
+                File libFile = new File(lib);
+                if (libFile.getParent() != null) {
+                    searchPath = libFile.getParent();
+                }
+            }
         } else if (rendererPlugin != null) {
             lib = rendererPlugin.getRendererLibrary();
             searchPath = rendererPlugin.getPath();
         } else if (plugin != null) {
+            lib = null;
             searchPath = plugin.getPath();
-            File[] so = new File(searchPath).listFiles((d, n) -> n.endsWith(".so"));
-            if (so != null && so.length > 0) {
-                java.util.Arrays.sort(so);
-                for (File f : so) {
-                    String n = f.getName().toLowerCase();
-                    if (n.contains("egl") || n.contains("gl4es") || n.contains("angle")) {
-                        Log.i(TAG, "Picked " + f);
-                        return f.getAbsolutePath();
+        } else {
+            lib = null;
+        }
+
+        if (lib == null || !lib.endsWith(".so") || lib.contains("plugin")) {
+            Log.w(TAG, "Invalid or non-so library specified: " + lib + ", searching for .so in " + searchPath);
+            File searchDir = new File(searchPath);
+            if (searchDir.exists() && searchDir.isDirectory()) {
+                File[] so = searchDir.listFiles((d, n) -> n.endsWith(".so"));
+                if (so != null && so.length > 0) {
+                    java.util.Arrays.sort(so);
+                    for (File f : so) {
+                        String n = f.getName().toLowerCase();
+                        if (n.contains("egl") || n.contains("gl4es") || n.contains("angle") || n.contains("ltw")) {
+                            Log.i(TAG, "Picked renderer lib: " + f.getAbsolutePath());
+                            return f.getAbsolutePath();
+                        }
                     }
+                    Log.i(TAG, "Picked first available .so: " + so[0].getAbsolutePath());
+                    return so[0].getAbsolutePath();
                 }
-                return so[0].getAbsolutePath();
+            }
+            lib = "libltw.so";
+        }
+
+        if (lib.startsWith("/")) {
+            File f = new File(lib);
+            if (f.exists()) return f.getAbsolutePath();
+        }
+
+        for (String dir : new String[]{searchPath, defaultDir}) {
+            if (dir == null || dir.isEmpty()) continue;
+            File f = new File(dir, lib);
+            if (f.exists()) {
+                Log.i(TAG, "Found renderer lib: " + f.getAbsolutePath());
+                return f.getAbsolutePath();
             }
         }
 
-        if (lib == null) lib = "libltw.so";
-        if (lib.startsWith("/")) return lib;
-
-        for (String dir : new String[]{searchPath, HyperUtils.NATIVE_LIB_DIR}) {
-            File f = new File(dir, lib);
-            if (f.exists()) return f.getAbsolutePath();
+        Log.w(TAG, "Renderer lib not found: " + lib + " in " + searchPath + ", falling back to ltw");
+        String ltwLib = "libltw.so";
+        for (String dir : new String[]{searchPath, defaultDir}) {
+            if (dir == null || dir.isEmpty()) continue;
+            File f = new File(dir, ltwLib);
+            if (f.exists()) {
+                Log.i(TAG, "Fallback renderer lib found: " + f.getAbsolutePath());
+                return f.getAbsolutePath();
+            }
         }
-        Log.e(TAG, "Renderer lib not found: " + lib + " in " + searchPath);
-        return lib;
+
+        Log.e(TAG, "Fallback ltw lib not found, returning: " + ltwLib);
+        return ltwLib;
     }
 
     @Override
     public String librarySearchPath() {
+        String defaultDir = HyperUtils.NATIVE_LIB_DIR != null ? HyperUtils.NATIVE_LIB_DIR : "";
         if (rendererInterface instanceof Plugin) {
             return ((Plugin) rendererInterface).getNativeLibPath();
         }
@@ -123,7 +159,16 @@ public class FCLRenderSpec implements RenderSpec {
         if (plugin != null) {
             return plugin.getPath();
         }
-        return HyperUtils.NATIVE_LIB_DIR;
+        if (rendererInterface != null) {
+            String lib = rendererInterface.getRendererLibrary();
+            if (lib.startsWith("/")) {
+                File f = new File(lib);
+                if (f.getParent() != null) {
+                    return f.getParent();
+                }
+            }
+        }
+        return defaultDir;
     }
 
     @Override
