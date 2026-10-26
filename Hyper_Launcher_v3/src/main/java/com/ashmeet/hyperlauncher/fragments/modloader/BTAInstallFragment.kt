@@ -23,16 +23,16 @@ class BTAInstallFragment : ModVersionListFragment<BTAUtils.BTAVersionList>(TAG) 
         return BTAUtils.downloadVersionList()
     }
 
-    override fun mapToGroups(versionList: BTAUtils.BTAVersionList): List<ModloaderVersionGroup<Any>> {
+    override fun mapToGroups(data: BTAUtils.BTAVersionList): List<ModloaderVersionGroup<Any>> {
         val groups = mutableListOf<ModloaderVersionGroup<Any>>()
-        if (versionList.testedVersions.isNotEmpty()) {
-            groups.add(createGroup(R.string.bta_installer_available_versions, versionList.testedVersions))
+        if (data.testedVersions.isNotEmpty()) {
+            groups.add(createGroup(R.string.bta_installer_available_versions, data.testedVersions))
         }
-        if (versionList.untestedVersions.isNotEmpty()) {
-            groups.add(createGroup(R.string.bta_installer_untested_versions, versionList.untestedVersions))
+        if (data.untestedVersions.isNotEmpty()) {
+            groups.add(createGroup(R.string.bta_installer_untested_versions, data.untestedVersions))
         }
-        if (versionList.nightlyVersions.isNotEmpty()) {
-            groups.add(createGroup(R.string.bta_installer_nightly_versions, versionList.nightlyVersions))
+        if (data.nightlyVersions.isNotEmpty()) {
+            groups.add(createGroup(R.string.bta_installer_nightly_versions, data.nightlyVersions))
         }
         return groups
     }

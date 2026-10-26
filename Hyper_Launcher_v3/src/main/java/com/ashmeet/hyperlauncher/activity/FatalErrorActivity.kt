@@ -12,6 +12,7 @@ import java.io.File
 
 class FatalErrorActivity : AppCompatActivity() {
 
+    @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -52,7 +53,6 @@ class FatalErrorActivity : AppCompatActivity() {
                 if (strSavePath != null) {
                     HyperUtils.openPath(this, File(strSavePath), false)
                 }
-                Unit
             }
         )
         setContentView(composeView)

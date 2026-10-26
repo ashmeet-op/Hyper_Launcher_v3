@@ -106,7 +106,7 @@ class GamepadMapperAdapter(context: Context) : RecyclerView.Adapter<GamepadMappe
                     iconRes = rebinderButton.iconResourceId,
                     keyCodeLabel = context.getString(rebinderButton.localeResourceId),
                     currentKeys = keyCodeNames,
-                    isToggle = if (realButton is GamepadButton) realButton.isToggleable else false,
+                    isToggle = (realButton as? GamepadButton)?.isToggleable == true,
                     onKeySelected = { keyIndex, newKeyName ->
                         val selectionIndex = mKeyOptions.indexOf(newKeyName)
                         val offset = selectionIndex - mSpecialKeycodeCount

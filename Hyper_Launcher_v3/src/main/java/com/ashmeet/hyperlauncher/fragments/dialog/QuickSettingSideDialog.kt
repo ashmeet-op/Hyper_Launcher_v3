@@ -110,6 +110,7 @@ abstract class QuickSettingSideDialog : SideDialogView() {
         mOriginalVolumeDown = LauncherPreferences.PREF_VOLUME_DOWN_KEYBIND
     }
 
+    @Suppress("DEPRECATION")
     @Composable
     override fun DialogHeader() {
         TabRow(

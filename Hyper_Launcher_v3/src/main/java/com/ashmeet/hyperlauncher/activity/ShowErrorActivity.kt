@@ -17,6 +17,7 @@ class ShowErrorActivity : BaseActivity() {
         return false
     }
 
+    @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val intent = intent

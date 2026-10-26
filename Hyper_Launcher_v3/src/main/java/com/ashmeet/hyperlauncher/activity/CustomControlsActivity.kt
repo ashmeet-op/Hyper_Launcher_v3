@@ -97,6 +97,7 @@ class CustomControlsActivity : BaseActivity(), EditorExitable, CropperUtils.Crop
         mControlLayout.askToExit(this)
     }
 
+    @Suppress("DEPRECATION")
     override fun exitEditor() {
         super.onBackPressed()
     }

@@ -25,14 +25,14 @@ class OptiFineInstallFragment : ModVersionListFragment<OptiFineUtils.OptiFineVer
         return OptiFineUtils.downloadOptiFineVersions()
     }
 
-    override fun mapToGroups(versionList: OptiFineUtils.OptiFineVersions): List<ModloaderVersionGroup<Any>> {
+    override fun mapToGroups(data: OptiFineUtils.OptiFineVersions): List<ModloaderVersionGroup<Any>> {
         val groups = mutableListOf<ModloaderVersionGroup<Any>>()
-        for (i in versionList.gameVersions.indices) {
+        for (i in data.gameVersions.indices) {
             val items = mutableListOf<ModloaderVersionItem<Any>>()
-            for (v in versionList.optifineVersions[i]) {
+            for (v in data.optifineVersions[i]) {
                 items.add(ModloaderVersionItem(v.versionName, v as Any))
             }
-            groups.add(ModloaderVersionGroup(versionList.gameVersions[i], items))
+            groups.add(ModloaderVersionGroup(data.gameVersions[i], items))
         }
         return groups
     }

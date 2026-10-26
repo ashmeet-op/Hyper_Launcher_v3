@@ -113,7 +113,7 @@ object CurseForgeService {
         val response = handler.get("mods/$projectId", JsonObject::class.java) ?: return@withContext null
         val data = response.getAsJsonObject("data") ?: return@withContext null
 
-        val screenshots = data.getAsJsonArray("screenshots") ?: null
+        val screenshots = data.getAsJsonArray("screenshots")
         val gallery = screenshots?.map {
             it.asJsonObject.get("url").asString
         } ?: emptyList()

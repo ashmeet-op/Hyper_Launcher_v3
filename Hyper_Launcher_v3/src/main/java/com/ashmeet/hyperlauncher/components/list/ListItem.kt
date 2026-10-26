@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -77,6 +76,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
+import com.ashmeet.hyperbackend.instances.DisplayInstance
+import com.ashmeet.hyperbackend.instances.Instance
+import com.ashmeet.hyperbackend.instances.InstanceIconProvider
+import com.ashmeet.hyperbackend.modloaders.modpacks.api.ModrinthService
 import com.ashmeet.hyperlauncher.components.HyperDropdownMenu
 import com.ashmeet.hyperlauncher.components.switch.DefaultSwitch
 import com.ashmeet.hyperlauncher.theme.PojavTheme
@@ -91,17 +94,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ashmeet.hyperlauncher.R
-import com.ashmeet.hyperbackend.instances.DisplayInstance
-import com.ashmeet.hyperbackend.instances.Instance
-import com.ashmeet.hyperbackend.instances.InstanceIconProvider
-import com.ashmeet.hyperbackend.modloaders.modpacks.api.ModrinthService
 import java.io.File
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@Suppress("DEPRECATION")
 @Composable
 fun FileListItem(
     modifier: Modifier = Modifier,
@@ -139,7 +139,7 @@ fun FileListItem(
                 worldMeta = wMeta
             }
 
-            if (mMeta != null && mMeta.name != null && mMeta.name!!.lowercase().contains("hyper client")) {
+            if (mMeta?.name != null && mMeta.name!!.lowercase().contains("hyper client")) {
                 withContext(Dispatchers.Main) { isCheckingUpdate = true }
                 try {
                     val versions = ModrinthService.getProjectVersions("hyperclient")
@@ -279,7 +279,7 @@ fun FileListItem(
                                 try {
                                     val url = URL(updateAvailable!!.downloadUrl)
                                     val fileName = updateAvailable!!.downloadUrl.substringAfterLast("/")
-                                    val tempFile = File(file.parentFile, fileName + ".tmp")
+                                    val tempFile = File(file.parentFile, "$fileName.tmp")
 
                                     url.openStream().use { input ->
                                         tempFile.outputStream().use { output ->

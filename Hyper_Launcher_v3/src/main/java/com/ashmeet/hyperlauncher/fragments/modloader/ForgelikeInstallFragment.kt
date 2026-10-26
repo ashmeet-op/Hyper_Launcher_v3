@@ -18,11 +18,11 @@ abstract class ForgelikeInstallFragment(private val mUtils: ForgelikeUtils, mFra
         return mUtils.downloadVersions()
     }
 
-    override fun mapToGroups(forgeVersions: List<String>): List<ModloaderVersionGroup<Any>> {
+    override fun mapToGroups(data: List<String>): List<ModloaderVersionGroup<Any>> {
         val gameVersions = mutableListOf<String>()
         val loaderVersions = mutableListOf<MutableList<String>>()
 
-        for (version in forgeVersions) {
+        for (version in data) {
             if (mUtils.shouldSkipVersion(version)) continue
             val gameVersion = mUtils.processVersionString(version)
             val gameVersionIndex = gameVersions.indexOf(gameVersion)

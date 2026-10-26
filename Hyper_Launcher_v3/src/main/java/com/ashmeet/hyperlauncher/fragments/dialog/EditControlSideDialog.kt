@@ -58,6 +58,7 @@ class EditControlSideDialog : SideDialogView() {
         dialogWidth = 280.dp
     }
 
+    @Suppress("DEPRECATION")
     @Composable
     override fun DialogHeader() {
         TabRow(
