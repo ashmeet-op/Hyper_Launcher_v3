@@ -1,6 +1,7 @@
 package com.ashmeet.hyperlauncher.screens.home
 
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -57,6 +58,7 @@ import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
@@ -65,6 +67,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ashmeet.hyperbackend.authenticator.accounts.Accounts
+import com.ashmeet.hyperbackend.extra.ExtraConstants
+import com.ashmeet.hyperbackend.extra.ExtraCore
+import com.ashmeet.hyperbackend.extra.ExtraListener
+import com.ashmeet.hyperbackend.instances.DisplayInstance
+import com.ashmeet.hyperbackend.instances.InstanceIconProvider
+import com.ashmeet.hyperbackend.instances.Instances
 import com.ashmeet.hyperlauncher.components.button.MineButton
 import com.ashmeet.hyperlauncher.screens.settings.layouts.CardPosition
 import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsCard
@@ -75,13 +84,6 @@ import com.ashmeet.hyperlauncher.utils.SkinUtils
 import com.ashmeet.hyperlauncher.utils.drawable.rememberDrawablePainter
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
-import com.ashmeet.hyperbackend.authenticator.accounts.Accounts
-import com.ashmeet.hyperbackend.extra.ExtraConstants
-import com.ashmeet.hyperbackend.extra.ExtraCore
-import com.ashmeet.hyperbackend.extra.ExtraListener
-import com.ashmeet.hyperbackend.instances.DisplayInstance
-import com.ashmeet.hyperbackend.instances.InstanceIconProvider
-import com.ashmeet.hyperbackend.instances.Instances
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -184,245 +186,348 @@ fun MainMenuFragmentCompose(
         contentColor = MaterialTheme.colorScheme.onBackground,
         tonalElevation = 3.dp
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            Row(
+        val configuration = LocalConfiguration.current
+        val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+
+        if (isPortrait) {
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    .padding(12.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                SidebarCardContent(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(340.dp),
+                    hasBackground = hasBackground,
+                    backgroundTransparency = backgroundTransparency,
+                    headScale = headScale,
+                    headInteractionSource = headInteractionSource,
+                    currentAccount = currentAccount,
+                    skinHead = skinHead,
+                    instanceIcon = instanceIcon,
+                    selectedInstance = selectedInstance,
+                    onAccountManagerClick = onAccountManagerClick,
+                    onVersionSpinnerClick = onVersionSpinnerClick,
+                    onEditProfileClick = onEditProfileClick,
+                    onPlayClick = onPlayClick
+                )
+                ActionCardsContent(
+                    hideActionButtons = hideActionButtons,
+                    onAboutClick = onAboutClick,
+                    onSocialMediaClick = onSocialMediaClick,
+                    onCustomControlsClick = onCustomControlsClick,
+                    onInstallJarClick = onInstallJarClick,
+                    onShareLogsClick = onShareLogsClick,
+                    onOpenFilesClick = onOpenFilesClick
+                )
+            }
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    val rightSidebarWidth = 260.dp
+                    if (!hideActionButtons) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .weight(1f)
+                                .padding(end = 8.dp)
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            ActionCardsContent(
+                                hideActionButtons = hideActionButtons,
+                                onAboutClick = onAboutClick,
+                                onSocialMediaClick = onSocialMediaClick,
+                                onCustomControlsClick = onCustomControlsClick,
+                                onInstallJarClick = onInstallJarClick,
+                                onShareLogsClick = onShareLogsClick,
+                                onOpenFilesClick = onOpenFilesClick
+                            )
+                        }
+                    } else {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
 
-                val rightSidebarWidth = 260.dp
-                if (!hideActionButtons) {
-                    Column(
+                    SidebarCardContent(
                         modifier = Modifier
-                            .fillMaxHeight()
-                            .weight(1f)
-                            .padding(end = 8.dp)
-                            .verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        ActionCard(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(60.dp),
-                            title = translatedText("About"),
-                            icon = Icons.Rounded.Info,
-                            position = CardPosition.TOP,
-                            onClick = onAboutClick
-                        )
-                        ActionCard(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(60.dp),
-                            title = translatedText(stringResource(id = R.string.mcl_button_social_media)),
-                            icon = Icons.Rounded.Share,
-                            position = CardPosition.MIDDLE,
-                            onClick = onSocialMediaClick
-                        )
+                            .width(rightSidebarWidth)
+                            .fillMaxHeight(),
+                        hasBackground = hasBackground,
+                        backgroundTransparency = backgroundTransparency,
+                        headScale = headScale,
+                        headInteractionSource = headInteractionSource,
+                        currentAccount = currentAccount,
+                        skinHead = skinHead,
+                        instanceIcon = instanceIcon,
+                        selectedInstance = selectedInstance,
+                        onAccountManagerClick = onAccountManagerClick,
+                        onVersionSpinnerClick = onVersionSpinnerClick,
+                        onEditProfileClick = onEditProfileClick,
+                        onPlayClick = onPlayClick
+                    )
+                }
+            }
+        }
+    }
+}
 
-                        ActionCard(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(60.dp),
-                            title = translatedText(stringResource(id = R.string.mcl_option_customcontrol)),
-                            icon = Icons.Rounded.Build,
-                            position = CardPosition.MIDDLE,
-                            onClick = onCustomControlsClick
-                        )
-                        ActionCard(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(60.dp),
-                            title = translatedText(stringResource(id = R.string.main_install_jar_file)),
-                            icon = Icons.Rounded.Add,
-                            position = CardPosition.MIDDLE,
-                            onClick = onInstallJarClick
-                        )
-                        ActionCard(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(60.dp),
-                            title = translatedText(stringResource(id = R.string.main_share_logs)),
-                            icon = Icons.AutoMirrored.Rounded.Send,
-                            position = CardPosition.MIDDLE,
-                            onClick = onShareLogsClick
-                        )
-                        ActionCard(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(60.dp),
-                            title = translatedText(stringResource(id = R.string.mcl_button_open_directory)),
-                            icon = Icons.Rounded.Search,
-                            position = CardPosition.BOTTOM,
-                            onClick = onOpenFilesClick
+@Composable
+private fun ActionCardsContent(
+    hideActionButtons: Boolean,
+    onAboutClick: () -> Unit,
+    onSocialMediaClick: () -> Unit,
+    onCustomControlsClick: () -> Unit,
+    onInstallJarClick: () -> Unit,
+    onShareLogsClick: () -> Unit,
+    onOpenFilesClick: () -> Unit
+) {
+    if (!hideActionButtons) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            ActionCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp),
+                title = translatedText("About"),
+                icon = Icons.Rounded.Info,
+                position = CardPosition.TOP,
+                onClick = onAboutClick
+            )
+            ActionCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp),
+                title = translatedText(stringResource(id = R.string.mcl_button_social_media)),
+                icon = Icons.Rounded.Share,
+                position = CardPosition.MIDDLE,
+                onClick = onSocialMediaClick
+            )
+
+            ActionCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp),
+                title = translatedText(stringResource(id = R.string.mcl_option_customcontrol)),
+                icon = Icons.Rounded.Build,
+                position = CardPosition.MIDDLE,
+                onClick = onCustomControlsClick
+            )
+            ActionCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp),
+                title = translatedText(stringResource(id = R.string.main_install_jar_file)),
+                icon = Icons.Rounded.Add,
+                position = CardPosition.MIDDLE,
+                onClick = onInstallJarClick
+            )
+            ActionCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp),
+                title = translatedText(stringResource(id = R.string.main_share_logs)),
+                icon = Icons.AutoMirrored.Rounded.Send,
+                position = CardPosition.MIDDLE,
+                onClick = onShareLogsClick
+            )
+            ActionCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp),
+                title = translatedText(stringResource(id = R.string.mcl_button_open_directory)),
+                icon = Icons.Rounded.Search,
+                position = CardPosition.BOTTOM,
+                onClick = onOpenFilesClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun SidebarCardContent(
+    modifier: Modifier = Modifier,
+    hasBackground: Boolean,
+    backgroundTransparency: Float,
+    headScale: Float,
+    headInteractionSource: MutableInteractionSource,
+    currentAccount: com.ashmeet.hyperbackend.authenticator.accounts.Account?,
+    skinHead: android.graphics.Bitmap?,
+    instanceIcon: android.graphics.drawable.Drawable?,
+    selectedInstance: DisplayInstance?,
+    onAccountManagerClick: () -> Unit,
+    onVersionSpinnerClick: () -> Unit,
+    onEditProfileClick: (DisplayInstance?) -> Unit,
+    onPlayClick: () -> Unit
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(32.dp),
+        color = if (hasBackground) MaterialTheme.colorScheme.surface.copy(alpha = backgroundTransparency)
+                else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
+        tonalElevation = 0.dp,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)
+                        .scale(headScale)
+                        .clickable(
+                            interactionSource = headInteractionSource,
+                            indication = null,
+                            onClick = onAccountManagerClick
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (currentAccount != null) {
+                        if (skinHead != null) {
+                            Image(
+                                bitmap = skinHead!!.asImageBitmap(),
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Fit,
+                                filterQuality = FilterQuality.None
+                            )
+                        } else {
+                            LoadingIndicator(
+                                modifier = Modifier.size(42.dp),
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                            )
+                        }
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = translatedText("Add Account"),
+                            modifier = Modifier.size(32.dp),
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
-                } else {
-                    Spacer(modifier = Modifier.weight(1f))
                 }
+            }
 
-                Surface(
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp),
+                color = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onSurface
+            ) {
+                Row(
                     modifier = Modifier
-                        .width(rightSidebarWidth)
-                        .fillMaxHeight(),
-                    shape = RoundedCornerShape(32.dp),
-                    color = if (hasBackground) MaterialTheme.colorScheme.surface.copy(alpha = backgroundTransparency)
-                            else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
-                    tonalElevation = 0.dp,
+                        .padding(start = 12.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Column(
+                    Row(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                            .weight(1f)
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable(onClick = onVersionSpinnerClick)
+                            .padding(4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-
-                        Column(
-                            modifier = Modifier.weight(1f),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(RoundedCornerShape(8.dp)),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(64.dp)
-                                    .scale(headScale)
-                                    .clickable(
-                                        interactionSource = headInteractionSource,
-                                        indication = null,
-                                        onClick = onAccountManagerClick
-                                    ),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                if (currentAccount != null) {
-                                    if (skinHead != null) {
-                                        Image(
-                                            bitmap = skinHead!!.asImageBitmap(),
-                                            contentDescription = null,
-                                            modifier = Modifier.fillMaxSize(),
-                                            contentScale = ContentScale.Fit,
-                                            filterQuality = FilterQuality.None
-                                        )
-                                    } else {
-                                        LoadingIndicator(
-                                            modifier = Modifier.size(42.dp),
-                                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
-                                        )
-                                    }
-                                } else {
-                                    Icon(
-                                        imageVector = Icons.Default.Add,
-                                        contentDescription = translatedText("Add Account"),
-                                        modifier = Modifier.size(32.dp),
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                }
+                            if (instanceIcon != null) {
+                                Image(
+                                    painter = rememberDrawablePainter(instanceIcon),
+                                    contentDescription = null,
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.Home,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
                             }
                         }
 
-                        Surface(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(24.dp),
-                            color = Color.Transparent,
-                            contentColor = MaterialTheme.colorScheme.onSurface
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .padding(start = 12.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .clip(RoundedCornerShape(12.dp))
-                                        .clickable(onClick = onVersionSpinnerClick)
-                                        .padding(4.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(32.dp)
-                                            .clip(RoundedCornerShape(8.dp)),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        if (instanceIcon != null) {
-                                            Image(
-                                                painter = rememberDrawablePainter(instanceIcon),
-                                                contentDescription = null,
-                                                modifier = Modifier.fillMaxSize(),
-                                                contentScale = ContentScale.Crop
-                                            )
-                                        } else {
-                                            Icon(
-                                                imageVector = Icons.Default.Home,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(20.dp),
-                                                tint = MaterialTheme.colorScheme.primary
-                                            )
-                                        }
-                                    }
-
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        val name = selectedInstance?.name
-                                        val instanceDisplayName = if (selectedInstance == null) {
-                                            translatedText(stringResource(id = R.string.no_instance))
-                                        } else if (name.isNullOrBlank()) {
-                                            translatedText("UNNAMED")
-                                        } else {
-                                            name
-                                        }
-
-                                        Text(
-                                            text = instanceDisplayName,
-                                            style = MaterialTheme.typography.labelSmall,
-                                            fontWeight = FontWeight.SemiBold,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis,
-                                            fontSize = 11.sp,
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        )
-                                        Text(
-                                            text = selectedInstance?.versionId ?: translatedText(stringResource(id = R.string.version_select_hint)),
-                                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 9.sp),
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                }
-
-                                IconButton(
-                                    onClick = { onEditProfileClick(selectedInstance) },
-                                    modifier = Modifier.size(44.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Settings,
-                                        contentDescription = translatedText("Edit Profile"),
-                                        modifier = Modifier.size(24.dp),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
+                        Column(modifier = Modifier.weight(1f)) {
+                            val name = selectedInstance?.name
+                            val instanceDisplayName = if (selectedInstance == null) {
+                                translatedText(stringResource(id = R.string.no_instance))
+                            } else if (name.isNullOrBlank()) {
+                                translatedText("UNNAMED")
+                            } else {
+                                name
                             }
-                        }
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth().animateContentSize(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically) {
-                            MineButton(
-                                text = translatedText("Launch"),
-                                onClick = onPlayClick,
-                                modifier = Modifier
-                                    .weight(1f),
-                                height = 56.dp
+                            Text(
+                                text = instanceDisplayName,
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = selectedInstance?.versionId ?: translatedText(stringResource(id = R.string.version_select_hint)),
+                                style = MaterialTheme.typography.bodySmall.copy(fontSize = 9.sp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
+
+                    IconButton(
+                        onClick = { onEditProfileClick(selectedInstance) },
+                        modifier = Modifier.size(44.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = translatedText("Edit Profile"),
+                            modifier = Modifier.size(24.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth().animateContentSize(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+                MineButton(
+                    text = translatedText("Launch"),
+                    onClick = onPlayClick,
+                    modifier = Modifier
+                        .weight(1f),
+                    height = 56.dp
+                )
             }
         }
     }

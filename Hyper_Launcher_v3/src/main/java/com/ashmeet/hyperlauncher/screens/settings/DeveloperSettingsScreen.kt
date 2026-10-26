@@ -5,11 +5,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AspectRatio
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material.icons.filled.Warning
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -45,6 +47,7 @@ fun DeveloperSettingsScreen(
     val context = LocalContext.current
     val fclPlugins = remember { PluginLoader.allPlugins }
     var forceEnglish by remember { mutableStateOf(LauncherPreferences.PREF_FORCE_ENGLISH) }
+    var portraitMode by remember { mutableStateOf(LauncherPreferences.PREF_PORTRAIT_MODE) }
     var geminiApiKey by remember { mutableStateOf(LauncherPreferences.PREF_GEMINI_API_KEY ?: "") }
     var showGeminiApiKeyDialog by remember { mutableStateOf(false) }
 
@@ -91,6 +94,21 @@ fun DeveloperSettingsScreen(
                         if (!it) {
                             Translator.prefetchTranslations(context)
                         }
+                    }
+                )
+            }
+
+            SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
+                SettingsSwitchItem(
+                    title = translatedText("Portrait mode"),
+                    summary = translatedText("Allow launcher to run in portrait mode when rotated"),
+                    icon = Icons.Default.AspectRatio,
+                    checked = portraitMode,
+                    onCheckedChange = {
+                        portraitMode = it
+                        LauncherPreferences.prefs.edit { putBoolean("portrait_mode", it) }
+                        LauncherPreferences.loadPreferences(context)
+                        HyperUtils.restartLauncherActivity(context)
                     }
                 )
             }

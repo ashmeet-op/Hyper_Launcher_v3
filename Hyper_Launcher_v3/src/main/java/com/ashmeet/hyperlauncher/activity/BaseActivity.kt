@@ -9,9 +9,11 @@ import android.os.Bundle
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.Composable
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_FULLSCREEN_LAUNCHER
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_IGNORE_NOTCH
 import com.ashmeet.hyperlauncher.utils.HyperUtils
@@ -23,6 +25,7 @@ abstract class BaseActivity : AppCompatActivity() {
         super.attachBaseContext(LocaleUtils.setLocale(newBase))
     }
 
+  
     override fun onCreate(savedInstanceState: Bundle?) {
 
         if ((shouldEnableEdgeToEdge() && shouldIgnoreNotch()) || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM && shouldIgnoreNotch())) {
@@ -49,8 +52,13 @@ abstract class BaseActivity : AppCompatActivity() {
 
 
     open fun updateOrientation() {
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+        requestedOrientation = if (LauncherPreferences.PREF_PORTRAIT_MODE) {
+            ActivityInfo.SCREEN_ORIENTATION_USER
+        } else {
+            ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+        }
     }
+
 
 
     private fun applySystemBarConfiguration() {

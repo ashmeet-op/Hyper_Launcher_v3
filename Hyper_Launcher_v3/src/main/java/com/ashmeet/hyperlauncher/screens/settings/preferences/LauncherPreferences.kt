@@ -175,6 +175,9 @@ object LauncherPreferences {
     var PREF_FULLSCREEN_LAUNCHER = true
 
     @JvmField
+    var PREF_PORTRAIT_MODE = false
+
+    @JvmField
     var PREF_DEVELOPER_OPTIONS = false
 
     @JvmField
@@ -415,6 +418,7 @@ object LauncherPreferences {
         PREF_AUTO_SAVE_TO_GALLERY = pref.getBoolean("auto_save_to_gallery", false)
         PREF_VSYNC_IN_ZINK = pref.getBoolean("vsync_in_zink", true)
         PREF_FULLSCREEN_LAUNCHER = pref.getBoolean("fullscreen_launcher", true)
+        PREF_PORTRAIT_MODE = pref.getBoolean("portrait_mode", false)
         PREF_DEVELOPER_OPTIONS = pref.getBoolean("developer_options", false)
         PREF_VERIFY_FILES = pref.getBoolean("checkGameFiles", true)
         PREF_DISABLE_BLOCKLIST = pref.getBoolean("disableServerBlocklist", true)

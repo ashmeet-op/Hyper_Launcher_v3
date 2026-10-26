@@ -15,7 +15,6 @@ import android.graphics.Color
 import android.hardware.Sensor
 import android.hardware.SensorManager
 import android.net.Uri
-import androidx.core.net.toUri
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
@@ -32,15 +31,19 @@ import android.view.Window
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.view.WindowManager
-import androidx.core.view.WindowCompat
-import androidx.annotation.RequiresApi
-import androidx.compose.material3.Text
 import android.widget.Toast
-import androidx.compose.foundation.layout.*
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,46 +52,48 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
-import com.ashmeet.hyperlauncher.utils.translation.translatedText
-import com.ashmeet.hyperbackend.customcontrols.ControlLayout
-import com.ashmeet.hyperbackend.customcontrols.EditorExitable
-import com.ashmeet.hyperbackend.utils.KeycodeUtils
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
+import androidx.core.content.edit
+import androidx.core.net.toUri
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
-import com.ashmeet.hyperlauncher.components.dialog.SimpleAlertDialog
-import com.ashmeet.hyperlauncher.components.dialog.GenericComposeDialogFragment
-import com.ashmeet.hyperlauncher.plugin.natives.NativePluginManager
-import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import net.ashmeet.hyperlauncher.BuildConfig
-import net.ashmeet.hyperlauncher.R
-import com.ashmeet.hyperlauncher.utils.drawable.InsetBackground
 import com.ashmeet.hyperbackend.JVersionList
 import com.ashmeet.hyperbackend.Logger
-import com.ashmeet.hyperlauncher.activity.MissingStorageActivity
-import com.ashmeet.hyperlauncher.activity.PojavApplication
-import com.ashmeet.hyperlauncher.activity.ShowErrorActivity
-import com.ashmeet.hyperlauncher.components.HyperAlertDialog
-import com.ashmeet.hyperlauncher.filemanager.components.FileListView
-import com.ashmeet.hyperlauncher.filemanager.listeners.FileSelectedListener
 import com.ashmeet.hyperbackend.awt.AWTActivity
+import com.ashmeet.hyperbackend.customcontrols.ControlLayout
+import com.ashmeet.hyperbackend.customcontrols.EditorExitable
 import com.ashmeet.hyperbackend.game.GameActivity
 import com.ashmeet.hyperbackend.instances.Instance
 import com.ashmeet.hyperbackend.lifecycle.ContextExecutor
 import com.ashmeet.hyperbackend.lifecycle.ContextExecutorTask
-import com.ashmeet.hyperlauncher.runtime.RuntimeUtils
 import com.ashmeet.hyperbackend.utils.FileUtils
 import com.ashmeet.hyperbackend.utils.GLInfoUtils
 import com.ashmeet.hyperbackend.utils.HashUtils
+import com.ashmeet.hyperbackend.utils.KeycodeUtils
 import com.ashmeet.hyperbackend.utils.memory.MemoryHoleFinder
 import com.ashmeet.hyperbackend.utils.memory.SelfMapsParser
 import com.ashmeet.hyperbackend.value.DependentLibrary
 import com.ashmeet.hyperbackend.value.LibraryArtifact
+import com.ashmeet.hyperlauncher.activity.MissingStorageActivity
+import com.ashmeet.hyperlauncher.activity.PojavApplication
+import com.ashmeet.hyperlauncher.activity.ShowErrorActivity
+import com.ashmeet.hyperlauncher.components.HyperAlertDialog
+import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
+import com.ashmeet.hyperlauncher.components.dialog.GenericComposeDialogFragment
+import com.ashmeet.hyperlauncher.components.dialog.SimpleAlertDialog
+import com.ashmeet.hyperlauncher.filemanager.components.FileListView
+import com.ashmeet.hyperlauncher.filemanager.listeners.FileSelectedListener
+import com.ashmeet.hyperlauncher.plugin.natives.NativePluginManager
+import com.ashmeet.hyperlauncher.runtime.RuntimeUtils
+import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.utils.drawable.InsetBackground
+import com.ashmeet.hyperlauncher.utils.translation.translatedText
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import net.ashmeet.hyperlauncher.BuildConfig
+import net.ashmeet.hyperlauncher.R
 import org.apache.commons.codec.binary.Hex
 import org.apache.commons.io.IOUtils
 import java.io.BufferedInputStream
@@ -196,11 +201,7 @@ object HyperUtils {
             FileInputStream(f).use { `is` ->
                 sha1Dst = String(Hex.encodeHex(org.apache.commons.codec.digest.DigestUtils.sha1(`is`)))
             }
-            if (sourceSHA != null) {
-                sha1Dst.equals(sourceSHA, ignoreCase = true)
-            } else {
-                true
-            }
+            sourceSHA == null || sha1Dst.equals(sourceSHA, ignoreCase = true)
         } catch (e: IOException) {
             Log.i("SHA1", "Fake-matching a hash due to a read error", e)
             true
@@ -320,7 +321,7 @@ object HyperUtils {
         val insetView = activity.findViewById<View>(android.R.id.content)
         if (activity.isInMultiWindowMode) finalNoSystemBars = false
 
-        val bgColor = if (!finalNoSystemBars) ContextCompat.getColor(activity, R.color.background_status_bar) else Color.BLACK
+        val bgColor = Color.BLACK
 
         if (SDK_INT >= Build.VERSION_CODES.P) setCutoutMode(window, ignoreNotch)
 
@@ -431,7 +432,7 @@ object HyperUtils {
         }
 
         val runnable = Runnable {
-            if (ctx is FragmentActivity && !ctx.isFinishing && !ctx.isDestroyed) {
+            if ((ctx is FragmentActivity && !ctx.isFinishing && !ctx.isDestroyed)) {
                 val dialogFragment = GenericComposeDialogFragment {
                     val errMsg = if (showMore) printToString(e) else rolledMessage ?: e.message
                     HyperAlertDialog(
@@ -477,6 +478,7 @@ object HyperUtils {
                 }
                 .setNeutralButton(android.R.string.copy) { _, _ ->
                     val mgr = ctx.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                    @Suppress("UsePropertyAccessSyntax")
                     mgr.setPrimaryClip(ClipData.newPlainText("error", printToString(e)))
                     if (exitIfOk) {
                         if (ctx is GameActivity) {
@@ -690,7 +692,7 @@ object HyperUtils {
     fun getVersionInfo(versionName: String?): JVersionList.Version? {
         if (versionName.isNullOrEmpty()) return null
         return try {
-            getVersionInfo(versionName, false)
+            getVersionInfo(versionName, skipInheriting = false)
         } catch (e: Exception) {
             Log.e(APP_NAME, "Failed to get version info for $versionName", e)
             null
@@ -1105,7 +1107,7 @@ object HyperUtils {
     }
 
     @JvmStatic
-    fun applyHyperPluginHooks(javaArgList: MutableList<String>?, gameDir: File?) {
+    fun applyHyperPluginHooks(javaArgList: MutableList<String>?, @Suppress("UNUSED_PARAMETER") gameDir: File?) {
         javaArgList?.addAll(NativePluginManager.getJVMEnv())
     }
 
@@ -1229,7 +1231,9 @@ object HyperUtils {
                                 setFileSelectedListener(object : FileSelectedListener() {
                                     override fun onFileSelected(file: File, path: String) {
                                         try {
-                                            LauncherPreferences.DEFAULT_PREF?.edit()?.putString("defaultCtrl", path)?.apply()
+                                            LauncherPreferences.DEFAULT_PREF?.edit {
+                                                putString("defaultCtrl", path)
+                                            }
                                             LauncherPreferences.PREF_DEFAULTCTRL_PATH = path
                                             controlLayout.loadLayout(path)
                                             Toast.makeText(ctx, "Default layout set to ${file.name}", Toast.LENGTH_SHORT).show()
