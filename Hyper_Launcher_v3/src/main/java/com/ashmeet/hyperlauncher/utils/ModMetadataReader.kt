@@ -74,7 +74,7 @@ object ModMetadataReader {
                     val forgeEntry = zip.getEntry("mcmod.info")
                     if (forgeEntry != null) {
                         zip.getInputStream(forgeEntry).use { isStream ->
-                            val content = Tools.read(isStream)
+                            val content = HyperUtils.read(isStream)
                             try {
                                 val json: JsonObject = if (content.trim { it <= ' ' }.startsWith("[")) {
                                     JsonParser.parseString(content).asJsonArray[0].asJsonObject

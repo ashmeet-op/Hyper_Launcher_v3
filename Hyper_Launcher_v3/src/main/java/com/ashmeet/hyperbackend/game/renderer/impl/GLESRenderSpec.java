@@ -5,7 +5,7 @@ import android.util.Log;
 
 
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 
 import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperbackend.game.renderer.RenderSpec;
@@ -42,7 +42,7 @@ public abstract class GLESRenderSpec implements RenderSpec {
 
     public static class LTWRenderSpec extends GLESRenderSpec {
         public boolean compatibleDevice(Context context) {
-            return JREUtils.getDetectedVersion() >= 3 && new File(Tools.NATIVE_LIB_DIR, this.library()).exists();
+            return JREUtils.getDetectedVersion() >= 3 && new File(HyperUtils.NATIVE_LIB_DIR, this.library()).exists();
         }
         public String name() {
             return "OpenLTW";
@@ -84,7 +84,7 @@ public abstract class GLESRenderSpec implements RenderSpec {
 
     public static class MobileGluesRenderSpec extends GLESRenderSpec {
         public boolean compatibleDevice(Context context) {
-            return JREUtils.getDetectedVersion() >= 3 && (new File(Tools.NATIVE_LIB_DIR, this.library()).exists() || new File(context.getApplicationInfo().nativeLibraryDir, this.library()).exists());
+            return JREUtils.getDetectedVersion() >= 3 && (new File(HyperUtils.NATIVE_LIB_DIR, this.library()).exists() || new File(context.getApplicationInfo().nativeLibraryDir, this.library()).exists());
         }
         public String name() {
             return "MobileGlues";

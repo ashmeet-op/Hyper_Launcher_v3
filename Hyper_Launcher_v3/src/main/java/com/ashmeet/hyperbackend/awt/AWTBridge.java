@@ -3,7 +3,7 @@ package com.ashmeet.hyperbackend.awt;
 import android.view.Surface;
 
 import com.ashmeet.hyperbackend.CallbackBridge;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.game.platform.Platform;
 
 public class AWTBridge {
@@ -12,7 +12,7 @@ public class AWTBridge {
 
     @SuppressWarnings("unused")
     public static void queryClipboardString() {
-        Tools.runOnUiThread(() -> {
+        HyperUtils.runOnUiThread(() -> {
             String text = Platform.getClipboard().getClipboardString();
             nativeClipboardReceived(text, "plain");
         });
@@ -20,7 +20,7 @@ public class AWTBridge {
 
     @SuppressWarnings("unused")
     public static void putClipboardString(String data) {
-        Tools.runOnUiThread(() -> {
+        HyperUtils.runOnUiThread(() -> {
             Platform.getClipboard().setClipboardString(data);
         });
     }

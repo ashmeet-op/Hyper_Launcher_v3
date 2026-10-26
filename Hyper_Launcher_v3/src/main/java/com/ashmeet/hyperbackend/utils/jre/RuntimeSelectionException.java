@@ -6,7 +6,7 @@ import android.content.Context;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import com.ashmeet.hyperlauncher.activity.ShowErrorActivity;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.lifecycle.ContextExecutorTask;
 
 import net.ashmeet.hyperlauncher.R;
@@ -42,7 +42,7 @@ public class RuntimeSelectionException extends Exception implements ContextExecu
         builder.setPositiveButton(android.R.string.ok, (d,i)->{});
         if(mRuntimeState == RUNTIME_STATE_INSTALLATION_FAILED || getCause() != null) {
             builder.setNegativeButton(R.string.error_show_more, (d, i)->
-                    Tools.showError(activity, R.string.runtime_error_title, getCause(), activity instanceof ShowErrorActivity)
+                    HyperUtils.showError(activity, R.string.runtime_error_title, getCause(), activity instanceof ShowErrorActivity)
             );
         }
         ShowErrorActivity.installRemoteDialogHandling(activity, builder);

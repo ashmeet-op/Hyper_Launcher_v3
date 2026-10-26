@@ -41,7 +41,7 @@ object GeminiCrashAnalyzer {
 
         sb.append("=== LAUNCHER & RENDERER SETTINGS ===\n")
         val allocatedRam = LauncherPreferences.PREF_RAM_ALLOCATION
-        val freeRam = Tools.getFreeDeviceMemory(context)
+        val freeRam = HyperUtils.getFreeDeviceMemory(context)
         sb.append("Allocated RAM: ").append(allocatedRam).append(" MB\n")
         sb.append("Free Device RAM: ").append(freeRam).append(" MB\n")
         val selectedRenderer = LauncherPreferences.PREF_RENDERER
@@ -83,7 +83,7 @@ object GeminiCrashAnalyzer {
             sb.append("\n")
         }
 
-        val logs = rawLogs ?: runCatching { Tools.read(File(Tools.DIR_GAME_HOME, "latestlog.txt")) }.getOrDefault("")
+        val logs = rawLogs ?: runCatching { HyperUtils.read(File(HyperUtils.DIR_GAME_HOME, "latestlog.txt")) }.getOrDefault("")
         if (logs.isNotBlank()) {
             val logLines = logs.lines()
             val recentLogs = if (logLines.size > 120) logLines.takeLast(120).joinToString("\n") else logs
@@ -91,12 +91,12 @@ object GeminiCrashAnalyzer {
             sb.append(recentLogs).append("\n\n")
         }
 
-        val crashReportsDir = File(Tools.DIR_GAME_HOME, "crash-reports")
+        val crashReportsDir = File(HyperUtils.DIR_GAME_HOME, "crash-reports")
         if (crashReportsDir.exists() && crashReportsDir.isDirectory) {
             val crashFiles = crashReportsDir.listFiles()?.sortedByDescending { it.lastModified() }
             val latestCrashFile = crashFiles?.firstOrNull()
             if (latestCrashFile != null && latestCrashFile.exists()) {
-                val crashContent = runCatching { Tools.read(latestCrashFile) }.getOrNull()
+                val crashContent = runCatching { HyperUtils.read(latestCrashFile) }.getOrNull()
                 if (!crashContent.isNullOrBlank()) {
                     val crashLines = crashContent.lines()
                     val truncatedCrash = if (crashLines.size > 150) crashLines.take(150).joinToString("\n") else crashContent

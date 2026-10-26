@@ -15,7 +15,7 @@ import android.widget.Toast;
 import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
 
 import net.ashmeet.hyperlauncher.R;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,11 +55,11 @@ public class DataMigrator {
     }
 
     private void executeMigrate(){
-        File root = new File(Tools.DIR_GAME_HOME);
+        File root = new File(HyperUtils.DIR_GAME_HOME);
         StatFs stat = new StatFs(root.getAbsolutePath());
         long space = stat.getAvailableBytes();
         if(MIN_FREE_SPACE > space){
-            Tools.dialogOnUiThread(activity, activity.getString(R.string.migration_progress_warning_title),
+            HyperUtils.dialogOnUiThread(activity, activity.getString(R.string.migration_progress_warning_title),
                     activity.getString(R.string.migration_progress_space, MIN_FREE_SPACE - space));
             return;
         }
@@ -70,11 +70,11 @@ public class DataMigrator {
             Uri treeUri = DocumentsContract.buildDocumentUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
             Uri resolvedUri = resolveSourceUri(treeUri);
             copyFileTree(activity, getFilesUri(resolvedUri), root, 100);
-            Tools.runOnUiThread(() -> Toast.makeText(activity, R.string.migration_progress_finish, Toast.LENGTH_LONG).show());
+            HyperUtils.runOnUiThread(() -> Toast.makeText(activity, R.string.migration_progress_finish, Toast.LENGTH_LONG).show());
         } catch (Exception e) {
             Log.e("DataMigration", "Failed to import data to the launcher: " + e.getMessage());
-            Tools.runOnUiThread(() -> Toast.makeText(activity, R.string.migration_progress_failed, Toast.LENGTH_LONG).show());
-            Tools.showErrorRemote(e);
+            HyperUtils.runOnUiThread(() -> Toast.makeText(activity, R.string.migration_progress_failed, Toast.LENGTH_LONG).show());
+            HyperUtils.showErrorRemote(e);
         }
         progress = 0;
         Log.i("DataMigration", "End data migration!");
@@ -178,7 +178,7 @@ public class DataMigrator {
 
 
                     if(destFile.length() == size) continue;
-                    Tools.write(cr.openInputStream(child), destFile);
+                    HyperUtils.write(cr.openInputStream(child), destFile);
                 }
                 updateProgress(step, file);
             }

@@ -3,7 +3,7 @@ package com.ashmeet.hyperbackend.instances;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 import com.google.gson.JsonSyntaxException;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.utils.FileUtils;
 import com.ashmeet.hyperbackend.utils.JSONUtils;
 
@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.UUID;
 
 public class Instances {
-    private static final File sInstancePath = new File(Tools.DIR_GAME_HOME, "instances");
-    public static final File SHARED_DATA_DIRECTORY = new File(Tools.DIR_GAME_HOME, "shared_dir");
+    private static final File sInstancePath = new File(HyperUtils.DIR_GAME_HOME, "instances");
+    public static final File SHARED_DATA_DIRECTORY = new File(HyperUtils.DIR_GAME_HOME, "shared_dir");
 
     public final List<DisplayInstance> list;
     public final int selectedIndex;

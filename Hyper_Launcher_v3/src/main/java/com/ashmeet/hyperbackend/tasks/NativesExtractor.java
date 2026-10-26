@@ -1,7 +1,7 @@
 package com.ashmeet.hyperbackend.tasks;
 
 import com.ashmeet.hyperlauncher.utils.Architecture;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.utils.FileUtils;
 import com.ashmeet.hyperbackend.value.ExtractSettings;
 
@@ -27,7 +27,7 @@ public class NativesExtractor {
 
 
     private static ArrayList<String> createLibraryBlacklist() {
-        String[] includedLibraryNames = new File(Tools.NATIVE_LIB_DIR).list();
+        String[] includedLibraryNames = new File(HyperUtils.NATIVE_LIB_DIR).list();
         ArrayList<String> blacklist = new ArrayList<>(includedLibraryNames.length);
         for(String libraryName : includedLibraryNames) {
 

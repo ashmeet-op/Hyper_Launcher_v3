@@ -131,7 +131,7 @@
             android:screenOrientation="sensorLandscape" />
 
         <provider
-            android:name="com.ashmeet.hyperbackend.scoped.FolderProvider"
+            android:name="com.ashmeet.hyperlauncher.scoped.FolderProvider"
             android:authorities="@string/storageProviderAuthorities"
             android:exported="true"
             android:grantUriPermissions="true"
@@ -141,9 +141,9 @@
             </intent-filter>
         </provider>
 
-        <service android:name="com.ashmeet.hyperbackend.services.ProgressService"
+        <service android:name="com.ashmeet.hyperlauncher.tracker.services.TrackerService"
             android:foregroundServiceType="dataSync"/>
-        <service android:name="com.ashmeet.hyperbackend.services.GameService" android:process=":game"
+        <service android:name="com.ashmeet.hyperlauncher.tracker.services.GameService" android:process=":game"
             android:foregroundServiceType="specialUse">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="This application is intended to run a 3rd-party piece of software which cannot be managed using the activity's saved instance state. This service is used for background persistence of this piece of software."/>

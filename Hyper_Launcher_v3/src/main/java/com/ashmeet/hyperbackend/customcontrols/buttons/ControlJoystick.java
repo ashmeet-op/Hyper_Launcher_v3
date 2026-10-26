@@ -15,7 +15,7 @@ import android.annotation.SuppressLint;
 import android.view.KeyEvent;
 import android.view.View;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.customcontrols.ControlData;
 import com.ashmeet.hyperbackend.customcontrols.ControlJoystickData;
 import com.ashmeet.hyperbackend.customcontrols.ControlLayout;
@@ -94,7 +94,7 @@ public class ControlJoystick extends JoystickView implements ControlInterface {
         mControlData.isHideable = true;
         ControlInterface.super.setProperties(properties, changePos);
         postDelayed(() -> {
-            setForwardLockDistance(mControlData.forwardLock ? (int) Tools.dpToPx(60) : 0);
+            setForwardLockDistance(mControlData.forwardLock ? (int) HyperUtils.dpToPx(60) : 0);
             setFixedCenter(mControlData.absolute);
         }, 10);
     }
@@ -120,7 +120,7 @@ public class ControlJoystick extends JoystickView implements ControlInterface {
 
     @Override
     public void setBackground() {
-        setBorderWidth((int) Tools.dpToPx(getProperties().strokeWidth * (getControlLayoutParent().getLayoutScale()/100f)));
+        setBorderWidth((int) HyperUtils.dpToPx(getProperties().strokeWidth * (getControlLayoutParent().getLayoutScale()/100f)));
         setBorderColor(getProperties().strokeColor);
         setBackgroundColor(getProperties().bgColor);
     }

@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment
 import com.ashmeet.hyperlauncher.screens.settings.VideoSettingsScreen
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperbackend.instances.Instances
 import com.ashmeet.hyperbackend.utils.GpuUtils
 import com.ashmeet.hyperbackend.utils.MCOptionUtils
@@ -25,7 +25,7 @@ class LauncherPreferenceVideoFragment : Fragment(), SharedPreferences.OnSharedPr
         savedInstanceState: Bundle?
     ): View {
         updateGraphicsBackendPreference()
-        val nativeLibDir = context?.applicationInfo?.nativeLibraryDir ?: Tools.NATIVE_LIB_DIR
+        val nativeLibDir = context?.applicationInfo?.nativeLibraryDir ?: HyperUtils.NATIVE_LIB_DIR
         val isAngleAvailable = (nativeLibDir != null && File(nativeLibDir, "libEGL_angle.so").exists()) ||
                 File("/system/lib64/libEGL_angle.so").exists() ||
                 File("/system/lib/libEGL_angle.so").exists()
@@ -38,7 +38,7 @@ class LauncherPreferenceVideoFragment : Fragment(), SharedPreferences.OnSharedPr
                         isAngleAvailable = isAngleAvailable,
                         isZinkPreferSystemDriverVisible = supportsTurnip,
                         onNavigateToRendererConfig = {
-                            Tools.swapFragment(requireActivity(), LauncherPreferenceRendererConfigFragment::class.java, null, null)
+                            HyperUtils.swapFragment(requireActivity(), LauncherPreferenceRendererConfigFragment::class.java, null, null)
                         }
                     )
                 }
@@ -49,7 +49,7 @@ class LauncherPreferenceVideoFragment : Fragment(), SharedPreferences.OnSharedPr
     private fun updateGraphicsBackendPreference() {
         val context = context ?: return
         val selectedInstance = Instances.loadSelectedInstance()
-        val gameDir = selectedInstance?.gameDirectory?.absolutePath ?: Tools.DIR_GAME_NEW
+        val gameDir = selectedInstance?.gameDirectory?.absolutePath ?: HyperUtils.DIR_GAME_NEW
         if (gameDir != null) {
             MCOptionUtils.load(gameDir)
             val hasOption = (MCOptionUtils.get("preferredGraphicsBackend") != null) ||

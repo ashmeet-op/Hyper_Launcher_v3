@@ -5,7 +5,7 @@ import static android.os.Build.VERSION.SDK_INT;
 import android.content.Context;
 
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 
 import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperbackend.game.renderer.RenderSpec;
@@ -25,10 +25,10 @@ public class MesaRenderSpec implements RenderSpec {
         return "libEGL_mesa.so";
     }
     public void setupEnvironment(Context context, Map<String, String> envMap) {
-        envMap.put("MESA_GLSL_CACHE_DIR", Tools.DIR_CACHE.getAbsolutePath());
+        envMap.put("MESA_GLSL_CACHE_DIR", HyperUtils.DIR_CACHE.getAbsolutePath());
     }
     protected boolean hasMesa() {
-        return SDK_INT >= 29 && new File(Tools.NATIVE_LIB_DIR, this.library()).exists();
+        return SDK_INT >= 29 && new File(HyperUtils.NATIVE_LIB_DIR, this.library()).exists();
     }
     public boolean compatibleDevice(Context context) {
         return hasMesa() && GpuUtils.checkChromebook(context.getPackageManager());

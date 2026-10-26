@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseExpandableListAdapter
 import android.widget.TextView
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperbackend.JVersionList
 import com.ashmeet.hyperbackend.utils.FilteredSubList
@@ -26,7 +26,7 @@ class VersionListAdapter(versionList: Array<JVersionList.Version>, private val h
         val alphaList = FilteredSubList(versionList) { item: JVersionList.Version -> item.type == "old_alpha" }
 
 
-        mInstalledVersions = File(Tools.DIR_GAME_NEW + "/versions").list()
+        mInstalledVersions = File(HyperUtils.DIR_GAME_NEW + "/versions").list()
         mInstalledVersions?.sort()
 
         if (!areInstalledVersionsAvailable()) {

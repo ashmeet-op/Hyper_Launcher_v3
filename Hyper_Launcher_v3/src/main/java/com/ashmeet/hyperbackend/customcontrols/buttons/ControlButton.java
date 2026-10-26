@@ -20,7 +20,7 @@ import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperbackend.game.GameActivity;
 
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.customcontrols.ControlData;
 import com.ashmeet.hyperbackend.customcontrols.ControlLayout;
 import com.ashmeet.hyperlauncher.fragments.dialog.EditControlSideDialog;
@@ -97,7 +97,7 @@ public class ControlButton extends TextView implements ControlInterface {
         mProperties = properties;
         ControlInterface.super.setProperties(properties, changePos);
 
-        mHasBitmap = Tools.isValidString(mProperties.bitmapTag);
+        mHasBitmap = HyperUtils.isValidString(mProperties.bitmapTag);
 
         if(mHasBitmap) setupBitmapTint();
         else setupNormalTint();

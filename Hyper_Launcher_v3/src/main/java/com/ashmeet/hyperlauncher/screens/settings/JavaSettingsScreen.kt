@@ -32,8 +32,8 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSliderItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSwitchItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.TextInputDialog
 import net.ashmeet.hyperlauncher.R
-import com.ashmeet.hyperbackend.multirt.MultiRTUtils
-import com.ashmeet.hyperbackend.multirt.Runtime
+import com.ashmeet.hyperlauncher.runtime.RuntimeUtils
+import com.ashmeet.hyperlauncher.runtime.Runtime
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 
 @SuppressLint("LocalContextGetResourceValueCall")
@@ -50,7 +50,7 @@ fun JavaSettingsScreen(
     var defaultRuntimeName by remember { mutableStateOf(LauncherPreferences.PREF_DEFAULT_RUNTIME ?: "") }
     var javaArgs by remember { mutableStateOf(LauncherPreferences.PREF_CUSTOM_JAVA_ARGS ?: "") }
 
-    var runtimes by remember { mutableStateOf(listOf(Runtime("auto")) + MultiRTUtils.getRuntimes()) }
+    var runtimes by remember { mutableStateOf(listOf(Runtime("auto")) + RuntimeUtils.getRuntimes()) }
     var showRuntimeDialog by remember { mutableStateOf(false) }
     var isDeletingRuntimes by remember { mutableStateOf(false) }
     var showJavaArgsDialog by remember { mutableStateOf(false) }
@@ -63,7 +63,7 @@ fun JavaSettingsScreen(
     ) {
         val currentRuntime = remember(defaultRuntimeName) {
             if (defaultRuntimeName.isNotEmpty()) {
-                MultiRTUtils.read(defaultRuntimeName)
+                RuntimeUtils.read(defaultRuntimeName)
             } else null
         }
         val runtimeSummary = remember(currentRuntime, defaultRuntimeName) {
@@ -143,13 +143,13 @@ fun JavaSettingsScreen(
                     errorDialogMessage = context.getString(R.string.multirt_config_removeerror_last)
                 } else {
                     onDeleteRuntime(runtime) {
-                        runtimes = listOf(Runtime("auto")) + MultiRTUtils.getRuntimes()
+                        runtimes = listOf(Runtime("auto")) + RuntimeUtils.getRuntimes()
                     }
                 }
             },
             onAddRuntime = {
                 onAddRuntime()
-                runtimes = listOf(Runtime("auto")) + MultiRTUtils.getRuntimes()
+                runtimes = listOf(Runtime("auto")) + RuntimeUtils.getRuntimes()
             },
             onToggleDeleteMode = { isDeletingRuntimes = !isDeletingRuntimes },
             onDismiss = {

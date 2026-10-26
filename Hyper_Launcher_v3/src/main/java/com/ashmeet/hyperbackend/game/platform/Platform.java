@@ -12,7 +12,7 @@ import android.view.View;
 import com.ashmeet.hyperbackend.awt.AWTBridge;
 import com.ashmeet.hyperbackend.game.GameView;
 import com.ashmeet.hyperbackend.game.GameActivity;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.customcontrols.gamepad.DefaultDataProvider;
 import com.ashmeet.hyperbackend.customcontrols.gamepad.Gamepad;
 import com.ashmeet.hyperbackend.game.platform.backend.AWTBackend;
@@ -100,7 +100,7 @@ public class Platform {
     public static void grabStateChanged(boolean grabbing) {
         boolean wasGrabbing = isGrabbing;
         isGrabbing = grabbing;
-        Tools.runOnUiThread(() -> {
+        HyperUtils.runOnUiThread(() -> {
             if (RESET_CURSOR_UNGRAB && wasGrabbing && !isGrabbing) resetCursorPosition();
             if (mCursorImplementor != null) mCursorImplementor.onGrabState(grabbing);
             for (PlatformGrabListener listener : grabListeners) {

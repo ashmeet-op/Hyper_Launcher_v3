@@ -19,12 +19,12 @@ import com.ashmeet.hyperlauncher.utils.Architecture
 import com.ashmeet.hyperlauncher.utils.DiscordRpcManager
 import com.ashmeet.hyperlauncher.utils.LoggerProxy
 import com.ashmeet.hyperlauncher.utils.NativeLibraryLoader
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperlauncher.utils.translation.Translator
 import net.ashmeet.hyperlauncher.BuildConfig
 import com.ashmeet.hyperbackend.lifecycle.ContextExecutor
 import com.ashmeet.hyperbackend.tasks.AsyncAssetManager
-import com.ashmeet.hyperbackend.tasks.MoJsonDownloader
+import com.ashmeet.hyperbackend.tasks.HyperDownloader
 import com.ashmeet.hyperbackend.utils.FileUtils
 import com.ashmeet.hyperbackend.utils.LocaleUtils
 import java.io.File
@@ -43,8 +43,8 @@ class PojavApplication : Application() {
             val storagePermAllowed = (Build.VERSION.SDK_INT >= 29 || ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ) == PackageManager.PERMISSION_GRANTED) && Tools.checkStorageRoot(this)
-            val crashFile = File(if (storagePermAllowed) Tools.DIR_GAME_HOME else Tools.DIR_DATA, "latestcrash.txt")
+            ) == PackageManager.PERMISSION_GRANTED) && HyperUtils.checkStorageRoot(this)
+            val crashFile = File(if (storagePermAllowed) HyperUtils.DIR_GAME_HOME else HyperUtils.DIR_DATA, "latestcrash.txt")
             try {
 
                 FileUtils.ensureParentDirectory(crashFile)
@@ -65,7 +65,7 @@ class PojavApplication : Application() {
             }
 
             FatalErrorActivity.showError(this, crashFile.absolutePath, storagePermAllowed, th)
-            Tools.fullyExit()
+            HyperUtils.fullyExit()
         }
     }
 
@@ -78,7 +78,7 @@ class PojavApplication : Application() {
 
         try {
             super.onCreate()
-            if (Tools.checkStorageRoot(this)) {
+            if (HyperUtils.checkStorageRoot(this)) {
 
 
                 LauncherPreferences.loadPreferences(this)
@@ -88,7 +88,7 @@ class PojavApplication : Application() {
             } else {
 
 
-                Tools.initEarlyConstants(this)
+                HyperUtils.initEarlyConstants(this)
             }
 
             try {
@@ -98,7 +98,7 @@ class PojavApplication : Application() {
             }
             LoggerProxy.init()
 
-            Tools.DEVICE_ARCHITECTURE = Architecture.getDeviceArchitecture()
+            HyperUtils.DEVICE_ARCHITECTURE = Architecture.getDeviceArchitecture()
             PluginLoader.loadAllPlugins(this)
 
             if (Architecture.isx86Device() && Architecture.is32BitsDevice()) {
@@ -109,7 +109,7 @@ class PojavApplication : Application() {
                     originalJNIDirectory.lastIndexOf("/")
                 ).plus("/x86")
             }
-            MoJsonDownloader.prepareSubstitutionMap(assets)
+            HyperDownloader.prepareSubstitutionMap(assets)
             AsyncAssetManager.unpackRuntime(assets)
             Translator.init(this)
         } catch (throwable: Throwable) {

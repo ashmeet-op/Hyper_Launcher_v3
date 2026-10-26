@@ -7,7 +7,7 @@ import android.graphics.Canvas
 import android.graphics.Matrix
 import android.graphics.Paint
 import android.util.Log
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.ashmeet.hyperbackend.authenticator.accounts.Account
@@ -41,7 +41,7 @@ object SkinLoader {
         }
 
 
-        val cachedSkinFaceFile = File(Tools.DIR_CACHE, "skin-face-${account.profileId}-${account.authType.name}.webp")
+        val cachedSkinFaceFile = File(HyperUtils.DIR_CACHE, "skin-face-${account.profileId}-${account.authType.name}.webp")
         if (cachedSkinFaceFile.exists()) {
             try {
                 val bitmap = BitmapFactory.decodeFile(cachedSkinFaceFile.absolutePath)

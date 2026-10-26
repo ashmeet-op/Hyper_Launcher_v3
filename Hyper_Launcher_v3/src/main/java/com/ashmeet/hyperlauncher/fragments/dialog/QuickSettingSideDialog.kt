@@ -52,7 +52,7 @@ import com.ashmeet.hyperlauncher.components.dialog.DialogCard
 import com.ashmeet.hyperlauncher.components.dialog.DialogSliderItem
 import com.ashmeet.hyperlauncher.components.dialog.DialogSwitchItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import kotlinx.coroutines.launch
 import net.ashmeet.hyperlauncher.R
@@ -258,7 +258,7 @@ private fun QuickSettingContent(
     var showKeyPickerFor by remember { mutableStateOf<String?>(null) }
 
     val scope = rememberCoroutineScope()
-    val isGyroAvailable = remember { Tools.deviceSupportsGyro(context) }
+    val isGyroAvailable = remember { HyperUtils.deviceSupportsGyro(context) }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)

@@ -24,7 +24,7 @@ import com.ashmeet.hyperbackend.CallbackBridge;
 import com.ashmeet.hyperbackend.game.platform.input.PlatformGrabListener;
 import com.ashmeet.hyperbackend.game.platform.Platform;
 
-import static com.ashmeet.hyperlauncher.utils.Tools.currentDisplayMetrics;
+import static com.ashmeet.hyperlauncher.utils.HyperUtils.currentDisplayMetrics;
 import static com.ashmeet.hyperbackend.customcontrols.gamepad.GamepadJoystick.DIRECTION_EAST;
 import static com.ashmeet.hyperbackend.customcontrols.gamepad.GamepadJoystick.DIRECTION_NONE;
 import static com.ashmeet.hyperbackend.customcontrols.gamepad.GamepadJoystick.DIRECTION_NORTH;

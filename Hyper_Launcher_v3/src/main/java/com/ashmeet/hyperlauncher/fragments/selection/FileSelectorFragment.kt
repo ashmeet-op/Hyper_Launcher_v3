@@ -27,7 +27,7 @@ import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.filemanager.components.FileListView
 import com.ashmeet.hyperlauncher.filemanager.listeners.FileSelectedListener
 import net.ashmeet.hyperlauncher.R
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperbackend.extra.ExtraConstants
 import com.ashmeet.hyperbackend.extra.ExtraCore
 import java.io.File
@@ -45,8 +45,8 @@ class FileSelectorFragment : Fragment() {
     private var showFiles = true
     private var showFolders = true
     private var rootPath: String = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
-        Tools.DIR_GAME_NEW
-    else Environment.getExternalStorageDirectory().absolutePath) ?: Tools.DIR_GAME_HOME
+        HyperUtils.DIR_GAME_NEW
+    else Environment.getExternalStorageDirectory().absolutePath) ?: HyperUtils.DIR_GAME_HOME
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,11 +73,11 @@ class FileSelectorFragment : Fragment() {
                         showFolders = showFolders,
                         onFileSelected = { _, path ->
                             ExtraCore.setValue(ExtraConstants.FILE_SELECTOR, removeLockPath(path))
-                            Tools.removeCurrentFragment(requireActivity())
+                            HyperUtils.removeCurrentFragment(requireActivity())
                         }
                     ) { path ->
                         ExtraCore.setValue(ExtraConstants.FILE_SELECTOR, removeLockPath(path))
-                        Tools.removeCurrentFragment(requireActivity())
+                        HyperUtils.removeCurrentFragment(requireActivity())
                     }
                 }
             }

@@ -22,7 +22,7 @@ import androidx.fragment.app.Fragment;
 
 import com.ashmeet.hyperlauncher.activity.PojavApplication;
 import net.ashmeet.hyperlauncher.R;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import androidx.annotation.NonNull;
@@ -88,7 +88,7 @@ public class CropperUtils {
                 cropperReceiver.onFailed(e);
             }
             CropperBehaviour finalBehaviour = cropperBehaviour;
-            Tools.runOnUiThread(()->finishSetup(dialog, finishProgressBar, cropImageView, finalBehaviour));
+            HyperUtils.runOnUiThread(()->finishSetup(dialog, finishProgressBar, cropImageView, finalBehaviour));
         });
     }
 

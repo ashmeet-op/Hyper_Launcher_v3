@@ -2,7 +2,7 @@ package com.ashmeet.hyperbackend.modloaders;
 
 import android.util.Log;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.instances.InstanceInstaller;
 import com.ashmeet.hyperbackend.utils.DownloadUtils;
 
@@ -92,9 +92,9 @@ public abstract class ForgelikeUtils {
         } catch (IOException e) {
             Log.w("ForgelikeUtils", "Failed to download SHA1 for " + downloadUrl + ", proceeding without SHA1 check");
         }
-        File installerLocation = new File(Tools.DIR_CACHE, mCachePrefix + "-installer-" + fullVersion + ".jar");
+        File installerLocation = new File(HyperUtils.DIR_CACHE, mCachePrefix + "-installer-" + fullVersion + ".jar");
         InstanceInstaller instanceInstaller = new InstanceInstaller();
-        instanceInstaller.commandLineArgs = List.of("-Duser.language=en", "-Duser.country=US", "-javaagent:"+Tools.DIR_DATA+"/forge_installer/forge_installer.jar");
+        instanceInstaller.commandLineArgs = List.of("-Duser.language=en", "-Duser.country=US", "-javaagent:"+ HyperUtils.DIR_DATA+"/forge_installer/forge_installer.jar");
         instanceInstaller.installerJar = installerLocation.getAbsolutePath();
         instanceInstaller.installerSha1 = hash;
         instanceInstaller.installerDownloadUrl = downloadUrl;

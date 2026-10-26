@@ -12,7 +12,7 @@ import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperbackend.awt.AWTActivity;
 import com.ashmeet.hyperlauncher.activity.LauncherActivity;
 import com.ashmeet.hyperlauncher.activity.PojavApplication;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.extra.ExtraConstants;
 import com.ashmeet.hyperbackend.extra.ExtraCore;
 import com.ashmeet.hyperbackend.instances.profcompat.ProfileWatcher;
@@ -33,7 +33,7 @@ import java.util.Objects;
 
 
 public class InstanceInstaller implements ContextExecutorTask {
-    private static final File sLastInstallInfo = new File(Tools.DIR_CACHE, "last_installer.json");
+    private static final File sLastInstallInfo = new File(HyperUtils.DIR_CACHE, "last_installer.json");
 
     private static final String[] TRUSTED_URLS = new String[] {
             "https://maven.neoforged.net/releases/net/neoforged/neoforge/",
@@ -107,7 +107,7 @@ public class InstanceInstaller implements ContextExecutorTask {
         try {
             InstanceInstaller.postInstallCheck(context.getAssets());
         }catch (Exception e) {
-            Tools.showError(context, e);
+            HyperUtils.showError(context, e);
             if (sLastInstallInfo.isFile()) {
                 boolean ignored = sLastInstallInfo.delete();
             }
@@ -120,7 +120,7 @@ public class InstanceInstaller implements ContextExecutorTask {
             try {
                 threadedStart();
             }catch (Exception e) {
-                Tools.showErrorRemote(e);
+                HyperUtils.showErrorRemote(e);
             }
         });
     }
@@ -155,7 +155,7 @@ public class InstanceInstaller implements ContextExecutorTask {
             ProfileWatcher.installDefaultProfiles(activity.getAssets());
             writeLastInstaller();
         }catch (Exception e) {
-            Tools.showError(activity, e);
+            HyperUtils.showError(activity, e);
             return;
         }
         Intent intent = new Intent(activity, AWTActivity.class);
@@ -169,7 +169,7 @@ public class InstanceInstaller implements ContextExecutorTask {
 
     @Override
     public void executeWithApplication(Context context) {
-        Tools.runOnUiThread(() -> NotificationUtils.sendBasicNotification(context,
+        HyperUtils.runOnUiThread(() -> NotificationUtils.sendBasicNotification(context,
                 R.string.modpack_install_notification_title,
                 R.string.modpack_install_notification_success,
                 new Intent(context, LauncherActivity.class),

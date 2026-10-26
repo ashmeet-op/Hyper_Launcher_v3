@@ -45,7 +45,7 @@ import com.ashmeet.hyperlauncher.screens.game.GameBasemainScreen
 import com.ashmeet.hyperlauncher.screens.game.LoggerView
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.utils.SideDialogUtils
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import kotlinx.coroutines.launch
 import net.ashmeet.hyperlauncher.R
@@ -167,8 +167,8 @@ object GameComposeHelper {
                                             onConfirm = {
                                                 showForceCloseDialog = false
                                                 try {
-                                                    Tools.restartLauncherActivity(composeView.context)
-                                                    Tools.fullyExit()
+                                                    HyperUtils.restartLauncherActivity(composeView.context)
+                                                    HyperUtils.fullyExit()
                                                 } catch (_: Throwable) {
                                                     // ignore
                                                 }

@@ -5,7 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.platform.ComposeView
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
 import net.ashmeet.hyperlauncher.R
 import java.io.File
@@ -22,7 +22,7 @@ class FatalErrorActivity : AppCompatActivity() {
         }
         val storageAllow = extras.getBoolean("storageAllow", false)
         val throwable = extras.getSerializable("throwable") as? Throwable
-        val stackTrace = if (throwable != null) Tools.printToString(throwable) else "<null>"
+        val stackTrace = if (throwable != null) HyperUtils.printToString(throwable) else "<null>"
         val strSavePath = extras.getString("savePath")
         val errHeader = if (storageAllow) {
             "Crash stack trace saved to $strSavePath."
@@ -50,7 +50,7 @@ class FatalErrorActivity : AppCompatActivity() {
             },
             {
                 if (strSavePath != null) {
-                    Tools.openPath(this, File(strSavePath), false)
+                    HyperUtils.openPath(this, File(strSavePath), false)
                 }
                 Unit
             }

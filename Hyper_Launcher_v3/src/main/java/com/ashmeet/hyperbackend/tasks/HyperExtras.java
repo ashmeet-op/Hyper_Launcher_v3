@@ -7,7 +7,7 @@ import com.ashmeet.hyperbackend.instances.Instance;
 
 import java.io.File;
 
-public class MoJsonExtras {
+public class HyperExtras {
     public static String normalizeVersionId(String versionString) {
         JVersionList versionList = (JVersionList) ExtraCore.getValue(ExtraConstants.RELEASE_TABLE);
         if(versionList == null || versionList.versions == null) return versionString;

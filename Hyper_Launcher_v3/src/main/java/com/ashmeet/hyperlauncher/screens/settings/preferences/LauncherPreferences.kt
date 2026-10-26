@@ -7,7 +7,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
 import com.ashmeet.hyperlauncher.utils.Architecture
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import git.artdeell.mojoexec.MojoExec
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperbackend.utils.JREUtils
@@ -362,7 +362,7 @@ object LauncherPreferences {
     @JvmStatic
     fun loadPreferences(ctx: Context?) {
         if (ctx == null) return
-        Tools.initStorageConstants(ctx)
+        HyperUtils.initStorageConstants(ctx)
         val isDevicePowerful = isDevicePowerful(ctx)
         val pref = DEFAULT_PREF ?: return
 
@@ -376,7 +376,7 @@ object LauncherPreferences {
         PREF_LONGPRESS_TRIGGER = pref.getInt("timeLongPressTrigger", 300)
         PREF_DEFAULTCTRL_PATH = pref.getString("defaultCtrl", "") ?: ""
         if (PREF_DEFAULTCTRL_PATH.isEmpty()) {
-            PREF_DEFAULTCTRL_PATH = Tools.CTRLDEF_FILE ?: ""
+            PREF_DEFAULTCTRL_PATH = HyperUtils.CTRLDEF_FILE ?: ""
         }
         PREF_FORCE_ENGLISH = pref.getBoolean("force_english", false)
         PREF_DISABLE_GESTURES = pref.getBoolean("disableGestures", false)
@@ -540,7 +540,7 @@ object LauncherPreferences {
 
     private fun findBestRAMAllocation(ctx: Context?): Int {
         if (ctx == null) return 2048
-        val deviceRam = Tools.getTotalDeviceMemory(ctx)
+        val deviceRam = HyperUtils.getTotalDeviceMemory(ctx)
         if (deviceRam < 1024) return 296
         if (deviceRam < 1536) return 448
         if (deviceRam < 2048) return 656
@@ -565,7 +565,7 @@ object LauncherPreferences {
     private fun isDevicePowerful(context: Context?): Boolean {
         if (context == null) return false
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return false
-        if (Tools.getTotalDeviceMemory(context) <= 4096) return false
+        if (HyperUtils.getTotalDeviceMemory(context) <= 4096) return false
         val metrics = context.resources.displayMetrics
         if (minOf(metrics.widthPixels, metrics.heightPixels) < 1080) return false
         if (Runtime.getRuntime().availableProcessors() <= 4) return false
@@ -576,8 +576,8 @@ object LauncherPreferences {
     private fun hasAllCoreSameFreq(): Boolean {
         val coreCount = Runtime.getRuntime().availableProcessors()
         try {
-            val freq0 = Tools.read("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq")
-            val freqX = Tools.read("/sys/devices/system/cpu/cpu" + (coreCount - 1) + "/cpufreq/cpuinfo_max_freq")
+            val freq0 = HyperUtils.read("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq")
+            val freqX = HyperUtils.read("/sys/devices/system/cpu/cpu" + (coreCount - 1) + "/cpufreq/cpuinfo_max_freq")
             if (freq0 == freqX) return true
         } catch (e: IOException) {
             Log.e("LauncherPreferences", "Failed to read CPU frequencies", e)

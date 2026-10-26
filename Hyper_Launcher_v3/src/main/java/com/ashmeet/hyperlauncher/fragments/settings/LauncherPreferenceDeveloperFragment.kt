@@ -8,7 +8,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import com.ashmeet.hyperlauncher.screens.settings.DeveloperSettingsScreen
 import com.ashmeet.hyperlauncher.theme.PojavTheme
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 
 class LauncherPreferenceDeveloperFragment : Fragment() {
     override fun onCreateView(
@@ -20,7 +20,7 @@ class LauncherPreferenceDeveloperFragment : Fragment() {
             setContent {
                 PojavTheme {
                     DeveloperSettingsScreen(
-                        onBack = { Tools.removeCurrentFragment(requireActivity()) }
+                        onBack = { HyperUtils.removeCurrentFragment(requireActivity()) }
                     )
                 }
             }

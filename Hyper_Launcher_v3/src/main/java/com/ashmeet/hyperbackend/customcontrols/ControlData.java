@@ -9,7 +9,7 @@ import com.ashmeet.hyperbackend.customcontrols.buttons.ControlInterface;
 import com.ashmeet.hyperbackend.utils.JSONUtils;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import net.objecthunter.exp4j.ExpressionBuilder;
 import net.objecthunter.exp4j.function.Function;
 
@@ -201,13 +201,13 @@ public class ControlData {
                 .function(new Function("dp", 1) {
                     @Override
                     public double apply(double... args) {
-                        return Tools.pxToDp((float) args[0]);
+                        return HyperUtils.pxToDp((float) args[0]);
                     }
                 })
                 .function(new Function("px", 1) {
                     @Override
                     public double apply(double... args) {
-                        return Tools.dpToPx((float) args[0]);
+                        return HyperUtils.dpToPx((float) args[0]);
                     }
                 });
         builder = new WeakReference<>(expressionBuilder);
@@ -256,19 +256,19 @@ public class ControlData {
 
 
     public float getWidth() {
-        return Tools.dpToPx(width);
+        return HyperUtils.dpToPx(width);
     }
 
     public void setWidth(float widthInPx) {
-        width = Tools.pxToDp(widthInPx);
+        width = HyperUtils.pxToDp(widthInPx);
     }
 
     public float getHeight() {
-        return Tools.dpToPx(height);
+        return HyperUtils.dpToPx(height);
     }
 
     public void setHeight(float heightInPx) {
-        height = Tools.pxToDp(heightInPx);
+        height = HyperUtils.pxToDp(heightInPx);
     }
 
 

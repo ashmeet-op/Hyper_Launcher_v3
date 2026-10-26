@@ -46,7 +46,7 @@ import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.BuildConfig
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.utils.Architecture
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @Composable
@@ -238,7 +238,7 @@ fun AboutScreen(
                         title = translatedText("About this launcher"),
                         summary = translatedText("Learn more about Hyper Launcher"),
                         icon = Icons.Rounded.Description,
-                        onClick = { (context as? Activity)?.let { Tools.openURL(it, "https://github.com/hollowlauncher/Hyper_Launcher_v3/blob/master/README.md") } }
+                        onClick = { (context as? Activity)?.let { HyperUtils.openURL(it, "https://github.com/hollowlauncher/Hyper_Launcher_v3/blob/master/README.md") } }
                     )
                 }
                 SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
@@ -246,7 +246,7 @@ fun AboutScreen(
                         title = translatedText("Website"),
                         summary = translatedText("Visit our official website"),
                         icon = Icons.Rounded.Public,
-                        onClick = { (context as? Activity)?.let { Tools.openURL(it, Tools.URL_HOME) } }
+                        onClick = { (context as? Activity)?.let { HyperUtils.openURL(it, HyperUtils.URL_HOME) } }
                     )
                 }
                 SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
@@ -257,7 +257,7 @@ fun AboutScreen(
                         onClick = {
                             (context as? Activity)?.let {
                                 try {
-                                    Tools.openURL(it, context.getString(R.string.social_media_invite))
+                                    HyperUtils.openURL(it, context.getString(R.string.social_media_invite))
                                 } catch (_: Throwable) {}
                             }
                         }

@@ -34,7 +34,7 @@ import com.ashmeet.hyperlauncher.fragments.modloader.QuiltInstallFragment
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.ashmeet.hyperlauncher.R
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperbackend.instances.Instances
 import java.io.IOException
 
@@ -61,18 +61,18 @@ class ProfileTypeSelectFragment : Fragment() {
                                 try {
                                     val instance = Instances.createDefaultInstance()
                                     Instances.setSelectedInstance(instance)
-                                    Tools.swapFragment(
+                                    HyperUtils.swapFragment(
                                         requireActivity(),
                                         InstanceEditorFragment::class.java,
                                         InstanceEditorFragment.TAG,
                                         Bundle(1)
                                     )
                                 } catch (e: IOException) {
-                                    Tools.showError(context, e)
+                                    HyperUtils.showError(context, e)
                                 }
                             },
                             onOptiFineClick = {
-                                Tools.swapFragment(
+                                HyperUtils.swapFragment(
                                     requireActivity(),
                                     OptiFineInstallFragment::class.java,
                                     OptiFineInstallFragment.TAG,
@@ -80,7 +80,7 @@ class ProfileTypeSelectFragment : Fragment() {
                                 )
                             },
                             onFabricClick = {
-                                Tools.swapFragment(
+                                HyperUtils.swapFragment(
                                     requireActivity(),
                                     FabricInstallFragment::class.java,
                                     FabricInstallFragment.TAG,
@@ -88,7 +88,7 @@ class ProfileTypeSelectFragment : Fragment() {
                                 )
                             },
                             onForgeClick = {
-                                Tools.swapFragment(
+                                HyperUtils.swapFragment(
                                     requireActivity(),
                                     ForgeInstallFragment::class.java,
                                     ForgeInstallFragment.TAG,
@@ -100,7 +100,7 @@ class ProfileTypeSelectFragment : Fragment() {
                                     putString("type", "MODPACKS")
                                     putBoolean("bypass", true)
                                 }
-                                Tools.swapFragment(
+                                HyperUtils.swapFragment(
                                     requireActivity(),
                                     ContentInstallerFragment::class.java,
                                     ContentInstallerFragment.TAG,
@@ -108,7 +108,7 @@ class ProfileTypeSelectFragment : Fragment() {
                                 )
                             },
                             onQuiltClick = {
-                                Tools.swapFragment(
+                                HyperUtils.swapFragment(
                                     requireActivity(),
                                     QuiltInstallFragment::class.java,
                                     QuiltInstallFragment.TAG,
@@ -116,7 +116,7 @@ class ProfileTypeSelectFragment : Fragment() {
                                 )
                             },
                             onBTAClick = {
-                                Tools.swapFragment(
+                                HyperUtils.swapFragment(
                                     requireActivity(),
                                     BTAInstallFragment::class.java,
                                     BTAInstallFragment.TAG,
@@ -124,7 +124,7 @@ class ProfileTypeSelectFragment : Fragment() {
                                 )
                             },
                             onNeoForgeClick = {
-                                Tools.swapFragment(
+                                HyperUtils.swapFragment(
                                     requireActivity(),
                                     NeoforgeInstallFragment::class.java,
                                     NeoforgeInstallFragment.TAG,
@@ -132,7 +132,7 @@ class ProfileTypeSelectFragment : Fragment() {
                                 )
                             },
                             onLegacyFabricClick = {
-                                Tools.swapFragment(
+                                HyperUtils.swapFragment(
                                     requireActivity(),
                                     LegacyFabricInstallFragment::class.java,
                                     LegacyFabricInstallFragment.TAG,

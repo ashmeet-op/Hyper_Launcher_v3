@@ -7,7 +7,7 @@ import androidx.annotation.Keep;
 import com.google.gson.JsonParseException;
 import com.google.gson.annotations.SerializedName;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.utils.DownloadUtils;
 
 import java.io.IOException;
@@ -71,12 +71,12 @@ public class BTAUtils {
     }
 
     private static List<BTAVersion> processNightliesJson(String nightliesInfo) throws JsonParseException {
-        BTAVersionsManifest manifest = Tools.GLOBAL_GSON.fromJson(nightliesInfo, BTAVersionsManifest.class);
+        BTAVersionsManifest manifest = HyperUtils.GLOBAL_GSON.fromJson(nightliesInfo, BTAVersionsManifest.class);
         return createVersionList(manifest.versions, BUILD_TYPE_NIGHTLY);
     }
 
     private static BTAVersionList processReleasesJson(String releasesInfo) throws JsonParseException {
-        BTAVersionsManifest manifest = Tools.GLOBAL_GSON.fromJson(releasesInfo, BTAVersionsManifest.class);
+        BTAVersionsManifest manifest = HyperUtils.GLOBAL_GSON.fromJson(releasesInfo, BTAVersionsManifest.class);
         List<String> stringVersions = manifest.versions;
         List<String> testedVersions = new ArrayList<>();
         List<String> untestedVersions = new ArrayList<>();

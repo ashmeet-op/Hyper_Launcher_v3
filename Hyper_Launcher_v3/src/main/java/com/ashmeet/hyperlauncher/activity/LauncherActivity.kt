@@ -29,7 +29,7 @@ import com.ashmeet.hyperlauncher.fragments.settings.LauncherPreferenceFragment
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.utils.Architecture
 import com.ashmeet.hyperlauncher.utils.ShortcutUtils
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import net.ashmeet.hyperlauncher.BuildConfig
@@ -45,16 +45,16 @@ import com.ashmeet.hyperbackend.lifecycle.ContextExecutor
 import com.ashmeet.hyperbackend.modloaders.modpacks.imagecache.IconCacheJanitor
 import com.ashmeet.hyperbackend.progresskeeper.ProgressKeeper
 import com.ashmeet.hyperbackend.progresskeeper.TaskCountListener
-import com.ashmeet.hyperbackend.services.ProgressServiceKeeper
+import com.ashmeet.hyperlauncher.tracker.services.TrackerServiceKeeper
 import com.ashmeet.hyperbackend.tasks.AsyncVersionList
-import com.ashmeet.hyperbackend.tasks.MoJsonDownloader
-import com.ashmeet.hyperbackend.tasks.MoJsonExtras
+import com.ashmeet.hyperbackend.tasks.HyperDownloader
+import com.ashmeet.hyperbackend.tasks.HyperExtras
 import com.ashmeet.hyperbackend.utils.NotificationUtils
 import java.io.IOException
 
 class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
-    private var mProgressServiceKeeper: ProgressServiceKeeper? = null
+    private var mProgressServiceKeeper: TrackerServiceKeeper? = null
     private var mNotificationManager: NotificationManager? = null
     private lateinit var mRequestPermissionLauncher: ActivityResultLauncher<String>
 
@@ -85,7 +85,7 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
 
         if (fragment !is MainMenuFragment) return@ExtraListener false
 
-        Tools.swapFragment(this, AuthHostFragment::class.java, AuthHostFragment.TAG, null)
+        HyperUtils.swapFragment(this, AuthHostFragment::class.java, AuthHostFragment.TAG, null)
         false
     }
 
@@ -95,10 +95,10 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
         if (manager.isStateSaved) return@OnClickListener
         val fragment = manager.findFragmentById(R.id.container_fragment)
         if (fragment is MainMenuFragment) {
-            Tools.swapFragment(this, LauncherPreferenceFragment::class.java, SETTING_FRAGMENT_TAG, null)
+            HyperUtils.swapFragment(this, LauncherPreferenceFragment::class.java, SETTING_FRAGMENT_TAG, null)
         } else {
 
-            Tools.backToMainMenu(this)
+            HyperUtils.backToMainMenu(this)
         }
     }
 
@@ -108,7 +108,7 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
         if (manager.isStateSaved) return@OnClickListener
         val fragment = manager.findFragmentById(R.id.container_fragment)
         if (fragment is MainMenuFragment) {
-            Tools.swapFragment(this, InstanceDirectoryFragment::class.java, InstanceDirectoryFragment.TAG, null)
+            HyperUtils.swapFragment(this, InstanceDirectoryFragment::class.java, InstanceDirectoryFragment.TAG, null)
         }
     }
 
@@ -118,7 +118,7 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
         if (manager.isStateSaved) return@OnClickListener
         val fragment = manager.findFragmentById(R.id.container_fragment)
         if (fragment is MainMenuFragment) {
-            Tools.swapFragment(this, ContentInstallerFragment::class.java, ContentInstallerFragment.TAG, null)
+            HyperUtils.swapFragment(this, ContentInstallerFragment::class.java, ContentInstallerFragment.TAG, null)
         }
     }
 
@@ -128,7 +128,7 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
         if (manager.isStateSaved) return@OnClickListener
         val fragment = manager.findFragmentById(R.id.container_fragment)
         if (fragment is MainMenuFragment) {
-            Tools.swapFragment(this, RecordingsGalleryFragment::class.java, RecordingsGalleryFragment.TAG, null)
+            HyperUtils.swapFragment(this, RecordingsGalleryFragment::class.java, RecordingsGalleryFragment.TAG, null)
         }
     }
 
@@ -150,7 +150,7 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
             return@ExtraListener false
         }
 
-        if (!Tools.isValidString(selectedInstance.versionId)) {
+        if (!HyperUtils.isValidString(selectedInstance.versionId)) {
             Toast.makeText(this, R.string.error_no_version, Toast.LENGTH_LONG).show()
             return@ExtraListener false
         }
@@ -160,9 +160,9 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
             ExtraCore.setValue(ExtraConstants.SELECT_AUTH_METHOD, true)
             return@ExtraListener false
         }
-        val normalizedVersionId = MoJsonExtras.normalizeVersionId(selectedInstance.versionId)
-        val mcVersion = MoJsonExtras.getListedVersion(normalizedVersionId)
-        MoJsonDownloader().start(
+        val normalizedVersionId = HyperExtras.normalizeVersionId(selectedInstance.versionId)
+        val mcVersion = HyperExtras.getListedVersion(normalizedVersionId)
+        HyperDownloader().start(
             this.assets,
             mcVersion,
             normalizedVersionId,
@@ -175,7 +175,7 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
 
 
         if (taskCount > 0) {
-            Tools.runOnUiThread {
+            HyperUtils.runOnUiThread {
                 mNotificationManager?.cancel(NotificationUtils.NOTIFICATION_ID_GAME_START)
             }
         }
@@ -232,7 +232,7 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
         })
 
         try {
-            Os.setenv("TMPDIR", Tools.DIR_CACHE?.absolutePath ?: "", true)
+            Os.setenv("TMPDIR", HyperUtils.DIR_CACHE?.absolutePath ?: "", true)
         } catch (e: Exception) {
             throw RuntimeException(e)
         }
@@ -243,7 +243,7 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
         mRequestPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { isAllowed ->
-            if (!isAllowed) Tools.runOnUiThread {
+            if (!isAllowed) HyperUtils.runOnUiThread {
                 Toast.makeText(this, R.string.notification_permission_toast, Toast.LENGTH_LONG).show()
             }
         }
@@ -254,7 +254,7 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
 
         mNotificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         ProgressKeeper.addTaskCountListener(mDoubleLaunchPreventionListener)
-        mProgressServiceKeeper = ProgressServiceKeeper(this).also {
+        mProgressServiceKeeper = TrackerServiceKeeper(this).also {
             ProgressKeeper.addTaskCountListener(it)
         }
 
@@ -285,7 +285,7 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
                     for (instance in instances) {
                         if (instance.mInstanceRoot.name == instanceName) {
                             Instances.setSelectedInstance(instance)
-                            Tools.runOnUiThread { ExtraCore.setValue(ExtraConstants.LAUNCH_GAME, true) }
+                            HyperUtils.runOnUiThread { ExtraCore.setValue(ExtraConstants.LAUNCH_GAME, true) }
                             break
                         }
                     }
@@ -327,7 +327,7 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
         return try {
             @Suppress("UNCHECKED_CAST")
             val fragmentClass = classLoader.loadClass(fragmentName) as Class<out Fragment>
-            Tools.swapFragment(this, fragmentClass, null, pref.extras)
+            HyperUtils.swapFragment(this, fragmentClass, null, pref.extras)
             true
         } catch (e: ClassNotFoundException) {
             Log.e("LauncherActivity", "Could not find fragment class: $fragmentName", e)
@@ -360,7 +360,7 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
             if (s == BuildConfig.APPLICATION_ID) continue
 
             packageManager.getLaunchIntentForPackage(s) ?: continue
-            Tools.runOnUiThread {
+            HyperUtils.runOnUiThread {
                 MaterialAlertDialogBuilder(this)
                     .setTitle(R.string.migration_progress_warning_title)
                     .setMessage(R.string.migration_notice)
@@ -398,7 +398,7 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
         if (Architecture.getDeviceArchitecture() == Architecture.ARCH_X86_64) {
             val shown = LauncherPreferences.DEFAULT_PREF?.getBoolean("x86_64_warning_shown", false) ?: false
             if (!shown) {
-                Tools.runOnUiThread {
+                HyperUtils.runOnUiThread {
                     MaterialAlertDialogBuilder(this)
                         .setTitle("x86_64 Architecture Warning")
                         .setMessage("Some native libraries may be missing on x86_64. Please use a native launcher for Windows or Linux if supported.")

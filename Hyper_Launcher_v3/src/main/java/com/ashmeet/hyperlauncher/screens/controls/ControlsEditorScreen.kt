@@ -30,7 +30,7 @@ import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
 import com.ashmeet.hyperlauncher.fragments.dialog.EditControlSideDialog
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.utils.SideDialogUtils
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import com.ashmeet.hyperlauncher.filemanager.components.FileListView
 import com.ashmeet.hyperlauncher.filemanager.listeners.FileSelectedListener
@@ -150,16 +150,16 @@ fun ControlsEditorScreen(
                         factory = { ctx ->
                             FileListView(ctx, null, arrayOf("json")).apply {
                                 if (Build.VERSION.SDK_INT < 29) {
-                                    listFileAt(File(Tools.CTRLMAP_PATH))
+                                    listFileAt(File(HyperUtils.CTRLMAP_PATH))
                                 } else {
-                                    lockPathAt(File(Tools.CTRLMAP_PATH))
+                                    lockPathAt(File(HyperUtils.CTRLMAP_PATH))
                                 }
                                 setFileSelectedListener(object : FileSelectedListener() {
                                     override fun onFileSelected(file: File, path: String) {
                                         try {
                                             controlLayout.loadLayout(path)
                                         } catch (e: Exception) {
-                                            Tools.showError(ctx, e)
+                                            HyperUtils.showError(ctx, e)
                                         }
                                         showLoadDialog = false
                                     }
@@ -206,7 +206,7 @@ fun ControlsEditorScreen(
                             Toast.makeText(context, "${context.getString(R.string.global_save)}: $jsonPath", Toast.LENGTH_SHORT).show()
                             showSaveDialog = false
                         } catch (e: Throwable) {
-                            Tools.showError(context, e, false)
+                            HyperUtils.showError(context, e, false)
                         }
                     }
                 },
@@ -223,7 +223,7 @@ fun ControlsEditorScreen(
                     AndroidView(
                         factory = { ctx ->
                             FileListView(ctx, null, arrayOf("json")).apply {
-                                lockPathAt(File(Tools.CTRLMAP_PATH))
+                                lockPathAt(File(HyperUtils.CTRLMAP_PATH))
                                 setFileSelectedListener(object : FileSelectedListener() {
                                     override fun onFileSelected(file: File, path: String) {
                                         try {
@@ -232,7 +232,7 @@ fun ControlsEditorScreen(
                                             controlLayout.loadLayout(path)
                                             Toast.makeText(ctx, "Default layout set to ${file.name}", Toast.LENGTH_SHORT).show()
                                         } catch (e: Exception) {
-                                            Tools.showError(ctx, e)
+                                            HyperUtils.showError(ctx, e)
                                         }
                                         showSetDefaultDialog = false
                                     }

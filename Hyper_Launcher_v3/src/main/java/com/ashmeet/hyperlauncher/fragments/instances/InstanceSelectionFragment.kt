@@ -16,7 +16,7 @@ import com.ashmeet.hyperlauncher.fragments.selection.ProfileTypeSelectFragment
 import com.ashmeet.hyperlauncher.screens.instances.InstanceSelectionScreen
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.utils.ShortcutUtils
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperbackend.instances.Instance
 import com.ashmeet.hyperbackend.instances.Instances
@@ -34,7 +34,7 @@ class InstanceSelectionFragment : Fragment() {
                     InstanceSelectionScreen(
                         onBack = { parentFragmentManager.popBackStack() },
                         onCreateNew = {
-                            Tools.swapFragment(
+                            HyperUtils.swapFragment(
                                 requireActivity(),
                                 ProfileTypeSelectFragment::class.java,
                                 ProfileTypeSelectFragment.TAG,
@@ -46,7 +46,7 @@ class InstanceSelectionFragment : Fragment() {
                                 putString("type", "MODPACKS")
                                 putBoolean("bypass", true)
                             }
-                            Tools.swapFragment(
+                            HyperUtils.swapFragment(
                                 requireActivity(),
                                 ContentInstallerFragment::class.java,
                                 ContentInstallerFragment.TAG,
@@ -59,9 +59,9 @@ class InstanceSelectionFragment : Fragment() {
                                     val loadedAll = Instances.loadAllInstances()
                                     val fullInstance = loadedAll.find { it.mInstanceRoot == instance.mInstanceRoot }
                                     if (fullInstance != null) {
-                                        Tools.runOnUiThread {
+                                        HyperUtils.runOnUiThread {
                                             Instances.setSelectedInstance(fullInstance)
-                                            Tools.swapFragment(
+                                            HyperUtils.swapFragment(
                                                 requireActivity(),
                                                 InstanceEditorFragment::class.java,
                                                 InstanceEditorFragment.TAG,
@@ -70,7 +70,7 @@ class InstanceSelectionFragment : Fragment() {
                                         }
                                     }
                                 } catch (e: Exception) {
-                                    Tools.runOnUiThread { Tools.showError(requireContext(), e) }
+                                    HyperUtils.runOnUiThread { HyperUtils.showError(requireContext(), e) }
                                 }
                             }
                         },
@@ -80,12 +80,12 @@ class InstanceSelectionFragment : Fragment() {
                                     val loadedAll = Instances.loadAllInstances()
                                     val fullInstance = loadedAll.find { it.mInstanceRoot == instance.mInstanceRoot }
                                     if (fullInstance != null) {
-                                        Tools.runOnUiThread {
+                                        HyperUtils.runOnUiThread {
                                             showRenameDialog(fullInstance, onRefresh)
                                         }
                                     }
                                 } catch (e: Exception) {
-                                    Tools.runOnUiThread { Tools.showError(requireContext(), e) }
+                                    HyperUtils.runOnUiThread { HyperUtils.showError(requireContext(), e) }
                                 }
                             }
                         },
@@ -95,12 +95,12 @@ class InstanceSelectionFragment : Fragment() {
                                     val loadedAll = Instances.loadAllInstances()
                                     val fullInstance = loadedAll.find { it.mInstanceRoot == instance.mInstanceRoot }
                                     if (fullInstance != null) {
-                                        Tools.runOnUiThread {
+                                        HyperUtils.runOnUiThread {
                                             showDeleteConfirmDialog(fullInstance, onRefresh)
                                         }
                                     }
                                 } catch (e: Exception) {
-                                    Tools.runOnUiThread { Tools.showError(requireContext(), e) }
+                                    HyperUtils.runOnUiThread { HyperUtils.showError(requireContext(), e) }
                                 }
                             }
                         },

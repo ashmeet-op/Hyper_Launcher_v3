@@ -24,7 +24,7 @@ import com.ashmeet.hyperlauncher.filemanager.listeners.DialogTitleListener
 import com.ashmeet.hyperlauncher.filemanager.listeners.FileSelectedListener
 import com.ashmeet.hyperlauncher.filemanager.utils.SortFileName
 import com.ashmeet.hyperlauncher.theme.PojavTheme
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import java.io.File
 import java.util.Arrays
 
@@ -125,26 +125,26 @@ class FileListView @JvmOverloads constructor(
                                 }
                             }
                         }
-                        Tools.runOnUiThread {
+                        HyperUtils.runOnUiThread {
                             filesState = resultFiles
                             val absPath = path.absolutePath
                             currentTitleState = absPath
                             dialogTitleListener?.onChangeDialogTitle(absPath)
                         }
                     } else {
-                        Tools.runOnUiThread {
+                        HyperUtils.runOnUiThread {
                             fileSelectedListener?.onFileSelected(path, path.absolutePath)
                         }
                     }
                 } else {
-                    Tools.runOnUiThread {
+                    HyperUtils.runOnUiThread {
                         Toast.makeText(context, "This folder (or file) doesn't exist", Toast.LENGTH_SHORT).show()
                         refreshPath()
                     }
                 }
             } catch (e: Exception) {
-                Tools.runOnUiThread {
-                    Tools.showError(context, e)
+                HyperUtils.runOnUiThread {
+                    HyperUtils.showError(context, e)
                 }
             }
         }

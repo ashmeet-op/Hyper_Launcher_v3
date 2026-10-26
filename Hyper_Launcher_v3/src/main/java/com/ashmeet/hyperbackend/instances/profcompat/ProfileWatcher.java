@@ -2,7 +2,7 @@ package com.ashmeet.hyperbackend.instances.profcompat;
 
 import android.content.res.AssetManager;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 
 import java.io.File;
 import java.io.FileReader;
@@ -10,11 +10,11 @@ import java.io.IOException;
 import java.util.Map;
 
 public class ProfileWatcher {
-    private static final File sLauncherProfiles = new File(Tools.DIR_GAME_NEW, "launcher_profiles.json");
+    private static final File sLauncherProfiles = new File(HyperUtils.DIR_GAME_NEW, "launcher_profiles.json");
     public static String consumePendingVersion(AssetManager assetManager) throws IOException {
         Profiles store;
         try(FileReader fileReader = new FileReader(sLauncherProfiles)) {
-            store = Tools.GLOBAL_GSON.fromJson(fileReader, Profiles.class);
+            store = HyperUtils.GLOBAL_GSON.fromJson(fileReader, Profiles.class);
         }
         Map<String, ProfileBody> profiles = store.profiles;
         String versionId = null;
@@ -27,6 +27,6 @@ public class ProfileWatcher {
         return versionId;
     }
     public static void installDefaultProfiles(AssetManager assetManager) throws IOException {
-        Tools.copyAssetFile(assetManager, "launcher_profiles.json", sLauncherProfiles, true);
+        HyperUtils.copyAssetFile(assetManager, "launcher_profiles.json", sLauncherProfiles, true);
     }
 }

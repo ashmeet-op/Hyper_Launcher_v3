@@ -1,8 +1,8 @@
 package com.ashmeet.hyperbackend.modloaders;
 
 import com.ashmeet.hyperbackend.JVersionList;
-import com.ashmeet.hyperlauncher.utils.Tools;
-import com.ashmeet.hyperbackend.tasks.MoJsonDownloader;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
+import com.ashmeet.hyperbackend.tasks.HyperDownloader;
 import com.ashmeet.hyperbackend.utils.FileUtils;
 
 import java.io.File;
@@ -42,13 +42,13 @@ public class Lwjgl3ifyUtils {
             ZipInputStream zipInputStream = new ZipInputStream(fileInputStream)) {
             if(!findRelauncherEntry(zipInputStream))
                 throw new IOException("Failed to find relauncher version.json");
-            versionContent = Tools.read(zipInputStream);
+            versionContent = HyperUtils.read(zipInputStream);
         }
-        JVersionList.FileProperties properties = Tools.GLOBAL_GSON.fromJson(versionContent, JVersionList.FileProperties.class);
+        JVersionList.FileProperties properties = HyperUtils.GLOBAL_GSON.fromJson(versionContent, JVersionList.FileProperties.class);
         if(properties == null || properties.id == null) return null;
-        File versionFile = MoJsonDownloader.createGameJsonPath(properties.id);
+        File versionFile = HyperDownloader.createGameJsonPath(properties.id);
         FileUtils.ensureParentDirectory(versionFile);
-        Tools.write(versionFile, versionContent);
+        HyperUtils.write(versionFile, versionContent);
         return properties.id;
     }
 }

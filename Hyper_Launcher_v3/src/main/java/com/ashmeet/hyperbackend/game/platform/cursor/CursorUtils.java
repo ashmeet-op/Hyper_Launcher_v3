@@ -12,7 +12,7 @@ import androidx.core.content.ContextCompat;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 
 import net.ashmeet.hyperlauncher.R;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 
 public class CursorUtils {
     public static PlatformCursor loadStandardCursor(Context context, int shapeName) {
@@ -107,7 +107,7 @@ public class CursorUtils {
 
         if (bitmap == null) return null;
 
-        float targetSize = Tools.dpToPx(24);
+        float targetSize = HyperUtils.dpToPx(24);
         float scale = 1f;
         if (bitmap.getWidth() > targetSize || bitmap.getHeight() > targetSize) {
             scale = targetSize / Math.max(bitmap.getWidth(), bitmap.getHeight());

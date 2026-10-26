@@ -2,7 +2,7 @@ package com.ashmeet.hyperbackend.authenticator.accounts;
 
 import android.util.Log;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.authenticator.AuthType;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 import com.ashmeet.hyperbackend.utils.FileUtils;
@@ -27,7 +27,7 @@ public class Accounts {
     }
 
 	public static Accounts load() throws IOException {
-		File accountsDir = new File(Tools.DIR_ACCOUNT_NEW);
+		File accountsDir = new File(HyperUtils.DIR_ACCOUNT_NEW);
         synchronized (Accounts.class) {
             FileUtils.ensureDirectory(accountsDir);
         }
@@ -95,14 +95,14 @@ public class Accounts {
 
     public static Account getCurrent() {
 		String selectedAccount = getSelectedAccount();
-		return loadAccount(new File(Tools.DIR_ACCOUNT_NEW, selectedAccount));
+		return loadAccount(new File(HyperUtils.DIR_ACCOUNT_NEW, selectedAccount));
     }
 
 	private static File pickAccountPath() {
 		File profilePath;
 		do {
 			String profileName = UUID.randomUUID().toString();
-			profilePath = new File(Tools.DIR_ACCOUNT_NEW, profileName);
+			profilePath = new File(HyperUtils.DIR_ACCOUNT_NEW, profileName);
 		} while(profilePath.exists());
 		return profilePath;
 	}

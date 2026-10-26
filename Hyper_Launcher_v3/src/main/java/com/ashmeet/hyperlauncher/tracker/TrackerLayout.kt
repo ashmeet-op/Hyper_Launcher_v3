@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -62,7 +63,7 @@ class TrackerLayout : ConstraintLayout, TaskCountListener {
 
     inner class LayoutProgressListener(val progressKey: String) : ProgressListener {
         val state: ProgressTaskState = ProgressTaskState(
-            mutableStateOf(0),
+            mutableIntStateOf(0),
             mutableStateOf("")
         )
 

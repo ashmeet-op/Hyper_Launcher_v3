@@ -15,7 +15,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 
 import top.defaults.checkerboarddrawable.CheckerboardDrawable;
 
@@ -53,8 +53,8 @@ public class CropperView extends View {
 
     protected void init() {
         setBackground(new CheckerboardDrawable.Builder().build());
-        mSelectionPadding = Tools.dpToPx(24);
-        mHighlightThickness = Tools.dpToPx(3);
+        mSelectionPadding = HyperUtils.dpToPx(24);
+        mHighlightThickness = HyperUtils.dpToPx(3);
         mSelectionPaint = new Paint();
         mSelectionPaint.setColor(Color.DKGRAY);
         mSelectionPaint.setStrokeWidth(mHighlightThickness);

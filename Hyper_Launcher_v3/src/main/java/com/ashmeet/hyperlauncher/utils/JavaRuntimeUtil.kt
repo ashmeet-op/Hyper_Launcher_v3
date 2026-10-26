@@ -7,8 +7,8 @@ import com.ashmeet.hyperlauncher.tracker.TrackerLayout
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperbackend.JVersionList
 import com.ashmeet.hyperbackend.instances.Instances
-import com.ashmeet.hyperbackend.multirt.MultiRTUtils
-import com.ashmeet.hyperbackend.multirt.Runtime
+import com.ashmeet.hyperlauncher.runtime.RuntimeUtils
+import com.ashmeet.hyperlauncher.runtime.Runtime
 import com.ashmeet.hyperbackend.progresskeeper.DownloaderProgressWrapper
 import com.ashmeet.hyperbackend.utils.DownloadUtils
 import com.ashmeet.hyperbackend.utils.MathUtils
@@ -18,7 +18,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 
-object NewJREUtil {
+object JavaRuntimeUtil {
     private const val DOWNLOAD_URL = "https://mojolauncher.github.io/jre-download/"
 
     @Throws(IOException::class)
@@ -27,18 +27,18 @@ object NewJREUtil {
     }
 
     private fun checkLastUpdateTime(internalRuntime: InternalRuntime): Boolean {
-        val lastUpdateTime = MultiRTUtils.readLastUpdateTime(internalRuntime.runtimeName)
+        val lastUpdateTime = RuntimeUtils.readLastUpdateTime(internalRuntime.runtimeName)
         val currentTime = System.currentTimeMillis() / 1000L
         return lastUpdateTime != -1L && currentTime - lastUpdateTime < 259200
     }
 
     private fun writeLastUpdateTime(internalRuntime: InternalRuntime) {
-        MultiRTUtils.writeLastUpdateTime(internalRuntime.runtimeName, System.currentTimeMillis() / 1000L)
+        RuntimeUtils.writeLastUpdateTime(internalRuntime.runtimeName, System.currentTimeMillis() / 1000L)
     }
 
     @Throws(RuntimeSelectionException::class)
     private fun checkInternalRuntime(assetManager: AssetManager, internalRuntime: InternalRuntime) {
-        val installedRuntimeVersion = MultiRTUtils.readInternalRuntimeVersion(internalRuntime.runtimeName)
+        val installedRuntimeVersion = RuntimeUtils.readInternalRuntimeVersion(internalRuntime.runtimeName)
         if (installedRuntimeVersion != null && checkLastUpdateTime(internalRuntime)) return
 
         val remoteRuntimeVersion = try {
@@ -90,7 +90,7 @@ object NewJREUtil {
     @Throws(RuntimeSelectionException::class)
     private fun unpackInternalRuntime(assetManager: AssetManager, internalRuntime: InternalRuntime, versionSignatures: String) {
         val signatures = SignatureCheckUtil.decodeSignatureBundle(versionSignatures)
-        val platformBinFile = "bin-" + archAsString(Tools.DEVICE_ARCHITECTURE) + ".tar.xz"
+        val platformBinFile = "bin-" + archAsString(HyperUtils.DEVICE_ARCHITECTURE) + ".tar.xz"
         if (!signatures.containsKey("universal.tar.xz") || !signatures.containsKey(platformBinFile)) {
             throwInstallFail(internalRuntime)
         }
@@ -99,8 +99,8 @@ object NewJREUtil {
         var platformCache: File? = null
         try {
             val signatureCheckUtil = SignatureCheckUtil.create(assetManager)
-            universalCache = File.createTempFile("jre-install-", "-universal", Tools.DIR_CACHE)
-            platformCache = File.createTempFile("jre-install-", "-platform", Tools.DIR_CACHE)
+            universalCache = File.createTempFile("jre-install-", "-universal", HyperUtils.DIR_CACHE)
+            platformCache = File.createTempFile("jre-install-", "-platform", HyperUtils.DIR_CACHE)
             val runtimeDownloaderVerifier = RuntimeDownloaderVerifier(signatures, internalRuntime, signatureCheckUtil)
             if (!runtimeDownloaderVerifier.downloadAndVerify("universal.tar.xz", universalCache!!, R.string.downloading_java_runtime_uni) ||
                 !runtimeDownloaderVerifier.downloadAndVerify(platformBinFile, platformCache!!, R.string.downloading_java_runtime_platform)
@@ -110,9 +110,9 @@ object NewJREUtil {
 
             FileInputStream(universalCache).use { universal ->
                 FileInputStream(platformCache).use { platform ->
-                    MultiRTUtils.installRuntimeNamedBinpack(universal, platform, internalRuntime.runtimeName, versionSignatures)
-                    MultiRTUtils.postPrepare(internalRuntime.runtimeName)
-                    MultiRTUtils.forceReread(internalRuntime.runtimeName)
+                    RuntimeUtils.installRuntimeNamedBinpack(universal, platform, internalRuntime.runtimeName, versionSignatures)
+                    RuntimeUtils.postPrepare(internalRuntime.runtimeName)
+                    RuntimeUtils.forceReread(internalRuntime.runtimeName)
                 }
             }
         } catch (e: IOException) {
@@ -129,7 +129,7 @@ object NewJREUtil {
     }
 
     private fun getNearestInstalledRuntime(targetVersion: Int): MathUtils.RankedValue<Runtime>? {
-        val runtimes = MultiRTUtils.getRuntimes()
+        val runtimes = RuntimeUtils.getRuntimes()
         return MathUtils.findNearestPositive(targetVersion, runtimes) { it.javaVersion }
     }
 
@@ -141,13 +141,13 @@ object NewJREUtil {
     @JvmStatic
     @Throws(IOException::class, RuntimeSelectionException::class)
     fun installNewJreIfNeeded(assetManager: AssetManager, versionInfo: JVersionList.Version) {
-        if (versionInfo.javaVersion == null || versionInfo.javaVersion.component.equals("jre-legacy", ignoreCase = true)) return
+        if (versionInfo.javaVersion == null || versionInfo.javaVersion.component?.equals("jre-legacy", ignoreCase = true) == true) return
 
         val gameRequiredVersion = versionInfo.javaVersion.majorVersion
 
         val instance = Instances.loadSelectedInstance()
-        val profileRuntime = Tools.getSelectedRuntime(instance)
-        val runtime = MultiRTUtils.read(profileRuntime)
+        val profileRuntime = HyperUtils.getSelectedRuntime(instance) ?: return
+        val runtime = RuntimeUtils.read(profileRuntime)
 
         if (runtime.javaVersion >= gameRequiredVersion) {
             val internalRuntime = getInternalRuntime(runtime)

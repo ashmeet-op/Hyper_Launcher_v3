@@ -16,7 +16,7 @@ import com.ashmeet.hyperlauncher.screens.home.MainMenuFragmentCompose
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.activity.CustomControlsActivity
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperbackend.contracts.OpenDocumentWithExtension
 import com.ashmeet.hyperbackend.extra.ExtraConstants
 import com.ashmeet.hyperbackend.extra.ExtraCore
@@ -27,7 +27,7 @@ import com.ashmeet.hyperbackend.utils.FileUtils
 class MainMenuFragment : Fragment() {
 
     private val mModInstallerLauncher = registerForActivityResult(OpenDocumentWithExtension("jar")) { data ->
-        if (data != null) Tools.launchModInstaller(requireContext(), data)
+        if (data != null) HyperUtils.launchModInstaller(requireContext(), data)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -36,7 +36,7 @@ class MainMenuFragment : Fragment() {
                 PojavTheme {
                     MainMenuFragmentCompose(
                         onAboutClick = {
-                            Tools.swapFragment(
+                            HyperUtils.swapFragment(
                                 requireActivity(),
                                 AboutFragment::class.java,
                                 AboutFragment.TAG,
@@ -44,7 +44,7 @@ class MainMenuFragment : Fragment() {
                             )
                         },
                         onSocialMediaClick = {
-                            Tools.openURL(
+                            HyperUtils.openURL(
                                 requireActivity(),
                                 getString(R.string.social_media_invite)
                             )
@@ -58,10 +58,10 @@ class MainMenuFragment : Fragment() {
                             )
                         },
                         onInstallJarClick = { runInstallerWithConfirmation() },
-                        onShareLogsClick = { Tools.shareLog(requireContext()) },
+                        onShareLogsClick = { HyperUtils.shareLog(requireContext()) },
                         onOpenFilesClick = { openGameDirectory(requireContext()) },
                         onEditProfileClick = {
-                            Tools.swapFragment(
+                            HyperUtils.swapFragment(
                                 requireActivity(),
                                 InstanceEditorFragment::class.java,
                                 InstanceEditorFragment.TAG,
@@ -70,7 +70,7 @@ class MainMenuFragment : Fragment() {
                         },
                         onPlayClick = { ExtraCore.setValue(ExtraConstants.LAUNCH_GAME, true) },
                         onVersionSpinnerClick = {
-                            Tools.swapFragment(
+                            HyperUtils.swapFragment(
                                 requireActivity(),
                                 InstanceSelectionFragment::class.java,
                                 InstanceSelectionFragment.TAG,
@@ -97,7 +97,7 @@ class MainMenuFragment : Fragment() {
         }
         val gameDirectory = instance.gameDirectory
         if (FileUtils.ensureDirectorySilently(gameDirectory)) {
-            Tools.openPath(context, gameDirectory, false)
+            HyperUtils.openPath(context, gameDirectory, false)
         } else {
             Toast.makeText(context, R.string.gamedir_open_failed, Toast.LENGTH_LONG).show()
         }

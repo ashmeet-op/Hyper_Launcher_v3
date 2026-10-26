@@ -9,7 +9,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -35,7 +35,7 @@ public class MCOptionUtils {
 
     public static void load(){
         load(sOptionFolderPath == null
-                ? Tools.DIR_GAME_NEW
+                ? HyperUtils.DIR_GAME_NEW
                 : sOptionFolderPath);
     }
 
@@ -61,14 +61,14 @@ public class MCOptionUtils {
             while ((line = reader.readLine()) != null) {
                 int firstColonIndex = line.indexOf(':');
                 if(firstColonIndex < 0) {
-                    Log.w(Tools.APP_NAME, "No colon on line \""+line+"\", skipping");
+                    Log.w(HyperUtils.APP_NAME, "No colon on line \""+line+"\", skipping");
                     continue;
                 }
                 sParameterMap.put(line.substring(0,firstColonIndex), line.substring(firstColonIndex+1));
             }
             reader.close();
         } catch (IOException e) {
-            Log.w(Tools.APP_NAME, "Could not load options.txt", e);
+            Log.w(HyperUtils.APP_NAME, "Could not load options.txt", e);
         }
     }
 
@@ -109,10 +109,10 @@ public class MCOptionUtils {
 
         try {
             sFileObserver.stopWatching();
-            Tools.write(sOptionFolderPath + "/options.txt", result.toString());
+            HyperUtils.write(sOptionFolderPath + "/options.txt", result.toString());
             sFileObserver.startWatching();
         } catch (IOException e) {
-            Log.w(Tools.APP_NAME, "Could not save options.txt", e);
+            Log.w(HyperUtils.APP_NAME, "Could not save options.txt", e);
         }
     }
 

@@ -10,11 +10,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.ashmeet.hyperlauncher.plugin.ffmpeg.FFmpegPluginManager;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 import com.ashmeet.hyperlauncher.utils.NativeLibraryLoader;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 
 import com.ashmeet.hyperbackend.Logger;
 import com.ashmeet.hyperbackend.game.renderer.GameRenderer;
-import com.ashmeet.hyperbackend.multirt.Runtime;
+import com.ashmeet.hyperlauncher.runtime.Runtime;
 import git.artdeell.mojoexec.MojoExec;
 
 import java.io.BufferedReader;
@@ -72,7 +72,7 @@ public class JREUtils {
     }
 
     private static void overrideEnvVars(Map<String, String> envMap) throws IOException {
-        File customEnvFile = new File(Tools.DIR_GAME_HOME, "custom_env.txt");
+        File customEnvFile = new File(HyperUtils.DIR_GAME_HOME, "custom_env.txt");
         if(!customEnvFile.exists() || !customEnvFile.isFile()) return;
         BufferedReader reader = new BufferedReader(new FileReader(customEnvFile));
         String line;
@@ -90,8 +90,8 @@ public class JREUtils {
     public static void setupAngleEnv(Map<String, String> envMap) {
         if (!LauncherPreferences.PREF_USE_ANGLE) return;
         File angleFile = null;
-        if (Tools.NATIVE_LIB_DIR != null) {
-            angleFile = new File(Tools.NATIVE_LIB_DIR, "libEGL_angle.so");
+        if (HyperUtils.NATIVE_LIB_DIR != null) {
+            angleFile = new File(HyperUtils.NATIVE_LIB_DIR, "libEGL_angle.so");
         }
         if (angleFile == null || !angleFile.exists()) {
             angleFile = new File("/system/lib64/libEGL_angle.so");
@@ -117,7 +117,7 @@ public class JREUtils {
     public static void setGameEnvironment(Context context, GameRenderer renderer) throws Throwable {
         Map<String, String> envMap = new ArrayMap<>();
         // This is currently required for YSM mod to function
-        File modRuntimeDir = new File(Tools.DIR_CACHE, "app_runtime_mod");
+        File modRuntimeDir = new File(HyperUtils.DIR_CACHE, "app_runtime_mod");
         if (!modRuntimeDir.exists()) {
             modRuntimeDir.mkdirs();
         }
@@ -148,7 +148,7 @@ public class JREUtils {
         // Force LWJGL to use the Freetype library intended for it, instead of using the one
         // that we ship with Java (since it may be older than what's needed)
         //
-        Tools.fullyExit();
+        HyperUtils.fullyExit();
     }
 
     /**

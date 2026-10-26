@@ -20,7 +20,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.core.math.MathUtils;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.customcontrols.ControlData;
 import com.ashmeet.hyperbackend.customcontrols.ControlLayout;
 import com.ashmeet.hyperbackend.customcontrols.LayoutBitmaps;
@@ -98,7 +98,7 @@ public interface ControlInterface extends View.OnLongClickListener, PlatformGrab
         Drawable drawable = getControlView().getBackground();
         String bitmapTag = getProperties().bitmapTag;
         ControlLayout layout = getControlLayoutParent();
-        if(Tools.isValidString(bitmapTag) && layout != null) {
+        if(HyperUtils.isValidString(bitmapTag) && layout != null) {
             LayoutBitmaps storage = layout.getBitmaps();
             Bitmap bgBitmap = storage.getBitmap(getProperties().bitmapTag);
             if(drawable instanceof BitmapDrawable && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -111,7 +111,7 @@ public interface ControlInterface extends View.OnLongClickListener, PlatformGrab
                     (GradientDrawable) drawable : new GradientDrawable();
             gd.setColor(getProperties().bgColor);
             float scale = layout != null ? layout.getLayoutScale() : 100f;
-            gd.setStroke((int) Tools.dpToPx(getProperties().strokeWidth * (scale/100f)), getProperties().strokeColor);
+            gd.setStroke((int) HyperUtils.dpToPx(getProperties().strokeWidth * (scale/100f)), getProperties().strokeColor);
             gd.setCornerRadius(computeCornerRadius(getProperties().cornerRadius));
             drawable = gd;
         }
@@ -161,8 +161,8 @@ public interface ControlInterface extends View.OnLongClickListener, PlatformGrab
         return equation
                 .replace("${right}", "(${screen_width} - ${width})")
                 .replace("${bottom}", "(${screen_height} - ${height})")
-                .replace("${height}", "(px(" + Tools.pxToDp(button.getProperties().getHeight()) + ") /" + PREF_BUTTONSIZE + " * ${preferred_scale})")
-                .replace("${width}", "(px(" + Tools.pxToDp(button.getProperties().getWidth()) + ") / " + PREF_BUTTONSIZE + " * ${preferred_scale})");
+                .replace("${height}", "(px(" + HyperUtils.pxToDp(button.getProperties().getHeight()) + ") /" + PREF_BUTTONSIZE + " * ${preferred_scale})")
+                .replace("${width}", "(px(" + HyperUtils.pxToDp(button.getProperties().getWidth()) + ") / " + PREF_BUTTONSIZE + " * ${preferred_scale})");
     }
 
 
@@ -340,10 +340,10 @@ public interface ControlInterface extends View.OnLongClickListener, PlatformGrab
     }
 
     static float getSnapDistance() {
-        return Tools.dpToPx(6);
+        return HyperUtils.dpToPx(6);
     }
 
     static float getMarginDistance() {
-        return Tools.dpToPx(2);
+        return HyperUtils.dpToPx(2);
     }
 }

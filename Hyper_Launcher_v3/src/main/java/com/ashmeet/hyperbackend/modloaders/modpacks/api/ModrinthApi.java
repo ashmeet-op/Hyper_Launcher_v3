@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
 
 import net.ashmeet.hyperlauncher.R;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.downloader.Downloader;
 import com.ashmeet.hyperbackend.downloader.TaskMetadata;
 import com.ashmeet.hyperbackend.mirrors.DownloadMirror;
@@ -159,8 +159,8 @@ public class ModrinthApi implements ModpackApi{
 
     private LoaderInstaller installMrpack(File mrpackFile, File instanceDestination) throws IOException {
         try (ZipFile modpackZipFile = new ZipFile(mrpackFile)){
-            ModrinthIndex modrinthIndex = Tools.GLOBAL_GSON.fromJson(
-                    Tools.read(ZipUtils.getEntryStream(modpackZipFile, "modrinth.index.json")),
+            ModrinthIndex modrinthIndex = HyperUtils.GLOBAL_GSON.fromJson(
+                    HyperUtils.read(ZipUtils.getEntryStream(modpackZipFile, "modrinth.index.json")),
                     ModrinthIndex.class);
             try {
                 new ModrinthDownloader().startDownloads(modrinthIndex.files, instanceDestination);

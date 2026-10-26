@@ -16,7 +16,7 @@ import androidx.core.content.ContextCompat
 import com.ashmeet.hyperlauncher.components.dialog.SimpleAlertDialog
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.theme.PojavTheme
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperbackend.tasks.AsyncAssetManager
 
@@ -99,7 +99,7 @@ class TestStorageActivity : BaseActivity() {
     }
 
     private fun exit() {
-        if (!Tools.checkStorageRoot(this)) {
+        if (!HyperUtils.checkStorageRoot(this)) {
             startActivity(Intent(this, MissingStorageActivity::class.java))
             return
         }

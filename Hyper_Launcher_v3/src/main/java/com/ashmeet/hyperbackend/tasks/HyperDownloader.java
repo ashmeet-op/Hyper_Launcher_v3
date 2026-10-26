@@ -17,8 +17,8 @@ import com.ashmeet.hyperlauncher.utils.Architecture;
 import com.ashmeet.hyperbackend.JAssetInfo;
 import com.ashmeet.hyperbackend.JAssets;
 import com.ashmeet.hyperbackend.JVersionList;
-import com.ashmeet.hyperlauncher.utils.NewJREUtil;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.JavaRuntimeUtil;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.downloader.Downloader;
 import com.ashmeet.hyperbackend.downloader.TaskMetadata;
 import com.ashmeet.hyperbackend.mirrors.DownloadMirror;
@@ -47,7 +47,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
 
-public class MoJsonDownloader extends Downloader {
+public class HyperDownloader extends Downloader {
 
     public static final String MC_RES = "https://resources.download.minecraft.net/";
 
@@ -65,7 +65,7 @@ public class MoJsonDownloader extends Downloader {
     private File mTargetJarFile;
     private String mVersionName;
 
-    public MoJsonDownloader() {
+    public HyperDownloader() {
         super(TrackerLayout.DOWNLOAD_GAME);
     }
 
@@ -80,7 +80,7 @@ public class MoJsonDownloader extends Downloader {
 
     public void start(@Nullable AssetManager assetManager, @Nullable JVersionList.Version version,
                       @NonNull String realVersion,
-                      @NonNull MoJsonExtras.DoneListener listener) {
+                      @NonNull HyperExtras.DoneListener listener) {
         sExecutorService.execute(() -> {
             try {
                 downloadGame(assetManager, version, realVersion);
@@ -143,11 +143,11 @@ public class MoJsonDownloader extends Downloader {
     }
 
     public static File createGameJsonPath(String versionId) {
-        return new File(Tools.DIR_HOME_VERSION, versionId + File.separator + versionId + ".json");
+        return new File(HyperUtils.DIR_HOME_VERSION, versionId + File.separator + versionId + ".json");
     }
 
     public static File createGameJarPath(String versionId) {
-        return new File(Tools.DIR_HOME_VERSION, versionId + File.separator + versionId + ".jar");
+        return new File(HyperUtils.DIR_HOME_VERSION, versionId + File.separator + versionId + ".jar");
     }
 
 
@@ -167,7 +167,7 @@ public class MoJsonDownloader extends Downloader {
         TrackerLayout.setTracker(TrackerLayout.DOWNLOAD_GAME, 0,
                 R.string.newdl_extracting_native_libraries, 0, totalCount);
 
-        File targetDirectory = new File(Tools.DIR_CACHE, "natives/"+versionName);
+        File targetDirectory = new File(HyperUtils.DIR_CACHE, "natives/"+versionName);
         FileUtils.ensureDirectory(targetDirectory);
         NativesExtractor nativesExtractor = new NativesExtractor(targetDirectory);
         int extractedCount = 0;
@@ -202,7 +202,7 @@ public class MoJsonDownloader extends Downloader {
     private JAssets downloadAssetsIndex(JVersionList.Version verInfo) throws IOException{
         JVersionList.AssetIndex assetIndex = verInfo.assetIndex;
         if(assetIndex == null || verInfo.assets == null) return null;
-        File targetFile = new File(Tools.ASSETS_PATH, "indexes"+ File.separator + verInfo.assets + ".json");
+        File targetFile = new File(HyperUtils.ASSETS_PATH, "indexes"+ File.separator + verInfo.assets + ".json");
         FileUtils.ensureParentDirectory(targetFile);
         DownloadUtils.ensureSha1(targetFile, assetIndex.sha1, ()-> {
             TrackerLayout.setTracker(TrackerLayout.DOWNLOAD_GAME, 0,
@@ -210,7 +210,7 @@ public class MoJsonDownloader extends Downloader {
             DownloadMirror.downloadFileMirrored(DownloadMirror.DOWNLOAD_CLASS_METADATA, assetIndex.url, targetFile);
             return null;
         });
-        return Tools.GLOBAL_GSON.fromJson(Tools.read(targetFile), JAssets.class);
+        return HyperUtils.GLOBAL_GSON.fromJson(HyperUtils.read(targetFile), JAssets.class);
     }
 
     private ClientInfo getClientInfo(JVersionList.Version verInfo) {
@@ -232,10 +232,10 @@ public class MoJsonDownloader extends Downloader {
         }
 
         if(assetManager != null)
-            NewJREUtil.installNewJreIfNeeded(assetManager, verInfo);
+            JavaRuntimeUtil.installNewJreIfNeeded(assetManager, verInfo);
 
-        if(Tools.isValidString(verInfo.inheritsFrom)) {
-            JVersionList.Version inheritedVersion = MoJsonExtras.getListedVersion(verInfo.inheritsFrom);
+        if(HyperUtils.isValidString(verInfo.inheritsFrom)) {
+            JVersionList.Version inheritedVersion = HyperExtras.getListedVersion(verInfo.inheritsFrom);
 
             downloadAndProcessMetadata(assetManager, inheritedVersion, verInfo.inheritsFrom);
         }
@@ -258,9 +258,9 @@ public class MoJsonDownloader extends Downloader {
     private void scheduleDownload(File targetFile, int downloadClass, String url, String sha1,
                                   long size) throws IOException {
         FileUtils.ensureParentDirectory(targetFile);
-        if(!Tools.isValidString(sha1)) sha1 = null;
+        if(!HyperUtils.isValidString(sha1)) sha1 = null;
         URL urlObject = null;
-        if(Tools.isValidString(url)) urlObject = new URL(url);
+        if(HyperUtils.isValidString(url)) urlObject = new URL(url);
         TaskMetadata taskMetadata = new TaskMetadata(targetFile, urlObject, size, sha1, downloadClass);
         mScheduledDownloadTasks.add(taskMetadata);
     }
@@ -268,14 +268,14 @@ public class MoJsonDownloader extends Downloader {
 
     private void scheduleAarDownload(DependentLibrary dependentLibrary) throws IOException {
         String path = MavenNameUtils.mavenNameToAarPath(dependentLibrary.name);
-        String downloadUrl = Tools.MAVEN_CENTRAL + path;
-        File targetPath = new File(Tools.DIR_HOME_LIBRARY, path);
+        String downloadUrl = HyperUtils.MAVEN_CENTRAL + path;
+        File targetPath = new File(HyperUtils.DIR_HOME_LIBRARY, path);
         mDeclaredNatives.add(new NativeLibraryExtractable(targetPath, null));
         scheduleDownload(targetPath, DownloadMirror.DOWNLOAD_CLASS_LIBRARIES, downloadUrl, null, -1);
     }
 
     private void submitBareLibrary(String path, String baseUrl) throws IOException {
-        File artifactPath = new File(Tools.DIR_HOME_LIBRARY, path);
+        File artifactPath = new File(HyperUtils.DIR_HOME_LIBRARY, path);
         if(!mClassPath.add(artifactPath)) {
             Log.w("MoJsonDownloader", "Repeated classpath entry "+ path +" skipped");
             return;
@@ -287,7 +287,7 @@ public class MoJsonDownloader extends Downloader {
     }
 
     private File submitArtifact(LibraryArtifact artifact, String subPath) throws IOException {
-        File artifactPath = new File(Tools.DIR_HOME_LIBRARY, subPath);
+        File artifactPath = new File(HyperUtils.DIR_HOME_LIBRARY, subPath);
         if(!mClassPath.add(artifactPath)) {
             Log.w("MoJsonDownloader", "Repeated classpath entry " + artifact.path +" skipped");
             return null;
@@ -346,7 +346,7 @@ public class MoJsonDownloader extends Downloader {
     }
 
     private void scheduleLibraryDownloads(DependentLibrary[] dependentLibraries) throws IOException {
-        Tools.preProcessLibraries(dependentLibraries);
+        HyperUtils.preProcessLibraries(dependentLibraries);
         for(DependentLibrary dependentLibrary : dependentLibraries) {
             if(dependentLibrary.rules != null) {
                 String ruleSetAction = MoJsonRule.ruleSetCheck(dependentLibrary.rules);
@@ -376,7 +376,7 @@ public class MoJsonDownloader extends Downloader {
             if(assetInfo == null || assetInfo.hash == null) continue;
             File targetFile;
             String hashedPath = assetInfo.hash.substring(0, 2) + File.separator + assetInfo.hash;
-            String basePath = assets.mapToResources ? Tools.OBSOLETE_RESOURCES_PATH : Tools.ASSETS_PATH;
+            String basePath = assets.mapToResources ? HyperUtils.OBSOLETE_RESOURCES_PATH : HyperUtils.ASSETS_PATH;
             if(assets.virtual || assets.mapToResources) {
                 targetFile = new File(basePath, asset);
             } else {
@@ -393,10 +393,10 @@ public class MoJsonDownloader extends Downloader {
     private void scheduleLoggingAssetDownloadIfNeeded(JVersionList.LoggingConfig loggingConfig) throws IOException {
         if(loggingConfig.client == null || loggingConfig.client.file == null) return;
         JVersionList.FileProperties loggingFileProperties = loggingConfig.client.file;
-        File internalLoggingConfig = new File(Tools.DIR_DATA + File.separator + "security",
+        File internalLoggingConfig = new File(HyperUtils.DIR_DATA + File.separator + "security",
                 loggingFileProperties.id.replace("client", "log4j-rce-patch"));
         if(internalLoggingConfig.exists()) return;
-        File destination = new File(Tools.DIR_GAME_NEW, loggingFileProperties.id);
+        File destination = new File(HyperUtils.DIR_GAME_NEW, loggingFileProperties.id);
         scheduleDownload(destination,
                 DownloadMirror.DOWNLOAD_CLASS_LIBRARIES,
                 loggingFileProperties.url,

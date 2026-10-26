@@ -15,7 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ashmeet.hyperlauncher.R
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperbackend.extra.ExtraCore
 import com.ashmeet.hyperbackend.instances.Instances
 import com.ashmeet.hyperbackend.modloaders.FabricVersion
@@ -88,7 +88,7 @@ abstract class FabriclikeInstallFragment(
             } catch (e: IOException) {
                 withContext(Dispatchers.Main) {
                     isLoading = false
-                    Tools.showError(requireContext(), e)
+                    HyperUtils.showError(requireContext(), e)
                 }
             }
         }
@@ -134,7 +134,7 @@ abstract class FabriclikeInstallFragment(
                 }
             } catch (e: IOException) {
                 withContext(Dispatchers.Main) {
-                    Tools.showErrorRemote(e)
+                    HyperUtils.showErrorRemote(e)
                 }
             }
         }
@@ -174,7 +174,7 @@ abstract class FabriclikeInstallFragment(
     }
 
     override fun onDownloadFinished(downloadedFile: File?) {
-        Tools.runOnUiThread {
+        HyperUtils.runOnUiThread {
             getListenerProxy()?.detachListener()
             setListenerProxy(null)
             isInstalling = false
@@ -183,12 +183,12 @@ abstract class FabriclikeInstallFragment(
     }
 
     override fun onDataNotAvailable() {
-        Tools.runOnUiThread {
+        HyperUtils.runOnUiThread {
             val context = requireContext()
             getListenerProxy()?.detachListener()
             setListenerProxy(null)
             isInstalling = false
-            Tools.dialog(
+            HyperUtils.dialog(
                 context,
                 context.getString(R.string.global_error),
                 context.getString(R.string.fabric_dl_cant_read_meta, mFabriclikeUtils.name)
@@ -197,11 +197,11 @@ abstract class FabriclikeInstallFragment(
     }
 
     override fun onDownloadError(e: Exception) {
-        Tools.runOnUiThread {
+        HyperUtils.runOnUiThread {
             getListenerProxy()?.detachListener()
             setListenerProxy(null)
             isInstalling = false
-            Tools.showError(requireContext(), e)
+            HyperUtils.showError(requireContext(), e)
         }
     }
 

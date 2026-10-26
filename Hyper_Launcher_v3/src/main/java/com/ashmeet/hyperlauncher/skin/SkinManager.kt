@@ -5,7 +5,7 @@ import com.ashmeet.hyperlauncher.skin.model.SkinModelType
 import com.ashmeet.hyperlauncher.skin.server.OfflineYggdrasilServer
 import com.ashmeet.hyperlauncher.utils.LocalUuidUtils
 import com.ashmeet.hyperlauncher.utils.LocalUuidUtils.toFormattedUuid
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperbackend.authenticator.accounts.Account
 import java.io.File
 
@@ -52,7 +52,7 @@ class SkinManager(private val analyzer: SkinAnalyzerFacade) {
         )
 
         val permanentSkin = skinFile?.takeIf { it.exists() }?.let {
-            val file = File(Tools.DIR_CACHE, "skin-$profileId.png")
+            val file = File(HyperUtils.DIR_CACHE, "skin-$profileId.png")
             if (it.absolutePath != file.absolutePath) {
                 it.copyTo(file, overwrite = true)
             }
@@ -60,7 +60,7 @@ class SkinManager(private val analyzer: SkinAnalyzerFacade) {
         }
 
         val permanentCape = capeFile?.takeIf { it.exists() }?.let {
-            val file = File(Tools.DIR_CACHE, "cape-$profileId.png")
+            val file = File(HyperUtils.DIR_CACHE, "cape-$profileId.png")
             if (it.absolutePath != file.absolutePath) {
                 it.copyTo(file, overwrite = true)
             }

@@ -14,7 +14,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_FULLSCREEN_LAUNCHER
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_IGNORE_NOTCH
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperbackend.utils.LocaleUtils
 
 abstract class BaseActivity : AppCompatActivity() {
@@ -37,14 +37,14 @@ abstract class BaseActivity : AppCompatActivity() {
 
         applySystemBarConfiguration()
         updateOrientation()
-        Tools.getDisplayMetrics(this)
+        HyperUtils.getDisplayMetrics(this)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         applySystemBarConfiguration()
         updateOrientation()
-        Tools.getDisplayMetrics(this)
+        HyperUtils.getDisplayMetrics(this)
     }
 
 
@@ -75,7 +75,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
 
 
-        Tools.setInsetsMode(this, hideBars, shouldIgnoreNotch())
+        HyperUtils.setInsetsMode(this, hideBars, shouldIgnoreNotch())
     }
 
 
@@ -86,7 +86,7 @@ abstract class BaseActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updateOrientation()
-        Tools.checkStorageInteractive(this)
+        HyperUtils.checkStorageInteractive(this)
     }
 
     override fun onPostResume() {
@@ -94,7 +94,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
         applySystemBarConfiguration()
         updateOrientation()
-        Tools.getDisplayMetrics(this)
+        HyperUtils.getDisplayMetrics(this)
     }
 
 

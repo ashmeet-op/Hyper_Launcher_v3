@@ -15,7 +15,7 @@ import androidx.fragment.app.Fragment
 import fr.spse.gamepad_remapper.Remapper
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.activity.CustomControlsActivity
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperlauncher.fragments.controls.GamepadMapperFragment
 import com.ashmeet.hyperlauncher.screens.settings.ControlSettingsScreen
 import com.ashmeet.hyperlauncher.theme.PojavTheme
@@ -37,7 +37,7 @@ class LauncherPreferenceControlFragment : Fragment(), SharedPreferences.OnShared
                     ControlSettingsScreen(
                         onBack = { requireActivity().onBackPressedDispatcher.onBackPressed() },
                         onNavigateToCustomControls = { startActivity(Intent(requireContext(), CustomControlsActivity::class.java)) },
-                        onNavigateToGamepadMapper = { Tools.swapFragment(requireActivity(), GamepadMapperFragment::class.java, GamepadMapperFragment.TAG, null) },
+                        onNavigateToGamepadMapper = { HyperUtils.swapFragment(requireActivity(), GamepadMapperFragment::class.java, GamepadMapperFragment.TAG, null) },
                         onWipeController = {
                             Remapper.wipePreferences(requireContext())
                             Toast.makeText(requireContext(), R.string.preference_controller_map_wiped, Toast.LENGTH_SHORT).show()

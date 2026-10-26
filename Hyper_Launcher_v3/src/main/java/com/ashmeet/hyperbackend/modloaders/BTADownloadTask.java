@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
 
 import net.ashmeet.hyperlauncher.R;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.instances.Instance;
 import com.ashmeet.hyperbackend.instances.Instances;
 import com.ashmeet.hyperbackend.lifecycle.ContextExecutor;
@@ -91,17 +91,17 @@ public class BTADownloadTask implements Runnable {
 
     private void createJson(String btaVersionId) throws IOException {
         String btaJson = String.format(BASE_JSON, mBtaVersion.versionName, mBtaVersion.downloadUrl, btaVersionId);
-        File jsonDir = new File(Tools.DIR_HOME_VERSION, btaVersionId);
+        File jsonDir = new File(HyperUtils.DIR_HOME_VERSION, btaVersionId);
         File jsonFile = new File(jsonDir, btaVersionId+".json");
         FileUtils.ensureDirectory(jsonDir);
-        Tools.write(jsonFile, btaJson);
+        HyperUtils.write(jsonFile, btaJson);
     }
 
 
 
 
     private void removeOldClient() throws IOException{
-        File btaClientPath = new File(Tools.DIR_HOME_LIBRARY, String.format("bta-client/bta-client-%1$s.jar", mBtaVersion.versionName));
+        File btaClientPath = new File(HyperUtils.DIR_HOME_LIBRARY, String.format("bta-client/bta-client-%1$s.jar", mBtaVersion.versionName));
         if(btaClientPath.exists() && !btaClientPath.delete())
             throw new IOException("Failed to delete old client jar");
     }

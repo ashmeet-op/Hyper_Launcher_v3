@@ -64,7 +64,7 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.cursorInfos
 import com.ashmeet.hyperlauncher.utils.translation.Translator
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import java.io.File
 import java.io.FileOutputStream
 
@@ -140,7 +140,7 @@ fun AppearanceSettingsScreen(
         if (uri != null && pendingCursorShape != -1) {
             val shape = pendingCursorShape
             val suffix = cursorInfos.find { it.shapeId == shape }?.suffix ?: ""
-            val destination = File(Tools.DIR_DATA, "custom_pointer_$suffix.png")
+            val destination = File(HyperUtils.DIR_DATA, "custom_pointer_$suffix.png")
             try {
                 context.contentResolver.openInputStream(uri)?.use { input ->
                     FileOutputStream(destination).use { output ->
@@ -447,7 +447,7 @@ fun AppearanceSettingsScreen(
             SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
                 val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
                     if (uri != null) {
-                        val destination = File(Tools.DIR_DATA, "custom_drawer_icon.png")
+                        val destination = File(HyperUtils.DIR_DATA, "custom_drawer_icon.png")
                         try {
                             context.contentResolver.openInputStream(uri)?.use { input ->
                                 FileOutputStream(destination).use { output ->
@@ -502,7 +502,7 @@ fun AppearanceSettingsScreen(
                         val type = context.contentResolver.getType(uri)
                         val isVideo = type?.startsWith("video") == true
                         val extension = if (isVideo) "mp4" else "png"
-                        val destination = File(Tools.DIR_DATA, "launcher_background_${System.currentTimeMillis()}.$extension")
+                        val destination = File(HyperUtils.DIR_DATA, "launcher_background_${System.currentTimeMillis()}.$extension")
                         try {
                             context.contentResolver.openInputStream(uri)?.use { input ->
                                 FileOutputStream(destination).use { output ->
@@ -720,7 +720,7 @@ fun AppearanceSettingsScreen(
             SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
                 val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
                     if (uri != null) {
-                        val destination = File(Tools.DIR_DATA, "custom_pointer_icon.png")
+                        val destination = File(HyperUtils.DIR_DATA, "custom_pointer_icon.png")
                         try {
                             context.contentResolver.openInputStream(uri)?.use { input ->
                                 FileOutputStream(destination).use { output ->

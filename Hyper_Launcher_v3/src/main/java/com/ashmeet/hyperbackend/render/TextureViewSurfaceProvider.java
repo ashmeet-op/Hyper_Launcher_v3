@@ -11,7 +11,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 
 public class TextureViewSurfaceProvider implements SurfaceProvider {
     private TextureView mTextureView;
@@ -32,7 +32,7 @@ public class TextureViewSurfaceProvider implements SurfaceProvider {
         SurfaceTexture surfaceTexture = mTextureView.getSurfaceTexture();
         if(surfaceTexture != null) {
             surfaceTexture.setDefaultBufferSize(windowWidth, windowHeight);
-            Tools.runOnUiThread(()->mCallback.onSurfaceResized());
+            HyperUtils.runOnUiThread(()->mCallback.onSurfaceResized());
         }
     }
 

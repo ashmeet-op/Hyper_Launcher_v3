@@ -7,7 +7,7 @@ import android.provider.DocumentsContract
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.ui.platform.ComposeView
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
 import com.google.gson.JsonSyntaxException
 import net.ashmeet.hyperlauncher.R
@@ -66,7 +66,7 @@ class CustomControlsActivity : BaseActivity(), EditorExitable, CropperUtils.Crop
                         val sendIntent = Intent.createChooser(shareIntent, mControlLayout.mLayoutFileName)
                         startActivity(sendIntent)
                     } catch (e: Exception) {
-                        Tools.showError(this, e)
+                        HyperUtils.showError(this, e)
                     }
                 }
             }
@@ -79,9 +79,9 @@ class CustomControlsActivity : BaseActivity(), EditorExitable, CropperUtils.Crop
             try {
                 mControlLayout.loadLayout(LauncherPreferences.PREF_DEFAULTCTRL_PATH)
             } catch (e: IOException) {
-                Tools.showError(this, e)
+                HyperUtils.showError(this, e)
             } catch (e: JsonSyntaxException) {
-                Tools.showError(this, e)
+                HyperUtils.showError(this, e)
             }
         }
     }

@@ -74,7 +74,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
 import com.ashmeet.hyperbackend.extra.ExtraCore
 import com.ashmeet.hyperbackend.extra.ExtraConstants
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import kotlinx.coroutines.delay
 import com.ashmeet.hyperbackend.instances.Instance
@@ -146,7 +146,7 @@ fun InstanceDirectoryContent(
             }
 
             val v = try {
-                Tools.getVersionInfo(it.versionId)
+                HyperUtils.getVersionInfo(it.versionId)
             } catch (_: Exception) {
                 null
             }
@@ -278,7 +278,7 @@ fun InstanceDirectoryContent(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
         if (uri != null) {
-            val fileName = Tools.getFileName(context, uri)
+            val fileName = HyperUtils.getFileName(context, uri)
             if (fileName != null) {
                 currentDir?.let { destDir ->
                     val destFile = File(destDir, fileName)
@@ -829,7 +829,7 @@ fun InstanceDirectoryContent(
                                         fileToView = file
                                         showTextViewerDialog = true
                                     } else {
-                                        Tools.openPath(context, file, false)
+                                        HyperUtils.openPath(context, file, false)
                                     }
                                 }
                             },
@@ -848,7 +848,7 @@ fun InstanceDirectoryContent(
                                 showCompressDialog = true
                             },
                             onOpenInFiles = {
-                                Tools.openPath(context, file, false)
+                                HyperUtils.openPath(context, file, false)
                             },
                             onRefresh = { currentDir?.let { loadFiles(it) } },
                             onQuickPlay = {

@@ -37,7 +37,7 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.TextInputDialog
 import com.ashmeet.hyperlauncher.utils.DiscordRpcManager
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperbackend.game.renderer.RendererCache
 import java.io.File
 
@@ -234,7 +234,7 @@ fun MiscSettingsScreen(
                             context.cacheDir?.deleteRecursively()
                             context.externalCacheDir?.deleteRecursively()
                             context.cacheDir?.mkdirs()
-                            Tools.DIR_CACHE_APP_ICON = File(context.cacheDir, "app_icons").apply { mkdirs() }
+                            HyperUtils.DIR_CACHE_APP_ICON = File(context.cacheDir, "app_icons").apply { mkdirs() }
                             RendererCache.releaseRendererCache()
                             Toast.makeText(
                                 context,

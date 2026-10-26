@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.instances.Instance;
 import com.ashmeet.hyperbackend.utils.FileUtils;
 
@@ -34,7 +34,7 @@ public class ModIconCache {
 
     }
     public static File getImageCachePath() {
-        return new File(Tools.DIR_CACHE, "mod_icons");
+        return new File(HyperUtils.DIR_CACHE, "mod_icons");
     }
 
 
@@ -71,7 +71,7 @@ public class ModIconCache {
 
 
     public static void writeInstanceImage(Instance instance, String imageTag) {
-        File imagePath = new File(Tools.DIR_CACHE, "mod_icons/"+imageTag+".ca");
+        File imagePath = new File(HyperUtils.DIR_CACHE, "mod_icons/"+imageTag+".ca");
         Log.i("IconCache", "Creating base64 version of icon "+imageTag);
         if(!imagePath.canRead() || !imagePath.isFile()) {
             Log.i("IconCache", "Icon does not exist");

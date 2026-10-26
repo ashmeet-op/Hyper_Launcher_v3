@@ -16,7 +16,7 @@ import com.ashmeet.hyperlauncher.plugin.natives.NativePluginManager;
 import com.ashmeet.hyperlauncher.renderer.RendererInterface;
 import com.ashmeet.hyperlauncher.renderer.Renderers;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.game.renderer.impl.FCLRenderSpec;
 import com.ashmeet.hyperbackend.game.renderer.impl.GLESRenderSpec;
 import com.ashmeet.hyperbackend.game.renderer.impl.MesaRenderSpec;
@@ -132,7 +132,7 @@ public class GameRenderer {
      * @return whether the renderer setup was successful
      */
     public boolean maybeSetupRenderer() {
-        setRendererLibraryPath(Tools.NATIVE_LIB_DIR, currentRenderer.librarySearchPath());
+        setRendererLibraryPath(HyperUtils.NATIVE_LIB_DIR, currentRenderer.librarySearchPath());
         if (!currentRenderer.setupRenderer()) {
             String fallback = (currentRenderer instanceof FCLRenderSpec) ? LTW_RENDERER : FALLBACK_RENDERER;
             Log.e(TAG, "Failed to setup renderer " + currentRenderer.name() + ", falling back to " + fallback);

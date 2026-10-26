@@ -4,7 +4,7 @@ import android.os.Build;
 import android.util.Log;
 
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.utils.FileUtils;
 import com.ashmeet.hyperbackend.utils.JSONUtils;
 import com.ashmeet.hyperbackend.utils.ZipUtils;
@@ -31,7 +31,7 @@ public class DriverManager {
     public static final String TAG = "DriverManager";
     public static final BuiltinDriver DEFAULT_DRIVER = new BuiltinDriver();
     // Must be in the exec place, /sdcard/... is noexec
-    private static final File packagesPath = new File(Tools.DIR_DATA, "vulkan-drivers");
+    private static final File packagesPath = new File(HyperUtils.DIR_DATA, "vulkan-drivers");
     private static Boolean supported = null;
 
     private DriverManager() {}

@@ -2,7 +2,7 @@ package com.ashmeet.hyperbackend.vulkan.driver;
 
 import java.io.File;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.utils.GpuUtils;
 
 public final class BuiltinDriver implements Driver {
@@ -25,6 +25,6 @@ public final class BuiltinDriver implements Driver {
 
     public static boolean deviceHasDriver(){
         // In the future we may include more drivers so this should be extended then
-        return GpuUtils.getGlInfo().isAdreno() && new File(Tools.NATIVE_LIB_DIR, DRIVER_LIB).exists();
+        return GpuUtils.getGlInfo().isAdreno() && new File(HyperUtils.NATIVE_LIB_DIR, DRIVER_LIB).exists();
     }
 }

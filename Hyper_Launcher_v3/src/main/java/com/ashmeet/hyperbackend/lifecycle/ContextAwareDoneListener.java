@@ -11,14 +11,14 @@ import com.ashmeet.hyperbackend.extra.ExtraConstants;
 import com.ashmeet.hyperbackend.extra.ExtraCore;
 import com.ashmeet.hyperbackend.game.GameActivity;
 import net.ashmeet.hyperlauncher.R;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.progresskeeper.ProgressKeeper;
-import com.ashmeet.hyperbackend.tasks.MoJsonExtras;
+import com.ashmeet.hyperbackend.tasks.HyperExtras;
 import com.ashmeet.hyperbackend.utils.NotificationUtils;
 
 import java.io.File;
 
-public class ContextAwareDoneListener implements MoJsonExtras.DoneListener, ContextExecutorTask {
+public class ContextAwareDoneListener implements HyperExtras.DoneListener, ContextExecutorTask {
     private final String mErrorString;
     private final String mNormalizedVersionid;
     private File[] classpath;
@@ -52,7 +52,7 @@ public class ContextAwareDoneListener implements MoJsonExtras.DoneListener, Cont
 
     @Override
     public void onDownloadFailed(Throwable throwable) {
-        Tools.showErrorRemote(mErrorString, throwable);
+        HyperUtils.showErrorRemote(mErrorString, throwable);
     }
 
     @Override
@@ -63,7 +63,7 @@ public class ContextAwareDoneListener implements MoJsonExtras.DoneListener, Cont
             activity.finish();
             android.os.Process.killProcess(android.os.Process.myPid());
         } catch (Throwable e) {
-            Tools.showError(activity.getBaseContext(), e);
+            HyperUtils.showError(activity.getBaseContext(), e);
         }
     }
 

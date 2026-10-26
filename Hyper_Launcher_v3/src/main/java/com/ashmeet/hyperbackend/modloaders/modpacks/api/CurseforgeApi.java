@@ -10,7 +10,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.downloader.AcquireableTaskMetadata;
 import com.ashmeet.hyperbackend.downloader.Downloader;
 import com.ashmeet.hyperbackend.mirrors.DownloadMirror;
@@ -173,8 +173,8 @@ public class CurseforgeApi implements ModpackApi{
 
     private LoaderInstaller installCurseforgeZip(File zipFile, File instanceDestination) throws IOException {
         try (ZipFile modpackZipFile = new ZipFile(zipFile)){
-            CurseManifest curseManifest = Tools.GLOBAL_GSON.fromJson(
-                    Tools.read(ZipUtils.getEntryStream(modpackZipFile, "manifest.json")),
+            CurseManifest curseManifest = HyperUtils.GLOBAL_GSON.fromJson(
+                    HyperUtils.read(ZipUtils.getEntryStream(modpackZipFile, "manifest.json")),
                     CurseManifest.class);
             if(!verifyManifest(curseManifest)) {
                 Log.i("CurseforgeApi","manifest verification failed");

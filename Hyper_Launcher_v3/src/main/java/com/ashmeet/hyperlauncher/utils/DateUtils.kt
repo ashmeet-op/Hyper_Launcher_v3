@@ -34,13 +34,13 @@ object DateUtils {
     @JvmStatic
     fun getOriginalReleaseDate(gameVersion: JVersionList.Version): Date {
         return try {
-            val actualVersion = if (Tools.isValidString(gameVersion.inheritsFrom)) {
-                Tools.getVersionInfo(gameVersion.inheritsFrom, true)
+            val actualVersion = if (HyperUtils.isValidString(gameVersion.inheritsFrom)) {
+                HyperUtils.getVersionInfo(gameVersion.inheritsFrom, true)
             } else {
 
 
 
-                Tools.getVersionInfo(gameVersion.id, true)
+                HyperUtils.getVersionInfo(gameVersion.id, true)
             }
             parseReleaseDate(actualVersion.releaseTime)
         } catch (_: Exception) {

@@ -24,7 +24,7 @@ import androidx.annotation.RequiresApi;
 
 import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperbackend.CallbackBridge;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.customcontrols.ControlLayout;
 import com.ashmeet.hyperbackend.customcontrols.gamepad.Gamepad;
 import com.ashmeet.hyperbackend.customcontrols.mouse.AndroidPointerCapture;
@@ -60,7 +60,7 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreference
 public class GameView extends FrameLayout implements PlatformGrabListener, SurfaceProvider.SurfaceCallback {
 
 
-    private final double mSensitivityFactor = (1.4 * (1080f/ Tools.getDisplayMetrics((Activity) getContext()).heightPixels));
+    private final double mSensitivityFactor = (1.4 * (1080f/ HyperUtils.getDisplayMetrics((Activity) getContext()).heightPixels));
 
     private final SurfaceProvider mSurfaceProvider = LauncherPreferences.PREF_USE_ALTERNATE_SURFACE ? new SurfaceViewSurfaceProvider() : new TextureViewSurfaceProvider();
     private boolean mRefreshOnly = true;
@@ -109,7 +109,7 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
 
 
     public void start(boolean isAlreadyRunning) {
-        if (Tools.isAndroid8OrHigher()) setUpPointerCapture();
+        if (HyperUtils.isAndroid8OrHigher()) setUpPointerCapture();
         mInGUIProcessor.setAbstractTouchpad(mCursorView);
         mRefreshOnly = isAlreadyRunning;
         mSurface = mSurfaceProvider.create(getContext(), this);
@@ -128,7 +128,7 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
         for (int i = 0; i < e.getPointerCount(); i++) {
             int toolType = e.getToolType(i);
             if(toolType == MotionEvent.TOOL_TYPE_MOUSE) {
-                if(Tools.isAndroid8OrHigher() &&
+                if(HyperUtils.isAndroid8OrHigher() &&
                         mPointerCapture != null) {
                     mPointerCapture.handleAutomaticCapture();
                     return true;
@@ -147,7 +147,7 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
         boolean ret = mCurrentTouchProcessor.processTouchEvent(e);
 
         if(LauncherPreferences.PREF_KEYBOARD_AUTOPANNING && GameActivity.mImeHeight > 0){
-            int translationY = Tools.getTranslationFromCursorY(
+            int translationY = HyperUtils.getTranslationFromCursorY(
                     (int) (Platform.cursorY * cursorRatioY + 100),
                     getHeight(),
                     GameActivity.mImeHeight,
@@ -287,8 +287,8 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
 
 
 
-        int newWidth = Tools.getDisplayFriendlyRes(getWidth(), LauncherPreferences.PREF_SCALE_FACTOR);
-        int newHeight = Tools.getDisplayFriendlyRes(getHeight(), LauncherPreferences.PREF_SCALE_FACTOR);
+        int newWidth = HyperUtils.getDisplayFriendlyRes(getWidth(), LauncherPreferences.PREF_SCALE_FACTOR);
+        int newHeight = HyperUtils.getDisplayFriendlyRes(getHeight(), LauncherPreferences.PREF_SCALE_FACTOR);
         if (newHeight < 1 || newWidth < 1) {
             Log.e("MGLSurface", String.format("Impossible resolution : %dx%d", newWidth, newHeight));
             return;
@@ -331,7 +331,7 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
 
                 mSurfaceReadyListener.isReady();
             } catch (Throwable e) {
-                Tools.showError(getContext(), e, true);
+                HyperUtils.showError(getContext(), e, true);
             }
         }, "JVM Main thread").start();
     }

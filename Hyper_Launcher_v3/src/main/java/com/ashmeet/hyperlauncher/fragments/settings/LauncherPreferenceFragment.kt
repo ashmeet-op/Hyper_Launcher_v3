@@ -13,7 +13,7 @@ import com.ashmeet.hyperlauncher.fragments.home.about.AboutFragment
 import com.ashmeet.hyperlauncher.screens.settings.MainSettingsScreen
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.activity.LauncherActivity
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 
 open class LauncherPreferenceFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -44,7 +44,7 @@ open class LauncherPreferenceFragment : Fragment(), SharedPreferences.OnSharedPr
     }
 
     protected fun navigateTo(fragmentClass: Class<out Fragment>) {
-        Tools.swapFragment(requireActivity(), fragmentClass, null, null)
+        HyperUtils.swapFragment(requireActivity(), fragmentClass, null, null)
     }
 
     override fun onResume() {

@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
 
 import net.ashmeet.hyperlauncher.R;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.authenticator.AuthType;
 import com.ashmeet.hyperbackend.authenticator.BackgroundLogin;
 import com.ashmeet.hyperbackend.authenticator.accounts.Accounts;
@@ -87,7 +87,7 @@ public class MicrosoftBackgroundLogin implements BackgroundLogin{
                 continuation.call();
             }catch (Exception e){
                 Log.e("MicroAuth", "Exception thrown during authentication", e);
-                Tools.runOnUiThread(()->loginListener.onLoginError(e));
+                HyperUtils.runOnUiThread(()->loginListener.onLoginError(e));
             } finally {
                 TrackerLayout.clearTracker(TrackerLayout.AUTHENTICATE);
             }
@@ -110,7 +110,7 @@ public class MicrosoftBackgroundLogin implements BackgroundLogin{
         acquireAccountDetails(loginListener, ()->{
             Account account = Accounts.create(this::fillAccount);
             Accounts.setCurrent(account);
-            Tools.runOnUiThread(() -> loginListener.onLoginDone(account));
+            HyperUtils.runOnUiThread(() -> loginListener.onLoginDone(account));
             return null;
         }, code, false);
     }
@@ -120,7 +120,7 @@ public class MicrosoftBackgroundLogin implements BackgroundLogin{
         acquireAccountDetails(loginListener, ()->{
             if(doesOwnGame) fillAccount(account);
             account.save();
-            Tools.runOnUiThread(() -> loginListener.onLoginDone(account));
+            HyperUtils.runOnUiThread(() -> loginListener.onLoginDone(account));
             return null;
         }, account.refreshToken, true);
     }
@@ -183,7 +183,7 @@ public class MicrosoftBackgroundLogin implements BackgroundLogin{
             wr.write(req.getBytes(StandardCharsets.UTF_8));
         }
         if(conn.getResponseCode() >= 200 && conn.getResponseCode() < 300) {
-            JSONObject jo = new JSONObject(Tools.read(conn.getInputStream()));
+            JSONObject jo = new JSONObject(HyperUtils.read(conn.getInputStream()));
             conn.disconnect();
             Log.i("MicrosoftLogin","Xbl Token = "+jo.getString("Token"));
             return jo.getString("Token");
@@ -217,7 +217,7 @@ public class MicrosoftBackgroundLogin implements BackgroundLogin{
         }
 
         if(conn.getResponseCode() >= 200 && conn.getResponseCode() < 300) {
-            JSONObject jo = new JSONObject(Tools.read(conn.getInputStream()));
+            JSONObject jo = new JSONObject(HyperUtils.read(conn.getInputStream()));
             String uhs = jo.getJSONObject("DisplayClaims").getJSONArray("xui").getJSONObject(0).getString("uhs");
             String token = jo.getString("Token");
             conn.disconnect();
@@ -225,7 +225,7 @@ public class MicrosoftBackgroundLogin implements BackgroundLogin{
             return new String[]{uhs, token};
 
         }else if(conn.getResponseCode() == 401) {
-            String responseContents = Tools.read(conn.getErrorStream());
+            String responseContents = HyperUtils.read(conn.getErrorStream());
             JSONObject jo = new JSONObject(responseContents);
             long xerr = jo.optLong("XErr", -1);
             Integer locale_id = XSTS_ERRORS.get(xerr);
@@ -255,7 +255,7 @@ public class MicrosoftBackgroundLogin implements BackgroundLogin{
 
         if(conn.getResponseCode() >= 200 && conn.getResponseCode() < 300) {
             expiresAt = System.currentTimeMillis() + 86400000;
-            JSONObject jo = new JSONObject(Tools.read(conn.getInputStream()));
+            JSONObject jo = new JSONObject(HyperUtils.read(conn.getInputStream()));
             conn.disconnect();
             Log.i("MicrosoftLogin","MC token: "+jo.getString("access_token"));
             mcToken = jo.getString("access_token");
@@ -290,7 +290,7 @@ public class MicrosoftBackgroundLogin implements BackgroundLogin{
         conn.connect();
 
         if(conn.getResponseCode() >= 200 && conn.getResponseCode() < 300) {
-            String s= Tools.read(conn.getInputStream());
+            String s= HyperUtils.read(conn.getInputStream());
             conn.disconnect();
             Log.i("MicrosoftLogin","profile:" + s);
             JSONObject jsonObject = new JSONObject(s);
@@ -314,7 +314,7 @@ public class MicrosoftBackgroundLogin implements BackgroundLogin{
 
 
     private void notifyProgress(LoginListener listener, int step){
-        Tools.runOnUiThread(() -> listener.onLoginProgress(step));
+        HyperUtils.runOnUiThread(() -> listener.onLoginProgress(step));
         TrackerLayout.setTracker(TrackerLayout.AUTHENTICATE, step*20);
     }
 

@@ -2,7 +2,7 @@ package com.ashmeet.hyperbackend.modloaders;
 
 import com.google.gson.JsonSyntaxException;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.utils.DownloadUtils;
 import com.ashmeet.hyperbackend.utils.FileUtils;
 
@@ -89,10 +89,10 @@ public class FabriclikeUtils {
             e.printStackTrace();
             return null;
         }
-        File versionJsonDir = new File(Tools.DIR_HOME_VERSION, versionId);
+        File versionJsonDir = new File(HyperUtils.DIR_HOME_VERSION, versionId);
         File versionJsonFile = new File(versionJsonDir, versionId+".json");
         FileUtils.ensureDirectory(versionJsonDir);
-        Tools.write(versionJsonFile, fabricJson);
+        HyperUtils.write(versionJsonFile, fabricJson);
         return versionId;
     }
 
@@ -119,7 +119,7 @@ public class FabriclikeUtils {
 
     private static FabricVersion[] deserializeRawVersions(String jsonArrayIn) throws DownloadUtils.ParseException {
         try {
-            return Tools.GLOBAL_GSON.fromJson(jsonArrayIn, FabricVersion[].class);
+            return HyperUtils.GLOBAL_GSON.fromJson(jsonArrayIn, FabricVersion[].class);
         }catch (JsonSyntaxException e) {
             e.printStackTrace();
             throw new DownloadUtils.ParseException(null);

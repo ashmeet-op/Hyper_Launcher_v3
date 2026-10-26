@@ -6,7 +6,7 @@ import android.view.KeyEvent;
 import com.google.gson.JsonSyntaxException;
 
 import com.ashmeet.hyperbackend.LwjglGlfwKeycode;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,7 +48,7 @@ public class LayoutConverter {
 
 
 
-            CustomControls layout = Tools.GLOBAL_GSON.fromJson(jsonLayoutData, CustomControls.class);
+            CustomControls layout = HyperUtils.GLOBAL_GSON.fromJson(jsonLayoutData, CustomControls.class);
 
             if(layout.version > TARGET_VERSION)
                 throw new JsonSyntaxException("Layout version " +layout.version+ " is too new, only up to "+TARGET_VERSION +" is supported");
@@ -103,19 +103,19 @@ public class LayoutConverter {
     }
 
     private static CustomControls convertV2Layout(Point size, JSONObject oldLayoutJson) throws JSONException {
-        CustomControls layout = Tools.GLOBAL_GSON.fromJson(oldLayoutJson.toString(), CustomControls.class);
+        CustomControls layout = HyperUtils.GLOBAL_GSON.fromJson(oldLayoutJson.toString(), CustomControls.class);
         assert layout.mJoystickDataList == null || layout.mJoystickDataList.isEmpty();
         JSONArray layoutMainArray = oldLayoutJson.getJSONArray("mControlDataList");
         layout.mControlDataList = new ArrayList<>(layoutMainArray.length());
         for (int i = 0; i < layoutMainArray.length(); i++) {
             JSONObject button = layoutMainArray.getJSONObject(i);
-            ControlData n_button = Tools.GLOBAL_GSON.fromJson(button.toString(), ControlData.class);
-            if (!Tools.isValidString(n_button.dynamicX) && button.has("x")) {
+            ControlData n_button = HyperUtils.GLOBAL_GSON.fromJson(button.toString(), ControlData.class);
+            if (!HyperUtils.isValidString(n_button.dynamicX) && button.has("x")) {
                 double buttonC = button.getDouble("x");
                 double ratio = buttonC / size.x;
                 n_button.dynamicX = ratio + " * ${screen_width}";
             }
-            if (!Tools.isValidString(n_button.dynamicY) && button.has("y")) {
+            if (!HyperUtils.isValidString(n_button.dynamicY) && button.has("y")) {
                 double buttonC = button.getDouble("y");
                 double ratio = buttonC / size.y;
                 n_button.dynamicY = ratio + " * ${screen_height}";
@@ -129,13 +129,13 @@ public class LayoutConverter {
         for (int i = 0; i < layoutDrawerArray.length(); i++) {
             JSONObject button = layoutDrawerArray.getJSONObject(i);
             JSONObject buttonProperties = button.getJSONObject("properties");
-            ControlDrawerData n_button = Tools.GLOBAL_GSON.fromJson(button.toString(), ControlDrawerData.class);
-            if (!Tools.isValidString(n_button.properties.dynamicX) && buttonProperties.has("x")) {
+            ControlDrawerData n_button = HyperUtils.GLOBAL_GSON.fromJson(button.toString(), ControlDrawerData.class);
+            if (!HyperUtils.isValidString(n_button.properties.dynamicX) && buttonProperties.has("x")) {
                 double buttonC = buttonProperties.getDouble("x");
                 double ratio = buttonC / size.x;
                 n_button.properties.dynamicX = ratio + " * ${screen_width}";
             }
-            if (!Tools.isValidString(n_button.properties.dynamicY) && buttonProperties.has("y")) {
+            if (!HyperUtils.isValidString(n_button.properties.dynamicY) && buttonProperties.has("y")) {
                 double buttonC = buttonProperties.getDouble("y");
                 double ratio = buttonC / size.y;
                 n_button.properties.dynamicY = ratio + " * ${screen_height}";
@@ -166,12 +166,12 @@ public class LayoutConverter {
             };
             n_button.dynamicX = button.getString("dynamicX");
             n_button.dynamicY = button.getString("dynamicY");
-            if (!Tools.isValidString(n_button.dynamicX) && button.has("x")) {
+            if (!HyperUtils.isValidString(n_button.dynamicX) && button.has("x")) {
                 double buttonC = button.getDouble("x");
                 double ratio = buttonC / size.x;
                 n_button.dynamicX = ratio + " * ${screen_width}";
             }
-            if (!Tools.isValidString(n_button.dynamicY) && button.has("y")) {
+            if (!HyperUtils.isValidString(n_button.dynamicY) && button.has("y")) {
                 double buttonC = button.getDouble("y");
                 double ratio = buttonC / size.y;
                 n_button.dynamicY = ratio + " * ${screen_height}";
@@ -243,7 +243,7 @@ public class LayoutConverter {
 
 
     private static void convertStrokeWidth(ControlData data) {
-        data.strokeWidth = Tools.pxToDp(computeStrokeWidth(data.strokeWidth, data.getWidth(), data.getHeight()));
+        data.strokeWidth = HyperUtils.pxToDp(computeStrokeWidth(data.strokeWidth, data.getWidth(), data.getHeight()));
     }
 
 

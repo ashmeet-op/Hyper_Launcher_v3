@@ -12,7 +12,7 @@ import com.ashmeet.hyperlauncher.skin.SkinManager
 import com.ashmeet.hyperlauncher.skin.androidSkinAnalyzerFacade
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.ashmeet.hyperlauncher.R
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperbackend.authenticator.accounts.Accounts
 import com.ashmeet.hyperbackend.extra.ExtraConstants
 import com.ashmeet.hyperbackend.extra.ExtraCore
@@ -32,7 +32,7 @@ class LocalLoginFragment : Fragment() {
                         onLoginClick = { username, skinPath, capePath ->
                             if (!checkUsername(username)) {
                                 val context = requireContext()
-                                Tools.dialog(
+                                HyperUtils.dialog(
                                     context,
                                     context.getString(R.string.local_login_bad_username_title),
                                     context.getString(R.string.local_login_bad_username_text)
@@ -52,9 +52,9 @@ class LocalLoginFragment : Fragment() {
                                         Accounts.setCurrent(it)
                                         ExtraCore.setValue(ExtraConstants.REFRESH_ACCOUNT_SPINNER, true)
                                     }
-                                    Tools.swapFragment(requireActivity(), MainMenuFragment::class.java, MainMenuFragment.TAG, null)
+                                    HyperUtils.swapFragment(requireActivity(), MainMenuFragment::class.java, MainMenuFragment.TAG, null)
                                 } catch (e: Exception) {
-                                    Tools.showError(requireContext(), e)
+                                    HyperUtils.showError(requireContext(), e)
                                 }
                             }
                         }

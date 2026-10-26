@@ -5,7 +5,7 @@ import static com.ashmeet.hyperlauncher.activity.PojavApplication.sExecutorServi
 import androidx.annotation.Nullable;
 
 import com.ashmeet.hyperbackend.JVersionList;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 import com.ashmeet.hyperbackend.utils.DownloadUtils;
 
@@ -17,7 +17,7 @@ public class AsyncVersionList {
 
     private static JVersionList parseList(String input) throws DownloadUtils.ParseException{
         try {
-            return Tools.GLOBAL_GSON.fromJson(input, JVersionList.class);
+            return HyperUtils.GLOBAL_GSON.fromJson(input, JVersionList.class);
         }catch (Exception e) {
             throw new DownloadUtils.ParseException(e);
         }
@@ -36,7 +36,7 @@ public class AsyncVersionList {
                 getVersionListAsync(versionDoneListener, retries + 1);
             } else {
                 versionDoneListener.onVersionDone(null);
-                Tools.showErrorRemote(e);
+                HyperUtils.showErrorRemote(e);
             }
         }
     }

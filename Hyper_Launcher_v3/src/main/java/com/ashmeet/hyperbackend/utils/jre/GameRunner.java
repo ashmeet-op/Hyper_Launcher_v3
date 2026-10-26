@@ -14,7 +14,7 @@ import com.ashmeet.hyperlauncher.skin.SkinManager;
 import com.ashmeet.hyperlauncher.utils.Architecture;
 import com.ashmeet.hyperlauncher.utils.DateUtils;
 import com.ashmeet.hyperlauncher.utils.DiscordRpcManager;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 
 import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperbackend.JVersionList;
@@ -27,8 +27,8 @@ import com.ashmeet.hyperbackend.game.renderer.impl.GLESRenderSpec;
 import com.ashmeet.hyperbackend.instances.Instance;
 import com.ashmeet.hyperbackend.lifecycle.LifecycleAwareAlertDialog;
 import com.ashmeet.hyperbackend.modloaders.Lwjgl3ifyUtils;
-import com.ashmeet.hyperbackend.multirt.MultiRTUtils;
-import com.ashmeet.hyperbackend.multirt.Runtime;
+import com.ashmeet.hyperlauncher.runtime.RuntimeUtils;
+import com.ashmeet.hyperlauncher.runtime.Runtime;
 import com.ashmeet.hyperbackend.utils.FileUtils;
 import com.ashmeet.hyperbackend.utils.GameOptionsUtils;
 import com.ashmeet.hyperbackend.utils.GpuUtils;
@@ -112,7 +112,7 @@ public class GameRunner {
         try {
             MCOptionUtils.load();
         }catch (Exception e) {
-            Log.e("Tools", "Failed to load config", e);
+            Log.e("HyperUtils", "Failed to load config", e);
         }
         int renderDistance = GameOptionsUtils.parseIntDefault(MCOptionUtils.get("renderDistance"),12);
         // 7 is the render distance "magic number" above which MC creates too many buffers
@@ -171,9 +171,9 @@ public class GameRunner {
                 Log.e("GameRunner", "Failed to refresh Microsoft account token", e);
             }
         }
-        int freeDeviceMemory = Tools.getFreeDeviceMemory(activity);
+        int freeDeviceMemory = HyperUtils.getFreeDeviceMemory(activity);
         int localeString;
-        int freeAddressSpace = Architecture.is32BitsDevice() ? Tools.getMaxContinuousAddressSpaceSize() : -1;
+        int freeAddressSpace = Architecture.is32BitsDevice() ? HyperUtils.getMaxContinuousAddressSpaceSize() : -1;
         Log.i("MemStat", "Free RAM: " + freeDeviceMemory + " Addressable: " + freeAddressSpace);
         boolean showAddressMemoryWarning = freeDeviceMemory > freeAddressSpace && freeAddressSpace != -1;
         if(showAddressMemoryWarning) {
@@ -206,7 +206,7 @@ public class GameRunner {
             }
         }
         File gamedir = instance.getGameDirectory();
-        JVersionList.Version versionInfo = Tools.getVersionInfo(versionId);
+        JVersionList.Version versionInfo = HyperUtils.getVersionInfo(versionId);
         // We don't need the library list, the asset index, client download info for the code below
         assert versionInfo != null;
         versionInfo.libraries = null;
@@ -247,7 +247,7 @@ public class GameRunner {
                 MCOptionUtils.set("renderDistance", "7");
                 MCOptionUtils.save();
             }catch (Exception e) {
-                Log.e("Tools", "Failed to fix render distance setting", e);
+                Log.e("HyperUtils", "Failed to fix render distance setting", e);
             }
         }
 
@@ -260,7 +260,7 @@ public class GameRunner {
         int requiredJavaVersion = 8;
         if(versionInfo.javaVersion != null) requiredJavaVersion = versionInfo.javaVersion.majorVersion;
 
-        Runtime runtime = MultiRTUtils.forceReread(pickRuntime(instance, requiredJavaVersion));
+        Runtime runtime = RuntimeUtils.forceReread(pickRuntime(instance, requiredJavaVersion));
 
         // Pre-process specific files
         disableSplash(gamedir);
@@ -271,7 +271,7 @@ public class GameRunner {
 
 
         //mio impl
-        File launcherDir = new File(Tools.DIR_GAME_HOME, "launcher");
+        File launcherDir = new File(HyperUtils.DIR_GAME_HOME, "launcher");
         File mioLaunchWrapper = new File(launcherDir, "MioLaunchWrapper.jar");
         File mioLibPatcher = new File(launcherDir, "MioLibPatcher.jar");
 
@@ -302,25 +302,25 @@ public class GameRunner {
         launchClassPath.trimToSize();
 
         if (versionInfo.logging != null && versionInfo.logging.client != null && versionInfo.logging.client.file != null) {
-            String configFile = Tools.DIR_DATA + "/security/" + versionInfo.logging.client.file.id.replace("client", "log4j-rce-patch");
+            String configFile = HyperUtils.DIR_DATA + "/security/" + versionInfo.logging.client.file.id.replace("client", "log4j-rce-patch");
             if (!new File(configFile).exists()) {
-                configFile = Tools.DIR_GAME_NEW + "/" + versionInfo.logging.client.file.id;
+                configFile = HyperUtils.DIR_GAME_NEW + "/" + versionInfo.logging.client.file.id;
             }
             javaArgList.add("-Dlog4j.configurationFile=" + configFile);
         }
 
         versionInfo.logging = null;
 
-        File versionSpecificNativesDir = new File(Tools.DIR_CACHE, "natives/"+versionId);
+        File versionSpecificNativesDir = new File(HyperUtils.DIR_CACHE, "natives/"+versionId);
         if(versionSpecificNativesDir.exists()) {
             String dirPath = versionSpecificNativesDir.getAbsolutePath();
-            javaArgList.add("-Djava.library.path="+dirPath+":"+Tools.NATIVE_LIB_DIR);
+            javaArgList.add("-Djava.library.path="+dirPath+":"+ HyperUtils.NATIVE_LIB_DIR);
             javaArgList.add("-Djna.boot.library.path="+dirPath);
             // Sometimes, the game can extract natives itself onto this path
             javaArgList.add("-Dorg.lwjgl.librarypath="+dirPath);
         }
 
-        File lwjglExtractDir = new File(Tools.DIR_CACHE, "lwjgl_native/"+versionId);
+        File lwjglExtractDir = new File(HyperUtils.DIR_CACHE, "lwjgl_native/"+versionId);
         FileUtils.ensureDirectory(lwjglExtractDir);
         javaArgList.add("-Dorg.lwjgl.system.SharedLibraryExtractPath="+lwjglExtractDir.getAbsolutePath());
 
@@ -347,9 +347,9 @@ public class GameRunner {
             System.exit(0);
         }
         javaArgList.add("-Dorg.lwjgl.opengl.libname=libGLMojo.so");
-        javaArgList.add("-Dorg.lwjgl.freetype.libname="+ Tools.NATIVE_LIB_DIR+"/libfreetype.so");
-        javaArgList.add("-DZstdNativePath="+Tools.NATIVE_LIB_DIR+"/libzstd-jni-1.5.7-6-dhcompat.so");
-        Tools.applyHyperPluginHooks(javaArgList, versionId, instance.getGameDirectory());
+        javaArgList.add("-Dorg.lwjgl.freetype.libname="+ HyperUtils.NATIVE_LIB_DIR+"/libfreetype.so");
+        javaArgList.add("-DZstdNativePath="+ HyperUtils.NATIVE_LIB_DIR+"/libzstd-jni-1.5.7-6-dhcompat.so");
+        HyperUtils.applyHyperPluginHooks(javaArgList, instance.getGameDirectory());
 
         activity.runOnUiThread(() -> Toast.makeText(activity, activity.getString(R.string.autoram_info_msg,LauncherPreferences.PREF_RAM_ALLOCATION), Toast.LENGTH_SHORT).show());
 
@@ -381,8 +381,8 @@ public class GameRunner {
             }
         }
 
-        Tools.restartLauncherActivity(activity);
-        Tools.fullyExit();
+        HyperUtils.restartLauncherActivity(activity);
+        HyperUtils.fullyExit();
     }
 
     private static void disableSplash(File dir) {
@@ -392,17 +392,17 @@ public class GameRunner {
             String forgeSplashContent = "enabled=true";
             try {
                 if (forgeSplashFile.exists()) {
-                    forgeSplashContent = Tools.read(forgeSplashFile.getAbsolutePath());
+                    forgeSplashContent = HyperUtils.read(forgeSplashFile.getAbsolutePath());
                 }
                 if (forgeSplashContent.contains("enabled=true")) {
-                    Tools.write(forgeSplashFile,
+                    HyperUtils.write(forgeSplashFile,
                             forgeSplashContent.replace("enabled=true", "enabled=false"));
                 }
             } catch (IOException e) {
-                Log.w(Tools.APP_NAME, "Could not disable Forge 1.12.2 and below splash screen!", e);
+                Log.w(HyperUtils.APP_NAME, "Could not disable Forge 1.12.2 and below splash screen!", e);
             }
         } else {
-            Log.w(Tools.APP_NAME, "Failed to create the configuration directory");
+            Log.w(HyperUtils.APP_NAME, "Failed to create the configuration directory");
         }
     }
 
@@ -418,7 +418,7 @@ public class GameRunner {
             }
         }
         if (injectorUrl != null) {
-            File authlibJar = new File(Tools.DIR_DATA, "authlib-injector/authlib-injector.jar");
+            File authlibJar = new File(HyperUtils.DIR_DATA, "authlib-injector/authlib-injector.jar");
             if (authlibJar.exists() && authlibJar.isFile() && authlibJar.length() > 0) {
                 javaArgList.add("-javaagent:" + authlibJar.getAbsolutePath() + "=" + injectorUrl);
             } else {
@@ -429,7 +429,7 @@ public class GameRunner {
 
     private static void addNoBlocklistArgs(List<String> javaArgList) {
         if (!LauncherPreferences.PREF_DISABLE_BLOCKLIST) return;
-        File noBlocklistDir = new File(Tools.DIR_DATA, "noblocklist");
+        File noBlocklistDir = new File(HyperUtils.DIR_DATA, "noblocklist");
         File jarToUse = null;
         File[] jarFiles = noBlocklistDir.listFiles((dir, name) -> name.endsWith(".jar"));
         if (jarFiles != null) {
@@ -476,7 +476,7 @@ public class GameRunner {
     }
 
     private static List<String> getMoJsonJvmArgs(String versionName) {
-        JVersionList.Version versionInfo = Tools.getVersionInfo(versionName, true);
+        JVersionList.Version versionInfo = HyperUtils.getVersionInfo(versionName, true);
         // Parse Forge 1.17+ additional JVM Arguments
         if (versionInfo.arguments == null || versionInfo.arguments.jvm == null) {
             return Collections.emptyList();
@@ -484,9 +484,9 @@ public class GameRunner {
 
         Map<String, String> varArgMap = new ArrayMap<>();
         varArgMap.put("classpath_separator", ":");
-        varArgMap.put("library_directory", Tools.DIR_HOME_LIBRARY);
+        varArgMap.put("library_directory", HyperUtils.DIR_HOME_LIBRARY);
         varArgMap.put("version_name", versionInfo.id);
-        varArgMap.put("natives_directory", Tools.NATIVE_LIB_DIR);
+        varArgMap.put("natives_directory", HyperUtils.NATIVE_LIB_DIR);
 
         List<String> clientVmArgs = new ArrayList<>();
         if (versionInfo.arguments != null) {
@@ -525,9 +525,9 @@ public class GameRunner {
         varArgMap.put("auth_player_name", username);
         varArgMap.put("auth_uuid", profile.profileId.replace("-", ""));
         varArgMap.put("auth_xuid", profile.xuid);
-        varArgMap.put("assets_root", Tools.ASSETS_PATH);
+        varArgMap.put("assets_root", HyperUtils.ASSETS_PATH);
         varArgMap.put("assets_index_name", versionInfo.assets);
-        varArgMap.put("game_assets", Tools.ASSETS_PATH);
+        varArgMap.put("game_assets", HyperUtils.ASSETS_PATH);
         varArgMap.put("game_directory", gameDir.getAbsolutePath());
         varArgMap.put("user_properties", "{}");
         varArgMap.put("user_type", userType);
@@ -655,11 +655,11 @@ public class GameRunner {
     }
 
     public static @NonNull String pickRuntime(Instance instance, int targetJavaVersion) {
-        String runtime = Tools.getSelectedRuntime(instance);
+        String runtime = HyperUtils.getSelectedRuntime(instance);
         String profileRuntime = instance.selectedRuntime;
-        Runtime pickedRuntime = MultiRTUtils.read(runtime);
+        Runtime pickedRuntime = RuntimeUtils.read(runtime);
         if(runtime == null || pickedRuntime.javaVersion == 0 || pickedRuntime.javaVersion < targetJavaVersion) {
-            String preferredRuntime = MultiRTUtils.getNearestJreName(targetJavaVersion);
+            String preferredRuntime = RuntimeUtils.getNearestJreName(targetJavaVersion);
             if(preferredRuntime == null) throw new RuntimeException("Failed to autopick runtime!");
             if(profileRuntime != null) {
                 instance.selectedRuntime = preferredRuntime;

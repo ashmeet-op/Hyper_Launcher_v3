@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment
 import com.ashmeet.hyperlauncher.screens.auth.methods.MicrosoftLoginScreen
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.ashmeet.hyperlauncher.R
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperbackend.extra.ExtraConstants
 import com.ashmeet.hyperbackend.extra.ExtraCore
 
@@ -56,14 +56,14 @@ class ElyByLoginFragment : Fragment() {
                 val errorMessage = uri.getQueryParameter("error_description")
                     ?: uri.getQueryParameter("error")
                     ?: getString(R.string.oauth_unknown_error)
-                Tools.dialog(activity, getString(R.string.global_error), errorMessage)
+                HyperUtils.dialog(activity, getString(R.string.global_error), errorMessage)
             }
             return
         }
 
         ExtraCore.setValue(mExtraCoreConstant, code)
         Toast.makeText(activity, R.string.oauth_web_complete, Toast.LENGTH_SHORT).show()
-        Tools.backToMainMenu(activity)
+        HyperUtils.backToMainMenu(activity)
     }
 
     companion object {

@@ -3,7 +3,7 @@ package com.ashmeet.hyperbackend.lifecycle;
 import android.app.Activity;
 import android.app.Application;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 
 import java.lang.ref.WeakReference;
 
@@ -13,30 +13,30 @@ public class ContextExecutor {
 
 
     public static android.content.Context getContext() {
-        return Tools.getWeakReference(sApplication);
+        return HyperUtils.getWeakReference(sApplication);
     }
 
 
 
     public static void execute(ContextExecutorTask contextExecutorTask) {
-        Tools.runOnUiThread(()->executeOnUiThread(contextExecutorTask));
+        HyperUtils.runOnUiThread(()->executeOnUiThread(contextExecutorTask));
     }
 
 
     public static void executeActivity(ActivityRunnable activityRunnable) {
-        Tools.runOnUiThread(()->{
-            Activity activity = Tools.getWeakReference(sActivity);
+        HyperUtils.runOnUiThread(()->{
+            Activity activity = HyperUtils.getWeakReference(sActivity);
             if(activity != null) activityRunnable.executeWithActivity(activity);
         });
     }
 
     private static void executeOnUiThread(ContextExecutorTask contextExecutorTask) {
-        Activity activity = Tools.getWeakReference(sActivity);
+        Activity activity = HyperUtils.getWeakReference(sActivity);
         if(activity != null) {
             contextExecutorTask.executeWithActivity(activity);
             return;
         }
-        Application application = Tools.getWeakReference(sApplication);
+        Application application = HyperUtils.getWeakReference(sApplication);
         if(application != null) {
             contextExecutorTask.executeWithApplication(application);
         }else {

@@ -1,14 +1,14 @@
 package com.ashmeet.hyperbackend.modloaders;
 
 import com.ashmeet.hyperbackend.JVersionList;
-import com.ashmeet.hyperbackend.tasks.MoJsonExtras;
-import com.ashmeet.hyperbackend.tasks.MoJsonDownloader;
+import com.ashmeet.hyperbackend.tasks.HyperExtras;
+import com.ashmeet.hyperbackend.tasks.HyperDownloader;
 
 import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class OptiFineDownloadTask implements MoJsonExtras.DoneListener {
+public class OptiFineDownloadTask implements HyperExtras.DoneListener {
     private static final Pattern sGameVersionPattern = Pattern.compile("([0-9]+)\\.([0-9]+)\\.?([0-9]+)?");
     private final OptiFineUtils.OptiFineVersion mOptiFineVersion;
     private final Object mDownloadLock = new Object();
@@ -50,11 +50,11 @@ public class OptiFineDownloadTask implements MoJsonExtras.DoneListener {
 
     public boolean downloadGame(String gameVersion) {
 
-        JVersionList.Version versionMeta = MoJsonExtras.getListedVersion(gameVersion);
+        JVersionList.Version versionMeta = HyperExtras.getListedVersion(gameVersion);
         if(versionMeta == null) return false;
         try {
             synchronized (mDownloadLock) {
-                new MoJsonDownloader().start(null, versionMeta, gameVersion, this);
+                new HyperDownloader().start(null, versionMeta, gameVersion, this);
                 mDownloadLock.wait();
             }
         }catch (InterruptedException e) {

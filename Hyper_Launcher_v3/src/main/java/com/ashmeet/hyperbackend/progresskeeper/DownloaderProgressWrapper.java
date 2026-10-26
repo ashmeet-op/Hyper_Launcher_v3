@@ -1,10 +1,10 @@
 package com.ashmeet.hyperbackend.progresskeeper;
 
-import static com.ashmeet.hyperlauncher.utils.Tools.BYTE_TO_MB;
+import static com.ashmeet.hyperlauncher.utils.HyperUtils.BYTE_TO_MB;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 
-public class DownloaderProgressWrapper implements Tools.DownloaderFeedback {
+public class DownloaderProgressWrapper implements HyperUtils.DownloaderFeedback {
 
     private final int mProgressString;
     private final String mProgressRecord;

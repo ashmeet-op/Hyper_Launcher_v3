@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.util.Log;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 import com.ashmeet.hyperbackend.utils.JSONUtils;
 
@@ -79,12 +79,12 @@ public class Instance extends DisplayInstance {
     }
 
     public String getLaunchRenderer() {
-        if(Tools.isValidString(renderer)) return renderer;
+        if(HyperUtils.isValidString(renderer)) return renderer;
         return LauncherPreferences.PREF_RENDERER;
     }
 
     public String getLaunchArgs() {
-        if(!Tools.isValidString(jvmArgs)) return LauncherPreferences.PREF_CUSTOM_JAVA_ARGS;
+        if(!HyperUtils.isValidString(jvmArgs)) return LauncherPreferences.PREF_CUSTOM_JAVA_ARGS;
         switch (argsMode) {
             case ARGS_MODE_REPLACE:
                 return jvmArgs;
@@ -98,8 +98,8 @@ public class Instance extends DisplayInstance {
     }
 
     public String getLaunchControls() {
-        if(!Tools.isValidString(controlLayout)) return LauncherPreferences.PREF_DEFAULTCTRL_PATH;
-        return Tools.CTRLMAP_PATH + "/" + controlLayout;
+        if(!HyperUtils.isValidString(controlLayout)) return LauncherPreferences.PREF_DEFAULTCTRL_PATH;
+        return HyperUtils.CTRLMAP_PATH + "/" + controlLayout;
     }
 
     public File getGameDirectory() {

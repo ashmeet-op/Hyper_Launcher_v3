@@ -1,6 +1,6 @@
 package com.ashmeet.hyperbackend.utils;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.google.gson.stream.JsonReader;
 
 import java.io.File;
@@ -32,13 +32,13 @@ public class JSONUtils {
         try(InputStreamReader streamReader = new InputStreamReader(file);
             JsonReader jsonReader = new JsonReader(streamReader)) {
             jsonReader.setLenient(true);
-            return Tools.GLOBAL_GSON.fromJson(jsonReader, clazs);
+            return HyperUtils.GLOBAL_GSON.fromJson(jsonReader, clazs);
         }
     }
 
     public static void writeToFile(File file, Object target) throws IOException {
         try(FileWriter fileWriter = new FileWriter(file)) {
-            Tools.GLOBAL_GSON.toJson(target, fileWriter);
+            HyperUtils.GLOBAL_GSON.toJson(target, fileWriter);
         }
     }
 
@@ -47,7 +47,7 @@ public class JSONUtils {
             InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
             JsonReader jsonReader = new JsonReader(inputStreamReader)) {
             jsonReader.setLenient(true);
-            return Tools.GLOBAL_GSON.fromJson(jsonReader, clazs);
+            return HyperUtils.GLOBAL_GSON.fromJson(jsonReader, clazs);
         }
     }
 }

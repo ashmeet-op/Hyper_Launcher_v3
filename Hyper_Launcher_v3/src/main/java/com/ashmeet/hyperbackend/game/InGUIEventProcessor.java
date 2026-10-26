@@ -5,7 +5,7 @@ import android.view.View;
 
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.customcontrols.mouse.LeftClickGesture;
 import com.ashmeet.hyperbackend.customcontrols.mouse.PointerTracker;
 import com.ashmeet.hyperbackend.customcontrols.mouse.Scroller;
@@ -15,8 +15,8 @@ import com.ashmeet.hyperbackend.customcontrols.mouse.TapDetector;
 import com.ashmeet.hyperbackend.CallbackBridge;
 
 public class InGUIEventProcessor extends TouchEventProcessor {
-    public static final float FINGER_SCROLL_THRESHOLD = Tools.dpToPx(6);
-    public static final float FINGER_STILL_THRESHOLD = Tools.dpToPx(5);
+    public static final float FINGER_SCROLL_THRESHOLD = HyperUtils.dpToPx(6);
+    public static final float FINGER_STILL_THRESHOLD = HyperUtils.dpToPx(5);
 
     private final PointerTracker mTracker = new PointerTracker();
     private final TapDetector mSingleTapDetector;

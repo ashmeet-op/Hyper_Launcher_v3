@@ -1,7 +1,7 @@
 package com.ashmeet.hyperbackend.vulkan;
 
 import static com.ashmeet.hyperlauncher.activity.PojavApplication.sExecutorService;
-import static com.ashmeet.hyperlauncher.utils.Tools.runOnUiThread;
+import static com.ashmeet.hyperlauncher.utils.HyperUtils.runOnUiThread;
 
 import android.content.Context;
 import android.net.Uri;
@@ -12,7 +12,7 @@ import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import net.ashmeet.hyperlauncher.R;
 
 public class DriverInstaller {
@@ -30,7 +30,7 @@ public class DriverInstaller {
                 }
             } catch (IOException e) {
                 TrackerLayout.clearTracker(TrackerLayout.DRIVER_INSTALL);
-                Tools.showErrorRemote(e);
+                HyperUtils.showErrorRemote(e);
                 return;
             }
             TrackerLayout.setTracker(TrackerLayout.DRIVER_INSTALL, 50, R.string.driver_progress_install);
@@ -41,7 +41,7 @@ public class DriverInstaller {
                 }
             } catch (IOException e) {
                 TrackerLayout.clearTracker(TrackerLayout.DRIVER_INSTALL);
-                Tools.showErrorRemote(e);
+                HyperUtils.showErrorRemote(e);
                 return;
             }
             if (callback != null) {

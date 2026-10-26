@@ -22,15 +22,15 @@ import com.ashmeet.hyperlauncher.profiles.VersionSelectorDialog
 import com.ashmeet.hyperlauncher.screens.instances.InstanceEditorScreen
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperbackend.game.renderer.RendererCache
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperbackend.extra.ExtraConstants
 import com.ashmeet.hyperbackend.extra.ExtraCore
 import com.ashmeet.hyperbackend.instances.Instance
 import com.ashmeet.hyperbackend.instances.InstanceIconProvider
 import com.ashmeet.hyperbackend.instances.Instances
-import com.ashmeet.hyperbackend.multirt.MultiRTUtils
-import com.ashmeet.hyperbackend.multirt.Runtime
+import com.ashmeet.hyperlauncher.runtime.RuntimeUtils
+import com.ashmeet.hyperlauncher.runtime.Runtime
 import com.ashmeet.hyperbackend.utils.CropperUtils
 import java.io.IOException
 
@@ -140,7 +140,7 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
         mInstanceIcon = InstanceIconProvider.fetchIcon(resources, instance)
 
         val runtimes = mutableListOf(Runtime("auto"))
-        runtimes.addAll(MultiRTUtils.getRuntimes())
+        runtimes.addAll(RuntimeUtils.getRuntimes())
         if (runtimes.none { it.name == "<Default>" }) {
             runtimes.add(Runtime("<Default>"))
         }
@@ -187,9 +187,9 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
     private fun openControlSelector() {
         val bundle = Bundle(3).apply {
             putBoolean(FileSelectorFragment.BUNDLE_SELECT_FOLDER, false)
-            putString(FileSelectorFragment.BUNDLE_ROOT_PATH, Tools.CTRLMAP_PATH)
+            putString(FileSelectorFragment.BUNDLE_ROOT_PATH, HyperUtils.CTRLMAP_PATH)
         }
-        Tools.swapFragment(requireActivity(), FileSelectorFragment::class.java, FileSelectorFragment.TAG, bundle)
+        HyperUtils.swapFragment(requireActivity(), FileSelectorFragment::class.java, FileSelectorFragment.TAG, bundle)
     }
 
     private fun save() {
@@ -224,7 +224,7 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
             Toast.makeText(requireContext(), R.string.global_save, Toast.LENGTH_SHORT).show()
             parentFragmentManager.popBackStack()
         } catch (e: IOException) {
-            Tools.showErrorRemote(e)
+            HyperUtils.showErrorRemote(e)
         }
     }
 
@@ -242,12 +242,12 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
             mInstance?.encodeNewIcon(contentBitmap)
             mIconChanged = true
         } catch (e: IOException) {
-            Tools.showErrorRemote(e)
+            HyperUtils.showErrorRemote(e)
         }
     }
 
     override fun onFailed(exception: Exception) {
-        Tools.showErrorRemote(exception)
+        HyperUtils.showErrorRemote(exception)
     }
 
     companion object {

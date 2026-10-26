@@ -4,7 +4,7 @@ import android.view.KeyEvent;
 
 import androidx.annotation.Keep;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -70,7 +70,7 @@ public class CustomControls {
 	public void save(String path) throws IOException {
 
 		version = 9;
-		String jsonControls = Tools.GLOBAL_GSON.toJson(this);
+		String jsonControls = HyperUtils.GLOBAL_GSON.toJson(this);
 		try(FileOutputStream fileOutputStream = new FileOutputStream(path)) {
 			LayoutBitmaps.store(fileOutputStream, new LayoutBitmaps.ControlsContainer(
 					jsonControls,

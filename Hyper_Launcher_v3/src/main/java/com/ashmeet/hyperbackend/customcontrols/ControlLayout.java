@@ -25,7 +25,7 @@ import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperbackend.game.GameView;
 
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.customcontrols.buttons.ControlButton;
 import com.ashmeet.hyperbackend.customcontrols.buttons.ControlDrawer;
 import com.ashmeet.hyperbackend.customcontrols.buttons.ControlInterface;
@@ -500,33 +500,33 @@ public class ControlLayout extends FrameLayout {
 	}
 
 	public void updateLoadedFileName(String path) {
-        if (Tools.CTRLMAP_PATH != null) {
-            path = path.replace(Tools.CTRLMAP_PATH, ".");
+        if (HyperUtils.CTRLMAP_PATH != null) {
+            path = path.replace(HyperUtils.CTRLMAP_PATH, ".");
         }
         path = path.substring(0, path.length() - 5);
 		mLayoutFileName = path;
 	}
 
 	public String saveToDirectory(String name) throws Exception{
-		String jsonPath = Tools.CTRLMAP_PATH + "/" + name + ".json";
+		String jsonPath = HyperUtils.CTRLMAP_PATH + "/" + name + ".json";
 		saveLayout(jsonPath);
 		return jsonPath;
 	}
 
 	public void openSaveDialog(EditorExitable editorExitable) {
-		Tools.openSaveDialog(this, editorExitable);
+		HyperUtils.openSaveDialog(this, editorExitable);
 	}
 
 	public void openLoadDialog() {
-		Tools.openLoadDialog(this);
+		HyperUtils.openLoadDialog(this);
 	}
 
 	public void openSetDefaultDialog() {
-		Tools.openSetDefaultDialog(this);
+		HyperUtils.openSetDefaultDialog(this);
 	}
 
 	public void openExitDialog(EditorExitable exitListener) {
-		Tools.openExitDialog(getContext(), exitListener);
+		HyperUtils.openExitDialog(getContext(), exitListener);
 	}
 
 

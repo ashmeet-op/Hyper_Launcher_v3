@@ -11,7 +11,7 @@ import com.ashmeet.hyperlauncher.components.dialog.SimpleAlertDialog
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.ashmeet.hyperlauncher.R
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperbackend.instances.InstanceIconProvider
 import com.ashmeet.hyperbackend.instances.Instances
 import java.io.IOException
@@ -38,11 +38,11 @@ class DeleteConfirmDialogFragment : DialogFragment() {
                             isDestructive = true,
                             onConfirm = {
                                 InstanceIconProvider.dropIcon(mInstance)
-                                Tools.removeCurrentFragment(requireActivity())
+                                HyperUtils.removeCurrentFragment(requireActivity())
                                 try {
                                     Instances.removeInstance(mInstance)
                                 } catch (e: IOException) {
-                                    Tools.showErrorRemote(e)
+                                    HyperUtils.showErrorRemote(e)
                                 }
                                 dismiss()
                             },

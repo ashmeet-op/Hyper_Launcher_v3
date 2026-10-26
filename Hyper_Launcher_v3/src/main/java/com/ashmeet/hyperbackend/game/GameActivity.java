@@ -6,7 +6,7 @@ import static com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPre
 import static com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_USE_ALTERNATE_SURFACE;
 import static com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_VIRTUAL_MOUSE_START;
 import static com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_ZINK_PREFER_SYSTEM_DRIVER;
-import static com.ashmeet.hyperlauncher.utils.Tools.dialogForceClose;
+import static com.ashmeet.hyperlauncher.utils.HyperUtils.dialogForceClose;
 import static com.ashmeet.hyperbackend.game.platform.Platform.PLATFORM;
 
 
@@ -53,7 +53,7 @@ import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperlauncher.activity.BaseActivity;
 import com.ashmeet.hyperbackend.CallbackBridge;
 import com.ashmeet.hyperbackend.Logger;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.authenticator.accounts.Accounts;
 import com.ashmeet.hyperbackend.customcontrols.ControlButtonMenuListener;
 import com.ashmeet.hyperbackend.customcontrols.ControlData;
@@ -72,7 +72,7 @@ import com.ashmeet.hyperbackend.lifecycle.ContextExecutor;
 import com.ashmeet.hyperbackend.game.platform.Platform;
 import com.ashmeet.hyperbackend.game.platform.backend.DummyBackend;
 
-import com.ashmeet.hyperbackend.services.GameService;
+import com.ashmeet.hyperlauncher.tracker.services.GameService;
 import com.ashmeet.hyperbackend.tasks.AsyncAssetManager;
 import com.ashmeet.hyperbackend.utils.JREUtils;
 import com.ashmeet.hyperbackend.utils.MCOptionUtils;
@@ -192,7 +192,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
             int translationY;
 
             if(mForcedPanningHeight == 0) {
-                translationY = Tools.getTranslationFromCursorY(
+                translationY = HyperUtils.getTranslationFromCursorY(
                         (int)(Platform.cursorY * launcherGLView.getCursorRatioY() + 100),
                         launcherGLView.getHeight(),
                         mImeHeight,
@@ -264,7 +264,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
         });
 
         try {
-            File latestLogFile = new File(Tools.DIR_GAME_HOME, "latestlog.txt");
+            File latestLogFile = new File(HyperUtils.DIR_GAME_HOME, "latestlog.txt");
             if(!latestLogFile.exists() && !latestLogFile.createNewFile())
                 throw new IOException("Failed to create a new log file");
             Logger.begin(latestLogFile.getAbsolutePath());
@@ -295,14 +295,14 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
 
             launcherGLView.setSurfaceReadyListener(() -> {
                 try {
-                    Tools.runOnUiThread(() -> { if(PREF_VIRTUAL_MOUSE_START) launcherGLView.mCursorView.setVisibility(View.VISIBLE); });
+                    HyperUtils.runOnUiThread(() -> { if(PREF_VIRTUAL_MOUSE_START) launcherGLView.mCursorView.setVisibility(View.VISIBLE); });
                     runCraft(version, classpath);
                 }catch (Throwable e){
-                    Tools.showErrorRemote(e);
+                    HyperUtils.showErrorRemote(e);
                 }
             });
         } catch (Throwable e) {
-            Tools.showError(this, e, true);
+            HyperUtils.showError(this, e, true);
         }
     }
 
@@ -337,12 +337,12 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
         } catch(IOException e) {
             try {
                 Log.w("MainActivity", "Unable to load the control file, loading the default now", e);
-                mControlLayout.loadLayout(Tools.CTRLDEF_FILE);
+                mControlLayout.loadLayout(HyperUtils.CTRLDEF_FILE);
             } catch (IOException ioException) {
-                Tools.showError(this, ioException);
+                HyperUtils.showError(this, ioException);
             }
         } catch (Throwable th) {
-            Tools.showError(this, th);
+            HyperUtils.showError(this, th);
         }
         mControlLayout.toggleControlVisible();
     }
@@ -351,7 +351,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
     public void onAttachedToWindow() {
 
         mControlLayout.post(()->{
-            Tools.getDisplayMetrics(this);
+            HyperUtils.getDisplayMetrics(this);
             loadControls();
         });
     }
@@ -377,7 +377,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
         );
         cursorView.setLayoutParams(cursorLp);
         cursorView.setFocusable(false);
-        cursorView.setTranslationZ(Tools.dpToPx(1));
+        cursorView.setTranslationZ(HyperUtils.dpToPx(1));
         launcherGLView.addView(cursorView);
         launcherGLView.mCursorView = cursorView;
 
@@ -387,7 +387,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
 
         touchCharInput = new TouchCharInput(this);
         touchCharInput.setId(R.id.mainTouchCharInput);
-        touchCharInput.setLayoutParams(new FrameLayout.LayoutParams((int)Tools.dpToPx(1), (int)Tools.dpToPx(1)));
+        touchCharInput.setLayoutParams(new FrameLayout.LayoutParams((int) HyperUtils.dpToPx(1), (int) HyperUtils.dpToPx(1)));
 
         int imeOptions = EditorInfo.IME_FLAG_NO_FULLSCREEN | EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_DONE;
         imeOptions |= EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING;
@@ -479,7 +479,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
         super.onPostResume();
         if(mLoadingScreen != null && !(PLATFORM instanceof DummyBackend)) hideLoadingScreen();
         if(launcherGLView != null)
-            Tools.MAIN_HANDLER.postDelayed(() -> launcherGLView.refreshSize(), 500);
+            HyperUtils.MAIN_HANDLER.postDelayed(() -> launcherGLView.refreshSize(), 500);
     }
 
     @Override
@@ -490,7 +490,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
 
 
 
-            if(!Tools.checkStorageRoot(this)) return;
+            if(!HyperUtils.checkStorageRoot(this)) return;
             LauncherPreferences.loadPreferences(getApplicationContext());
             try {
                 mControlLayout.loadLayout(LauncherPreferences.PREF_DEFAULTCTRL_PATH);
@@ -518,15 +518,15 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
             mGameRenderer.setCurrentRenderer(renderer);
         }
         Logger.appendToLog("--------- Starting game with Launcher Debug!");
-        Tools.printLauncherInfo(versionId, instance.getLaunchArgs(), renderer, this);
+        HyperUtils.printLauncherInfo(versionId, instance.getLaunchArgs(), renderer, this);
         JREUtils.redirectAndPrintJRELog();
         GameRunner.launchGame(this, account, instance, versionId, classpath, mGameRenderer);
 
-        Tools.runOnUiThread(()-> mServiceBinder.isActive = false);
+        HyperUtils.runOnUiThread(()-> mServiceBinder.isActive = false);
     }
 
     private void dialogSendCustomKey() {
-        Tools.dialogSendCustomKey(this);
+        HyperUtils.dialogSendCustomKey(this);
     }
 
     boolean isInEditor;
@@ -602,7 +602,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
     public static void toggleMouse(Context ctx) {
 
         if (Platform.isGrabbing()) return;
-        GameCursorView cursorView = Tools.getWeakReference(weakCursor);
+        GameCursorView cursorView = HyperUtils.getWeakReference(weakCursor);
         if(cursorView == null) return;
         int toastString = 0;
         switch (cursorView.getVisibility()) {
@@ -649,7 +649,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
 
     public void hideLoadingScreen(){
         LauncherComposeHelper.setLoadingText(getString(R.string.loading_screen_booted, PLATFORM.backendName()));
-        Tools.MAIN_HANDLER.postDelayed(() -> {
+        HyperUtils.MAIN_HANDLER.postDelayed(() -> {
             LauncherComposeHelper.setLoadingVisible(false);
             mLoadingScreen = null;
         }, 1000);
@@ -670,7 +670,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
             System.gc();
             mControlLayout.loadLayout(instance.getLaunchControls());
         } catch (Exception e) {
-            Tools.showError(this,e);
+            HyperUtils.showError(this,e);
         }
 
         isInEditor = false;
@@ -708,7 +708,7 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
 
     @Override
     public boolean dispatchTrackballEvent(MotionEvent ev) {
-        if(Tools.isAndroid8OrHigher() && checkCaptureDispatchConditions(ev))
+        if(HyperUtils.isAndroid8OrHigher() && checkCaptureDispatchConditions(ev))
         return launcherGLView.dispatchCapturedPointerEvent(ev);
         else return super.dispatchTrackballEvent(ev);
     }

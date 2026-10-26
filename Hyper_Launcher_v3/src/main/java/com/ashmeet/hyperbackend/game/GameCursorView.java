@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import net.ashmeet.hyperlauncher.R;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.game.platform.Platform;
 import com.ashmeet.hyperbackend.game.platform.cursor.PlatformCursor;
 import com.ashmeet.hyperbackend.game.platform.cursor.PlatformCursorImplementor;
@@ -41,7 +41,7 @@ public class GameCursorView extends View implements PlatformCursorImplementor {
         super(context, attrs, defStyleAttr, defStyleRes);
         cursorDrawable = ContextCompat.getDrawable(context, R.drawable.img_mouse_pointer_arrow);
         assert cursorDrawable != null;
-        int size = (int) Tools.dpToPx(24);
+        int size = (int) HyperUtils.dpToPx(24);
         cursorDrawable.setBounds(0, 0, size, (int) (size * ((float) cursorDrawable.getIntrinsicHeight() / cursorDrawable.getIntrinsicWidth())));
     }
 

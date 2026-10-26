@@ -9,7 +9,7 @@ import androidx.annotation.Keep
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.platform.ComposeView
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
 import net.ashmeet.hyperlauncher.R
 import java.io.File
@@ -32,7 +32,7 @@ class ExitActivity : AppCompatActivity() {
         val title = if (isSignal) getString(R.string.mcn_abort_title) else getString(R.string.mcn_exit_title, code)
 
         val logs = try {
-            Tools.read(File(Tools.DIR_GAME_HOME, "latestlog.txt"))
+            HyperUtils.read(File(HyperUtils.DIR_GAME_HOME, "latestlog.txt"))
         } catch (e: IOException) {
             "Failed to read logs: ${e.message}"
         }
@@ -43,9 +43,9 @@ class ExitActivity : AppCompatActivity() {
             composeView,
             title,
             logs,
-            onShareClick = { Tools.shareLog(this) },
-            onRestartClick = { Tools.restartLauncherActivity(this) },
-            onOpenCrashReport = { path -> Tools.openPath(this, File(path), false) }
+            onShareClick = { HyperUtils.shareLog(this) },
+            onRestartClick = { HyperUtils.restartLauncherActivity(this) },
+            onOpenCrashReport = { path -> HyperUtils.openPath(this, File(path), false) }
         )
         setContentView(composeView)
     }
@@ -61,7 +61,7 @@ class ExitActivity : AppCompatActivity() {
         fun showExitMessage(ctx: Context?, code: Int, isSignal: Boolean) {
             isExiting = true
             if (!isSignal && code == 0) {
-                ctx?.let { Tools.restartLauncherActivity(it) }
+                ctx?.let { HyperUtils.restartLauncherActivity(it) }
                 exitProcess(0)
             }
 
@@ -72,7 +72,7 @@ class ExitActivity : AppCompatActivity() {
             }
 
             val lock = Any()
-            Tools.runOnUiThread {
+            HyperUtils.runOnUiThread {
                 val i = Intent(ctx, ExitActivity::class.java)
                 i.putExtra("code", code)
                 i.putExtra("isSignal", isSignal)

@@ -53,7 +53,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.activity.PojavApplication
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperbackend.instances.Instance
 import com.ashmeet.hyperbackend.instances.Instances
 import com.ashmeet.hyperbackend.instances.MMCInstanceImporter
@@ -134,7 +134,7 @@ class ContentInstallerFragment : Fragment() {
                             if (id == "latest_release" || id == "latest_snapshot") return@let null
 
                             val v = try {
-                                Tools.getVersionInfo(id)
+                                HyperUtils.getVersionInfo(id)
                             } catch (_: Exception) {
                                 null
                             }
@@ -151,7 +151,7 @@ class ContentInstallerFragment : Fragment() {
                         instance?.let {
                             val id = it.versionId
                             val v = try {
-                                Tools.getVersionInfo(id)
+                                HyperUtils.getVersionInfo(id)
                             } catch (_: Exception) {
                                 null
                             }
@@ -265,7 +265,7 @@ class ContentInstallerFragment : Fragment() {
                     }
 
                     ContentInstallerScreen(
-                        onBack = { Tools.removeCurrentFragment(requireActivity()) },
+                        onBack = { HyperUtils.removeCurrentFragment(requireActivity()) },
                         onSearch = { query, type, version, loader, source ->
                             if (selectedType != type || selectedSource != source) {
                                 projects = emptyList()
@@ -761,8 +761,8 @@ class ContentInstallerFragment : Fragment() {
     }
 
     private fun performLocalInstall(uri: Uri, context: Context, contentResolver: ContentResolver, type: ContentInstallerType) {
-        val fileName = Tools.getFileName(context, uri) ?: return
-        val outFile = File(Tools.DIR_CACHE, "$fileName.cf")
+        val fileName = HyperUtils.getFileName(context, uri) ?: return
+        val outFile = File(HyperUtils.DIR_CACHE, "$fileName.cf")
         val progressKey = if (type == ContentInstallerType.MODPACKS) "install_modpack" else "install_content"
         ProgressKeeper.submitProgress(progressKey, 0, -1, "Caching content...")
         try {
@@ -772,7 +772,7 @@ class ContentInstallerFragment : Fragment() {
                 }
             } ?: return
         } catch (e: IOException) {
-            Tools.showErrorRemote("Error", e)
+            HyperUtils.showErrorRemote("Error", e)
             ProgressKeeper.submitProgress(progressKey, -1, -1)
             return
         }
@@ -782,7 +782,7 @@ class ContentInstallerFragment : Fragment() {
                 if (MMCInstanceImporter.isMMCInstance(outFile)) {
                     ProgressKeeper.submitProgress(progressKey, 50, -1, "Importing MMC Instance...")
                     MMCInstanceImporter.importInstance(fileName.substringBeforeLast("."), outFile)
-                    Tools.runOnUiThread {
+                    HyperUtils.runOnUiThread {
                         Toast.makeText(context, "MMC Instance imported successfully", Toast.LENGTH_SHORT).show()
                     }
                 } else {
@@ -793,7 +793,7 @@ class ContentInstallerFragment : Fragment() {
             } else {
                 val instance = Instances.loadSelectedInstance()
                 if (instance == null) {
-                    Tools.runOnUiThread { Toast.makeText(context, "No instance selected", Toast.LENGTH_SHORT).show() }
+                    HyperUtils.runOnUiThread { Toast.makeText(context, "No instance selected", Toast.LENGTH_SHORT).show() }
                     return
                 }
 
@@ -808,19 +808,19 @@ class ContentInstallerFragment : Fragment() {
                 if (type == ContentInstallerType.WORLDS) {
                     ProgressKeeper.submitProgress(progressKey, 50, -1, "Extracting world...")
                     extractWorldLocal(outFile, destFolder, fileName)
-                    Tools.runOnUiThread {
+                    HyperUtils.runOnUiThread {
                         Toast.makeText(context, "World $fileName imported successfully", Toast.LENGTH_SHORT).show()
                     }
                 } else {
                     val destFile = File(destFolder, fileName)
                     outFile.copyTo(destFile, overwrite = true)
-                    Tools.runOnUiThread {
+                    HyperUtils.runOnUiThread {
                         Toast.makeText(context, "Installed $fileName", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
         } catch (e: Exception) {
-            Tools.showErrorRemote("Error", e)
+            HyperUtils.showErrorRemote("Error", e)
         } finally {
             outFile.delete()
             ProgressKeeper.submitProgress(progressKey, -1, -1)

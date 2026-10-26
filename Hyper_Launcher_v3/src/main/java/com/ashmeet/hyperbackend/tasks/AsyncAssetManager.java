@@ -12,8 +12,8 @@ import android.util.Log;
 
 import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
-import com.ashmeet.hyperbackend.multirt.MultiRTUtils;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
+import com.ashmeet.hyperlauncher.runtime.RuntimeUtils;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -34,13 +34,13 @@ public class AsyncAssetManager {
     public static void unpackRuntime(AssetManager am) {
 
         String rt_version = null;
-        String current_rt_version = MultiRTUtils.readInternalRuntimeVersion("Internal");
+        String current_rt_version = RuntimeUtils.readInternalRuntimeVersion("Internal");
         try {
-            rt_version = Tools.read(am.open("components/jre/version"));
+            rt_version = HyperUtils.read(am.open("components/jre/version"));
         } catch (IOException e) {
             Log.e("JREAuto", "JRE was not included on this APK.", e);
         }
-        String exactJREName = MultiRTUtils.getExactJreName(8);
+        String exactJREName = RuntimeUtils.getExactJreName(8);
         if(current_rt_version == null && exactJREName != null && !exactJREName.equals("Internal")) return;
         if(rt_version == null) return;
         if(rt_version.equals(current_rt_version)) return;
@@ -50,11 +50,11 @@ public class AsyncAssetManager {
         sExecutorService.execute(() -> {
 
             try {
-                MultiRTUtils.installRuntimeNamedBinpack(
+                RuntimeUtils.installRuntimeNamedBinpack(
                         am.open("components/jre/universal.tar.xz"),
-                        am.open("components/jre/bin-" + archAsString(Tools.DEVICE_ARCHITECTURE) + ".tar.xz"),
+                        am.open("components/jre/bin-" + archAsString(HyperUtils.DEVICE_ARCHITECTURE) + ".tar.xz"),
                         "Internal", finalRt_version);
-                MultiRTUtils.postPrepare("Internal");
+                RuntimeUtils.postPrepare("Internal");
             }catch (IOException e) {
                 Log.e("JREAuto", "Internal JRE unpack failed", e);
             }
@@ -66,20 +66,20 @@ public class AsyncAssetManager {
         TrackerLayout.setTracker(TrackerLayout.EXTRACT_SINGLE_FILES, 0);
         sExecutorService.execute(() -> {
             try {
-                Tools.copyAssetFile(ctx, "options.txt", Tools.DIR_GAME_NEW, false);
+                HyperUtils.copyAssetFile(ctx, "options.txt", HyperUtils.DIR_GAME_NEW, false);
 
 
 
                 try (InputStream is = ctx.getAssets().open("default.json")) {
                     String assetSha1 = new String(Hex.encodeHex(DigestUtils.sha1(is)));
-                    if (!Tools.compareSHA1(new File(Tools.CTRLDEF_FILE), assetSha1)) {
-                        Tools.copyAssetFile(ctx, "default.json", Tools.CTRLMAP_PATH, "new_default.json" , false);
-                    } else if (!new File(Tools.CTRLMAP_PATH+"/new_default.json").exists())
-                    Tools.copyAssetFile(ctx, "default.json", Tools.CTRLMAP_PATH, false);
+                    if (!HyperUtils.compareSHA1(new File(HyperUtils.CTRLDEF_FILE), assetSha1)) {
+                        HyperUtils.copyAssetFile(ctx, "default.json", HyperUtils.CTRLMAP_PATH, "new_default.json" , false);
+                    } else if (!new File(HyperUtils.CTRLMAP_PATH+"/new_default.json").exists())
+                    HyperUtils.copyAssetFile(ctx, "default.json", HyperUtils.CTRLMAP_PATH, false);
                 }
 
-                Tools.copyAssetFile(ctx, "launcher_profiles.json", Tools.DIR_GAME_NEW, false);
-                Tools.copyAssetFile(ctx,"resolv.conf",Tools.DIR_DATA, false);
+                HyperUtils.copyAssetFile(ctx, "launcher_profiles.json", HyperUtils.DIR_GAME_NEW, false);
+                HyperUtils.copyAssetFile(ctx,"resolv.conf", HyperUtils.DIR_DATA, false);
             } catch (IOException e) {
                 Log.e("AsyncAssetManager", "Failed to unpack critical components !");
             }
@@ -143,21 +143,21 @@ public class AsyncAssetManager {
 
     private static void unpackLwjglNatives(Context ctx) throws IOException {
         AssetManager am = ctx.getAssets();
-        String rootDir = Tools.DIR_DATA;
+        String rootDir = HyperUtils.DIR_DATA;
         String sArch = archAsStringAndroid(getDeviceArchitecture());
 
         String[] lwjglVersions = {"3.3.3", "3.4.1"};
         for (String lwjglVer : lwjglVersions) {
             String componentVersionLocation = "components/lwjgl3/" + lwjglVer + "/version";
             try (InputStream is = am.open(componentVersionLocation)) {
-                File versionFile = new File(Tools.DIR_GAME_HOME + String.format("/lwjgl3/%s/version", lwjglVer));
+                File versionFile = new File(HyperUtils.DIR_GAME_HOME + String.format("/lwjgl3/%s/version", lwjglVer));
                 String pathToLwjglNatives = String.format("lwjgl-%s-natives/", lwjglVer) + sArch;
 
                 boolean shouldUpdate = true;
                 if (versionFile.exists()) {
                     FileInputStream fis = new FileInputStream(versionFile);
-                    String release1 = Tools.read(is);
-                    String release2 = Tools.read(fis);
+                    String release1 = HyperUtils.read(is);
+                    String release2 = HyperUtils.read(fis);
                     if (release1.equals(release2))
                         shouldUpdate = false;
                 }
@@ -167,7 +167,7 @@ public class AsyncAssetManager {
                     String[] fileList = am.list("components/" + pathToLwjglNatives);
                     if (fileList != null) {
                         for (String fileName : fileList) {
-                            Tools.copyAssetFile(ctx, "components/" + pathToLwjglNatives + "/" + fileName, rootDir + "/" + pathToLwjglNatives, true);
+                            HyperUtils.copyAssetFile(ctx, "components/" + pathToLwjglNatives + "/" + fileName, rootDir + "/" + pathToLwjglNatives, true);
                         }
                     }
                 } else {
@@ -181,7 +181,7 @@ public class AsyncAssetManager {
 
     private static void unpackComponent(Context ctx, String component, boolean privateDirectory) throws IOException {
         AssetManager am = ctx.getAssets();
-        String rootDir = privateDirectory ? Tools.DIR_DATA : Tools.DIR_GAME_HOME;
+        String rootDir = privateDirectory ? HyperUtils.DIR_DATA : HyperUtils.DIR_GAME_HOME;
         File componentTarget = new File(rootDir, component);
         String installedVersion = readInstalledComponentVersion(componentTarget);
         String builtinVersion = readBuiltinComponentVersion(am, component);
@@ -228,23 +228,23 @@ public class AsyncAssetManager {
             for (String fileName : fileList) {
                 if (fileName.equals("version")) continue;
                 String sourcePath = componentSource + "/" + fileName;
-                Tools.copyAssetFile(ctx, sourcePath, componentTarget.getAbsolutePath(), true);
+                HyperUtils.copyAssetFile(ctx, sourcePath, componentTarget.getAbsolutePath(), true);
             }
         }
 
 
 
         if (builtinVersion != null) {
-            Tools.write(new File(componentTarget, "version"), builtinVersion);
+            HyperUtils.write(new File(componentTarget, "version"), builtinVersion);
         }
     }
 
     public static void extractDefaultSettings(Context context, File gamedir)  {
         try {
             String gameDirPath = gamedir.getAbsolutePath();
-            Tools.copyAssetFile(context, "options.txt", gameDirPath, false);
+            HyperUtils.copyAssetFile(context, "options.txt", gameDirPath, false);
         } catch (IOException e) {
-            Tools.showError(context, e);
+            HyperUtils.showError(context, e);
         }
     }
 }

@@ -8,7 +8,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import com.ashmeet.hyperlauncher.screens.instances.InstanceDirectoryScreen
 import com.ashmeet.hyperlauncher.theme.PojavTheme
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 
 class InstanceDirectoryFragment : Fragment() {
 
@@ -17,7 +17,7 @@ class InstanceDirectoryFragment : Fragment() {
             setContent {
                 PojavTheme {
                     InstanceDirectoryScreen(
-                        onBack = { Tools.removeCurrentFragment(requireActivity()) }
+                        onBack = { HyperUtils.removeCurrentFragment(requireActivity()) }
                     )
                 }
             }

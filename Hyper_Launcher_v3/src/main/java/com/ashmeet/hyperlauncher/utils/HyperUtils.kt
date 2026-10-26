@@ -81,7 +81,7 @@ import com.ashmeet.hyperbackend.game.GameActivity
 import com.ashmeet.hyperbackend.instances.Instance
 import com.ashmeet.hyperbackend.lifecycle.ContextExecutor
 import com.ashmeet.hyperbackend.lifecycle.ContextExecutorTask
-import com.ashmeet.hyperbackend.multirt.MultiRTUtils
+import com.ashmeet.hyperlauncher.runtime.RuntimeUtils
 import com.ashmeet.hyperbackend.utils.FileUtils
 import com.ashmeet.hyperbackend.utils.GLInfoUtils
 import com.ashmeet.hyperbackend.utils.HashUtils
@@ -103,7 +103,7 @@ import java.lang.ref.WeakReference
 import java.net.URLConnection
 import java.nio.charset.StandardCharsets
 
-object Tools {
+object HyperUtils {
     const val MAVEN_CENTRAL = "https://maven-central-eu.storage-download.googleapis.com/maven2/"
     const val BYTE_TO_MB = 1024f * 1024f
     @JvmField
@@ -227,7 +227,7 @@ object Tools {
         NATIVE_LIB_DIR = ctx.applicationInfo.nativeLibraryDir
         if (NATIVE_LIB_DIR == null) {
             NATIVE_LIB_DIR = "$DIR_DATA/lib"
-            Log.w("Tools", "nativeLibraryDir is null, using fallback: $NATIVE_LIB_DIR")
+            Log.w("HyperUtils", "nativeLibraryDir is null, using fallback: $NATIVE_LIB_DIR")
         }
     }
 
@@ -249,7 +249,6 @@ object Tools {
 
     @JvmStatic
     fun buildNotificationChannel(context: Context) {
-        if (SDK_INT < Build.VERSION_CODES.O) return
         val channel = NotificationChannel(
             context.getString(R.string.notif_channel_id),
             context.getString(R.string.notif_channel_name),
@@ -661,7 +660,7 @@ object Tools {
 
     @JvmStatic
     fun isAndroid8OrHigher(): Boolean {
-        return SDK_INT >= 26
+        return true
     }
 
     @JvmStatic
@@ -829,7 +828,7 @@ object Tools {
         var runtime = LauncherPreferences.PREF_DEFAULT_RUNTIME
         val profileRuntime = instance.selectedRuntime
         if (profileRuntime != null) {
-            if (MultiRTUtils.forceReread(profileRuntime).versionString != null) {
+            if (RuntimeUtils.forceReread(profileRuntime).versionString != null) {
                 runtime = profileRuntime
             }
         }
@@ -876,7 +875,7 @@ object Tools {
         return try {
             internalGetMaxContinuousAddressSpaceSize()
         } catch (_: Exception) {
-            Log.w("Tools", "Failed to find the largest uninterrupted address space")
+            Log.w("HyperUtils", "Failed to find the largest uninterrupted address space")
             -1
         }
     }
@@ -944,13 +943,14 @@ object Tools {
     fun installRuntimeFromUri(context: Context, uri: Uri) {
         PojavApplication.sExecutorService.execute {
             try {
-                val name = getFileName(context, uri)
-                MultiRTUtils.installRuntimeNamed(
-                    NATIVE_LIB_DIR,
-                    context.contentResolver.openInputStream(uri),
+                val name = getFileName(context, uri) ?: return@execute
+                val inputStream = context.contentResolver.openInputStream(uri) ?: return@execute
+                RuntimeUtils.installRuntimeNamed(
+                    NATIVE_LIB_DIR ?: return@execute,
+                    inputStream,
                     name
                 )
-                MultiRTUtils.postPrepare(name)
+                RuntimeUtils.postPrepare(name)
             } catch (e: IOException) {
                 showError(context, e)
             }
@@ -1104,7 +1104,7 @@ object Tools {
     }
 
     @JvmStatic
-    fun applyHyperPluginHooks(javaArgList: MutableList<String>?, versionId: String?, gameDir: File?) {
+    fun applyHyperPluginHooks(javaArgList: MutableList<String>?, gameDir: File?) {
         javaArgList?.addAll(NativePluginManager.getJVMEnv())
     }
 

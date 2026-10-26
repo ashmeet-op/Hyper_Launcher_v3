@@ -14,20 +14,20 @@ import com.ashmeet.hyperlauncher.screens.settings.JavaSettingsScreen
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.utils.Architecture
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.ashmeet.hyperbackend.contracts.OpenDocumentWithExtension
-import com.ashmeet.hyperbackend.multirt.MultiRTUtils
-import com.ashmeet.hyperbackend.multirt.Runtime
+import com.ashmeet.hyperlauncher.runtime.RuntimeUtils
+import com.ashmeet.hyperlauncher.runtime.Runtime
 
 class LauncherPreferenceJavaFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener {
 
     private val mVmInstallLauncher: ActivityResultLauncher<Any?> =
         registerForActivityResult(OpenDocumentWithExtension("xz")) { data ->
             if (data != null) {
-                context?.let { Tools.installRuntimeFromUri(it, data) }
+                context?.let { HyperUtils.installRuntimeFromUri(it, data) }
             }
         }
 
@@ -36,7 +36,7 @@ class LauncherPreferenceJavaFragment : Fragment(), SharedPreferences.OnSharedPre
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val deviceRam = Tools.getTotalDeviceMemory(requireContext())
+        val deviceRam = HyperUtils.getTotalDeviceMemory(requireContext())
         val maxRAM = if (Architecture.is32BitsDevice() || deviceRam < 2048) {
             minOf(1024, deviceRam)
         } else {
@@ -60,10 +60,10 @@ class LauncherPreferenceJavaFragment : Fragment(), SharedPreferences.OnSharedPre
     private fun deleteRuntime(runtime: Runtime, onDeleted: () -> Unit) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                MultiRTUtils.removeRuntimeNamed(runtime.name)
+                RuntimeUtils.removeRuntimeNamed(runtime.name)
                 withContext(Dispatchers.Main) {
                     if (LauncherPreferences.PREF_DEFAULT_RUNTIME == runtime.name) {
-                        val remaining = MultiRTUtils.getRuntimes()
+                        val remaining = RuntimeUtils.getRuntimes()
                         if (remaining.isNotEmpty()) {
                             val newDefault = remaining[0].name
                             LauncherPreferences.prefs.edit { putString("defaultRuntime", newDefault) }
@@ -74,7 +74,7 @@ class LauncherPreferenceJavaFragment : Fragment(), SharedPreferences.OnSharedPre
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    context?.let { Tools.showError(it, e) }
+                    context?.let { HyperUtils.showError(it, e) }
                 }
             }
         }

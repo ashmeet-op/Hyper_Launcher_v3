@@ -11,7 +11,7 @@ import android.content.Context;
 
 
 import com.ashmeet.hyperlauncher.utils.Architecture;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 
 import com.ashmeet.hyperbackend.game.renderer.impl.GLESRenderSpec;
 
@@ -154,8 +154,8 @@ public interface GLESProvider {
                 File local = new File(context.getApplicationInfo().nativeLibraryDir, ANGLE_EGL);
                 if (local.exists()) return local;
             }
-            if (Tools.NATIVE_LIB_DIR != null) {
-                File localTools = new File(Tools.NATIVE_LIB_DIR, ANGLE_EGL);
+            if (HyperUtils.NATIVE_LIB_DIR != null) {
+                File localTools = new File(HyperUtils.NATIVE_LIB_DIR, ANGLE_EGL);
                 if (localTools.exists()) return localTools;
             }
             String basePath = Architecture.is64BitsDevice() ? "/system/lib64/" : "/system/lib/";
@@ -172,7 +172,7 @@ public interface GLESProvider {
         }
         public boolean requiresNamespace() {
             File file = egl();
-            if (file != null && Tools.NATIVE_LIB_DIR != null && file.getAbsolutePath().startsWith(Tools.NATIVE_LIB_DIR)) {
+            if (file != null && HyperUtils.NATIVE_LIB_DIR != null && file.getAbsolutePath().startsWith(HyperUtils.NATIVE_LIB_DIR)) {
                 return false;
             }
             return true;

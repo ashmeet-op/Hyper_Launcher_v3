@@ -10,7 +10,7 @@ import androidx.annotation.Keep;
 import com.ashmeet.hyperlauncher.skin.model.SkinModelType;
 import com.google.gson.JsonParseException;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.authenticator.AuthType;
 import com.ashmeet.hyperbackend.utils.FileUtils;
 import com.ashmeet.hyperbackend.utils.JSONUtils;
@@ -115,10 +115,10 @@ public class Account {
      }
 
     private File getSkinFaceFile() {
-        return new File(Tools.DIR_CACHE,  "skin-face-" + profileId +"-"+authType.name() + ".webp");
+        return new File(HyperUtils.DIR_CACHE,  "skin-face-" + profileId +"-"+authType.name() + ".webp");
     }
 
     private File getSkinFaceFile3D() {
-        return new File(Tools.DIR_CACHE,  "skin-face-3d-" + profileId +"-"+authType.name() + ".webp");
+        return new File(HyperUtils.DIR_CACHE,  "skin-face-3d-" + profileId +"-"+authType.name() + ".webp");
     }
 }

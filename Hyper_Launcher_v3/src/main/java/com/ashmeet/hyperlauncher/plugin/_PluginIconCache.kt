@@ -5,13 +5,13 @@ import android.content.pm.ApplicationInfo
 import android.graphics.Bitmap
 import android.util.Log
 import androidx.core.graphics.drawable.toBitmap
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import org.apache.commons.io.FileUtils
 import java.io.File
 
 private const val TAG = "PluginIconCache"
 
-fun appCacheIcon(packageName: String): File = File(Tools.DIR_CACHE_APP_ICON, "$packageName.png")
+fun appCacheIcon(packageName: String): File = File(HyperUtils.DIR_CACHE_APP_ICON, "$packageName.png")
 
 fun cacheAppIcon(context: Context, appInfo: ApplicationInfo) {
     val packageName = appInfo.packageName

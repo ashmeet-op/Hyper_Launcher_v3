@@ -22,14 +22,14 @@ import com.ashmeet.hyperlauncher.activity.BaseActivity
 import com.ashmeet.hyperlauncher.activity.PojavApplication
 import com.ashmeet.hyperlauncher.screens.activity.JavaGuiLauncherScreen
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperbackend.*
 import com.ashmeet.hyperbackend.customcontrols.keyboard.TouchCharInput
 import com.ashmeet.hyperbackend.game.platform.Platform
 import com.ashmeet.hyperbackend.game.platform.backend.AWTBackend
-import com.ashmeet.hyperbackend.multirt.MultiRTUtils
-import com.ashmeet.hyperbackend.multirt.Runtime
+import com.ashmeet.hyperlauncher.runtime.RuntimeUtils
+import com.ashmeet.hyperlauncher.runtime.Runtime
 import com.ashmeet.hyperbackend.utils.JREUtils
 import com.ashmeet.hyperbackend.utils.MathUtils
 import com.ashmeet.hyperbackend.utils.SingleTapConfirm
@@ -60,12 +60,12 @@ class AWTActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
 
         try {
-            val latestLogFile = File(Tools.DIR_GAME_HOME, "latestlog.txt")
+            val latestLogFile = File(HyperUtils.DIR_GAME_HOME, "latestlog.txt")
             if (!latestLogFile.exists() && !latestLogFile.createNewFile())
                 throw IOException("Failed to create a new log file")
             Logger.begin(latestLogFile.absolutePath)
         } catch (e: IOException) {
-            Tools.showError(this, e, true)
+            HyperUtils.showError(this, e, true)
         }
 
         CallbackBridge.windowWidth = AWTView.AWT_CANVAS_WIDTH
@@ -78,7 +78,7 @@ class AWTActivity : BaseActivity() {
 
         setContent {
             JavaGuiLauncherScreen(
-                onForceClose = { Tools.dialogForceClose(this) },
+                onForceClose = { HyperUtils.dialogForceClose(this) },
                 onOpenLogOutput = { isLoggerVisible = true },
                 onToggleVirtualMouse = { enabled ->
                     isMouseEnabled = enabled
@@ -122,7 +122,7 @@ class AWTActivity : BaseActivity() {
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                Tools.dialogForceClose(this@AWTActivity)
+                HyperUtils.dialogForceClose(this@AWTActivity)
             }
         })
     }
@@ -213,7 +213,7 @@ class AWTActivity : BaseActivity() {
             }
             startModInstaller(cacheFile, javaArgs)
         } catch (e: IOException) {
-            Tools.showError(this, e, true)
+            HyperUtils.showError(this, e, true)
         }
     }
 
@@ -242,12 +242,12 @@ class AWTActivity : BaseActivity() {
             finalErrorDialog(getString(R.string.execute_jar_failed_to_read_file))
             return null
         }
-        val nearestRuntime = MultiRTUtils.getNearestJreName(javaVersion)
+        val nearestRuntime = RuntimeUtils.getNearestJreName(javaVersion)
         if (nearestRuntime == null) {
             finalErrorDialog(getString(R.string.multirt_nocompatiblert, javaVersion))
             return null
         }
-        return MultiRTUtils.forceReread(nearestRuntime)
+        return RuntimeUtils.forceReread(nearestRuntime)
     }
 
     private fun launchJavaRuntime(runtime: Runtime, javaArgs: List<String>?, modFile: File, mainClass: String) {
@@ -257,9 +257,9 @@ class AWTActivity : BaseActivity() {
             javaArgs?.let { javaArgList.addAll(it) }
 
             if (LauncherPreferences.PREF_JAVA_SANDBOX && !mIsTrusted) {
-                javaArgList.add(0, "-Xbootclasspath/a:" + Tools.DIR_DATA + "/security/pro-grade.jar")
+                javaArgList.add(0, "-Xbootclasspath/a:" + HyperUtils.DIR_DATA + "/security/pro-grade.jar")
                 javaArgList.add(1, "-Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM")
-                javaArgList.add(2, "-Djava.security.policy=" + Tools.DIR_DATA + "/security/java_sandbox.policy")
+                javaArgList.add(2, "-Djava.security.policy=" + HyperUtils.DIR_DATA + "/security/java_sandbox.policy")
             }
 
             Logger.appendToLog("Info: Java arguments: $javaArgList")
@@ -269,7 +269,7 @@ class AWTActivity : BaseActivity() {
 
             JREUtils.launchJavaVM(this, runtime, null, javaArgList, LauncherPreferences.PREF_CUSTOM_JAVA_ARGS)
         } catch (th: Throwable) {
-            Tools.showError(this, th, true)
+            HyperUtils.showError(this, th, true)
         }
     }
 

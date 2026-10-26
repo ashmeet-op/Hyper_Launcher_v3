@@ -10,7 +10,7 @@ import com.ashmeet.hyperlauncher.plugin.renderer.RendererPlugin;
 import com.ashmeet.hyperlauncher.renderer.RendererInterface;
 
 import net.ashmeet.hyperlauncher.R;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.game.renderer.RenderSpec;
 
 import java.io.File;
@@ -76,7 +76,7 @@ public class FCLRenderSpec implements RenderSpec {
 
     @Override
     public String library() {
-        String lib = null, searchPath = Tools.NATIVE_LIB_DIR;
+        String lib = null, searchPath = HyperUtils.NATIVE_LIB_DIR;
 
         if (rendererInterface != null) {
             lib = rendererInterface.getRendererLibrary();
@@ -104,7 +104,7 @@ public class FCLRenderSpec implements RenderSpec {
         if (lib == null) lib = "libltw.so";
         if (lib.startsWith("/")) return lib;
 
-        for (String dir : new String[]{searchPath, Tools.NATIVE_LIB_DIR}) {
+        for (String dir : new String[]{searchPath, HyperUtils.NATIVE_LIB_DIR}) {
             File f = new File(dir, lib);
             if (f.exists()) return f.getAbsolutePath();
         }
@@ -123,7 +123,7 @@ public class FCLRenderSpec implements RenderSpec {
         if (plugin != null) {
             return plugin.getPath();
         }
-        return Tools.NATIVE_LIB_DIR;
+        return HyperUtils.NATIVE_LIB_DIR;
     }
 
     @Override

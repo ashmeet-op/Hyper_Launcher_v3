@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.ui.platform.ComposeView
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperbackend.customcontrols.LayoutBitmaps
@@ -35,9 +35,9 @@ class ImportControlActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Tools.getDisplayMetrics(this)
-        if (Tools.checkStorageInteractive(this)) {
-            Tools.initStorageConstants(applicationContext)
+        HyperUtils.getDisplayMetrics(this)
+        if (HyperUtils.checkStorageInteractive(this)) {
+            HyperUtils.initStorageConstants(applicationContext)
         } else {
 
             return
@@ -67,7 +67,7 @@ class ImportControlActivity : BaseActivity() {
     @Suppress("DEPRECATION")
     override fun onPostResume() {
         super.onPostResume()
-        if (!Tools.checkStorageInteractive(this)) {
+        if (!HyperUtils.checkStorageInteractive(this)) {
 
 
 
@@ -81,7 +81,7 @@ class ImportControlActivity : BaseActivity() {
             finishAndRemoveTask()
             return
         }
-        mFileName = trimFileName(Tools.getFileName(this, uri) ?: "")
+        mFileName = trimFileName(HyperUtils.getFileName(this, uri) ?: "")
         updateComposeContent()
         mHasIntentChanged = false
 
@@ -118,7 +118,7 @@ class ImportControlActivity : BaseActivity() {
             return
         }
 
-        File(Tools.CTRLMAP_PATH, "TMP_IMPORT_FILE.json").renameTo(File(Tools.CTRLMAP_PATH, "$fileName.json"))
+        File(HyperUtils.CTRLMAP_PATH, "TMP_IMPORT_FILE.json").renameTo(File(HyperUtils.CTRLMAP_PATH, "$fileName.json"))
         Toast.makeText(applicationContext, R.string.import_control_done, Toast.LENGTH_SHORT).show()
         finishAndRemoveTask()
     }
@@ -128,7 +128,7 @@ class ImportControlActivity : BaseActivity() {
         val uri = mUriData ?: return
         try {
             val inputStream: InputStream? = contentResolver.openInputStream(uri)
-            val outputStream: OutputStream = FileOutputStream(File(Tools.CTRLMAP_PATH, "TMP_IMPORT_FILE.json"))
+            val outputStream: OutputStream = FileOutputStream(File(HyperUtils.CTRLMAP_PATH, "TMP_IMPORT_FILE.json"))
             if (inputStream != null) {
                 IOUtils.copy(inputStream, outputStream)
                 outputStream.close()
@@ -155,7 +155,7 @@ class ImportControlActivity : BaseActivity() {
             val trimmedName = trimFileName(fileName)
 
             if (trimmedName.isEmpty()) return false
-            return !FileUtils.exists(Tools.CTRLMAP_PATH + "/" + trimmedName + ".json")
+            return !FileUtils.exists(HyperUtils.CTRLMAP_PATH + "/" + trimmedName + ".json")
         }
 
 
@@ -171,7 +171,7 @@ class ImportControlActivity : BaseActivity() {
 
         private fun verify(): Boolean {
             return try {
-                val layout = LayoutBitmaps.load(File(Tools.CTRLMAP_PATH, "TMP_IMPORT_FILE.json"))
+                val layout = LayoutBitmaps.load(File(HyperUtils.CTRLMAP_PATH, "TMP_IMPORT_FILE.json"))
                 val layoutJobj = JSONObject(layout.mControlsJson)
                 layoutJobj.has("version") && layoutJobj.has("mControlDataList")
             } catch (e: Exception) {

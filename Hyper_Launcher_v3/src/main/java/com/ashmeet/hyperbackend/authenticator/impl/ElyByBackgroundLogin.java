@@ -8,7 +8,7 @@ import androidx.annotation.NonNull;
 
 import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.authenticator.AuthType;
 import com.ashmeet.hyperbackend.authenticator.BackgroundLogin;
 import com.ashmeet.hyperbackend.authenticator.accounts.Accounts;
@@ -49,7 +49,7 @@ public class ElyByBackgroundLogin implements BackgroundLogin {
                 continuation.call();
             }catch (Exception e){
                 Log.e("MicroAuth", "Exception thrown during authentication", e);
-                Tools.runOnUiThread(()->loginListener.onLoginError(e));
+                HyperUtils.runOnUiThread(()->loginListener.onLoginError(e));
             }
             TrackerLayout.clearTracker(TrackerLayout.AUTHENTICATE);
         });
@@ -71,7 +71,7 @@ public class ElyByBackgroundLogin implements BackgroundLogin {
         acquireAccountDetails(loginListener, ()->{
             Account account = Accounts.create(this::fillAccount);
             Accounts.setCurrent(account);
-            Tools.runOnUiThread(() -> loginListener.onLoginDone(account));
+            HyperUtils.runOnUiThread(() -> loginListener.onLoginDone(account));
             return null;
         }, code, false);
     }
@@ -81,7 +81,7 @@ public class ElyByBackgroundLogin implements BackgroundLogin {
         acquireAccountDetails(loginListener, ()->{
             fillAccount(account);
             account.save();
-            Tools.runOnUiThread(() -> loginListener.onLoginDone(account));
+            HyperUtils.runOnUiThread(() -> loginListener.onLoginDone(account));
             return null;
         }, account.refreshToken, true);
     }
@@ -109,7 +109,7 @@ public class ElyByBackgroundLogin implements BackgroundLogin {
         conn.connect();
         if(conn.getResponseCode() >= 200 && conn.getResponseCode() < 300) {
             try (InputStreamReader reader = new InputStreamReader(conn.getInputStream())) {
-                return Tools.GLOBAL_GSON.fromJson(reader, ElyAccountInfo.class);
+                return HyperUtils.GLOBAL_GSON.fromJson(reader, ElyAccountInfo.class);
             } finally {
                 conn.disconnect();
             }
@@ -119,7 +119,7 @@ public class ElyByBackgroundLogin implements BackgroundLogin {
     }
 
     private void notifyProgress(LoginListener listener, int step){
-        Tools.runOnUiThread(() -> listener.onLoginProgress(step));
+        HyperUtils.runOnUiThread(() -> listener.onLoginProgress(step));
         TrackerLayout.setTracker(TrackerLayout.AUTHENTICATE, step*50);
     }
 

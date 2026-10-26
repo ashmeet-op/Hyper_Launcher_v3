@@ -45,7 +45,7 @@ public class GameOptionsUtils {
         try {
             MCOptionUtils.load();
         }catch (Exception e) {
-            Log.e("Tools", "Failed to load config", e);
+            Log.e("HyperUtils", "Failed to load config", e);
         }
 
         if(isLtw) fixDeathCloud();
@@ -56,7 +56,7 @@ public class GameOptionsUtils {
         try {
             MCOptionUtils.save();
         }catch (Exception e) {
-            Log.e("Tools", "Failed to save config", e);
+            Log.e("HyperUtils", "Failed to save config", e);
         }
     }
 }

@@ -13,7 +13,7 @@ import com.ashmeet.hyperlauncher.screens.modloader.ModloaderInstallScreen
 import com.ashmeet.hyperlauncher.screens.modloader.ModloaderVersionGroup
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.ashmeet.hyperlauncher.R
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperbackend.extra.ExtraCore
 import com.ashmeet.hyperbackend.modloaders.ModloaderDownloadListener
 import com.ashmeet.hyperbackend.modloaders.ModloaderListenerProxy
@@ -44,7 +44,7 @@ abstract class ModVersionListFragment<T>(private val mFragmentTag: String) : Fra
                         isDownloading = isDownloading,
                         loadError = loadError,
                         versionGroups = versionGroups,
-                        onBack = { Tools.removeCurrentFragment(requireActivity()) },
+                        onBack = { HyperUtils.removeCurrentFragment(requireActivity()) },
                         onRetry = {
                             loadError = null
                             isLoading = true
@@ -77,12 +77,12 @@ abstract class ModVersionListFragment<T>(private val mFragmentTag: String) : Fra
         try {
             val versions = loadVersionList()
             val groups = mapToGroups(versions)
-            Tools.runOnUiThread {
+            HyperUtils.runOnUiThread {
                 versionGroups = groups
                 isLoading = false
             }
         } catch (e: IOException) {
-            Tools.runOnUiThread {
+            HyperUtils.runOnUiThread {
                 if (context != null) {
                     loadError = e
                     isLoading = false
@@ -105,7 +105,7 @@ abstract class ModVersionListFragment<T>(private val mFragmentTag: String) : Fra
     }
 
     override fun onDownloadFinished(downloadedFile: File?) {
-        Tools.runOnUiThread {
+        HyperUtils.runOnUiThread {
             val context = requireContext()
             getTaskProxy()?.detachListener()
             setTaskProxy(null)
@@ -116,12 +116,12 @@ abstract class ModVersionListFragment<T>(private val mFragmentTag: String) : Fra
     }
 
     override fun onDataNotAvailable() {
-        Tools.runOnUiThread {
+        HyperUtils.runOnUiThread {
             val context = requireContext()
             getTaskProxy()?.detachListener()
             setTaskProxy(null)
             isDownloading = false
-            Tools.dialog(
+            HyperUtils.dialog(
                 context,
                 context.getString(R.string.global_error),
                 context.getString(getNoDataMsg())
@@ -130,12 +130,12 @@ abstract class ModVersionListFragment<T>(private val mFragmentTag: String) : Fra
     }
 
     override fun onDownloadError(e: Exception) {
-        Tools.runOnUiThread {
+        HyperUtils.runOnUiThread {
             val context = requireContext()
             getTaskProxy()?.detachListener()
             setTaskProxy(null)
             isDownloading = false
-            Tools.showError(context, e)
+            HyperUtils.showError(context, e)
         }
     }
 

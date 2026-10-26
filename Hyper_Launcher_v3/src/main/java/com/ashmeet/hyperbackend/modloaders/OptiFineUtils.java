@@ -1,6 +1,6 @@
 package com.ashmeet.hyperbackend.modloaders;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.instances.InstanceInstaller;
 import com.ashmeet.hyperbackend.utils.DownloadUtils;
 
@@ -23,12 +23,12 @@ public class OptiFineUtils {
 
     public static InstanceInstaller createInstaller(OptiFineVersion version) {
         int installerHash = Objects.hash(version.versionName, version.gameVersion);
-        File installerLocation = new File(Tools.DIR_CACHE, "optifine-installer-"+installerHash+".jar");
+        File installerLocation = new File(HyperUtils.DIR_CACHE, "optifine-installer-"+installerHash+".jar");
         InstanceInstaller instanceInstaller = new InstanceInstaller();
         instanceInstaller.installerUrlTransformer = "optifine";
         instanceInstaller.installerDownloadUrl = version.downloadUrl;
         instanceInstaller.installerJar = installerLocation.getAbsolutePath();
-        instanceInstaller.commandLineArgs = List.of("-javaagent:"+ Tools.DIR_DATA+"/forge_installer/forge_installer.jar=OF");
+        instanceInstaller.commandLineArgs = List.of("-javaagent:"+ HyperUtils.DIR_DATA+"/forge_installer/forge_installer.jar=OF");
         return instanceInstaller;
     }
 

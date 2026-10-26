@@ -4,14 +4,14 @@ import android.util.Log;
 
 import com.google.gson.JsonParseException;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.utils.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 
 public class GamepadMapStore {
-    private static final File STORE_FILE = new File(Tools.DIR_DATA, "gamepad_map.json");
+    private static final File STORE_FILE = new File(HyperUtils.DIR_DATA, "gamepad_map.json");
     private static GamepadMapStore sMapStore;
     private GamepadMap mInMenuMap;
     private GamepadMap mInGameMap;
@@ -31,8 +31,8 @@ public class GamepadMapStore {
         GamepadMapStore mapStore = null;
         if(STORE_FILE.exists() && STORE_FILE.canRead()) {
             try {
-                String storeFileContent = Tools.read(STORE_FILE);
-                mapStore = Tools.GLOBAL_GSON.fromJson(storeFileContent, GamepadMapStore.class);
+                String storeFileContent = HyperUtils.read(STORE_FILE);
+                mapStore = HyperUtils.GLOBAL_GSON.fromJson(storeFileContent, GamepadMapStore.class);
             } catch (JsonParseException | IOException e) {
                 Log.w("GamepadMapStore", "Map store failed to load!", e);
             }
@@ -44,8 +44,8 @@ public class GamepadMapStore {
     public static void save() throws IOException {
         if(sMapStore == null) throw new RuntimeException("Must load map store first!");
         FileUtils.ensureParentDirectory(STORE_FILE);
-        String jsonData = Tools.GLOBAL_GSON.toJson(sMapStore);
-        Tools.write(STORE_FILE, jsonData);
+        String jsonData = HyperUtils.GLOBAL_GSON.toJson(sMapStore);
+        HyperUtils.write(STORE_FILE, jsonData);
     }
 
     public static GamepadMap getGameMap() {

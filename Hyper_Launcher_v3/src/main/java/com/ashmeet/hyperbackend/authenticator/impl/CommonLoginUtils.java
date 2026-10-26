@@ -2,7 +2,7 @@ package com.ashmeet.hyperbackend.authenticator.impl;
 
 import android.util.Log;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.authenticator.model.OAuthTokenResponse;
 
 import java.io.IOException;
@@ -33,12 +33,12 @@ public class CommonLoginUtils {
         }
         if(conn.getResponseCode() >= 200 && conn.getResponseCode() < 300) {
             try (InputStreamReader reader = new InputStreamReader(conn.getInputStream())) {
-                return Tools.GLOBAL_GSON.fromJson(reader, OAuthTokenResponse.class);
+                return HyperUtils.GLOBAL_GSON.fromJson(reader, OAuthTokenResponse.class);
             } finally {
                 conn.disconnect();
             }
         }else{
-            Log.i("CommonLogin", "Auth fail: "+Tools.read(conn.getErrorStream()));
+            Log.i("CommonLogin", "Auth fail: "+ HyperUtils.read(conn.getErrorStream()));
             throw getResponseThrowable(conn);
         }
     }

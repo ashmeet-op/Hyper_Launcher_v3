@@ -9,7 +9,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -82,7 +82,7 @@ public abstract class LifecycleAwareAlertDialog implements LifecycleEventObserve
             lifecycleAwareDialog.show(lifecycle, context, dialogCreator);
         };
         synchronized (waitLock) {
-            Tools.runOnUiThread(showDialogRunnable);
+            HyperUtils.runOnUiThread(showDialogRunnable);
 
 
 

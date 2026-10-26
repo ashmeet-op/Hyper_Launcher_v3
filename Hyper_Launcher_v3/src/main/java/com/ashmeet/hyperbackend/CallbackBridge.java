@@ -10,7 +10,7 @@ import android.view.KeyEvent;
 import androidx.annotation.Keep;
 
 import com.ashmeet.hyperlauncher.utils.NativeLibraryLoader;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 
 import com.ashmeet.hyperbackend.lifecycle.ContextExecutor;
 import com.ashmeet.hyperbackend.game.platform.Platform;
@@ -108,14 +108,14 @@ public class CallbackBridge {
                     int truncLength = 5;
                     if(link.startsWith("file://")) truncLength = 7;
                     String path = link.substring(truncLength);
-                    Tools.openPath(ctx, new File(path), false);
+                    HyperUtils.openPath(ctx, new File(path), false);
                 }else {
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setDataAndType(Uri.parse(link), "*/*");
                     ctx.startActivity(intent);
                 }
             } catch (Throwable th) {
-                Tools.showError(ctx, th);
+                HyperUtils.showError(ctx, th);
             }
         });
     }
@@ -124,9 +124,9 @@ public class CallbackBridge {
     public static void openPath(String path) {
         ContextExecutor.executeActivity(ctx->{
             try {
-                Tools.openPath(ctx, new File(path), false);
+                HyperUtils.openPath(ctx, new File(path), false);
             } catch (Throwable th) {
-                Tools.showError(ctx, th);
+                HyperUtils.showError(ctx, th);
             }
         });
     }

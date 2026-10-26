@@ -7,7 +7,7 @@ import static android.view.MotionEvent.ACTION_POINTER_DOWN;
 import static android.view.MotionEvent.ACTION_POINTER_UP;
 import static android.view.MotionEvent.ACTION_UP;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 
 
 public class TapDetector {
@@ -18,7 +18,7 @@ public class TapDetector {
 
     private final static int TAP_MIN_DELTA_MS = -1;
     private final static int TAP_MAX_DELTA_MS = 300;
-    private final static int TAP_SLOP_SQUARE_PX = (int) Tools.dpToPx(2500);
+    private final static int TAP_SLOP_SQUARE_PX = (int) HyperUtils.dpToPx(2500);
 
     private final int mTapNumberToDetect;
     private int mCurrentTapNumber = 0;

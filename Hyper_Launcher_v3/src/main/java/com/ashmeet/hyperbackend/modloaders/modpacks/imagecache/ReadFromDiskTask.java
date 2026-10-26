@@ -3,7 +3,7 @@ package com.ashmeet.hyperbackend.modloaders.modpacks.imagecache;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 
 import java.io.File;
 
@@ -40,7 +40,7 @@ public class ReadFromDiskTask implements Runnable {
 
             Bitmap bitmap = BitmapFactory.decodeFile(cacheFile.getAbsolutePath(), options);
             if(bitmap != null) {
-                Tools.runOnUiThread(()->{
+                HyperUtils.runOnUiThread(()->{
                     if(taskCancelled()) {
                         bitmap.recycle();
                         return;

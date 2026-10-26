@@ -34,7 +34,7 @@ import com.ashmeet.hyperlauncher.components.dialog.DialogSwitchItem
 import com.ashmeet.hyperlauncher.components.dialog.DialogTextInput
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.activity.CustomControlsActivity
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperbackend.customcontrols.ControlData
 import com.ashmeet.hyperbackend.customcontrols.ControlJoystickData
 import com.ashmeet.hyperbackend.customcontrols.buttons.ControlDrawer
@@ -477,7 +477,7 @@ private fun EditControlContent(
                                             }
 
                                             override fun onFailed(e: Exception) =
-                                                Tools.showError(context, e)
+                                                HyperUtils.showError(context, e)
                                         }
                                         context.startCropping(receiver)
                                     }

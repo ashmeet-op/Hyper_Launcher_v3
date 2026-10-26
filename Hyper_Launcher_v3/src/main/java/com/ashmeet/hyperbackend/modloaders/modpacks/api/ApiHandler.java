@@ -5,7 +5,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,7 +62,7 @@ public class ApiHandler {
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
             addHeaders(conn, headers);
             InputStream inputStream = conn.getInputStream();
-            String data = Tools.read(inputStream);
+            String data = HyperUtils.read(inputStream);
             Log.d(ApiHandler.class.toString(), data);
             inputStream.close();
             conn.disconnect();
@@ -92,7 +92,7 @@ public class ApiHandler {
             outputStream.close();
 
             InputStream inputStream = conn.getInputStream();
-            String data = Tools.read(inputStream);
+            String data = HyperUtils.read(inputStream);
             inputStream.close();
 
             conn.disconnect();

@@ -4,7 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import com.ashmeet.hyperlauncher.utils.Tools
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperbackend.lifecycle.ContextExecutorTask
@@ -39,7 +39,7 @@ class ShowErrorActivity : BaseActivity() {
             if (mThrowable is ContextExecutorTask) {
                 (mThrowable as ContextExecutorTask).executeWithActivity(activity)
             } else {
-                Tools.showError(activity, mRolledMsg, mThrowable, activity is ShowErrorActivity)
+                HyperUtils.showError(activity, mRolledMsg, mThrowable, activity is ShowErrorActivity)
             }
         }
 

@@ -5,7 +5,7 @@ import android.util.Log;
 import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
 
 import net.ashmeet.hyperlauncher.R;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.instances.InstanceInstaller;
 import com.ashmeet.hyperbackend.instances.Instances;
 import com.ashmeet.hyperbackend.instances.Instance;
@@ -89,7 +89,7 @@ public class ModpackInstaller {
             modpackName = modpackName.substring(0,255);
         }
 
-        File modpackFile = new File(Tools.DIR_CACHE, modpackName + ".cf");
+        File modpackFile = new File(HyperUtils.DIR_CACHE, modpackName + ".cf");
 
         byte[] downloadBuffer = new byte[8192];
         try {

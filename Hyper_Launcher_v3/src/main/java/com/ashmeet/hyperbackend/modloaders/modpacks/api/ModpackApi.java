@@ -7,7 +7,7 @@ import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
 
 import com.ashmeet.hyperlauncher.activity.PojavApplication;
 import net.ashmeet.hyperlauncher.R;
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.modloaders.modpacks.api.modloader.LoaderInstaller;
 import com.ashmeet.hyperbackend.modloaders.modpacks.models.ModDetail;
 import com.ashmeet.hyperbackend.modloaders.modpacks.models.ModItem;
@@ -35,7 +35,7 @@ public interface ModpackApi {
             try {
                 installModpack(modDetail, selectedVersion);
             }catch (IOException e) {
-                Tools.showErrorRemote(context, R.string.modpack_install_download_failed, e);
+                HyperUtils.showErrorRemote(context, R.string.modpack_install_download_failed, e);
             }
         });
     }

@@ -4,7 +4,7 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 
 import java.io.*;
 import java.net.*;
@@ -15,7 +15,7 @@ import org.apache.commons.io.*;
 
 @SuppressWarnings("IOStreamConstructor")
 public class DownloadUtils {
-    public static final String USER_AGENT = Tools.APP_NAME;
+    public static final String USER_AGENT = HyperUtils.APP_NAME;
 
     public static void download(String url, OutputStream os) throws IOException {
         download(new URL(url), os);
@@ -64,7 +64,7 @@ public class DownloadUtils {
     }
 
     public static void downloadFileMonitored(String urlInput, File outputFile, @Nullable byte[] buffer,
-                                             Tools.DownloaderFeedback monitor) throws IOException {
+                                             HyperUtils.DownloaderFeedback monitor) throws IOException {
         FileUtils.ensureParentDirectory(outputFile);
 
         HttpURLConnection conn = (HttpURLConnection) new URL(urlInput).openConnection();
@@ -87,12 +87,12 @@ public class DownloadUtils {
     }
 
     public static <T> T downloadStringCached(String url, String cacheName, ParseCallback<T> parseCallback) throws IOException, ParseException{
-        File cacheDestination = new File(Tools.DIR_CACHE, "string_cache/"+cacheName);
+        File cacheDestination = new File(HyperUtils.DIR_CACHE, "string_cache/"+cacheName);
         if(cacheDestination.isFile() &&
                 cacheDestination.canRead() &&
                 System.currentTimeMillis() < (cacheDestination.lastModified() + 86400000)) {
             try {
-                String cachedString = Tools.read(new FileInputStream(cacheDestination));
+                String cachedString = HyperUtils.read(new FileInputStream(cacheDestination));
                 return parseCallback.process(cachedString);
             }catch(IOException e) {
                 Log.i("DownloadUtils", "Failed to read the cached file", e);
@@ -114,7 +114,7 @@ public class DownloadUtils {
         }
 
         if(tryWriteCache) try {
-            Tools.write(cacheDestination, urlContent);
+            HyperUtils.write(cacheDestination, urlContent);
         }catch(IOException e) {
             Log.i("DownloadUtils", "Failed to cache the string", e);
         }

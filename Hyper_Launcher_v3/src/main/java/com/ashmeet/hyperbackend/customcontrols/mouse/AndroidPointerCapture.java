@@ -10,7 +10,7 @@ import androidx.annotation.RequiresApi;
 
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 
-import com.ashmeet.hyperlauncher.utils.Tools;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 
 import com.ashmeet.hyperbackend.CallbackBridge;
 import com.ashmeet.hyperbackend.game.platform.input.PlatformGrabListener;
@@ -21,7 +21,7 @@ public class AndroidPointerCapture implements ViewTreeObserver.OnWindowFocusChan
     private static final float TOUCHPAD_SCROLL_THRESHOLD = 1;
     private final View mTouchpadView;
     private final View mHostView;
-    private final float mMousePrescale = Tools.dpToPx(1);
+    private final float mMousePrescale = HyperUtils.dpToPx(1);
     private final PointerTracker mPointerTracker = new PointerTracker();
     private final Scroller mScroller = new Scroller(TOUCHPAD_SCROLL_THRESHOLD);
     private final float[] mVector = mPointerTracker.getMotionVector();
@@ -163,12 +163,12 @@ public class AndroidPointerCapture implements ViewTreeObserver.OnWindowFocusChan
 
     @Override
     public void onGrabState(boolean isGrabbing) {
-        Tools.runOnUiThread(this::handleAutomaticCapture);
+        HyperUtils.runOnUiThread(this::handleAutomaticCapture);
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
-        if(hasFocus && Tools.isAndroid8OrHigher()) handleAutomaticCapture();
+        if(hasFocus && HyperUtils.isAndroid8OrHigher()) handleAutomaticCapture();
     }
 
     public void detach() {
