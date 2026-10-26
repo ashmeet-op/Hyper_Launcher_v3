@@ -13,6 +13,10 @@ import android.util.Log;
 
 import com.ashmeet.hyperlauncher.plugin.natives.NativePlugin;
 import com.ashmeet.hyperlauncher.plugin.natives.NativePluginManager;
+import com.ashmeet.hyperlauncher.plugin.renderer.RendererPlugin;
+import com.ashmeet.hyperlauncher.plugin.renderer.RendererPluginManager;
+import com.ashmeet.hyperlauncher.plugin.renderer_v2.RendererV2Data;
+import com.ashmeet.hyperlauncher.plugin.renderer_v2.RendererV2PluginManager;
 import com.ashmeet.hyperlauncher.renderer.RendererInterface;
 import com.ashmeet.hyperlauncher.renderer.Renderers;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
@@ -68,6 +72,20 @@ public class GameRenderer {
                         renderer.equals(pluginRenderer.getRendererId()) ||
                         renderer.equals(pluginRenderer.getRendererName())) {
                         return new FCLRenderSpec(pluginRenderer);
+                    }
+                }
+                for (RendererPlugin plugin : RendererPluginManager.INSTANCE.getRendererList()) {
+                    if (renderer.equals(plugin.getPackageName()) ||
+                        renderer.equals(plugin.getId()) ||
+                        renderer.equals(plugin.getDisplayName())) {
+                        return new FCLRenderSpec(plugin);
+                    }
+                }
+                for (RendererV2Data plugin : RendererV2PluginManager.INSTANCE.getRendererList()) {
+                    if (renderer.equals(plugin.getPackageName()) ||
+                        renderer.equals(plugin.getRendererId()) ||
+                        renderer.equals(plugin.getRendererName())) {
+                        return new FCLRenderSpec(plugin);
                     }
                 }
                 for (NativePlugin plugin : NativePluginManager.INSTANCE.getPlugins()) {

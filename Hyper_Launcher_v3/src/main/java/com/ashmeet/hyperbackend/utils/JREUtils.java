@@ -161,6 +161,7 @@ public class JREUtils {
      */
     public static ArrayList<String> parseJavaArguments(String args){
         ArrayList<String> parsedArguments = new ArrayList<>(0);
+        if (args == null || args.trim().isEmpty()) return parsedArguments;
         args = args.trim().replace(" ", "");
         //For each prefixes, we separate args.
         String[] separators = new String[]{"-XX:-","-XX:+", "-XX:","--", "-D", "-X", "-javaagent:", "-verbose"};
@@ -185,6 +186,12 @@ public class JREUtils {
                 //Extract it
                 String parsedSubString = args.substring(start, end);
                 args = args.replace(parsedSubString, "");
+
+                // Validate that argument starts with '-'
+                if (!parsedSubString.startsWith("-")) {
+                    Log.w("JAVA ARGS PARSER", "Rejected invalid argument not starting with '-': " + parsedSubString);
+                    continue;
+                }
 
                 //Check if two args aren't bundled together by mistake
                 if(parsedSubString.indexOf('=') == parsedSubString.lastIndexOf('=')) {

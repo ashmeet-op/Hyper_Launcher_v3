@@ -164,7 +164,18 @@ public interface GLESProvider {
             return null;
         }
         public File gles() {
-            return egl();
+            if (context != null && context.getApplicationInfo() != null && context.getApplicationInfo().nativeLibraryDir != null) {
+                File local = new File(context.getApplicationInfo().nativeLibraryDir, ANGLE_GLES);
+                if (local.exists()) return local;
+            }
+            if (HyperUtils.NATIVE_LIB_DIR != null) {
+                File localTools = new File(HyperUtils.NATIVE_LIB_DIR, ANGLE_GLES);
+                if (localTools.exists()) return localTools;
+            }
+            String basePath = Architecture.is64BitsDevice() ? "/system/lib64/" : "/system/lib/";
+            File systemFile = new File(basePath, ANGLE_GLES);
+            if (systemFile.exists()) return systemFile;
+            return null;
         }
         public boolean supported() {
             File file = egl();
@@ -172,10 +183,7 @@ public interface GLESProvider {
         }
         public boolean requiresNamespace() {
             File file = egl();
-            if (file != null && HyperUtils.NATIVE_LIB_DIR != null && file.getAbsolutePath().startsWith(HyperUtils.NATIVE_LIB_DIR)) {
-                return false;
-            }
-            return true;
+            return file == null || HyperUtils.NATIVE_LIB_DIR == null || !file.getAbsolutePath().startsWith(HyperUtils.NATIVE_LIB_DIR);
         }
     }
     // One might add other OpenGLES providers (such as Mesa and/or bundled ANGLE), but this is not something we want right now
