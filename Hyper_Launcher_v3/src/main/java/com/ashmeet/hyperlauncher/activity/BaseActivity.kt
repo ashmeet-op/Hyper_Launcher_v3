@@ -25,7 +25,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        if (shouldEnableEdgeToEdge() || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM)) {
+        if ((shouldEnableEdgeToEdge() && shouldIgnoreNotch()) || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM && shouldIgnoreNotch())) {
             enableEdgeToEdge(
                 statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
                 navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
@@ -62,18 +62,13 @@ abstract class BaseActivity : AppCompatActivity() {
         controller.systemBarsBehavior =
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
+        controller.hide(WindowInsetsCompat.Type.statusBars())
+
         if (hideBars) {
-
-            var types = WindowInsetsCompat.Type.navigationBars()
-            if (isFullscreen) {
-                types = types or WindowInsetsCompat.Type.statusBars()
-            }
-            controller.hide(types)
+            controller.hide(WindowInsetsCompat.Type.navigationBars())
         } else {
-            controller.show(WindowInsetsCompat.Type.systemBars())
+            controller.show(WindowInsetsCompat.Type.navigationBars())
         }
-
-
 
         HyperUtils.setInsetsMode(this, hideBars, shouldIgnoreNotch())
     }

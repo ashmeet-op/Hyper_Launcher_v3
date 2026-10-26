@@ -334,8 +334,9 @@ object HyperUtils {
         val insetsController = window.insetsController
         if (insetsController != null) {
             insetsController.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            if (finalNoSystemBars) insetsController.hide(WindowInsets.Type.systemBars())
-            else insetsController.show(WindowInsets.Type.systemBars())
+            insetsController.hide(WindowInsets.Type.statusBars())
+            if (finalNoSystemBars) insetsController.hide(WindowInsets.Type.navigationBars())
+            else insetsController.show(WindowInsets.Type.navigationBars())
         }
 
         insetView.setOnApplyWindowInsetsListener { v, windowInsets ->
