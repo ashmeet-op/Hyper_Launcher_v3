@@ -79,8 +79,10 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
             return View(requireContext())
         }
 
-        if (mInstance == null) {
+        if (mInstance == null || mInstance?.mInstanceRoot != selectedInstance.mInstanceRoot) {
             loadValues(selectedInstance)
+        } else if (mControlLayout.isEmpty() && !selectedInstance.controlLayout.isNullOrEmpty()) {
+            mControlLayout = selectedInstance.controlLayout ?: ""
         }
 
         return ComposeView(requireContext()).apply {
