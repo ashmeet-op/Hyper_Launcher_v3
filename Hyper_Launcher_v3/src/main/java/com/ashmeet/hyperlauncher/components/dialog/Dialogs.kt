@@ -56,6 +56,7 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
@@ -87,11 +88,14 @@ import com.ashmeet.hyperlauncher.components.HyperAlertDialog
 import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
 import com.ashmeet.hyperlauncher.components.slider.SimpleTextSlider
 import com.ashmeet.hyperlauncher.components.switch.DefaultSwitch
+import com.ashmeet.hyperlauncher.filemanager.utils.SortFileName
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.ashmeet.hyperbackend.utils.KeycodeUtils
+import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
@@ -812,5 +816,91 @@ fun KeycodePickerDialog(
         },
         confirmText = stringResource(R.string.cancel),
         onConfirm = onDismiss
+    )
+}
+
+@Composable
+fun ControlSelectorDialog(
+    title: String,
+    currentPath: String,
+    onSelected: (file: File, path: String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val ctrlMapDir = remember {
+        val dir = File(HyperUtils.CTRLMAP_PATH ?: "")
+        if (!dir.exists()) dir.mkdirs()
+        dir
+    }
+    val files = remember {
+        ctrlMapDir.listFiles()
+            ?.filter { it.name.endsWith(".json") }
+            ?.sortedWith(SortFileName())
+            ?: emptyList()
+    }
+
+    var selectedPath by remember { mutableStateOf(currentPath) }
+
+    HyperAlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = translatedText(title)) },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 350.dp)
+            ) {
+                if (files.isEmpty()) {
+                    Text(
+                        text = translatedText("No control layouts found"),
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f, fill = false),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        items(files) { file ->
+                            val path = file.absolutePath
+                            val isSelected = path == selectedPath
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        selectedPath = path
+                                    }
+                                    .padding(vertical = 12.dp, horizontal = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(
+                                    selected = isSelected,
+                                    onClick = { selectedPath = path }
+                                )
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Text(
+                                    text = file.name.removeSuffix(".json"),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmText = stringResource(R.string.ok),
+        onConfirm = {
+            val file = files.find { it.absolutePath == selectedPath } ?: files.firstOrNull()
+            if (file != null) {
+                onSelected(file, file.absolutePath)
+            } else {
+                onDismiss()
+            }
+        },
+        dismissText = stringResource(R.string.cancel),
+        onDismiss = onDismiss
     )
 }

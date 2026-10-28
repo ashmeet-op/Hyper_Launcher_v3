@@ -51,7 +51,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.edit
 import androidx.core.net.toUri
@@ -81,10 +80,9 @@ import com.ashmeet.hyperlauncher.activity.PojavApplication
 import com.ashmeet.hyperlauncher.activity.ShowErrorActivity
 import com.ashmeet.hyperlauncher.components.HyperAlertDialog
 import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
+import com.ashmeet.hyperlauncher.components.dialog.ControlSelectorDialog
 import com.ashmeet.hyperlauncher.components.dialog.GenericComposeDialogFragment
 import com.ashmeet.hyperlauncher.components.dialog.SimpleAlertDialog
-import com.ashmeet.hyperlauncher.filemanager.components.FileListView
-import com.ashmeet.hyperlauncher.filemanager.listeners.FileSelectedListener
 import com.ashmeet.hyperlauncher.plugin.natives.NativePluginManager
 import com.ashmeet.hyperlauncher.runtime.RuntimeUtils
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
@@ -1177,36 +1175,17 @@ object HyperUtils {
         if (fragmentActivity.isFinishing || fragmentActivity.isDestroyed) return
 
         val dialogFragment = GenericComposeDialogFragment {
-            HyperAlertDialog(
-                onDismissRequest = { dismiss() },
-                title = { Text(text = translatedText(stringResource(R.string.global_load))) },
-                text = {
-                    AndroidView(
-                        factory = { ctx ->
-                            FileListView(ctx, null, arrayOf("json")).apply {
-                                if (SDK_INT < 29) {
-                                    listFileAt(File(CTRLMAP_PATH ?: ""))
-                                } else {
-                                    lockPathAt(File(CTRLMAP_PATH ?: ""))
-                                }
-                                setFileSelectedListener(object : FileSelectedListener() {
-                                    override fun onFileSelected(file: File, path: String) {
-                                        try {
-                                            controlLayout.loadLayout(path)
-                                        } catch (e: Exception) {
-                                            showError(ctx, e)
-                                        }
-                                        dismiss()
-                                    }
-                                })
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(350.dp)
-                    )
+            ControlSelectorDialog(
+                title = translatedText(stringResource(R.string.global_load)),
+                currentPath = "",
+                onSelected = { _, path ->
+                    try {
+                        controlLayout.loadLayout(path)
+                    } catch (e: Exception) {
+                        showError(context, e)
+                    }
+                    dismiss()
                 },
-                dismissText = stringResource(android.R.string.cancel),
                 onDismiss = { dismiss() }
             )
         }
@@ -1220,37 +1199,22 @@ object HyperUtils {
         if (fragmentActivity.isFinishing || fragmentActivity.isDestroyed) return
 
         val dialogFragment = GenericComposeDialogFragment {
-            HyperAlertDialog(
-                onDismissRequest = { dismiss() },
-                title = { Text(text = translatedText(stringResource(R.string.customctrl_selectdefault))) },
-                text = {
-                    AndroidView(
-                        factory = { ctx ->
-                            FileListView(ctx, null, arrayOf("json")).apply {
-                                lockPathAt(File(CTRLMAP_PATH ?: ""))
-                                setFileSelectedListener(object : FileSelectedListener() {
-                                    override fun onFileSelected(file: File, path: String) {
-                                        try {
-                                            LauncherPreferences.DEFAULT_PREF?.edit {
-                                                putString("defaultCtrl", path)
-                                            }
-                                            LauncherPreferences.PREF_DEFAULTCTRL_PATH = path
-                                            controlLayout.loadLayout(path)
-                                            Toast.makeText(ctx, "Default layout set to ${file.name}", Toast.LENGTH_SHORT).show()
-                                        } catch (e: Exception) {
-                                            showError(ctx, e)
-                                        }
-                                        dismiss()
-                                    }
-                                })
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(350.dp)
-                    )
+            ControlSelectorDialog(
+                title = translatedText(stringResource(R.string.customctrl_selectdefault)),
+                currentPath = LauncherPreferences.PREF_DEFAULTCTRL_PATH,
+                onSelected = { file, path ->
+                    try {
+                        LauncherPreferences.DEFAULT_PREF?.edit {
+                            putString("defaultCtrl", path)
+                        }
+                        LauncherPreferences.PREF_DEFAULTCTRL_PATH = path
+                        controlLayout.loadLayout(path)
+                        Toast.makeText(context, "Default layout set to ${file.name}", Toast.LENGTH_SHORT).show()
+                    } catch (e: Exception) {
+                        showError(context, e)
+                    }
+                    dismiss()
                 },
-                dismissText = stringResource(android.R.string.cancel),
                 onDismiss = { dismiss() }
             )
         }

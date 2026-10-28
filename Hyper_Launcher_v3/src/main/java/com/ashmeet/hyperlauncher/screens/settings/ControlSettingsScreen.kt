@@ -40,6 +40,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.edit
 import com.ashmeet.hyperbackend.utils.KeycodeUtils
 import com.ashmeet.hyperlauncher.components.HyperAlertDialog
+import com.ashmeet.hyperlauncher.components.dialog.ControlSelectorDialog
 import com.ashmeet.hyperlauncher.components.dialog.KeycodePickerDialog
 import com.ashmeet.hyperlauncher.filemanager.components.FileListView
 import com.ashmeet.hyperlauncher.filemanager.listeners.FileSelectedListener
@@ -480,40 +481,21 @@ fun ControlSettingsScreen(
     }
 
     if (showSelectControlMapDialog) {
-        HyperAlertDialog(
-            onDismissRequest = { showSelectControlMapDialog = false },
-            title = { Text(text = translatedText(stringResource(R.string.customctrl_selectdefault))) },
-            text = {
-                AndroidView(
-                    factory = { ctx ->
-                        FileListView(ctx, null, arrayOf("json")).apply {
-                            if (Build.VERSION.SDK_INT < 29) {
-                                listFileAt(File(HyperUtils.CTRLMAP_PATH ?: ""))
-                            } else {
-                                lockPathAt(File(HyperUtils.CTRLMAP_PATH ?: ""))
-                            }
-                            setFileSelectedListener(object : FileSelectedListener() {
-                                override fun onFileSelected(file: File, path: String) {
-                                    try {
-                                        LauncherPreferences.DEFAULT_PREF?.edit {
-                                            putString("defaultCtrl", path)
-                                        }
-                                        LauncherPreferences.PREF_DEFAULTCTRL_PATH = path
-                                        Toast.makeText(ctx, "Default layout set to ${file.name}", Toast.LENGTH_SHORT).show()
-                                    } catch (e: Exception) {
-                                        HyperUtils.showError(ctx, e)
-                                    }
-                                    showSelectControlMapDialog = false
-                                }
-                            })
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(350.dp)
-                )
+        ControlSelectorDialog(
+            title = stringResource(R.string.customctrl_selectdefault),
+            currentPath = LauncherPreferences.PREF_DEFAULTCTRL_PATH,
+            onSelected = { file, path ->
+                try {
+                    LauncherPreferences.DEFAULT_PREF?.edit {
+                        putString("defaultCtrl", path)
+                    }
+                    LauncherPreferences.PREF_DEFAULTCTRL_PATH = path
+                    Toast.makeText(context, "Default layout set to ${file.name}", Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    HyperUtils.showError(context, e)
+                }
+                showSelectControlMapDialog = false
             },
-            dismissText = stringResource(android.R.string.cancel),
             onDismiss = { showSelectControlMapDialog = false }
         )
     }

@@ -44,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ashmeet.hyperlauncher.screens.settings.layouts.CardPosition
@@ -58,6 +59,7 @@ import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
 import androidx.compose.ui.viewinterop.AndroidView
 import com.ashmeet.hyperlauncher.components.HyperAlertDialog
+import com.ashmeet.hyperlauncher.components.dialog.ControlSelectorDialog
 import com.ashmeet.hyperlauncher.filemanager.components.FileListView
 import com.ashmeet.hyperlauncher.filemanager.listeners.FileSelectedListener
 import com.ashmeet.hyperlauncher.utils.HyperUtils
@@ -333,36 +335,18 @@ fun InstanceEditorScreen(
         }
 
         if (showControlDialog) {
-            HyperAlertDialog(
-                onDismissRequest = { showControlDialog = false },
-                title = { Text(text = translatedText(stringResource(R.string.customctrl_selectdefault))) },
-                text = {
-                    AndroidView(
-                        factory = { ctx ->
-                            FileListView(ctx, null, arrayOf("json")).apply {
-                                if (android.os.Build.VERSION.SDK_INT < 29) {
-                                    listFileAt(File(HyperUtils.CTRLMAP_PATH ?: ""))
-                                } else {
-                                    lockPathAt(File(HyperUtils.CTRLMAP_PATH ?: ""))
-                                }
-                                setFileSelectedListener(object : FileSelectedListener() {
-                                    override fun onFileSelected(file: File, path: String) {
-                                        try {
-                                            onControlLayoutChange(file.name)
-                                        } catch (e: Exception) {
-                                            HyperUtils.showError(ctx, e)
-                                        }
-                                        showControlDialog = false
-                                    }
-                                })
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(350.dp)
-                    )
+            val context = LocalContext.current
+            ControlSelectorDialog(
+                title = stringResource(R.string.customctrl_selectdefault),
+                currentPath = if (controlLayout.isNotEmpty()) File(HyperUtils.CTRLMAP_PATH, controlLayout).absolutePath else "",
+                onSelected = { file, _ ->
+                    try {
+                        onControlLayoutChange(file.name)
+                    } catch (e: Exception) {
+                        HyperUtils.showError(context, e)
+                    }
+                    showControlDialog = false
                 },
-                dismissText = stringResource(android.R.string.cancel),
                 onDismiss = { showControlDialog = false }
             )
         }

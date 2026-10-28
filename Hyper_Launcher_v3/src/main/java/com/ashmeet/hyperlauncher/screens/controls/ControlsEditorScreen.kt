@@ -1,5 +1,6 @@
 package com.ashmeet.hyperlauncher.screens.controls
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -26,6 +27,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.ashmeet.hyperlauncher.components.layout.element.ActionRow
 import com.ashmeet.hyperlauncher.components.layout.background.LauncherBackground
 import com.ashmeet.hyperlauncher.components.HyperAlertDialog
+import com.ashmeet.hyperlauncher.components.dialog.ControlSelectorDialog
 import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
 import com.ashmeet.hyperlauncher.fragments.dialog.EditControlSideDialog
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
@@ -43,6 +45,7 @@ import com.ashmeet.hyperbackend.customcontrols.buttons.ControlInterface
 import java.io.File
 
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun ControlsEditorScreen(
     controlLayout: ControlLayout,
@@ -142,36 +145,17 @@ fun ControlsEditorScreen(
         }
 
         if (showLoadDialog) {
-            HyperAlertDialog(
-                onDismissRequest = { showLoadDialog = false },
-                title = { Text(text = translatedText(stringResource(R.string.global_load))) },
-                text = {
-                    AndroidView(
-                        factory = { ctx ->
-                            FileListView(ctx, null, arrayOf("json")).apply {
-                                if (Build.VERSION.SDK_INT < 29) {
-                                    listFileAt(File(HyperUtils.CTRLMAP_PATH))
-                                } else {
-                                    lockPathAt(File(HyperUtils.CTRLMAP_PATH))
-                                }
-                                setFileSelectedListener(object : FileSelectedListener() {
-                                    override fun onFileSelected(file: File, path: String) {
-                                        try {
-                                            controlLayout.loadLayout(path)
-                                        } catch (e: Exception) {
-                                            HyperUtils.showError(ctx, e)
-                                        }
-                                        showLoadDialog = false
-                                    }
-                                })
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(350.dp)
-                    )
+            ControlSelectorDialog(
+                title = stringResource(R.string.global_load),
+                currentPath = "",
+                onSelected = { file, path ->
+                    try {
+                        controlLayout.loadLayout(path)
+                    } catch (e: Exception) {
+                        HyperUtils.showError(context, e)
+                    }
+                    showLoadDialog = false
                 },
-                dismissText = stringResource(android.R.string.cancel),
                 onDismiss = { showLoadDialog = false }
             )
         }
@@ -216,35 +200,20 @@ fun ControlsEditorScreen(
         }
 
         if (showSetDefaultDialog) {
-            HyperAlertDialog(
-                onDismissRequest = { showSetDefaultDialog = false },
-                title = { Text(text = translatedText(stringResource(R.string.customctrl_selectdefault))) },
-                text = {
-                    AndroidView(
-                        factory = { ctx ->
-                            FileListView(ctx, null, arrayOf("json")).apply {
-                                lockPathAt(File(HyperUtils.CTRLMAP_PATH))
-                                setFileSelectedListener(object : FileSelectedListener() {
-                                    override fun onFileSelected(file: File, path: String) {
-                                        try {
-                                            LauncherPreferences.DEFAULT_PREF?.edit()?.putString("defaultCtrl", path)?.apply()
-                                            LauncherPreferences.PREF_DEFAULTCTRL_PATH = path
-                                            controlLayout.loadLayout(path)
-                                            Toast.makeText(ctx, "Default layout set to ${file.name}", Toast.LENGTH_SHORT).show()
-                                        } catch (e: Exception) {
-                                            HyperUtils.showError(ctx, e)
-                                        }
-                                        showSetDefaultDialog = false
-                                    }
-                                })
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(350.dp)
-                    )
+            ControlSelectorDialog(
+                title = stringResource(R.string.customctrl_selectdefault),
+                currentPath = LauncherPreferences.PREF_DEFAULTCTRL_PATH,
+                onSelected = { file, path ->
+                    try {
+                        LauncherPreferences.DEFAULT_PREF?.edit()?.putString("defaultCtrl", path)?.apply()
+                        LauncherPreferences.PREF_DEFAULTCTRL_PATH = path
+                        controlLayout.loadLayout(path)
+                        Toast.makeText(context, "Default layout set to ${file.name}", Toast.LENGTH_SHORT).show()
+                    } catch (e: Exception) {
+                        HyperUtils.showError(context, e)
+                    }
+                    showSetDefaultDialog = false
                 },
-                dismissText = stringResource(android.R.string.cancel),
                 onDismiss = { showSetDefaultDialog = false }
             )
         }
