@@ -17,6 +17,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.content.pm.ActivityInfo;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -455,6 +456,11 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
         }
         ContextExecutor.clearActivity();
         super.onDestroy();
+    }
+
+    @Override
+    public void updateOrientation() {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE);
     }
 
     @Override

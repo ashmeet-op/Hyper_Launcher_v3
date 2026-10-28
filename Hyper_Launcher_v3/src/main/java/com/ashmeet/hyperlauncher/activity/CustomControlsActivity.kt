@@ -1,6 +1,7 @@
 package com.ashmeet.hyperlauncher.activity
 
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.provider.DocumentsContract
@@ -23,6 +24,10 @@ class CustomControlsActivity : BaseActivity(), EditorExitable, CropperUtils.Crop
     private lateinit var mControlLayout: ControlLayout
     private var mCropperReceiver: CropperUtils.CropperReceiver? = null
     private lateinit var mCropperLauncher: ActivityResultLauncher<*>
+
+    override fun updateOrientation() {
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+    }
 
     override fun shouldEnableEdgeToEdge(): Boolean {
         return LauncherPreferences.PREF_FULLSCREEN_LAUNCHER

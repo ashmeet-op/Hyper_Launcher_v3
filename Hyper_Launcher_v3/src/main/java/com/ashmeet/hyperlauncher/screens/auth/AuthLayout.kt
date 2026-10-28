@@ -329,6 +329,14 @@ fun AuthLayout(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                    ) {
+                        androidViewContent()
+                    }
+
                     if (!isFullScreen) {
                         Box(
                             modifier = Modifier
@@ -337,14 +345,6 @@ fun AuthLayout(
                         ) {
                             skinPreviewContent()
                         }
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                    ) {
-                        androidViewContent()
                     }
                 }
             } else {

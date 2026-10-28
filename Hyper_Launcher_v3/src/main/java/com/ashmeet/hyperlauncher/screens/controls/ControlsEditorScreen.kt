@@ -1,6 +1,8 @@
 package com.ashmeet.hyperlauncher.screens.controls
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.pm.ActivityInfo
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,6 +18,7 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,6 +60,17 @@ fun ControlsEditorScreen(
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+
+    DisposableEffect(Unit) {
+        val activity = context as? Activity
+        val previousOrientation = activity?.requestedOrientation
+        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+        onDispose {
+            if (previousOrientation != null) {
+                activity.requestedOrientation = previousOrientation
+            }
+        }
+    }
 
     var followedButton by remember { mutableStateOf<ControlInterface?>(null) }
     var showDeleteConfirm by remember { mutableStateOf(false) }

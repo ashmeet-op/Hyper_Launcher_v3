@@ -391,8 +391,7 @@ private fun SidebarCardContent(
         tonalElevation = 0.dp,
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
+            modifier = (if (showHead) Modifier.fillMaxSize() else Modifier.fillMaxWidth())
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
