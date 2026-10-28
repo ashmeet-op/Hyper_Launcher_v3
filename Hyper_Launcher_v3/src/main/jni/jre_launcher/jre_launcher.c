@@ -44,7 +44,7 @@ bool apiRequiresHints() {
 
 void throwException(JNIEnv *env, jint loadStage, jint errorCode, const char *errorInfo) {
     jclass loadException = (*env)->FindClass(env,
-                                             "com/ashmeet/hyperbackend/utils/jre/VMLoadException");
+                                             "com/ashmeet/hyperlauncher/utils/jre/VMLoadException");
     if (loadException == NULL) {
         jthrowable exception = (*env)->ExceptionOccurred(env);
         if (exception != NULL) (*env)->Throw(env, exception);
@@ -206,7 +206,7 @@ static void prepareSignalHandlers() {
 extern bool installClassLoaderHooks(JNIEnv *env, JNIEnv *vm_env);
 
 JNIEXPORT jboolean JNICALL
-Java_com_ashmeet_hyperbackend_utils_jre_JavaRunner_nativeLoadJVM(JNIEnv *env, jclass clazz,
+Java_com_ashmeet_hyperlauncher_utils_jre_JavaRunner_nativeLoadJVM(JNIEnv *env, jclass clazz,
                                                                  jstring vmpath,
                                                                  jobjectArray vmArgsArray,
                                                                  jstring mainClass,

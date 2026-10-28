@@ -27,7 +27,7 @@ import com.ashmeet.hyperbackend.utils.DownloadUtils;
 import com.ashmeet.hyperbackend.utils.FileUtils;
 import com.ashmeet.hyperbackend.utils.JSONUtils;
 import com.ashmeet.hyperbackend.utils.MavenNameUtils;
-import com.ashmeet.hyperbackend.utils.jre.RuntimeSelectionException;
+import com.ashmeet.hyperlauncher.utils.jre.RuntimeSelectionException;
 import com.ashmeet.hyperbackend.value.ClientInfo;
 import com.ashmeet.hyperbackend.value.DependentLibrary;
 import com.ashmeet.hyperbackend.value.LibraryArtifact;

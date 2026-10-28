@@ -79,7 +79,7 @@ import com.ashmeet.hyperbackend.utils.MCOptionUtils;
 import com.ashmeet.hyperbackend.authenticator.accounts.Account;
 import com.ashmeet.hyperbackend.game.renderer.GameRenderer;
 import com.ashmeet.hyperbackend.game.renderer.RendererCache;
-import com.ashmeet.hyperbackend.utils.jre.GameRunner;
+import com.ashmeet.hyperlauncher.utils.jre.GameRunner;
 
 import java.io.File;
 import java.io.IOException;

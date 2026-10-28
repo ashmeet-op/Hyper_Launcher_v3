@@ -3,7 +3,7 @@ package com.ashmeet.hyperlauncher.runtime
 import android.system.Os
 import android.util.Log
 import com.ashmeet.hyperbackend.utils.MathUtils
-import com.ashmeet.hyperbackend.utils.jre.JavaRunner
+import com.ashmeet.hyperlauncher.utils.jre.JavaRunner
 import com.ashmeet.hyperlauncher.tracker.TrackerLayout
 import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperlauncher.utils.HyperUtils.NATIVE_LIB_DIR

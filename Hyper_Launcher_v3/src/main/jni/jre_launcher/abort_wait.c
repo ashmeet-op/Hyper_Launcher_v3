@@ -61,7 +61,7 @@ _Noreturn void abort_call(int code, bool is_signal) {
 }
 
 JNIEXPORT void JNICALL
-Java_com_ashmeet_hyperbackend_utils_jre_JavaRunner_nativeSetupExit(JNIEnv *env, jclass clazz,
+Java_com_ashmeet_hyperlauncher_utils_jre_JavaRunner_nativeSetupExit(JNIEnv *env, jclass clazz,
                                                                    jobject context) {
     (*env)->GetJavaVM(env, &vm_exit_data.vm);
     jclass class = (*env)->FindClass(env, "com/ashmeet/hyperlauncher/activity/ExitActivity");

@@ -13,7 +13,7 @@ import com.ashmeet.hyperbackend.progresskeeper.DownloaderProgressWrapper
 import com.ashmeet.hyperbackend.utils.DownloadUtils
 import com.ashmeet.hyperbackend.utils.MathUtils
 import com.ashmeet.hyperbackend.utils.SignatureCheckUtil
-import com.ashmeet.hyperbackend.utils.jre.RuntimeSelectionException
+import com.ashmeet.hyperlauncher.utils.jre.RuntimeSelectionException
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException

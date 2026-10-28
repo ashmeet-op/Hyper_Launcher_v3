@@ -33,7 +33,7 @@ import com.ashmeet.hyperlauncher.runtime.Runtime
 import com.ashmeet.hyperbackend.utils.JREUtils
 import com.ashmeet.hyperbackend.utils.MathUtils
 import com.ashmeet.hyperbackend.utils.SingleTapConfirm
-import com.ashmeet.hyperbackend.utils.jre.JavaRunner
+import com.ashmeet.hyperlauncher.utils.jre.JavaRunner
 import org.apache.commons.io.IOUtils
 import java.io.File
 import java.io.FileOutputStream
