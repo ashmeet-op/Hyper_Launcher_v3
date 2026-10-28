@@ -17,6 +17,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import com.ashmeet.hyperlauncher.activity.PojavApplication
@@ -94,6 +95,9 @@ class FileListView @JvmOverloads constructor(
         if (path == null) return
         PojavApplication.sExecutorService.execute {
             try {
+                if (!path.exists()) {
+                    path.mkdirs()
+                }
                 if (path.exists()) {
                     if (path.isDirectory) {
                         fullPath = path
@@ -174,7 +178,6 @@ class FileListView @JvmOverloads constructor(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FileListViewContent(
     files: List<File>,
@@ -184,7 +187,7 @@ fun FileListViewContent(
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+        color = Color.Transparent
     ) {
         Column(
             modifier = Modifier
