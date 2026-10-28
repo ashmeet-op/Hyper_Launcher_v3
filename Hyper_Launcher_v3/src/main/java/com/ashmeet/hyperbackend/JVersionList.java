@@ -60,7 +60,7 @@ public class JVersionList {
 
         @Keep
         public static class ArgValue {
-            public MoJsonRule[] rules;
+            public HyperRule[] rules;
             public String value;
 
 

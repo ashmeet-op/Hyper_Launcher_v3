@@ -7,7 +7,7 @@ import java.util.Map;
 
 @Keep
 public class DependentLibrary {
-    public MoJsonRule[] rules;
+    public HyperRule[] rules;
     public String name;
     public LibraryDownloads downloads;
     public String url;

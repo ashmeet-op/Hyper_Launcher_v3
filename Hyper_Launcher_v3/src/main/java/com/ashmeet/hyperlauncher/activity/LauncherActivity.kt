@@ -35,9 +35,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import net.ashmeet.hyperlauncher.BuildConfig
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperbackend.authenticator.accounts.Accounts
-import com.ashmeet.hyperbackend.extra.ExtraConstants
-import com.ashmeet.hyperbackend.extra.ExtraCore
-import com.ashmeet.hyperbackend.extra.ExtraListener
+import com.ashmeet.hyperlauncher.extra.ExtraConstants
+import com.ashmeet.hyperlauncher.extra.ExtraCore
+import com.ashmeet.hyperlauncher.extra.ExtraListener
 import com.ashmeet.hyperbackend.instances.InstanceInstaller
 import com.ashmeet.hyperbackend.instances.Instances
 import com.ashmeet.hyperbackend.lifecycle.ContextAwareDoneListener
@@ -248,7 +248,7 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
             }
         }
         checkNotificationPermission()
-        checkX86_64Warning()
+        checkX8664Warning()
         if (LauncherPreferences.PREF_MIGRATION_NOTICE)
             PojavApplication.sExecutorService.submit { checkPreviousInstalls() }
 
@@ -394,7 +394,7 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
         }
     }
 
-    private fun checkX86_64Warning() {
+    private fun checkX8664Warning() {
         if (Architecture.getDeviceArchitecture() == Architecture.ARCH_X86_64) {
             val shown = LauncherPreferences.DEFAULT_PREF?.getBoolean("x86_64_warning_shown", false) ?: false
             if (!shown) {

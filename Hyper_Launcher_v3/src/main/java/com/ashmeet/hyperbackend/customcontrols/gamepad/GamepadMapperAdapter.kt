@@ -97,7 +97,9 @@ class GamepadMapperAdapter(context: Context) : RecyclerView.Adapter<GamepadMappe
             val context = composeView.context
 
             val keyCodeNames = realButton.keycodes.map { keyCode ->
-                val selected = if (keyCode < 0) keyCode + mSpecialKeycodeCount else KeycodeUtils.getIndexByValue(keyCode.toInt()) + mSpecialKeycodeCount
+                val selected = if (keyCode < 0) keyCode + mSpecialKeycodeCount else KeycodeUtils.getIndexByValue(
+                    keyCode
+                ) + mSpecialKeycodeCount
                 mKeyOptions.getOrNull(selected) ?: "UNKNOWN"
             }
 

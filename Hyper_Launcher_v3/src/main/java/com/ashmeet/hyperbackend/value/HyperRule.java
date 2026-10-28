@@ -2,7 +2,7 @@ package com.ashmeet.hyperbackend.value;
 
 import com.ashmeet.hyperlauncher.utils.Architecture;
 
-public class MoJsonRule {
+public class HyperRule {
     public String action;
     public OSDescriptor os;
 
@@ -16,10 +16,10 @@ public class MoJsonRule {
         else return os.matches();
     }
 
-    public static String ruleSetCheck(MoJsonRule[] rules) {
+    public static String ruleSetCheck(HyperRule[] rules) {
         int precedenceLevel = 0;
         String action = "disallow";
-        for(MoJsonRule rule : rules) {
+        for(HyperRule rule : rules) {
             int ruleLevel = rule.getPrecedenceLevel();
             if(ruleLevel <= precedenceLevel) {
                 continue;

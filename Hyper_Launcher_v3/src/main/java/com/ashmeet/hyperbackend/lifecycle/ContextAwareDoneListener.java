@@ -7,8 +7,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
-import com.ashmeet.hyperbackend.extra.ExtraConstants;
-import com.ashmeet.hyperbackend.extra.ExtraCore;
+import com.ashmeet.hyperlauncher.extra.ExtraConstants;
+import com.ashmeet.hyperlauncher.extra.ExtraCore;
 import com.ashmeet.hyperbackend.game.GameActivity;
 import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperlauncher.utils.HyperUtils;

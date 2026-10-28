@@ -14,8 +14,8 @@ import com.ashmeet.hyperlauncher.screens.auth.methods.MicrosoftLoginScreen
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.utils.HyperUtils
-import com.ashmeet.hyperbackend.extra.ExtraConstants
-import com.ashmeet.hyperbackend.extra.ExtraCore
+import com.ashmeet.hyperlauncher.extra.ExtraConstants
+import com.ashmeet.hyperlauncher.extra.ExtraCore
 
 class MicrosoftLoginFragment : Fragment() {
 

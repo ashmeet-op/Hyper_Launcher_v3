@@ -127,6 +127,7 @@ class ImportControlActivity : BaseActivity() {
     private fun importControlFile() {
         val uri = mUriData ?: return
         try {
+            FileUtils.ensureDirectory(File(HyperUtils.CTRLMAP_PATH ?: ""))
             val inputStream: InputStream? = contentResolver.openInputStream(uri)
             val outputStream: OutputStream = FileOutputStream(File(HyperUtils.CTRLMAP_PATH, "TMP_IMPORT_FILE.json"))
             if (inputStream != null) {

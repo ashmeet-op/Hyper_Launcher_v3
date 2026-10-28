@@ -18,8 +18,8 @@ import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.activity.CustomControlsActivity
 import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperbackend.contracts.OpenDocumentWithExtension
-import com.ashmeet.hyperbackend.extra.ExtraConstants
-import com.ashmeet.hyperbackend.extra.ExtraCore
+import com.ashmeet.hyperlauncher.extra.ExtraConstants
+import com.ashmeet.hyperlauncher.extra.ExtraCore
 import com.ashmeet.hyperbackend.instances.Instances
 import com.ashmeet.hyperbackend.progresskeeper.ProgressKeeper
 import com.ashmeet.hyperbackend.utils.FileUtils

@@ -14,8 +14,8 @@ import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperbackend.authenticator.accounts.Accounts
-import com.ashmeet.hyperbackend.extra.ExtraConstants
-import com.ashmeet.hyperbackend.extra.ExtraCore
+import com.ashmeet.hyperlauncher.extra.ExtraConstants
+import com.ashmeet.hyperlauncher.extra.ExtraCore
 import java.io.File
 import java.util.regex.Pattern
 

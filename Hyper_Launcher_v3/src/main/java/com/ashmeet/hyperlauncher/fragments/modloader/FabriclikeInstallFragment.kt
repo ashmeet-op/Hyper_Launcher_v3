@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.utils.HyperUtils
-import com.ashmeet.hyperbackend.extra.ExtraCore
+import com.ashmeet.hyperlauncher.extra.ExtraCore
 import com.ashmeet.hyperbackend.instances.Instances
 import com.ashmeet.hyperbackend.modloaders.FabricVersion
 import com.ashmeet.hyperbackend.modloaders.FabriclikeUtils

@@ -24,8 +24,8 @@ import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperbackend.game.renderer.RendererCache
 import com.ashmeet.hyperlauncher.utils.HyperUtils
 import net.ashmeet.hyperlauncher.R
-import com.ashmeet.hyperbackend.extra.ExtraConstants
-import com.ashmeet.hyperbackend.extra.ExtraCore
+import com.ashmeet.hyperlauncher.extra.ExtraConstants
+import com.ashmeet.hyperlauncher.extra.ExtraCore
 import com.ashmeet.hyperbackend.instances.Instance
 import com.ashmeet.hyperbackend.instances.InstanceIconProvider
 import com.ashmeet.hyperbackend.instances.Instances

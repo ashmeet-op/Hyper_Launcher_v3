@@ -67,9 +67,9 @@ import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperbackend.authenticator.AuthType
 import com.ashmeet.hyperbackend.authenticator.accounts.Accounts
-import com.ashmeet.hyperbackend.extra.ExtraConstants
-import com.ashmeet.hyperbackend.extra.ExtraCore
-import com.ashmeet.hyperbackend.extra.ExtraListener
+import com.ashmeet.hyperlauncher.extra.ExtraConstants
+import com.ashmeet.hyperlauncher.extra.ExtraCore
+import com.ashmeet.hyperlauncher.extra.ExtraListener
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable

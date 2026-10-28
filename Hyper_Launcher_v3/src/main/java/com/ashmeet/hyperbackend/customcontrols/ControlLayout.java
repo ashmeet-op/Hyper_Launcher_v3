@@ -19,10 +19,13 @@ import android.widget.FrameLayout;
 import androidx.annotation.RequiresApi;
 
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.google.gson.JsonSyntaxException;
 
 import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperbackend.game.GameView;
+
+import java.io.File;
 
 
 import com.ashmeet.hyperlauncher.utils.HyperUtils;
@@ -86,6 +89,11 @@ public class ControlLayout extends FrameLayout {
 	public void loadLayout(String jsonPath) throws IOException, JsonSyntaxException {
 		Point size = new Point(getWidth(), getHeight());
 		try {
+			if (jsonPath == null || jsonPath.isEmpty() || !new File(jsonPath).exists()) {
+				if (HyperUtils.CTRLDEF_FILE != null && new File(HyperUtils.CTRLDEF_FILE).exists()) {
+					jsonPath = HyperUtils.CTRLDEF_FILE;
+				}
+			}
 			CustomControls layout = LayoutConverter.loadAndConvertIfNecessary(size, jsonPath);
 			loadLayout(layout);
 			updateLoadedFileName(jsonPath);

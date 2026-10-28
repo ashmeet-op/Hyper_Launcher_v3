@@ -1,4 +1,4 @@
-package com.ashmeet.hyperbackend.extra;
+package com.ashmeet.hyperlauncher.extra;
 
 public class ExtraConstants {
 

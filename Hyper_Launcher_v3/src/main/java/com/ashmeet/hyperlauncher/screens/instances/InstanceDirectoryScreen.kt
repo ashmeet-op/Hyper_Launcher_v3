@@ -72,8 +72,8 @@ import com.ashmeet.hyperlauncher.utils.WorldMetadataReader
 import com.ashmeet.hyperlauncher.filemanager.utils.SortFileName
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
-import com.ashmeet.hyperbackend.extra.ExtraCore
-import com.ashmeet.hyperbackend.extra.ExtraConstants
+import com.ashmeet.hyperlauncher.extra.ExtraCore
+import com.ashmeet.hyperlauncher.extra.ExtraConstants
 import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import kotlinx.coroutines.delay

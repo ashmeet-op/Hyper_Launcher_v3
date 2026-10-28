@@ -1,8 +1,8 @@
 package com.ashmeet.hyperbackend.tasks;
 
 import com.ashmeet.hyperbackend.JVersionList;
-import com.ashmeet.hyperbackend.extra.ExtraConstants;
-import com.ashmeet.hyperbackend.extra.ExtraCore;
+import com.ashmeet.hyperlauncher.extra.ExtraConstants;
+import com.ashmeet.hyperlauncher.extra.ExtraCore;
 import com.ashmeet.hyperbackend.instances.Instance;
 
 import java.io.File;

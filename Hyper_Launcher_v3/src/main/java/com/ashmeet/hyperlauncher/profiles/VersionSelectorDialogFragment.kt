@@ -9,8 +9,8 @@ import androidx.fragment.app.DialogFragment
 import com.ashmeet.hyperlauncher.components.text.LegacyMigratedComponentsBridge
 import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
 import com.ashmeet.hyperbackend.JVersionList
-import com.ashmeet.hyperbackend.extra.ExtraConstants
-import com.ashmeet.hyperbackend.extra.ExtraCore
+import com.ashmeet.hyperlauncher.extra.ExtraConstants
+import com.ashmeet.hyperlauncher.extra.ExtraCore
 
 class VersionSelectorDialogFragment : DialogFragment() {
 

@@ -14,7 +14,7 @@ import com.ashmeet.hyperlauncher.screens.modloader.ModloaderVersionGroup
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.utils.HyperUtils
-import com.ashmeet.hyperbackend.extra.ExtraCore
+import com.ashmeet.hyperlauncher.extra.ExtraCore
 import com.ashmeet.hyperbackend.modloaders.ModloaderDownloadListener
 import com.ashmeet.hyperbackend.modloaders.ModloaderListenerProxy
 import com.ashmeet.hyperbackend.progresskeeper.ProgressKeeper

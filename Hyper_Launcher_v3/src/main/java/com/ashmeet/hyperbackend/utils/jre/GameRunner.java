@@ -37,8 +37,8 @@ import com.ashmeet.hyperbackend.utils.JSONUtils;
 import com.ashmeet.hyperbackend.utils.MCOptionUtils;
 import com.ashmeet.hyperbackend.utils.OldVersionsUtils;
 
-import com.ashmeet.hyperbackend.extra.ExtraCore;
-import com.ashmeet.hyperbackend.extra.ExtraConstants;
+import com.ashmeet.hyperlauncher.extra.ExtraCore;
+import com.ashmeet.hyperlauncher.extra.ExtraConstants;
 
 import java.io.File;
 import java.io.IOException;

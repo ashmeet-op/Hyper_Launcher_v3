@@ -32,7 +32,7 @@ import com.ashmeet.hyperbackend.value.ClientInfo;
 import com.ashmeet.hyperbackend.value.DependentLibrary;
 import com.ashmeet.hyperbackend.value.LibraryArtifact;
 import com.ashmeet.hyperbackend.value.LibrarySubstitution;
-import com.ashmeet.hyperbackend.value.MoJsonRule;
+import com.ashmeet.hyperbackend.value.HyperRule;
 import com.ashmeet.hyperbackend.value.NativeLibraryExtractable;
 import com.ashmeet.hyperbackend.value.SubstitutionMap;
 
@@ -349,7 +349,7 @@ public class HyperDownloader extends Downloader {
         HyperUtils.preProcessLibraries(dependentLibraries);
         for(DependentLibrary dependentLibrary : dependentLibraries) {
             if(dependentLibrary.rules != null) {
-                String ruleSetAction = MoJsonRule.ruleSetCheck(dependentLibrary.rules);
+                String ruleSetAction = HyperRule.ruleSetCheck(dependentLibrary.rules);
                 if(ruleSetAction == null || !ruleSetAction.equals("allow")) continue;
             }
 

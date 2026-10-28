@@ -83,8 +83,8 @@ import com.ashmeet.hyperbackend.utils.jre.GameRunner;
 
 import java.io.File;
 import java.io.IOException;
-import com.ashmeet.hyperbackend.extra.ExtraConstants;
-import com.ashmeet.hyperbackend.extra.ExtraCore;
+import com.ashmeet.hyperlauncher.extra.ExtraConstants;
+import com.ashmeet.hyperlauncher.extra.ExtraCore;
 
 import java.lang.ref.WeakReference;
 import java.util.Objects;

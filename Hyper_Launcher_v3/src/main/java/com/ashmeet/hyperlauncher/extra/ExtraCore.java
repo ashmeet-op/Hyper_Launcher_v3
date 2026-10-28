@@ -1,4 +1,4 @@
-package com.ashmeet.hyperbackend.extra;
+package com.ashmeet.hyperlauncher.extra;
 
 import java.lang.ref.WeakReference;
 import java.util.Map;
@@ -64,19 +64,10 @@ public final class ExtraCore {
     }
 
 
-    public static void removeValue(String key){
-        getInstance().mValueMap.remove(key);
-    }
-
     public static Object consumeValue(String key){
         Object value = getInstance().mValueMap.get(key);
         getInstance().mValueMap.remove(key);
         return value;
-    }
-
-
-    public static void removeAllValues(){
-        getInstance().mValueMap.clear();
     }
 
 
@@ -110,22 +101,4 @@ public final class ExtraCore {
             }
         }
     }
-
-
-    public static void removeAllExtraListenersFromValue(String key){
-        ConcurrentLinkedQueue<WeakReference<ExtraListener>> listenerList = getInstance().mListenerMap.get(key);
-
-        if(listenerList == null){
-            listenerList = new ConcurrentLinkedQueue<>();
-            getInstance().mListenerMap.put(key, listenerList);
-        }
-
-        listenerList.clear();
-    }
-
-
-    public static void removeAllExtraListeners(){
-        getInstance().mListenerMap.clear();
-    }
-
 }

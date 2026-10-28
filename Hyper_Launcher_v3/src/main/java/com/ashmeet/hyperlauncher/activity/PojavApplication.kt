@@ -82,6 +82,8 @@ class PojavApplication : Application() {
 
 
                 LauncherPreferences.loadPreferences(this)
+                AsyncAssetManager.unpackComponents(this)
+                AsyncAssetManager.unpackSingleFiles(this)
                 if (LauncherPreferences.PREF_ENABLE_RPC) {
                     DiscordRpcManager.startRpc()
                 }

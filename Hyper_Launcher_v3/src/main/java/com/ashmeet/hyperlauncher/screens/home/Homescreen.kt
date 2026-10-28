@@ -68,9 +68,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ashmeet.hyperbackend.authenticator.accounts.Accounts
-import com.ashmeet.hyperbackend.extra.ExtraConstants
-import com.ashmeet.hyperbackend.extra.ExtraCore
-import com.ashmeet.hyperbackend.extra.ExtraListener
+import com.ashmeet.hyperlauncher.extra.ExtraConstants
+import com.ashmeet.hyperlauncher.extra.ExtraCore
+import com.ashmeet.hyperlauncher.extra.ExtraListener
 import com.ashmeet.hyperbackend.instances.DisplayInstance
 import com.ashmeet.hyperbackend.instances.InstanceIconProvider
 import com.ashmeet.hyperbackend.instances.Instances
@@ -296,8 +296,7 @@ private fun ActionCardsContent(
     if (!hideActionButtons) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState()),
+                .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             ActionCard(

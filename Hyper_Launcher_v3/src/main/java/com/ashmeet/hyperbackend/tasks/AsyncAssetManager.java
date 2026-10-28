@@ -66,20 +66,30 @@ public class AsyncAssetManager {
         TrackerLayout.setTracker(TrackerLayout.EXTRACT_SINGLE_FILES, 0);
         sExecutorService.execute(() -> {
             try {
-                HyperUtils.copyAssetFile(ctx, "options.txt", HyperUtils.DIR_GAME_NEW, false);
-
-
-
-                try (InputStream is = ctx.getAssets().open("default.json")) {
-                    String assetSha1 = new String(Hex.encodeHex(DigestUtils.sha1(is)));
-                    if (!HyperUtils.compareSHA1(new File(HyperUtils.CTRLDEF_FILE), assetSha1)) {
-                        HyperUtils.copyAssetFile(ctx, "default.json", HyperUtils.CTRLMAP_PATH, "new_default.json" , false);
-                    } else if (!new File(HyperUtils.CTRLMAP_PATH+"/new_default.json").exists())
-                    HyperUtils.copyAssetFile(ctx, "default.json", HyperUtils.CTRLMAP_PATH, false);
+                if (HyperUtils.DIR_GAME_NEW != null) {
+                    HyperUtils.copyAssetFile(ctx, "options.txt", HyperUtils.DIR_GAME_NEW, false);
                 }
 
-                HyperUtils.copyAssetFile(ctx, "launcher_profiles.json", HyperUtils.DIR_GAME_NEW, false);
-                HyperUtils.copyAssetFile(ctx,"resolv.conf", HyperUtils.DIR_DATA, false);
+                if (HyperUtils.CTRLDEF_FILE != null && HyperUtils.CTRLMAP_PATH != null) {
+                    try (InputStream is = ctx.getAssets().open("default.json")) {
+                        String assetSha1 = new String(Hex.encodeHex(DigestUtils.sha1(is)));
+                        File defaultCtrlFile = new File(HyperUtils.CTRLDEF_FILE);
+                        if (!defaultCtrlFile.exists()) {
+                            HyperUtils.copyAssetFile(ctx, "default.json", HyperUtils.CTRLMAP_PATH, false);
+                        } else if (!HyperUtils.compareSHA1(defaultCtrlFile, assetSha1)) {
+                            HyperUtils.copyAssetFile(ctx, "default.json", HyperUtils.CTRLMAP_PATH, "new_default.json" , false);
+                        } else if (!new File(HyperUtils.CTRLMAP_PATH+"/new_default.json").exists()) {
+                            HyperUtils.copyAssetFile(ctx, "default.json", HyperUtils.CTRLMAP_PATH, false);
+                        }
+                    }
+                }
+
+                if (HyperUtils.DIR_GAME_NEW != null) {
+                    HyperUtils.copyAssetFile(ctx, "launcher_profiles.json", HyperUtils.DIR_GAME_NEW, false);
+                }
+                if (HyperUtils.DIR_DATA != null) {
+                    HyperUtils.copyAssetFile(ctx,"resolv.conf", HyperUtils.DIR_DATA, false);
+                }
             } catch (IOException e) {
                 Log.e("AsyncAssetManager", "Failed to unpack critical components !");
             }

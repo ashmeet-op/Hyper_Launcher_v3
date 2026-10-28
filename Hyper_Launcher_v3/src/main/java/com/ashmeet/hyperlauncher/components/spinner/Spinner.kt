@@ -49,7 +49,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -70,10 +69,9 @@ import com.ashmeet.hyperbackend.authenticator.AuthType
 import com.ashmeet.hyperbackend.authenticator.accounts.Account
 import com.ashmeet.hyperbackend.authenticator.accounts.Accounts
 import com.ashmeet.hyperbackend.authenticator.listener.LoginListener
-import com.ashmeet.hyperbackend.extra.ExtraConstants
-import com.ashmeet.hyperbackend.extra.ExtraCore
-import com.ashmeet.hyperbackend.extra.ExtraListener
-import com.ashmeet.hyperbackend.progresskeeper.ProgressKeeper
+import com.ashmeet.hyperlauncher.extra.ExtraConstants
+import com.ashmeet.hyperlauncher.extra.ExtraCore
+import com.ashmeet.hyperlauncher.extra.ExtraListener
 import java.io.IOException
 
 @Composable

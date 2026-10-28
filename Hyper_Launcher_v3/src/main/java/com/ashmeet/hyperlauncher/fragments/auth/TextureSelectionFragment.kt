@@ -10,8 +10,8 @@ import com.ashmeet.hyperlauncher.screens.auth.skin.TextureSelectionScreen
 import com.ashmeet.hyperlauncher.screens.auth.skin.TextureType
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperbackend.authenticator.accounts.Accounts
-import com.ashmeet.hyperbackend.extra.ExtraConstants
-import com.ashmeet.hyperbackend.extra.ExtraCore
+import com.ashmeet.hyperlauncher.extra.ExtraConstants
+import com.ashmeet.hyperlauncher.extra.ExtraCore
 
 class TextureSelectionFragment : Fragment() {
 
