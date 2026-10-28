@@ -56,6 +56,11 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.TextInputDialog
 import com.ashmeet.hyperlauncher.utils.drawable.rememberDrawablePainter
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
+import androidx.compose.ui.viewinterop.AndroidView
+import com.ashmeet.hyperlauncher.components.HyperAlertDialog
+import com.ashmeet.hyperlauncher.filemanager.components.FileListView
+import com.ashmeet.hyperlauncher.filemanager.listeners.FileSelectedListener
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperlauncher.runtime.Runtime
 import java.io.File
 
@@ -66,7 +71,7 @@ fun InstanceEditorScreen(
     versionId: String,
     onSelectVersion: () -> Unit,
     controlLayout: String,
-    onSelectControl: () -> Unit,
+    onControlLayoutChange: (String) -> Unit,
     sharedData: Boolean,
     onSharedDataChange: (Boolean) -> Unit,
     jvmArgs: String,
@@ -89,6 +94,7 @@ fun InstanceEditorScreen(
     var showJvmArgsDialog by remember { mutableStateOf(false) }
     var showRuntimeDialog by remember { mutableStateOf(false) }
     var showRendererDialog by remember { mutableStateOf(false) }
+    var showControlDialog by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         SettingsScreenWrapper(
@@ -167,7 +173,7 @@ fun InstanceEditorScreen(
                             File(controlLayout).name.ifEmpty { controlLayout }
                         },
                         icon = Icons.Rounded.Settings,
-                        onClick = onSelectControl
+                        onClick = { showControlDialog = true }
                     )
                 }
                 SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
@@ -323,6 +329,41 @@ fun InstanceEditorScreen(
                     showRendererDialog = false
                 },
                 onDismiss = { showRendererDialog = false }
+            )
+        }
+
+        if (showControlDialog) {
+            HyperAlertDialog(
+                onDismissRequest = { showControlDialog = false },
+                title = { Text(text = translatedText(stringResource(R.string.customctrl_selectdefault))) },
+                text = {
+                    AndroidView(
+                        factory = { ctx ->
+                            FileListView(ctx, null, arrayOf("json")).apply {
+                                if (android.os.Build.VERSION.SDK_INT < 29) {
+                                    listFileAt(File(HyperUtils.CTRLMAP_PATH ?: ""))
+                                } else {
+                                    lockPathAt(File(HyperUtils.CTRLMAP_PATH ?: ""))
+                                }
+                                setFileSelectedListener(object : FileSelectedListener() {
+                                    override fun onFileSelected(file: File, path: String) {
+                                        try {
+                                            onControlLayoutChange(file.name)
+                                        } catch (e: Exception) {
+                                            HyperUtils.showError(ctx, e)
+                                        }
+                                        showControlDialog = false
+                                    }
+                                })
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(350.dp)
+                    )
+                },
+                dismissText = stringResource(android.R.string.cancel),
+                onDismiss = { showControlDialog = false }
             )
         }
 

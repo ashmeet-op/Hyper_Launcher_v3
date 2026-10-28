@@ -8,30 +8,27 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.Fragment
-import com.ashmeet.hyperlauncher.fragments.dialog.DeleteConfirmDialogFragment
-import com.ashmeet.hyperlauncher.fragments.selection.FileSelectorFragment
-import com.ashmeet.hyperlauncher.profiles.VersionSelectorDialog
-import com.ashmeet.hyperlauncher.screens.instances.InstanceEditorScreen
-import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperbackend.game.renderer.RendererCache
-import com.ashmeet.hyperlauncher.utils.HyperUtils
-import net.ashmeet.hyperlauncher.R
-import com.ashmeet.hyperlauncher.extra.ExtraConstants
-import com.ashmeet.hyperlauncher.extra.ExtraCore
 import com.ashmeet.hyperbackend.instances.Instance
 import com.ashmeet.hyperbackend.instances.InstanceIconProvider
 import com.ashmeet.hyperbackend.instances.Instances
-import com.ashmeet.hyperlauncher.runtime.RuntimeUtils
-import com.ashmeet.hyperlauncher.runtime.Runtime
 import com.ashmeet.hyperbackend.utils.CropperUtils
+import com.ashmeet.hyperlauncher.extra.ExtraConstants
+import com.ashmeet.hyperlauncher.extra.ExtraCore
+import com.ashmeet.hyperlauncher.fragments.dialog.DeleteConfirmDialogFragment
+import com.ashmeet.hyperlauncher.profiles.VersionSelectorDialog
+import com.ashmeet.hyperlauncher.runtime.Runtime
+import com.ashmeet.hyperlauncher.runtime.RuntimeUtils
+import com.ashmeet.hyperlauncher.screens.instances.InstanceEditorScreen
+import com.ashmeet.hyperlauncher.theme.PojavTheme
+import com.ashmeet.hyperlauncher.utils.HyperUtils
+import net.ashmeet.hyperlauncher.R
 import java.io.IOException
 
 class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
@@ -87,13 +84,6 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
 
         return ComposeView(requireContext()).apply {
             setContent {
-                val value = remember { ExtraCore.consumeValue(ExtraConstants.FILE_SELECTOR) as? String }
-                LaunchedEffect(value) {
-                    if (value != null) {
-                        mControlLayout = value
-                    }
-                }
-
                 val hasChanges = mInstanceName != mInitialInstanceName ||
                         mVersionId != mInitialVersionId ||
                         mControlLayout != mInitialControlLayout ||
@@ -110,7 +100,7 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
                         versionId = mVersionId,
                         onSelectVersion = { openVersionSelector() },
                         controlLayout = mControlLayout,
-                        onSelectControl = { openControlSelector() },
+                        onControlLayoutChange = { mControlLayout = it },
                         sharedData = mSharedData,
                         onSharedDataChange = { mSharedData = it },
                         jvmArgs = mJvmArgs,
@@ -184,14 +174,6 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
         VersionSelectorDialog.open(requireActivity(), false) { id, _ ->
             mVersionId = id
         }
-    }
-
-    private fun openControlSelector() {
-        val bundle = Bundle(3).apply {
-            putBoolean(FileSelectorFragment.BUNDLE_SELECT_FOLDER, false)
-            putString(FileSelectorFragment.BUNDLE_ROOT_PATH, HyperUtils.CTRLMAP_PATH)
-        }
-        HyperUtils.swapFragment(requireActivity(), FileSelectorFragment::class.java, FileSelectorFragment.TAG, bundle)
     }
 
     private fun save() {

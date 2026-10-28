@@ -307,7 +307,7 @@ object GameRunner {
         javaArgList.add("-Dorg.lwjgl.opengl.libname=libGLMojo.so")
         javaArgList.add("-Dorg.lwjgl.freetype.libname=" + HyperUtils.NATIVE_LIB_DIR + "/libfreetype.so")
         javaArgList.add("-DZstdNativePath=" + HyperUtils.NATIVE_LIB_DIR + "/libzstd-jni-1.5.7-6-dhcompat.so")
-        HyperUtils.applyHyperPluginHooks(javaArgList, instance.getGameDirectory())
+        HyperUtils.applyFCLPluginHooks(javaArgList, instance.getGameDirectory())
 
         activity.runOnUiThread {
             Toast.makeText(

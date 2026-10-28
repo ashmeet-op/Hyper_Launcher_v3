@@ -1107,7 +1107,7 @@ object HyperUtils {
     }
 
     @JvmStatic
-    fun applyHyperPluginHooks(javaArgList: MutableList<String>?, @Suppress("UNUSED_PARAMETER") gameDir: File?) {
+    fun applyFCLPluginHooks(javaArgList: MutableList<String>?, @Suppress("UNUSED_PARAMETER") gameDir: File?) {
         javaArgList?.addAll(NativePluginManager.getJVMEnv())
     }
 
