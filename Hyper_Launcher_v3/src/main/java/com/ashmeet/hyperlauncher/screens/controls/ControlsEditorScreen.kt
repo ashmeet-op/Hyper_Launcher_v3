@@ -1,12 +1,16 @@
 package com.ashmeet.hyperlauncher.screens.controls
 
 import android.annotation.SuppressLint
-import android.os.Build
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Text
@@ -24,28 +28,25 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.ashmeet.hyperlauncher.components.layout.element.ActionRow
-import com.ashmeet.hyperlauncher.components.layout.background.LauncherBackground
-import com.ashmeet.hyperlauncher.components.HyperAlertDialog
-import com.ashmeet.hyperlauncher.components.dialog.ControlSelectorDialog
-import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
-import com.ashmeet.hyperlauncher.fragments.dialog.EditControlSideDialog
-import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
-import com.ashmeet.hyperlauncher.utils.SideDialogUtils
-import com.ashmeet.hyperlauncher.utils.HyperUtils
-import com.ashmeet.hyperlauncher.utils.translation.translatedText
-import com.ashmeet.hyperlauncher.filemanager.components.FileListView
-import com.ashmeet.hyperlauncher.filemanager.listeners.FileSelectedListener
-import kotlinx.coroutines.launch
-import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperbackend.customcontrols.ControlData
 import com.ashmeet.hyperbackend.customcontrols.ControlLayout
 import com.ashmeet.hyperbackend.customcontrols.buttons.ControlDrawer
 import com.ashmeet.hyperbackend.customcontrols.buttons.ControlInterface
-import java.io.File
+import com.ashmeet.hyperlauncher.components.HyperAlertDialog
+import com.ashmeet.hyperlauncher.components.HyperOutlinedTextField
+import com.ashmeet.hyperlauncher.components.dialog.ControlSelectorDialog
+import com.ashmeet.hyperlauncher.components.layout.background.LauncherBackground
+import com.ashmeet.hyperlauncher.components.layout.element.ActionRow
+import com.ashmeet.hyperlauncher.fragments.dialog.EditControlSideDialog
+import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.utils.HyperUtils
+import com.ashmeet.hyperlauncher.utils.SideDialogUtils
+import com.ashmeet.hyperlauncher.utils.translation.translatedText
+import kotlinx.coroutines.launch
+import net.ashmeet.hyperlauncher.R
 
 
-@SuppressLint("LocalContextGetResourceValueCall")
+@SuppressLint("LocalContextGetResourceValueCall", "UseKtx")
 @Composable
 fun ControlsEditorScreen(
     controlLayout: ControlLayout,
@@ -148,7 +149,7 @@ fun ControlsEditorScreen(
             ControlSelectorDialog(
                 title = stringResource(R.string.global_load),
                 currentPath = "",
-                onSelected = { file, path ->
+                onSelected = { _, path ->
                     try {
                         controlLayout.loadLayout(path)
                     } catch (e: Exception) {

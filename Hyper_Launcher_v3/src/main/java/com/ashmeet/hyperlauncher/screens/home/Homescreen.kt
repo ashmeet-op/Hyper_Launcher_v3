@@ -1,5 +1,6 @@
 package com.ashmeet.hyperlauncher.screens.home
 
+import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import androidx.compose.animation.animateContentSize
@@ -35,7 +36,6 @@ import androidx.compose.material.icons.rounded.Build
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Share
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
@@ -68,13 +68,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ashmeet.hyperbackend.authenticator.accounts.Accounts
-import com.ashmeet.hyperlauncher.extra.ExtraConstants
-import com.ashmeet.hyperlauncher.extra.ExtraCore
-import com.ashmeet.hyperlauncher.extra.ExtraListener
 import com.ashmeet.hyperbackend.instances.DisplayInstance
 import com.ashmeet.hyperbackend.instances.InstanceIconProvider
 import com.ashmeet.hyperbackend.instances.Instances
 import com.ashmeet.hyperlauncher.components.button.MineButton
+import com.ashmeet.hyperlauncher.extra.ExtraConstants
+import com.ashmeet.hyperlauncher.extra.ExtraCore
+import com.ashmeet.hyperlauncher.extra.ExtraListener
 import com.ashmeet.hyperlauncher.screens.settings.layouts.CardPosition
 import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsCard
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
@@ -85,7 +85,7 @@ import com.ashmeet.hyperlauncher.utils.drawable.rememberDrawablePainter
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@SuppressLint("LocalContextResourcesRead")
 @Composable
 fun MainMenuFragmentCompose(
     onAboutClick: () -> Unit,
@@ -97,7 +97,7 @@ fun MainMenuFragmentCompose(
     onEditProfileClick: (DisplayInstance?) -> Unit,
     onPlayClick: () -> Unit,
     onVersionSpinnerClick: () -> Unit,
-    onAccountManagerClick: () -> Unit
+    onAccountManagerClick: () -> Unit,
 ) {
     val context = LocalContext.current
     val isPreview = LocalInspectionMode.current
@@ -164,9 +164,11 @@ fun MainMenuFragmentCompose(
     val skinHead by SkinUtils.rememberSkinHead2D(currentAccount)
 
     val instanceIcon = remember(selectedInstance) {
-        if (!isPreview && selectedInstance != null)
+        if (!isPreview && selectedInstance != null) {
             InstanceIconProvider.fetchIcon(context.resources, selectedInstance!!)
-        else null
+        } else {
+            null
+        }
     }
 
     val headInteractionSource = remember { MutableInteractionSource() }
@@ -193,15 +195,29 @@ fun MainMenuFragmentCompose(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(12.dp)
-                    .verticalScroll(rememberScrollState()),
+                    .padding(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                SidebarCardContent(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(340.dp),
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    ActionCardsContent(
+                        hideActionButtons = hideActionButtons,
+                        onAboutClick = onAboutClick,
+                        onSocialMediaClick = onSocialMediaClick,
+                        onCustomControlsClick = onCustomControlsClick,
+                        onInstallJarClick = onInstallJarClick,
+                        onShareLogsClick = onShareLogsClick,
+                        onOpenFilesClick = onOpenFilesClick
+                    )
+                }
+                SidebarCardContent(
+                    modifier = Modifier.fillMaxWidth(),
                     hasBackground = hasBackground,
                     backgroundTransparency = backgroundTransparency,
                     headScale = headScale,
@@ -213,16 +229,8 @@ fun MainMenuFragmentCompose(
                     onAccountManagerClick = onAccountManagerClick,
                     onVersionSpinnerClick = onVersionSpinnerClick,
                     onEditProfileClick = onEditProfileClick,
-                    onPlayClick = onPlayClick
-                )
-                ActionCardsContent(
-                    hideActionButtons = hideActionButtons,
-                    onAboutClick = onAboutClick,
-                    onSocialMediaClick = onSocialMediaClick,
-                    onCustomControlsClick = onCustomControlsClick,
-                    onInstallJarClick = onInstallJarClick,
-                    onShareLogsClick = onShareLogsClick,
-                    onOpenFilesClick = onOpenFilesClick
+                    onPlayClick = onPlayClick,
+                    showHead = false
                 )
             }
         } else {
@@ -372,7 +380,8 @@ private fun SidebarCardContent(
     onAccountManagerClick: () -> Unit,
     onVersionSpinnerClick: () -> Unit,
     onEditProfileClick: (DisplayInstance?) -> Unit,
-    onPlayClick: () -> Unit
+    onPlayClick: () -> Unit,
+    showHead: Boolean = true
 ) {
     Surface(
         modifier = modifier,
@@ -389,44 +398,46 @@ private fun SidebarCardContent(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
 
-            Column(
-                modifier = Modifier.weight(1f),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .scale(headScale)
-                        .clickable(
-                            interactionSource = headInteractionSource,
-                            indication = null,
-                            onClick = onAccountManagerClick
-                        ),
-                    contentAlignment = Alignment.Center
+            if (showHead) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
-                    if (currentAccount != null) {
-                        if (skinHead != null) {
-                            Image(
-                                bitmap = skinHead!!.asImageBitmap(),
-                                contentDescription = null,
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Fit,
-                                filterQuality = FilterQuality.None
-                            )
+                    Box(
+                        modifier = Modifier
+                            .size(64.dp)
+                            .scale(headScale)
+                            .clickable(
+                                interactionSource = headInteractionSource,
+                                indication = null,
+                                onClick = onAccountManagerClick
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (currentAccount != null) {
+                            if (skinHead != null) {
+                                Image(
+                                    bitmap = skinHead.asImageBitmap(),
+                                    contentDescription = null,
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Fit,
+                                    filterQuality = FilterQuality.None
+                                )
+                            } else {
+                                LoadingIndicator(
+                                    modifier = Modifier.size(42.dp),
+                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                                )
+                            }
                         } else {
-                            LoadingIndicator(
-                                modifier = Modifier.size(42.dp),
-                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = translatedText("Add Account"),
+                                modifier = Modifier.size(32.dp),
+                                tint = MaterialTheme.colorScheme.primary
                             )
                         }
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = translatedText("Add Account"),
-                            modifier = Modifier.size(32.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
                     }
                 }
             }
@@ -517,9 +528,12 @@ private fun SidebarCardContent(
             }
 
             Row(
-                modifier = Modifier.fillMaxWidth().animateContentSize(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .animateContentSize(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically) {
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 MineButton(
                     text = translatedText("Launch"),
                     onClick = onPlayClick,
@@ -570,7 +584,7 @@ fun MainMenuRevampPreview() {
             onEditProfileClick = {},
             onPlayClick = {},
             onVersionSpinnerClick = {},
-            onAccountManagerClick = {}
+            onAccountManagerClick = {},
         )
     }
 }

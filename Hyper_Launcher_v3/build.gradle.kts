@@ -389,6 +389,7 @@ androidComponents.onVariants { variant ->
 }
 
 dependencies {
+    implementation("androidx.compose.foundation:foundation-layout:1.12.1")
     implementation("androidx.compose.material3:material3:1.4.0")
     implementation("org.ow2.asm:asm:9.11.1")
     //noinspection GradleDependency

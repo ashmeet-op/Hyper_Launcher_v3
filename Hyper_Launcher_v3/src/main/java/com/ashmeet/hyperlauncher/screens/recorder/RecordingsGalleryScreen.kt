@@ -3,6 +3,7 @@ package com.ashmeet.hyperlauncher.screens.recorder
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.SurfaceTexture
 import android.media.MediaMetadataRetriever
@@ -50,7 +51,6 @@ import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -58,6 +58,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSliderState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -77,6 +78,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
@@ -103,11 +105,11 @@ import java.io.File
 import java.util.Locale
 import kotlin.time.Duration.Companion.milliseconds
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecordingsGalleryScreen(
     @Suppress("UNUSED_PARAMETER") onBack: () -> Unit = {}
-) {
+)
+{
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val scope = rememberCoroutineScope()
@@ -118,6 +120,7 @@ fun RecordingsGalleryScreen(
     var showSettingsDialog by remember { mutableStateOf(false) }
 
     fun refreshList() {
+
         scope.launch {
             recordings = RecordingManager.getRecordings(context)
             if (selectedItem != null && !recordings.any { it.file.absolutePath == selectedItem?.file?.absolutePath }) {
@@ -137,11 +140,11 @@ fun RecordingsGalleryScreen(
 
     val panelColor = if (isLiquidGlass) {
         MaterialTheme.colorScheme.surface.copy(alpha = 0.3f)
-    } else if (hasBackground) {
-        MaterialTheme.colorScheme.surface.copy(alpha = 0.3f)
     } else {
-        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
+        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
     }
+
+
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -204,61 +207,126 @@ fun RecordingsGalleryScreen(
                         }
                     }
                 } else {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(12.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Surface(
+                    val configuration = LocalConfiguration.current
+                    val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+
+                    if (isPortrait) {
+                        Column(
                             modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight(),
-                            shape = RoundedCornerShape(24.dp),
-                            color = panelColor as Color,
-                            tonalElevation = 0.dp
+                                .fillMaxSize()
+                                .padding(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            LazyColumn(
+                            Surface(
                                 modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(8.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                                    .fillMaxWidth()
+                                    .weight(1.2f),
+                                shape = RoundedCornerShape(24.dp),
+                                color = panelColor,
+                                tonalElevation = 0.dp
                             ) {
-                                items(recordings, key = { it.file.absolutePath }) { item ->
-                                    RecordingListItemCard(
-                                        item = item,
-                                        isSelected = item.file.absolutePath == selectedItem?.file?.absolutePath,
-                                        onClick = { selectedItem = item },
-                                        onDeleteClick = { itemToDelete = item }
+                                if (selectedItem != null) {
+                                    BuiltInMediaPlayerView(
+                                        item = selectedItem!!,
+                                        onDelete = { itemToDelete = selectedItem },
+                                        onSettingsClick = { showSettingsDialog = true }
                                     )
+                                } else {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = translatedText("Select a video clip to play"),
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                            }
+
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f),
+                                shape = RoundedCornerShape(24.dp),
+                                color = panelColor,
+                                tonalElevation = 0.dp
+                            ) {
+                                LazyColumn(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(8.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    items(recordings, key = { it.file.absolutePath }) { item ->
+                                        RecordingListItemCard(
+                                            item = item,
+                                            isSelected = item.file.absolutePath == selectedItem?.file?.absolutePath,
+                                            onClick = { selectedItem = item },
+                                            onDeleteClick = { itemToDelete = item }
+                                        )
+                                    }
                                 }
                             }
                         }
-
-                        Surface(
+                    } else {
+                        Row(
                             modifier = Modifier
-                                .weight(1.3f)
-                                .fillMaxHeight(),
-                            shape = RoundedCornerShape(24.dp),
-                            color = panelColor as Color,
-                            tonalElevation = 0.dp
+                                .fillMaxSize()
+                                .padding(12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            if (selectedItem != null) {
-                                BuiltInMediaPlayerView(
-                                    item = selectedItem!!,
-                                    onDelete = { itemToDelete = selectedItem },
-                                    onSettingsClick = { showSettingsDialog = true }
-                                )
-                            } else {
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center
+                            Surface(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight(),
+                                shape = RoundedCornerShape(24.dp),
+                                color = panelColor,
+                                tonalElevation = 0.dp
+                            ) {
+                                LazyColumn(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(8.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
-                                    Text(
-                                        text = translatedText("Select a video clip to play"),
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    items(recordings, key = { it.file.absolutePath }) { item ->
+                                        RecordingListItemCard(
+                                            item = item,
+                                            isSelected = item.file.absolutePath == selectedItem?.file?.absolutePath,
+                                            onClick = { selectedItem = item },
+                                            onDeleteClick = { itemToDelete = item }
+                                        )
+                                    }
+                                }
+                            }
+
+                            Surface(
+                                modifier = Modifier
+                                    .weight(1.3f)
+                                    .fillMaxHeight(),
+                                shape = RoundedCornerShape(24.dp),
+                                color = panelColor,
+                                tonalElevation = 0.dp
+                            ) {
+                                if (selectedItem != null) {
+                                    BuiltInMediaPlayerView(
+                                        item = selectedItem!!,
+                                        onDelete = { itemToDelete = selectedItem },
+                                        onSettingsClick = { showSettingsDialog = true }
                                     )
+                                } else {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = translatedText("Select a video clip to play"),
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -556,7 +624,7 @@ fun BuiltInMediaPlayerView(
                     }
                     val vol = if (isMuted) 0f else volumeLevel
                     mp.setVolume(vol, vol)
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && playbackSpeed != 1.0f) {
+                    if (playbackSpeed != 1.0f) {
                         try {
                             val params = mp.playbackParams
                             params.speed = playbackSpeed
@@ -763,6 +831,15 @@ fun BuiltInMediaPlayerView(
         val actualProgress = if (totalDurationMs > 0) (currentPosMs.toFloat() / totalDurationMs.toFloat()).coerceIn(0f, 1f) else 0f
         val sliderValue = if (isDraggingSeek) dragProgress else actualProgress
 
+        val seekState = rememberSliderState(
+            value = sliderValue
+        )
+        LaunchedEffect(sliderValue) {
+            if (seekState.value != sliderValue) {
+                seekState.value = sliderValue
+            }
+        }
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -774,7 +851,7 @@ fun BuiltInMediaPlayerView(
                 color = MaterialTheme.colorScheme.onSurface
             )
             Slider(
-                value = sliderValue,
+                state = seekState,
                 onValueChange = { frac ->
                     isDraggingSeek = true
                     dragProgress = frac
@@ -864,8 +941,17 @@ fun BuiltInMediaPlayerView(
 
                 val currentVol = if (isMuted) 0f else volumeLevel
 
+                val volumeState = rememberSliderState(
+                    value = currentVol
+                )
+                LaunchedEffect(currentVol) {
+                    if (volumeState.value != currentVol) {
+                        volumeState.value = currentVol
+                    }
+                }
+
                 Slider(
-                    value = currentVol,
+                    state = volumeState,
                     onValueChange = { vol ->
                         volumeLevel = vol
                         isMuted = vol == 0f
@@ -877,7 +963,6 @@ fun BuiltInMediaPlayerView(
                             }
                         }
                     },
-                    valueRange = 0f..1f,
                     modifier = Modifier.width(80.dp)
                 )
             }

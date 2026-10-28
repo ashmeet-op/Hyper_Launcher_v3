@@ -861,7 +861,7 @@ fun ControlSelectorDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f, fill = false),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
                         items(files) { file ->
                             val path = file.absolutePath
@@ -872,7 +872,7 @@ fun ControlSelectorDialog(
                                     .clickable {
                                         selectedPath = path
                                     }
-                                    .padding(vertical = 12.dp, horizontal = 8.dp),
+                                    .padding(vertical = 4.dp, horizontal = 8.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 RadioButton(

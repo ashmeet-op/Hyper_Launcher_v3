@@ -6,13 +6,17 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -30,7 +34,6 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.VideogameAsset
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButtonMenu
 import androidx.compose.material3.FloatingActionButtonMenuScope
 import androidx.compose.material3.Icon
@@ -41,6 +44,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailDefaults
 import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleFloatingActionButton
 import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
@@ -186,7 +190,7 @@ fun SideNavigationRail(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 @Composable
 fun SideRail(
     onRefresh: () -> Unit,
@@ -357,5 +361,177 @@ fun SideRail(
         }
 
         Spacer(modifier = Modifier.height(24.dp))
+    }
+}
+
+@Composable
+fun SideRailPortrait(
+    onRefresh: () -> Unit,
+    onImportModpack: () -> Unit,
+    onBack: () -> Unit,
+    isSearchActive: Boolean = false,
+    fabMenuContent: @Composable FloatingActionButtonMenuScope.(() -> Unit) -> Unit = {}
+) {
+    var refreshRotationTarget by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
+    val refreshRotation by animateFloatAsState(
+        targetValue = refreshRotationTarget,
+        animationSpec = tween(durationMillis = 600),
+        label = "RefreshRotation"
+    )
+
+    var fabMenuExpanded by remember { mutableStateOf(false) }
+    var innerVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(fabMenuExpanded) {
+        if (fabMenuExpanded) {
+            innerVisible = true
+        }
+    }
+
+    LaunchedEffect(innerVisible) {
+        if (!innerVisible && fabMenuExpanded) {
+            delay(200.milliseconds)
+            fabMenuExpanded = false
+        }
+    }
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(64.dp),
+        color = Color.Transparent
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            IconButton(
+                onClick = onBack,
+                modifier = Modifier.size(56.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                    contentDescription = "Back"
+                )
+            }
+
+            val secondaryColor = MaterialTheme.colorScheme.primary
+            val surfaceColor = MaterialTheme.colorScheme.surface
+            val onSecondaryColor = MaterialTheme.colorScheme.onPrimary
+            val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+
+            val density = LocalDensity.current
+            val popupOffset = remember(density) { with(density) { 0.dp.roundToPx() } }
+
+            Box(
+                modifier = Modifier.size(56.dp).zIndex(2f),
+                contentAlignment = Alignment.Center
+            ) {
+                ToggleFloatingActionButton(
+                    checked = fabMenuExpanded,
+                    onCheckedChange = {
+                        if (it) {
+                            fabMenuExpanded = true
+                        } else {
+                            innerVisible = false
+                        }
+                    },
+                    modifier = Modifier.size(56.dp),
+                    containerSize = { 56.dp },
+                    contentAlignment = Alignment.Center,
+                    containerColor = { progress ->
+                        lerp(secondaryColor, surfaceColor, progress)
+                    }
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Add,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(28.dp)
+                                .graphicsLayer {
+                                    rotationZ = checkedProgress * 45f
+                                }
+                                .animateIcon(
+                                    checkedProgress = { checkedProgress },
+                                    color = { progress ->
+                                        lerp(onSecondaryColor, onSurfaceColor, progress)
+                                    }
+                                )
+                        )
+                    }
+                }
+
+                if (fabMenuExpanded) {
+                    Popup(
+                        alignment = Alignment.TopCenter,
+                        offset = IntOffset(0, -popupOffset - 60),
+                        onDismissRequest = { innerVisible = false },
+                        properties = PopupProperties(focusable = true)
+                    ) {
+                        Box {
+                            androidx.compose.animation.AnimatedVisibility(
+                                visible = innerVisible,
+                                enter = fadeIn(tween(300)) + scaleIn(initialScale = 0f, transformOrigin = TransformOrigin(0.5f, 1f)),
+                                exit = fadeOut(tween(200)) + scaleOut(targetScale = 0f, transformOrigin = TransformOrigin(0.5f, 1f))
+                            ) {
+                                FloatingActionButtonMenu(
+                                    expanded = innerVisible,
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    button = { Box(Modifier.size(0.dp)) }
+                                ) {
+                                    fabMenuContent {
+                                        innerVisible = false
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            IconButton(
+                onClick = {
+                    refreshRotationTarget += 360f
+                    onRefresh()
+                },
+                modifier = Modifier.size(56.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Refresh,
+                    contentDescription = "Refresh",
+                    modifier = Modifier
+                        .size(28.dp)
+                        .graphicsLayer(rotationZ = refreshRotation),
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
+            IconToggleButton(
+                checked = isSearchActive,
+                onCheckedChange = {
+                    onImportModpack()
+                },
+                modifier = Modifier.size(56.dp),
+                colors = IconButtonDefaults.iconToggleButtonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    checkedContainerColor = MaterialTheme.colorScheme.secondary,
+                    checkedContentColor = MaterialTheme.colorScheme.onSecondary
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Search,
+                    contentDescription = "Search",
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+        }
     }
 }
