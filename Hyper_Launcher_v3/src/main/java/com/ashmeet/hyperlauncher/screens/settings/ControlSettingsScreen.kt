@@ -1,14 +1,19 @@
 package com.ashmeet.hyperlauncher.screens.settings
 
+import android.os.Build
 import android.view.KeyEvent
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.CompareArrows
 import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.ControlCamera
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Keyboard
 import androidx.compose.material.icons.filled.Mouse
 import androidx.compose.material.icons.filled.ScreenRotation
@@ -18,6 +23,7 @@ import androidx.compose.material.icons.filled.Title
 import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.VideogameAsset
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -25,12 +31,18 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.edit
+import com.ashmeet.hyperbackend.utils.KeycodeUtils
+import com.ashmeet.hyperlauncher.components.HyperAlertDialog
 import com.ashmeet.hyperlauncher.components.dialog.KeycodePickerDialog
+import com.ashmeet.hyperlauncher.filemanager.components.FileListView
+import com.ashmeet.hyperlauncher.filemanager.listeners.FileSelectedListener
 import com.ashmeet.hyperlauncher.screens.settings.layouts.CardPosition
 import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsCard
 import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsScreenWrapper
@@ -39,9 +51,10 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.PreferenceCategory
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsActionItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSliderItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSwitchItem
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
-import com.ashmeet.hyperbackend.utils.KeycodeUtils
+import java.io.File
 
 @Composable
 fun ControlSettingsScreen(
@@ -72,6 +85,7 @@ fun ControlSettingsScreen(
     var volumeKeysControlEnabled by remember { mutableStateOf(LauncherPreferences.PREF_VOLUME_KEYS_CONTROL_ENABLED) }
     var volumeUpKeybind by remember { mutableIntStateOf(LauncherPreferences.PREF_VOLUME_UP_KEYBIND) }
     var volumeDownKeybind by remember { mutableIntStateOf(LauncherPreferences.PREF_VOLUME_DOWN_KEYBIND) }
+    var showSelectControlMapDialog by remember { mutableStateOf(false) }
 
     val keyNames = remember { KeycodeUtils.generateKeyName() }
     fun getKeyName(keycode: Int): String {
@@ -91,12 +105,20 @@ fun ControlSettingsScreen(
         addTopGap = true
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            SettingsCard(position = CardPosition.SINGLE, useSurface = true) {
+            SettingsCard(position = CardPosition.TOP, useSurface = true) {
                 SettingsActionItem(
                     title = translatedText(stringResource(R.string.preference_edit_controls_title)),
                     summary = translatedText(stringResource(R.string.preference_edit_controls_summary)),
                     icon = Icons.Default.Edit,
                     onClick = onNavigateToCustomControls
+                )
+            }
+            SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
+                SettingsActionItem(
+                    title = translatedText(stringResource(R.string.customctrl_selectdefault)),
+                    summary = translatedText(File(LauncherPreferences.PREF_DEFAULTCTRL_PATH).name.ifEmpty { stringResource(R.string.default_control) }),
+                    icon = Icons.Default.FolderOpen,
+                    onClick = { showSelectControlMapDialog = true }
                 )
             }
         }
@@ -454,6 +476,45 @@ fun ControlSettingsScreen(
                 LauncherPreferences.loadPreferences(context)
             },
             onDismiss = { showKeyPickerFor = null }
+        )
+    }
+
+    if (showSelectControlMapDialog) {
+        HyperAlertDialog(
+            onDismissRequest = { showSelectControlMapDialog = false },
+            title = { Text(text = translatedText(stringResource(R.string.customctrl_selectdefault))) },
+            text = {
+                AndroidView(
+                    factory = { ctx ->
+                        FileListView(ctx, null, arrayOf("json")).apply {
+                            if (Build.VERSION.SDK_INT < 29) {
+                                listFileAt(File(HyperUtils.CTRLMAP_PATH ?: ""))
+                            } else {
+                                lockPathAt(File(HyperUtils.CTRLMAP_PATH ?: ""))
+                            }
+                            setFileSelectedListener(object : FileSelectedListener() {
+                                override fun onFileSelected(file: File, path: String) {
+                                    try {
+                                        LauncherPreferences.DEFAULT_PREF?.edit {
+                                            putString("defaultCtrl", path)
+                                        }
+                                        LauncherPreferences.PREF_DEFAULTCTRL_PATH = path
+                                        Toast.makeText(ctx, "Default layout set to ${file.name}", Toast.LENGTH_SHORT).show()
+                                    } catch (e: Exception) {
+                                        HyperUtils.showError(ctx, e)
+                                    }
+                                    showSelectControlMapDialog = false
+                                }
+                            })
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(350.dp)
+                )
+            },
+            dismissText = stringResource(android.R.string.cancel),
+            onDismiss = { showSelectControlMapDialog = false }
         )
     }
 }

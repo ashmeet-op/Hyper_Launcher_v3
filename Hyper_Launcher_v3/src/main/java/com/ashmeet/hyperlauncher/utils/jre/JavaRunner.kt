@@ -12,8 +12,6 @@ import com.ashmeet.hyperlauncher.runtime.RuntimeUtils
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.utils.HyperUtils
 import java.io.File
-import java.util.Arrays
-import java.util.Objects
 import java.util.TimeZone
 
 object JavaRunner {
@@ -39,7 +37,7 @@ object JavaRunner {
         } else {
             val caciocavallo17AgentDir = File(HyperUtils.DIR_GAME_HOME, "caciocavallo17")
             val cacioJars = caciocavallo17AgentDir.listFiles { _, s -> s.endsWith(".jar") }
-            if (cacioJars == null || cacioJars.isEmpty()) {
+            if (cacioJars.isNullOrEmpty()) {
                 return false
             }
             javaArgList.add("-javaagent:" + cacioJars[0].absolutePath)
@@ -85,30 +83,28 @@ object JavaRunner {
         userArguments.add(0, "-Xms" + LauncherPreferences.PREF_RAM_ALLOCATION + "M")
         userArguments.add(0, "-Xmx" + LauncherPreferences.PREF_RAM_ALLOCATION + "M")
 
-        val overridableArguments = ArrayList(
-            Arrays.asList(
-                "-Djava.home=$runtimeHome",
-                "-Djava.io.tmpdir=" + HyperUtils.DIR_CACHE!!.absolutePath,
-                "-Djava.library.path=" + HyperUtils.NATIVE_LIB_DIR,
-                "-Djna.boot.library.path=" + HyperUtils.NATIVE_LIB_DIR,
-                "-Duser.home=" + HyperUtils.DIR_GAME_HOME,
-                "-Duser.language=en",
-                "-Duser.country=US",
-                "-Dos.name=Linux",
-                "-Dos.version=Android-" + Build.VERSION.RELEASE,
-                "-Dpojav.path.minecraft=" + HyperUtils.DIR_GAME_NEW,
-                "-Dpojav.path.private.account=" + HyperUtils.DIR_ACCOUNT_NEW,
-                "-Duser.timezone=" + TimeZone.getDefault().id,
-                "-Dorg.lwjgl.vulkan.libname=libvulkan.so",
-                "-Dorg.lwjgl.spvc.libname=spirv-cross-c-shared",
-                "-Dorg.lwjgl.sdl.libname=" + File(HyperUtils.NATIVE_LIB_DIR, "libSDL3.so").absolutePath,
-                "-Dorg.lwjgl.system.allocator=system",
-                "-Dext.net.resolvPath=$resolvFile",
-                "-Dlog4j2.formatMsgNoLookups=true",
-                "-Dfml.earlyprogresswindow=false",
-                "-Dloader.disable_forked_guis=true",
-                "-Djdk.lang.Process.launchMechanism=FORK"
-            )
+        val overridableArguments = arrayListOf(
+            "-Djava.home=$runtimeHome",
+            "-Djava.io.tmpdir=" + HyperUtils.DIR_CACHE!!.absolutePath,
+            "-Djava.library.path=" + HyperUtils.NATIVE_LIB_DIR,
+            "-Djna.boot.library.path=" + HyperUtils.NATIVE_LIB_DIR,
+            "-Duser.home=" + HyperUtils.DIR_GAME_HOME,
+            "-Duser.language=en",
+            "-Duser.country=US",
+            "-Dos.name=Linux",
+            "-Dos.version=Android-" + Build.VERSION.RELEASE,
+            "-Dpojav.path.minecraft=" + HyperUtils.DIR_GAME_NEW,
+            "-Dpojav.path.private.account=" + HyperUtils.DIR_ACCOUNT_NEW,
+            "-Duser.timezone=" + TimeZone.getDefault().id,
+            "-Dorg.lwjgl.vulkan.libname=libvulkan.so",
+            "-Dorg.lwjgl.spvc.libname=spirv-cross-c-shared",
+            "-Dorg.lwjgl.sdl.libname=" + File(HyperUtils.NATIVE_LIB_DIR, "libSDL3.so").absolutePath,
+            "-Dorg.lwjgl.system.allocator=system",
+            "-Dext.net.resolvPath=$resolvFile",
+            "-Dlog4j2.formatMsgNoLookups=true",
+            "-Dfml.earlyprogresswindow=false",
+            "-Dloader.disable_forked_guis=true",
+            "-Djdk.lang.Process.launchMechanism=FORK",
         )
         val additionalArguments = ArrayList<String>()
         for (arg in overridableArguments) {
@@ -136,38 +132,31 @@ object JavaRunner {
     }
 
     private fun findVmForArch(runtimeHomeDir: File, arch: String?): File? {
-        var finalPath: File = getVmPath(runtimeHomeDir, arch, "server")
-        if (finalPath.exists()) return finalPath
-        finalPath = getVmPath(runtimeHomeDir, arch, "client")
-        if (finalPath.exists()) return finalPath
+        val serverPath = getVmPath(runtimeHomeDir, arch, "server")
+        if (serverPath.exists()) return serverPath
+        val clientPath = getVmPath(runtimeHomeDir, arch, "client")
+        if (clientPath.exists()) return clientPath
         return null
     }
 
+    @JvmStatic
     fun findVmPath(runtimeHomeDir: File, runtimeArch: String?): File? {
-        var finalPath = findVmForArch(runtimeHomeDir, null)
-        if (finalPath != null) return finalPath
+        findVmForArch(runtimeHomeDir, null)?.let { return it }
         if (runtimeArch != null) {
-            when (runtimeArch) {
-                "i386", "i486", "i586" -> {
-                    finalPath = findVmForArch(runtimeHomeDir, "i386")
-                    if (finalPath != null) return finalPath
-                    finalPath = findVmForArch(runtimeHomeDir, "i486")
-                    if (finalPath != null) return finalPath
-                    finalPath = findVmForArch(runtimeHomeDir, "i586")
-                    if (finalPath != null) return finalPath
-                }
-                else -> {
-                    finalPath = findVmForArch(runtimeHomeDir, runtimeArch)
-                    if (finalPath != null) return finalPath
-                }
+            val arches = when (runtimeArch) {
+                "i386", "i486", "i586" -> listOf("i386", "i486", "i586")
+                else -> listOf(runtimeArch)
+            }
+            for (arch in arches) {
+                findVmForArch(runtimeHomeDir, arch)?.let { return it }
             }
         }
         return null
     }
 
     private fun relocateLdLibPath(vmPath: File) {
-        val vmDir = Objects.requireNonNull(vmPath.parentFile)
-        val libsDir = Objects.requireNonNull(vmDir.parentFile)
+        val vmDir = requireNotNull(vmPath.parentFile)
+        val libsDir = requireNotNull(vmDir.parentFile)
         val ldLibPath = libsDir.absolutePath + ":" +
                 HyperUtils.NATIVE_LIB_DIR + ":" +
                 vmDir.absolutePath + ":" +
@@ -185,7 +174,7 @@ object JavaRunner {
         try {
             Os.setenv("JAVA_HOME", jreHome.absolutePath, true)
             Os.setenv("HOME", HyperUtils.DIR_GAME_HOME, true)
-            Os.setenv("TMPDIR", HyperUtils.DIR_CACHE!!.absolutePath, true)
+            Os.setenv("TMPDIR", HyperUtils.DIR_CACHE?.absolutePath ?: "", true)
             Os.setenv("POJAV_NATIVEDIR", HyperUtils.NATIVE_LIB_DIR, true)
         } catch (e: ErrnoException) {
             throw RuntimeException(e)
@@ -235,6 +224,7 @@ object JavaRunner {
         return hasJavaAgent
     }
 
+    @JvmStatic
     @Throws(VMLoadException::class)
     fun startJvm(
         runtime: Runtime,
@@ -277,6 +267,7 @@ object JavaRunner {
         )
     }
 
+    @JvmStatic
     @Throws(VMLoadException::class)
     external fun nativeLoadJVM(
         vmPath: String,
@@ -286,5 +277,6 @@ object JavaRunner {
         hasJavaAgents: Boolean
     ): Boolean
 
+    @JvmStatic
     external fun nativeSetupExit(context: Context)
 }
