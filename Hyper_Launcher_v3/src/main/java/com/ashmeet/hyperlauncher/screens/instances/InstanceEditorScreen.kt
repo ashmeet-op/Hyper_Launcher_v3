@@ -57,6 +57,7 @@ import com.ashmeet.hyperlauncher.utils.drawable.rememberDrawablePainter
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.runtime.Runtime
+import java.io.File
 
 @Composable
 fun InstanceEditorScreen(
@@ -160,7 +161,11 @@ fun InstanceEditorScreen(
                 SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
                     SettingsActionItem(
                         title = translatedText(stringResource(R.string.default_control)),
-                        summary = controlLayout.ifEmpty { translatedText(stringResource(R.string.use_global_default)) },
+                        summary = if (controlLayout.isEmpty()) {
+                            translatedText(stringResource(R.string.use_global_default))
+                        } else {
+                            File(controlLayout).name.ifEmpty { controlLayout }
+                        },
                         icon = Icons.Rounded.Settings,
                         onClick = onSelectControl
                     )

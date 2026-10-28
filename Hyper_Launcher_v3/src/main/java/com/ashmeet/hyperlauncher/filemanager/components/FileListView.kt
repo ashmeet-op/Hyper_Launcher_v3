@@ -5,7 +5,6 @@ import android.os.Environment
 import android.util.AttributeSet
 import android.widget.LinearLayout
 import android.widget.Toast
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -33,18 +32,30 @@ class FileListView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
-    private val fileSuffixes: Array<String> = emptyArray()
+    private val fileSuffixes: Array<String> = emptyArray(),
 ) : LinearLayout(context, attrs, defStyleAttr) {
 
     constructor(context: Context, attrs: AttributeSet?, fileSuffixes: Array<String>) : this(context, attrs, 0, fileSuffixes)
 
     var fullPath: File = try {
-        Environment.getExternalStorageDirectory()
+        if (fileSuffixes.contains("json") && !HyperUtils.CTRLMAP_PATH.isNullOrEmpty()) {
+            File(HyperUtils.CTRLMAP_PATH!!)
+        } else {
+            Environment.getExternalStorageDirectory()
+        }
     } catch (_: Exception) {
         File("/")
     }
 
-    private var lockPath: File = File("/")
+    private var lockPath: File = try {
+        if (fileSuffixes.contains("json") && !HyperUtils.CTRLMAP_PATH.isNullOrEmpty()) {
+            File(HyperUtils.CTRLMAP_PATH!!)
+        } else {
+            File("/")
+        }
+    } catch (_: Exception) {
+        File("/")
+    }
     private var showFiles: Boolean = true
     private var showFolders: Boolean = true
     private var fileSelectedListener: FileSelectedListener? = null
@@ -62,7 +73,7 @@ class FileListView @JvmOverloads constructor(
                         files = filesState,
                         currentPath = currentTitleState,
                         onItemClick = { file ->
-                            if (file.name == ".." || (filesState.isNotEmpty() && filesState[0] == file && !lockPath.equals(fullPath))) {
+                            if (file.name == ".." || (filesState.isNotEmpty() && filesState[0] == file && lockPath != fullPath)) {
                                 parentDir()
                             } else if (file.isDirectory) {
                                 listFileAt(file)
@@ -103,7 +114,7 @@ class FileListView @JvmOverloads constructor(
                         fullPath = path
                         val listFile = path.listFiles()
                         val resultFiles = mutableListOf<File>()
-                        if (!path.equals(lockPath)) {
+                        if (lockPath != path) {
                             resultFiles.add(File(path, ".."))
                         }
                         if (listFile != null && listFile.isNotEmpty()) {
