@@ -3,6 +3,7 @@
 package com.ashmeet.hyperbackend.awt
 
 import android.annotation.SuppressLint
+import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -54,6 +55,10 @@ class AWTActivity : BaseActivity() {
 
     private var prevX = 0f
     private var prevY = 0f
+
+    override fun updateOrientation() {
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+    }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {

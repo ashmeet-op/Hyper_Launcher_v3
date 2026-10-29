@@ -52,11 +52,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
 
     open fun updateOrientation() {
-        requestedOrientation = if (LauncherPreferences.PREF_PORTRAIT_MODE) {
-            ActivityInfo.SCREEN_ORIENTATION_USER
-        } else {
-            ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
-        }
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
     }
 
 
