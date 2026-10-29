@@ -109,7 +109,6 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun RecordingsGalleryScreen(
-    @Suppress("UNUSED_PARAMETER") onBack: () -> Unit = {}
 )
 {
     val context = LocalContext.current

@@ -8,7 +8,6 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import com.ashmeet.hyperlauncher.screens.recorder.RecordingsGalleryScreen
 import com.ashmeet.hyperlauncher.theme.PojavTheme
-import com.ashmeet.hyperlauncher.utils.HyperUtils
 
 class RecordingsGalleryFragment : Fragment() {
 
@@ -17,7 +16,6 @@ class RecordingsGalleryFragment : Fragment() {
             setContent {
                 PojavTheme {
                     RecordingsGalleryScreen(
-                        onBack = { HyperUtils.removeCurrentFragment(requireActivity()) }
                     )
                 }
             }
