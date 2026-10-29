@@ -1,5 +1,3 @@
-@file:Suppress("AvoidApplyPluginMethod")
-
 import com.android.build.api.variant.FilterConfiguration
 import de.undercouch.gradle.tasks.download.Download
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
