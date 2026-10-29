@@ -2,7 +2,10 @@ package com.ashmeet.hyperlauncher.activity
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.platform.ComposeView
 import com.ashmeet.hyperlauncher.utils.HyperUtils
@@ -12,8 +15,12 @@ import java.io.File
 
 class FatalErrorActivity : AppCompatActivity() {
 
-    @Suppress("DEPRECATION")
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
+        )
         super.onCreate(savedInstanceState)
 
         val extras = intent.extras

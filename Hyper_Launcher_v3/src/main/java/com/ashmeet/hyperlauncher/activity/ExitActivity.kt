@@ -1,13 +1,16 @@
 package com.ashmeet.hyperlauncher.activity
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.annotation.Keep
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.platform.ComposeView
+import androidx.core.content.edit
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
@@ -15,12 +18,16 @@ import net.ashmeet.hyperlauncher.R
 import java.io.File
 import java.io.IOException
 import kotlin.system.exitProcess
-import androidx.core.content.edit
+
 @Keep
 class ExitActivity : AppCompatActivity() {
 
-    @SuppressLint("StringFormatInvalid")
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
+        )
         super.onCreate(savedInstanceState)
         var code = -1
         var isSignal = false

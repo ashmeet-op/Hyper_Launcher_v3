@@ -4,20 +4,17 @@ import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.runtime.Composable
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperbackend.utils.LocaleUtils
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_FULLSCREEN_LAUNCHER
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_IGNORE_NOTCH
 import com.ashmeet.hyperlauncher.utils.HyperUtils
-import com.ashmeet.hyperbackend.utils.LocaleUtils
 
 abstract class BaseActivity : AppCompatActivity() {
 
@@ -27,13 +24,10 @@ abstract class BaseActivity : AppCompatActivity() {
 
   
     override fun onCreate(savedInstanceState: Bundle?) {
-
-        if ((shouldEnableEdgeToEdge() && shouldIgnoreNotch()) || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM && shouldIgnoreNotch())) {
-            enableEdgeToEdge(
-                statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
-                navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
-            )
-        }
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
+        )
 
         super.onCreate(savedInstanceState)
         LocaleUtils.setLocale(this)
@@ -80,6 +74,8 @@ abstract class BaseActivity : AppCompatActivity() {
 
     open fun setFullscreen(): Boolean {
         return PREF_FULLSCREEN_LAUNCHER
+
+
     }
 
     override fun onResume() {

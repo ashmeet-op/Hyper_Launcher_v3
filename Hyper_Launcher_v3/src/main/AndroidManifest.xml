@@ -74,7 +74,7 @@
             android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation|uiMode"
             android:exported="true"
             android:launchMode="singleInstance"
-            android:windowSoftInputMode="stateVisible">
+            android:windowSoftInputMode="stateVisible|adjustResize">
             <intent-filter
                 android:label="@string/import_control_label"
                 android:scheme="content"
