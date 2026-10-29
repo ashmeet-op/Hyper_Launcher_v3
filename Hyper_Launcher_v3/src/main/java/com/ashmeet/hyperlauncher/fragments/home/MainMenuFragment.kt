@@ -9,9 +9,12 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
+import com.ashmeet.hyperlauncher.fragments.home.about.AboutFragment
+import com.ashmeet.hyperlauncher.fragments.installer.ContentInstallerFragment
+import com.ashmeet.hyperlauncher.fragments.instances.InstanceDirectoryFragment
 import com.ashmeet.hyperlauncher.fragments.instances.InstanceEditorFragment
 import com.ashmeet.hyperlauncher.fragments.instances.InstanceSelectionFragment
-import com.ashmeet.hyperlauncher.fragments.home.about.AboutFragment
+import com.ashmeet.hyperlauncher.fragments.recorder.RecordingsGalleryFragment
 import com.ashmeet.hyperlauncher.screens.home.MainMenuFragmentCompose
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.ashmeet.hyperlauncher.R
@@ -81,6 +84,30 @@ class MainMenuFragment : Fragment() {
                             ExtraCore.setValue(
                                 ExtraConstants.SELECT_AUTH_METHOD,
                                 true
+                            )
+                        },
+                        onContentInstallerClick = {
+                            HyperUtils.swapFragment(
+                                requireActivity(),
+                                ContentInstallerFragment::class.java,
+                                ContentInstallerFragment.TAG,
+                                null
+                            )
+                        },
+                        onInstanceDirectoryClick = {
+                            HyperUtils.swapFragment(
+                                requireActivity(),
+                                InstanceDirectoryFragment::class.java,
+                                InstanceDirectoryFragment.TAG,
+                                null
+                            )
+                        },
+                        onRecordingsGalleryClick = {
+                            HyperUtils.swapFragment(
+                                requireActivity(),
+                                RecordingsGalleryFragment::class.java,
+                                RecordingsGalleryFragment.TAG,
+                                null
                             )
                         }
                     )

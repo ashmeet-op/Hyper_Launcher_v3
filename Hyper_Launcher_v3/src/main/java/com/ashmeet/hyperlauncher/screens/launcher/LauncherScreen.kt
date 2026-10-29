@@ -17,18 +17,14 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Folder
-import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.Videocam
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -140,112 +136,45 @@ fun PojavLauncherScreen(
                         val configuration = LocalConfiguration.current
                         val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
 
-                        if (isFileManagerVisible) {
-                            if (isPortrait) {
-                                var menuExpanded by remember { mutableStateOf(false) }
-                                Box {
-                                    IconButton(
-                                        onClick = { menuExpanded = true },
-                                        modifier = Modifier.size(56.dp)
-                                    ) {
-                                        BadgedBox(
-                                            badge = {
-                                                if (isRecording) {
-                                                    Badge(containerColor = Color.Red)
-                                                }
-                                            }
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Rounded.KeyboardArrowDown,
-                                                contentDescription = translatedText("More Options"),
-                                                tint = MaterialTheme.colorScheme.onSurface
-                                            )
+                        if (isFileManagerVisible && !isPortrait) {
+                            IconButton(
+                                onClick = onContentInstallerClick,
+                                modifier = Modifier.size(56.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Download,
+                                    contentDescription = translatedText("Content Installer"),
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+
+                            IconButton(
+                                onClick = onInstanceDirectoryClick,
+                                modifier = Modifier.size(56.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Folder,
+                                    contentDescription = translatedText("Instance Directory"),
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+
+                            IconButton(
+                                onClick = onRecordingsGalleryClick,
+                                modifier = Modifier.size(56.dp)
+                            ) {
+                                BadgedBox(
+                                    badge = {
+                                        if (isRecording) {
+                                            Badge(containerColor = Color.Red)
                                         }
                                     }
-                                    DropdownMenu(
-                                        expanded = menuExpanded,
-                                        onDismissRequest = { menuExpanded = false }
-                                    ) {
-                                        DropdownMenuItem(
-                                            text = { Text(translatedText("Content Installer")) },
-                                            leadingIcon = {
-                                                Icon(Icons.Rounded.Download, contentDescription = null)
-                                            },
-                                            onClick = {
-                                                menuExpanded = false
-                                                onContentInstallerClick()
-                                            }
-                                        )
-                                        DropdownMenuItem(
-                                            text = { Text(translatedText("Instance Directory")) },
-                                            leadingIcon = {
-                                                Icon(Icons.Rounded.Folder, contentDescription = null)
-                                            },
-                                            onClick = {
-                                                menuExpanded = false
-                                                onInstanceDirectoryClick()
-                                            }
-                                        )
-                                        DropdownMenuItem(
-                                            text = { Text(translatedText("Recordings Gallery")) },
-                                            leadingIcon = {
-                                                BadgedBox(
-                                                    badge = {
-                                                        if (isRecording) {
-                                                            Badge(containerColor = Color.Red)
-                                                        }
-                                                    }
-                                                ) {
-                                                    Icon(Icons.Rounded.Videocam, contentDescription = null)
-                                                }
-                                            },
-                                            onClick = {
-                                                menuExpanded = false
-                                                onRecordingsGalleryClick()
-                                            }
-                                        )
-                                    }
-                                }
-                            } else {
-                                IconButton(
-                                    onClick = onContentInstallerClick,
-                                    modifier = Modifier.size(56.dp)
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Rounded.Download,
-                                        contentDescription = translatedText("Content Installer"),
-                                        tint = MaterialTheme.colorScheme.onSurface
+                                        imageVector = Icons.Rounded.Videocam,
+                                        contentDescription = translatedText("Recordings Gallery"),
+                                        tint = if (isRecording) Color.Red else MaterialTheme.colorScheme.onSurface
                                     )
-                                }
-
-                                IconButton(
-                                    onClick = onInstanceDirectoryClick,
-                                    modifier = Modifier.size(56.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.Folder,
-                                        contentDescription = translatedText("Instance Directory"),
-                                        tint = MaterialTheme.colorScheme.onSurface
-                                    )
-                                }
-
-                                IconButton(
-                                    onClick = onRecordingsGalleryClick,
-                                    modifier = Modifier.size(56.dp)
-                                ) {
-                                    BadgedBox(
-                                        badge = {
-                                            if (isRecording) {
-                                                Badge(containerColor = Color.Red)
-                                            }
-                                        }
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Rounded.Videocam,
-                                            contentDescription = translatedText("Recordings Gallery"),
-                                            tint = if (isRecording) Color.Red else MaterialTheme.colorScheme.onSurface
-                                        )
-                                    }
                                 }
                             }
                         }

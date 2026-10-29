@@ -33,9 +33,12 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Build
+import androidx.compose.material.icons.rounded.Download
+import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Share
+import androidx.compose.material.icons.rounded.Videocam
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
@@ -98,6 +101,9 @@ fun MainMenuFragmentCompose(
     onPlayClick: () -> Unit,
     onVersionSpinnerClick: () -> Unit,
     onAccountManagerClick: () -> Unit,
+    onContentInstallerClick: () -> Unit = {},
+    onInstanceDirectoryClick: () -> Unit = {},
+    onRecordingsGalleryClick: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val isPreview = LocalInspectionMode.current
@@ -208,9 +214,13 @@ fun MainMenuFragmentCompose(
                 ) {
                     ActionCardsContent(
                         hideActionButtons = hideActionButtons,
+                        isPortrait = isPortrait,
                         onAboutClick = onAboutClick,
                         onSocialMediaClick = onSocialMediaClick,
                         onCustomControlsClick = onCustomControlsClick,
+                        onContentInstallerClick = onContentInstallerClick,
+                        onInstanceDirectoryClick = onInstanceDirectoryClick,
+                        onRecordingsGalleryClick = onRecordingsGalleryClick,
                         onInstallJarClick = onInstallJarClick,
                         onShareLogsClick = onShareLogsClick,
                         onOpenFilesClick = onOpenFilesClick
@@ -256,9 +266,13 @@ fun MainMenuFragmentCompose(
                         ) {
                             ActionCardsContent(
                                 hideActionButtons = hideActionButtons,
+                                isPortrait = isPortrait,
                                 onAboutClick = onAboutClick,
                                 onSocialMediaClick = onSocialMediaClick,
                                 onCustomControlsClick = onCustomControlsClick,
+                                onContentInstallerClick = onContentInstallerClick,
+                                onInstanceDirectoryClick = onInstanceDirectoryClick,
+                                onRecordingsGalleryClick = onRecordingsGalleryClick,
                                 onInstallJarClick = onInstallJarClick,
                                 onShareLogsClick = onShareLogsClick,
                                 onOpenFilesClick = onOpenFilesClick
@@ -294,9 +308,13 @@ fun MainMenuFragmentCompose(
 @Composable
 private fun ActionCardsContent(
     hideActionButtons: Boolean,
+    isPortrait: Boolean,
     onAboutClick: () -> Unit,
     onSocialMediaClick: () -> Unit,
     onCustomControlsClick: () -> Unit,
+    onContentInstallerClick: () -> Unit,
+    onInstanceDirectoryClick: () -> Unit,
+    onRecordingsGalleryClick: () -> Unit,
     onInstallJarClick: () -> Unit,
     onShareLogsClick: () -> Unit,
     onOpenFilesClick: () -> Unit
@@ -335,6 +353,37 @@ private fun ActionCardsContent(
                 position = CardPosition.MIDDLE,
                 onClick = onCustomControlsClick
             )
+
+            if (isPortrait) {
+                ActionCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp),
+                    title = translatedText("Content Installer"),
+                    icon = Icons.Rounded.Download,
+                    position = CardPosition.MIDDLE,
+                    onClick = onContentInstallerClick
+                )
+                ActionCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp),
+                    title = translatedText("Instance Directory"),
+                    icon = Icons.Rounded.Folder,
+                    position = CardPosition.MIDDLE,
+                    onClick = onInstanceDirectoryClick
+                )
+                ActionCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp),
+                    title = translatedText("Recordings Gallery"),
+                    icon = Icons.Rounded.Videocam,
+                    position = CardPosition.MIDDLE,
+                    onClick = onRecordingsGalleryClick
+                )
+            }
+
             ActionCard(
                 modifier = Modifier
                     .fillMaxWidth()
