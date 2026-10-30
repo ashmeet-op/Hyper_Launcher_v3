@@ -3,8 +3,10 @@ package com.ashmeet.hyperlauncher.activity
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
+import android.os.Build
 import android.os.Bundle
 import android.provider.DocumentsContract
+import android.window.OnBackInvokedDispatcher
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.ui.platform.ComposeView
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
@@ -96,15 +98,15 @@ class CustomControlsActivity : BaseActivity(), EditorExitable, CropperUtils.Crop
         CropperUtils.startCropper(mCropperLauncher)
     }
 
-    @Suppress("DEPRECATION")
-    override fun onBackPressed() {
-        super.onBackPressed()
+    override fun getOnBackInvokedDispatcher(): OnBackInvokedDispatcher {
         mControlLayout.askToExit(this)
+        return super.getOnBackInvokedDispatcher()
     }
 
-    @Suppress("DEPRECATION")
     override fun exitEditor() {
-        super.onBackPressed()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            super.getOnBackInvokedDispatcher()
+        }
     }
 
     override fun getAspectRatio(): Float {
