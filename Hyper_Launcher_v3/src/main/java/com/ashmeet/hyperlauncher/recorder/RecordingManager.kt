@@ -12,6 +12,7 @@ import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import net.ashmeet.hyperlauncher.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -218,14 +219,14 @@ object RecordingManager {
             val durationText = formatDuration(currentState.durationSeconds)
             Toast.makeText(
                 context,
-                "Recording saved ($durationText): ${savedFile.name}",
+                context.getString(R.string.recording_saved, durationText, savedFile.name),
                 Toast.LENGTH_LONG
             ).show()
             Log.i(TAG, "Recording saved successfully: ${savedFile.absolutePath}")
             return savedFile
         } else {
             if (savedFile.exists()) savedFile.delete()
-            Toast.makeText(context, "Recording failed or file was empty", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(R.string.recording_failed_empty), Toast.LENGTH_SHORT).show()
             return null
         }
     }
@@ -277,9 +278,7 @@ object RecordingManager {
     }
 
     fun deleteRecording(file: File): Boolean {
-        return if (file.exists()) {
-            file.delete()
-        } else false
+        return file.exists() && file.delete()
     }
 
     fun saveFileToGallery(context: Context, file: File) {

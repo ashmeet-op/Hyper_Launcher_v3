@@ -80,6 +80,7 @@ import com.ashmeet.hyperlauncher.utils.installer.ContentSource
 import com.ashmeet.hyperlauncher.utils.installer.ModrinthProject
 import com.ashmeet.hyperlauncher.utils.installer.ModrinthVersion
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
+import net.ashmeet.hyperlauncher.R
 import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -179,7 +180,7 @@ fun ContentInstallerScreen(
             },
             title = {
                 Text(
-                    text = translatedText("Unsupported Instance"),
+                    text = translatedText(stringResource(R.string.installer_unsupported_instance)),
                     fontWeight = FontWeight.Bold
                 )
             },
@@ -187,9 +188,9 @@ fun ContentInstallerScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = if (instanceLoader == "optifine")
-                            "Mods and modpacks cannot be installed on OptiFine instances. Please use a mod loader like Fabric, Forge, Quilt, or NeoForge."
+                            stringResource(R.string.installer_optifine_warning)
                         else
-                            "Mods and modpacks cannot be installed on Vanilla instances. Please install a mod loader like Fabric, Forge, Quilt, or NeoForge first.",
+                            stringResource(R.string.installer_vanilla_warning),
                         textAlign = TextAlign.Center
                     )
                     Spacer(modifier = Modifier.height(16.dp))
@@ -201,11 +202,11 @@ fun ContentInstallerScreen(
                             checked = skipWarningPermanently,
                             onCheckedChange = { skipWarningPermanently = it }
                         )
-                        Text(text = "Do not show this again", style = MaterialTheme.typography.bodyMedium)
+                        Text(text = stringResource(R.string.installer_do_not_show_again), style = MaterialTheme.typography.bodyMedium)
                     }
                 }
             },
-            confirmText = "Use Anyway",
+            confirmText = stringResource(R.string.installer_use_anyway),
             onConfirm = {
                 if (skipWarningPermanently) {
                     LauncherPreferences.PREF_SKIP_INCOMPATIBLE_WARNING = true
@@ -215,7 +216,7 @@ fun ContentInstallerScreen(
                 }
                 bypassWarning = true
             },
-            dismissText = "Cancel",
+            dismissText = stringResource(R.string.installer_cancel),
             onDismiss = onBack
         )
     }
@@ -402,7 +403,7 @@ fun ContentInstallerScreen(
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = if (searchQuery.isNotEmpty()) "No content found for \"$searchQuery\"" else "Search to find content",
+                            text = if (searchQuery.isNotEmpty()) stringResource(R.string.installer_no_content_found, searchQuery) else stringResource(R.string.installer_search_to_find),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

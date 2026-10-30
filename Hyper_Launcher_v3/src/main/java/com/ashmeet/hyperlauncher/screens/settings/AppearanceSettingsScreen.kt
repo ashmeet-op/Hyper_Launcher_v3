@@ -29,7 +29,6 @@ import androidx.compose.material.icons.rounded.Opacity
 import androidx.compose.material.icons.rounded.RadioButtonUnchecked
 import androidx.compose.material.icons.rounded.Repeat
 import androidx.compose.material.icons.rounded.Restore
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -68,7 +67,6 @@ import com.ashmeet.hyperlauncher.utils.HyperUtils
 import java.io.File
 import java.io.FileOutputStream
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppearanceSettingsScreen(
     onBack: () -> Unit
@@ -842,7 +840,7 @@ fun AppearanceSettingsScreen(
                     appLanguage = newValue
                     LauncherPreferences.prefs.edit { putString("app_language", newValue) }
                     LauncherPreferences.loadPreferences(context)
-                    Translator.prefetchTranslations(context)
+                    Translator.refreshLanguage()
                 },
                 onDismiss = { showLanguageDialog = false }
             )

@@ -51,7 +51,7 @@ fun ImportControlScreen(
                         value = fileName,
                         onValueChange = { fileName = it },
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text("File name") },
+                        label = { Text(stringResource(R.string.import_control_file_name)) },
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = MaterialTheme.colorScheme.primary,

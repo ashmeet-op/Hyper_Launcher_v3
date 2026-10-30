@@ -92,7 +92,7 @@ fun DeveloperSettingsScreen(
                         LauncherPreferences.prefs.edit { putBoolean("force_english", it) }
                         LauncherPreferences.loadPreferences(context)
                         if (!it) {
-                            Translator.prefetchTranslations(context)
+                            Translator.refreshLanguage()
                         }
                     }
                 )

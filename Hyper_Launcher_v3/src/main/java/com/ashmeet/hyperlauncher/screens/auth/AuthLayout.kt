@@ -54,10 +54,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.edit
 import androidx.fragment.app.FragmentContainerView
+import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperbackend.authenticator.AuthType
 import com.ashmeet.hyperbackend.authenticator.accounts.Accounts
 import com.ashmeet.hyperlauncher.extra.ExtraConstants
@@ -68,7 +70,6 @@ import com.ashmeet.hyperlauncher.skin.SkinPreview
 import com.ashmeet.hyperlauncher.skin.model.SkinModelType
 import com.ashmeet.hyperlauncher.utils.SkinUtils
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
-import net.ashmeet.hyperlauncher.R
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -278,7 +279,7 @@ fun AuthLayout(
                                             onSkinLibraryClick()
                                         },
                                         icon = { Icon(Icons.Rounded.AddReaction, contentDescription = null) },
-                                        text = { Text(text = translatedText("Skins Library")) },
+                                        text = { Text(text = translatedText(stringResource(R.string.auth_skins_library))) },
                                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                                         contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                                     )
@@ -288,7 +289,7 @@ fun AuthLayout(
                                             onCapeLibraryClick()
                                         },
                                         icon = { Icon(Icons.Rounded.Sell, contentDescription = null) },
-                                        text = { Text(text = translatedText("Capes Library")) },
+                                        text = { Text(text = translatedText(stringResource(R.string.auth_capes_library))) },
                                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                                         contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                                     )
@@ -299,7 +300,7 @@ fun AuthLayout(
                                         showAnimationDialog = true
                                     },
                                     icon = { Icon(Icons.Rounded.Animation, contentDescription = null) },
-                                    text = { Text(text = translatedText("Animations")) },
+                                    text = { Text(text = translatedText(stringResource(R.string.auth_animations))) },
                                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
@@ -377,7 +378,7 @@ fun AuthLayout(
 
             if (showAnimationDialog) {
                 com.ashmeet.hyperlauncher.screens.settings.preferences.SingleChoiceDialog(
-                    title = translatedText("Choose Animation"),
+                    title = translatedText(stringResource(R.string.auth_choose_animation)),
                     options = animations,
                     optionValues = animations,
                     selectedValue = currentAnimation,
@@ -407,7 +408,7 @@ fun AuthLayout(
                         IconButton(onClick = onBack) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                                contentDescription = translatedText("Back"),
+                                contentDescription = translatedText(stringResource(R.string.auth_back)),
                                 tint = MaterialTheme.colorScheme.onSurface
                             )
                         }

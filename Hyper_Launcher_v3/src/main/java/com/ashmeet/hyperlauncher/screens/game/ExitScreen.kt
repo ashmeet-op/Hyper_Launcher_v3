@@ -66,11 +66,10 @@ import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import kotlinx.coroutines.launch
 import net.ashmeet.hyperlauncher.R
 
-@Suppress("UNUSED_PARAMETER")
+
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ExitScreen(
-    title: String,
     logs: String,
     onShareClick: () -> Unit,
     onRestartClick: () -> Unit,
@@ -78,7 +77,7 @@ fun ExitScreen(
 ) {
     val context = LocalContext.current
     val isPreview = LocalInspectionMode.current
-    val ignoreNotch = if (isPreview) true else LauncherPreferences.PREF_IGNORE_NOTCH
+    val ignoreNotch = isPreview || LauncherPreferences.PREF_IGNORE_NOTCH
 
     val crashReportPath = remember(logs) {
         val marker = "#@!@# Game crashed! Crash report saved to: #@!@# "
@@ -164,7 +163,7 @@ fun ExitScreen(
                         Tab(
                             selected = !viewingAiResult,
                             onClick = { viewingAiResult = false },
-                            text = { Text("Game Logs", fontWeight = FontWeight.Bold) }
+                            text = { Text(stringResource(R.string.exit_game_logs), fontWeight = FontWeight.Bold) }
                         )
                         Tab(
                             selected = viewingAiResult,
@@ -175,7 +174,7 @@ fun ExitScreen(
                                     viewingAiResult = true
                                 }
                             },
-                            text = { Text("AI Analysis", fontWeight = FontWeight.Bold) }
+                            text = { Text(stringResource(R.string.exit_ai_analysis), fontWeight = FontWeight.Bold) }
                         )
                     }
 
@@ -218,7 +217,7 @@ fun ExitScreen(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Button(onClick = { runAiInspection() }, shape = CircleShape) {
-                                        Text("Run AI Inspection")
+                                        Text(stringResource(R.string.exit_run_ai_inspection))
                                     }
                                 }
                             }
@@ -259,7 +258,7 @@ fun ExitScreen(
                         )
                     ) {
                         Text(
-                            text = translatedText("Inspect with AI"),
+                            text = translatedText(stringResource(R.string.exit_inspect_with_ai)),
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold
                         )
@@ -275,7 +274,7 @@ fun ExitScreen(
                         shape = CircleShape
                     ) {
                         Text(
-                            text = translatedText("Crash Report"),
+                            text = translatedText(stringResource(R.string.exit_crash_report)),
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -329,7 +328,7 @@ fun ExitScreen(
     if (aiError != null) {
         HyperAlertDialog(
             onDismissRequest = { aiError = null },
-            title = { Text(text = translatedText("AI Inspection Failed")) },
+            title = { Text(text = translatedText(stringResource(R.string.exit_ai_inspection_failed))) },
             text = {
                 Text(
                     text = aiError ?: "",
@@ -348,7 +347,6 @@ fun ExitScreen(
 fun ExitScreenPreview() {
     PojavTheme {
         ExitScreen(
-            title = translatedText("Game exited with code 1"),
             logs = "[10:57:55] [main/INFO]: Loading Minecraft...\n".repeat(20),
             onShareClick = {},
             onRestartClick = {}

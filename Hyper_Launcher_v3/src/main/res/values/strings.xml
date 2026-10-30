@@ -576,4 +576,58 @@
     <string name="preference_alsoft_opensl_title">Forcefully use OpenSL for audio</string>
     <string name="preference_alsoft_opensl_summary">Forcefully enables OpenSL backend in ALSoft instead of Oboe. Can fix audio capture issues on some devices. Disable if you see audio playback/capture issues</string>
     <string name="global_worlds">Worlds</string>
+
+    <!-- Translator / Auth / Homescreen -->
+    <string name="auth_login_title">Login</string>
+    <string name="auth_back">Back</string>
+    <string name="auth_skins_library">Skins Library</string>
+    <string name="auth_capes_library">Capes Library</string>
+    <string name="auth_animations">Animations</string>
+    <string name="auth_choose_animation">Choose Animation</string>
+
+    <!-- Homescreen -->
+    <string name="home_about">About</string>
+    <string name="home_content_installer">Content Installer</string>
+    <string name="home_instance_directory">Instance Directory</string>
+    <string name="home_recordings_gallery">Recordings Gallery</string>
+    <string name="home_add_account">Add Account</string>
+    <string name="home_edit_profile">Edit Profile</string>
+    <string name="home_launch">Launch</string>
+    <string name="home_unnamed">UNNAMED</string>
+
+    <!-- Controls editor -->
+    <string name="controls_layout_name">Layout Name</string>
+    <string name="controls_name_empty">Name cannot be empty</string>
+    <string name="controls_default_layout_set">Default layout set to %s</string>
+
+    <!-- Import control screen -->
+    <string name="import_control_file_name">File name</string>
+
+    <!-- AWT / Game screen -->
+    <string name="awt_keyboard">Keyboard</string>
+    <string name="awt_copy">Copy</string>
+    <string name="awt_paste">Paste</string>
+    <string name="game_close">Close</string>
+
+    <!-- Exit / AI screen -->
+    <string name="exit_game_logs">Game Logs</string>
+    <string name="exit_ai_analysis">AI Analysis</string>
+    <string name="exit_run_ai_inspection">Run AI Inspection</string>
+    <string name="exit_inspect_with_ai">Inspect with AI</string>
+    <string name="exit_crash_report">Crash Report</string>
+    <string name="exit_ai_inspection_failed">AI Inspection Failed</string>
+
+    <!-- Content installer -->
+    <string name="installer_unsupported_instance">Unsupported Instance</string>
+    <string name="installer_optifine_warning">Mods and modpacks cannot be installed on OptiFine instances. Please use a mod loader like Fabric, Forge, Quilt, or NeoForge.</string>
+    <string name="installer_vanilla_warning">Mods and modpacks cannot be installed on Vanilla instances. Please install a mod loader like Fabric, Forge, Quilt, or NeoForge first.</string>
+    <string name="installer_do_not_show_again">Do not show this again</string>
+    <string name="installer_use_anyway">Use Anyway</string>
+    <string name="installer_cancel">Cancel</string>
+    <string name="installer_no_content_found">No content found for "%s"</string>
+    <string name="installer_search_to_find">Search to find content</string>
+
+    <!-- Recording -->
+    <string name="recording_failed_empty">Recording failed or file was empty</string>
+    <string name="recording_saved">Recording saved (%1$s): %2$s</string>
 </resources>

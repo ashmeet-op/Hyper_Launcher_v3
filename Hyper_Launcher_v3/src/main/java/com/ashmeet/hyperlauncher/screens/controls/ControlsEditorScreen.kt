@@ -189,7 +189,7 @@ fun ControlsEditorScreen(
                         HyperOutlinedTextField(
                             value = saveLayoutName,
                             onValueChange = { saveLayoutName = it },
-                            label = { Text(translatedText("Layout Name")) },
+                            label = { Text(translatedText(stringResource(R.string.controls_layout_name))) },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -198,7 +198,7 @@ fun ControlsEditorScreen(
                 confirmText = stringResource(R.string.global_save),
                 onConfirm = {
                     if (saveLayoutName.isBlank()) {
-                        Toast.makeText(context, "Name cannot be empty", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.controls_name_empty), Toast.LENGTH_SHORT).show()
                     } else {
                         try {
                             val jsonPath = controlLayout.saveToDirectory(saveLayoutName)
@@ -223,7 +223,7 @@ fun ControlsEditorScreen(
                         LauncherPreferences.DEFAULT_PREF?.edit()?.putString("defaultCtrl", path)?.apply()
                         LauncherPreferences.PREF_DEFAULTCTRL_PATH = path
                         controlLayout.loadLayout(path)
-                        Toast.makeText(context, "Default layout set to ${file.name}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.controls_default_layout_set, file.name), Toast.LENGTH_SHORT).show()
                     } catch (e: Exception) {
                         HyperUtils.showError(context, e)
                     }

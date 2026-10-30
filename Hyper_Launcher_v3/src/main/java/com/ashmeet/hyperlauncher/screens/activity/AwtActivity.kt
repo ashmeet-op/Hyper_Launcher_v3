@@ -1,5 +1,6 @@
 package com.ashmeet.hyperlauncher.screens.activity
 
+import android.annotation.SuppressLint
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -73,6 +74,7 @@ fun LegacyControlButton(
     }
 }
 
+@SuppressLint("ClickableViewAccessibility")
 @Composable
 fun JavaGuiLauncherScreen(
     onForceClose: () -> Unit,
@@ -161,15 +163,15 @@ fun JavaGuiLauncherScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             LegacyControlButton(
-                text = "Keyboard",
+                text = stringResource(R.string.awt_keyboard),
                 onClick = onToggleKeyboard
             )
             LegacyControlButton(
-                text = "Copy",
+                text = stringResource(R.string.awt_copy),
                 onClick = onPerformCopy
             )
             LegacyControlButton(
-                text = "Paste",
+                text = stringResource(R.string.awt_paste),
                 onClick = onPerformPaste
             )
         }

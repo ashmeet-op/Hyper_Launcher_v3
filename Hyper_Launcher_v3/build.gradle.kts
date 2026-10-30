@@ -93,11 +93,11 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
         val propVersionCode = localProperties.getProperty("VERSION_CODE")?.toIntOrNull()
             ?: project.findProperty("VERSION_CODE")?.toString()?.toIntOrNull()
             ?: localProperties.getProperty("hyperversioncode")?.toIntOrNull()
-            ?: 5
+            ?: 1
         versionCode = propVersionCode
 
         versionName = if (hyperVersionSuffix.isBlank()) hyperVersionNumber else "$hyperVersionNumber-$hyperVersionSuffix"
-        multiDexEnabled = false
+
         resValue("string", "curseforge_api_key", getCFApiKey())
         resValue("string", "hyper_launcher_api_key", getHyperLauncherApiKey())
         resValue("string", "dc_key", getDcKey())

@@ -18,7 +18,6 @@ object ExitComposeHelper {
         composeView.setContent {
             PojavTheme {
                 ExitScreen(
-                    title = title,
                     logs = logs,
                     onShareClick = onShareClick,
                     onRestartClick = onRestartClick,

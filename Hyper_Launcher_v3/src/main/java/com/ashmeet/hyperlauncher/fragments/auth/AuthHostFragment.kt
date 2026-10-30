@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.stringResource
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.ashmeet.hyperlauncher.screens.auth.AuthLayout
@@ -75,7 +76,7 @@ class AuthHostFragment : Fragment() {
 
                 PojavTheme {
                     AuthLayout(
-                        title = translatedText("Login"),
+                        title = translatedText(stringResource(R.string.auth_login_title)),
                         isFullScreen = isFullScreen,
                         onBack = if (backStackCount > 0) {
                             { requireActivity().onBackPressedDispatcher.onBackPressed() }

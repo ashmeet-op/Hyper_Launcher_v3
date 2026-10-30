@@ -329,7 +329,7 @@ private fun ActionCardsContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(60.dp),
-                title = translatedText("About"),
+                title = translatedText(stringResource(R.string.home_about)),
                 icon = Icons.Rounded.Info,
                 position = CardPosition.TOP,
                 onClick = onAboutClick
@@ -359,7 +359,7 @@ private fun ActionCardsContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(60.dp),
-                    title = translatedText("Content Installer"),
+                    title = translatedText(stringResource(R.string.home_content_installer)),
                     icon = Icons.Rounded.Download,
                     position = CardPosition.MIDDLE,
                     onClick = onContentInstallerClick
@@ -368,7 +368,7 @@ private fun ActionCardsContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(60.dp),
-                    title = translatedText("Instance Directory"),
+                    title = translatedText(stringResource(R.string.home_instance_directory)),
                     icon = Icons.Rounded.Folder,
                     position = CardPosition.MIDDLE,
                     onClick = onInstanceDirectoryClick
@@ -377,7 +377,7 @@ private fun ActionCardsContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(60.dp),
-                    title = translatedText("Recordings Gallery"),
+                    title = translatedText(stringResource(R.string.home_recordings_gallery)),
                     icon = Icons.Rounded.Videocam,
                     position = CardPosition.MIDDLE,
                     onClick = onRecordingsGalleryClick
@@ -481,7 +481,7 @@ private fun SidebarCardContent(
                         } else {
                             Icon(
                                 imageVector = Icons.Default.Add,
-                                contentDescription = translatedText("Add Account"),
+                                contentDescription = translatedText(stringResource(R.string.home_add_account)),
                                 modifier = Modifier.size(32.dp),
                                 tint = MaterialTheme.colorScheme.primary
                             )
@@ -539,7 +539,7 @@ private fun SidebarCardContent(
                             val instanceDisplayName = if (selectedInstance == null) {
                                 translatedText(stringResource(id = R.string.no_instance))
                             } else if (name.isNullOrBlank()) {
-                                translatedText("UNNAMED")
+                                translatedText(stringResource(R.string.home_unnamed))
                             } else {
                                 name
                             }
@@ -567,7 +567,7 @@ private fun SidebarCardContent(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Settings,
-                            contentDescription = translatedText("Edit Profile"),
+                            contentDescription = translatedText(stringResource(R.string.home_edit_profile)),
                             modifier = Modifier.size(24.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -583,7 +583,7 @@ private fun SidebarCardContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 MineButton(
-                    text = translatedText("Launch"),
+                    text = translatedText(stringResource(R.string.home_launch)),
                     onClick = onPlayClick,
                     modifier = Modifier
                         .weight(1f),
