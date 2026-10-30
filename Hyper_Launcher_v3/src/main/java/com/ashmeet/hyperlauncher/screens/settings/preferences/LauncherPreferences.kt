@@ -369,7 +369,7 @@ object LauncherPreferences {
         val isDevicePowerful = isDevicePowerful(ctx)
         val pref = DEFAULT_PREF ?: return
 
-        PREF_RENDERER = pref.getString("renderer", "holy") ?: "holy"
+        PREF_RENDERER = pref.getString("renderer", "opengles3_ltw") ?: "opengles2"
         PREF_GRAPHICS_BACKEND = pref.getString("preferredGraphicsBackend", "default") ?: "default"
         PREF_DRIVER = pref.getString("driver", "default") ?: "default"
         PREF_BUTTONSIZE = pref.getInt("buttonscale", 100).toFloat()
