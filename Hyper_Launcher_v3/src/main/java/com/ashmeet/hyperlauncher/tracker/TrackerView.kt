@@ -179,8 +179,7 @@ fun TrackerContent(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             shape = RoundedCornerShape(20.dp),
-            color = MaterialTheme.colorScheme.surfaceContainerHigh,
-            tonalElevation = 4.dp
+            color = MaterialTheme.colorScheme.background
         ) {
             Column(
                 modifier = Modifier
