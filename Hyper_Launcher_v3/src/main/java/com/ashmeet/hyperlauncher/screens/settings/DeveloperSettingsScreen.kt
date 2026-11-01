@@ -100,8 +100,8 @@ fun DeveloperSettingsScreen(
 
             SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
                 SettingsSwitchItem(
-                    title = translatedText("Portrait mode"),
-                    summary = translatedText("Allow launcher to run in portrait mode when rotated"),
+                    title = translatedText("Force portrait mode"),
+                    summary = translatedText("Force launcher and game activities to run in portrait mode"),
                     icon = Icons.Default.AspectRatio,
                     checked = portraitMode,
                     onCheckedChange = {

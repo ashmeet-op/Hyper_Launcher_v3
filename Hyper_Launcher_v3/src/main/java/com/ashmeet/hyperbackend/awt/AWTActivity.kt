@@ -57,7 +57,11 @@ class AWTActivity : BaseActivity() {
     private var prevY = 0f
 
     override fun updateOrientation() {
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+        requestedOrientation = if (LauncherPreferences.PREF_PORTRAIT_MODE) {
+            ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
+        } else {
+            ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")

@@ -27,7 +27,11 @@ class CustomControlsActivity : BaseActivity(), EditorExitable, CropperUtils.Crop
     private lateinit var mCropperLauncher: ActivityResultLauncher<*>
 
     override fun updateOrientation() {
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+        requestedOrientation = if (LauncherPreferences.PREF_PORTRAIT_MODE) {
+            ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
+        } else {
+            ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+        }
     }
 
     override fun shouldEnableEdgeToEdge(): Boolean {

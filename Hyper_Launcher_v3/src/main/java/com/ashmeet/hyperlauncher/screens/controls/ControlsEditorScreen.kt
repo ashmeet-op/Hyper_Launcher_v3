@@ -64,7 +64,11 @@ fun ControlsEditorScreen(
     DisposableEffect(Unit) {
         val activity = context as? Activity
         val previousOrientation = activity?.requestedOrientation
-        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+        activity?.requestedOrientation = if (LauncherPreferences.PREF_PORTRAIT_MODE) {
+            ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
+        } else {
+            ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+        }
         onDispose {
             if (previousOrientation != null) {
                 activity.requestedOrientation = previousOrientation

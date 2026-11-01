@@ -46,7 +46,11 @@ abstract class BaseActivity : AppCompatActivity() {
 
 
     open fun updateOrientation() {
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        requestedOrientation = if (com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_PORTRAIT_MODE) {
+            ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
+        } else {
+            ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        }
     }
 
 

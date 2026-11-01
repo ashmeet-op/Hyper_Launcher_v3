@@ -460,7 +460,11 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
 
     @Override
     public void updateOrientation() {
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE);
+        if (LauncherPreferences.PREF_PORTRAIT_MODE) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE);
+        }
     }
 
     @Override
