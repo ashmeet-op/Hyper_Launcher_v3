@@ -1,5 +1,6 @@
 package com.ashmeet.hyperlauncher.screens.settings
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -52,6 +53,7 @@ import com.ashmeet.hyperbackend.vulkan.DriverInstaller
 import com.ashmeet.hyperbackend.vulkan.DriverManager
 import com.ashmeet.hyperbackend.vulkan.ui.VulkanDriverDialog
 
+@SuppressLint("LocalContextResourcesRead")
 @Composable
 fun VideoSettingsScreen(
     onBack: () -> Unit,
@@ -196,7 +198,6 @@ fun VideoSettingsScreen(
                     summary = translatedText(stringResource(R.string.mcl_setting_subtitle_fullscreen_ui)),
                     icon = Icons.Default.Fullscreen,
                     checked = fullscreenLauncher,
-                    warningTooltip = "Disabling edge-to-edge display may cause layout issues on some devices",
                     onCheckedChange = {
                         fullscreenLauncher = it
                         LauncherPreferences.prefs.edit { putBoolean("fullscreen_launcher", it) }
