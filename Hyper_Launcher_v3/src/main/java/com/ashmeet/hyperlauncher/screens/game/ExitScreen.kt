@@ -1,11 +1,13 @@
 package com.ashmeet.hyperlauncher.screens.game
 
+import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -49,6 +51,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
@@ -112,219 +115,261 @@ fun ExitScreen(
             )
         }
     }
-    
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
-        val layoutModifier = if (ignoreNotch) {
-            Modifier.fillMaxSize()
-        } else {
-            Modifier.fillMaxSize()
-                .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
-        }
-
-        Row(
-            modifier = layoutModifier
-                .padding(24.dp)
-                .clip(RoundedCornerShape(24.dp))
-                .background(MaterialTheme.colorScheme.background)
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+    val logsContent = @Composable { modifier: Modifier ->
+        Box(
+            modifier = modifier
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.surface)
         ) {
-            Box(
-                modifier = Modifier
-                    .weight(0.65f)
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.surface)
-            ) {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    SecondaryTabRow(
-                        selectedTabIndex = if (viewingAiResult) 1 else 0,
-                        containerColor = Color.Transparent,
-                        contentColor = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.fillMaxWidth(),
-                        divider = {},
-                        indicator = @Composable {
-                            val selectedIndex = if (viewingAiResult) 1 else 0
-                            TabRowDefaults.SecondaryIndicator(
-                                modifier = Modifier
-                                    .tabIndicatorOffset(selectedIndex)
-                                    .padding(horizontal = 24.dp)
-                                    .clip(RoundedCornerShape(16.dp)),
-                                height = 4.dp,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    ) {
-                        Tab(
-                            selected = !viewingAiResult,
-                            onClick = { viewingAiResult = false },
-                            text = { Text(stringResource(R.string.exit_game_logs), fontWeight = FontWeight.Bold) }
-                        )
-                        Tab(
-                            selected = viewingAiResult,
-                            onClick = {
-                                if (aiResult == null && !isAnalyzing) {
-                                    runAiInspection()
-                                } else if (aiResult != null) {
-                                    viewingAiResult = true
-                                }
-                            },
-                            text = { Text(stringResource(R.string.exit_ai_analysis), fontWeight = FontWeight.Bold) }
+            Column(modifier = Modifier.fillMaxSize()) {
+                SecondaryTabRow(
+                    selectedTabIndex = if (viewingAiResult) 1 else 0,
+                    containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.fillMaxWidth(),
+                    divider = {},
+                    indicator = @Composable {
+                        val selectedIndex = if (viewingAiResult) 1 else 0
+                        TabRowDefaults.SecondaryIndicator(
+                            modifier = Modifier
+                                .tabIndicatorOffset(selectedIndex)
+                                .padding(horizontal = 24.dp)
+                                .clip(RoundedCornerShape(16.dp)),
+                            height = 4.dp,
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
+                ) {
+                    Tab(
+                        selected = !viewingAiResult,
+                        onClick = { viewingAiResult = false },
+                        text = { Text(stringResource(R.string.exit_game_logs), fontWeight = FontWeight.Bold) }
+                    )
+                    Tab(
+                        selected = viewingAiResult,
+                        onClick = {
+                            if (aiResult == null && !isAnalyzing) {
+                                runAiInspection()
+                            } else if (aiResult != null) {
+                                viewingAiResult = true
+                            }
+                        },
+                        text = { Text(stringResource(R.string.exit_ai_analysis), fontWeight = FontWeight.Bold) }
+                    )
+                }
 
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                            .padding(16.dp)
-                    ) {
-                        if (isAnalyzing) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .padding(16.dp)
+                ) {
+                    if (isAnalyzing) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            LoadingIndicator()
+                        }
+                    } else if (viewingAiResult) {
+                        if (aiResult != null) {
+                            val aiScrollState = rememberScrollState()
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .verticalScroll(aiScrollState)
+                            ) {
+                                AnimatedVisibility(
+                                    visible = true,
+                                    enter = fadeIn() + expandVertically()
+                                ) {
+                                    MarkdownText(
+                                        markdown = aiResult ?: "",
+                                        color = MaterialTheme.colorScheme.onBackground,
+                                        baseFontSize = 13.sp,
+                                        baseLineHeight = 18.sp
+                                    )
+                                }
+                            }
+                        } else {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
                                 contentAlignment = Alignment.Center
                             ) {
-                                LoadingIndicator()
-                            }
-                        } else if (viewingAiResult) {
-                            if (aiResult != null) {
-                                val aiScrollState = rememberScrollState()
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .verticalScroll(aiScrollState)
-                                ) {
-                                    AnimatedVisibility(
-                                        visible = true,
-                                        enter = fadeIn() + expandVertically()
-                                    ) {
-                                        MarkdownText(
-                                            markdown = aiResult ?: "",
-                                            color = MaterialTheme.colorScheme.onBackground,
-                                            baseFontSize = 13.sp,
-                                            baseLineHeight = 18.sp
-                                        )
-                                    }
-                                }
-                            } else {
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Button(onClick = { runAiInspection() }, shape = CircleShape) {
-                                        Text(stringResource(R.string.exit_run_ai_inspection))
-                                    }
+                                Button(onClick = { runAiInspection() }, shape = CircleShape) {
+                                    Text(stringResource(R.string.exit_run_ai_inspection))
                                 }
                             }
-                        } else {
-                            val logScrollState = rememberScrollState()
-                            Text(
-                                text = logs,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .verticalScroll(logScrollState),
-                                color = MaterialTheme.colorScheme.onBackground,
-                                fontSize = 11.sp,
-                                fontFamily = FontFamily.Monospace
-                            )
                         }
+                    } else {
+                        val logScrollState = rememberScrollState()
+                        Text(
+                            text = logs,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .verticalScroll(logScrollState),
+                            color = MaterialTheme.colorScheme.onBackground,
+                            fontSize = 11.sp,
+                            fontFamily = FontFamily.Monospace
+                        )
                     }
                 }
             }
+        }
+    }
 
-            Spacer(modifier = Modifier.width(20.dp))
-            Column(
-                modifier = Modifier
-                    .weight(0.35f)
-                    .fillMaxHeight(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                if (crashReportPath != null) {
-                    Button(
-                        onClick = { runAiInspection() },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp),
-                        shape = CircleShape,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
-                        )
-                    ) {
-                        Text(
-                            text = translatedText(stringResource(R.string.exit_inspect_with_ai)),
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    OutlinedButton(
-                        onClick = { onOpenCrashReport(crashReportPath) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp),
-                        shape = CircleShape
-                    ) {
-                        Text(
-                            text = translatedText(stringResource(R.string.exit_crash_report)),
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-                }
-
-                OutlinedButton(
-                    onClick = onShareClick,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    shape = CircleShape
-                ) {
-                    Text(
-                        text = translatedText(stringResource(R.string.main_share_logs)),
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(20.dp))
-
+    val actionButtons = @Composable { modifier: Modifier ->
+        Column(
+            modifier = modifier,
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (crashReportPath != null) {
                 Button(
-                    onClick = onRestartClick,
+                    onClick = { runAiInspection() },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(54.dp),
+                        .height(50.dp),
                     shape = CircleShape,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
                     )
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = translatedText(stringResource(R.string.global_restart)),
+                        text = translatedText(stringResource(R.string.exit_inspect_with_ai)),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                OutlinedButton(
+                    onClick = { onOpenCrashReport(crashReportPath) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = CircleShape
+                ) {
+                    Text(
+                        text = translatedText(stringResource(R.string.exit_crash_report)),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+            }
+
+            OutlinedButton(
+                onClick = onShareClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = CircleShape
+            ) {
+                Text(
+                    text = translatedText(stringResource(R.string.main_share_logs)),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = onRestartClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(54.dp),
+                shape = CircleShape,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = translatedText(stringResource(R.string.global_restart)),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            val isPortrait = maxHeight > maxWidth
+            val layoutModifier = if (ignoreNotch) {
+                Modifier.fillMaxSize()
+            } else if (isPortrait) {
+                Modifier.fillMaxSize()
+                    .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Vertical))
+            } else {
+                Modifier.fillMaxSize()
+                    .windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
+            }
+
+            if (isPortrait) {
+                Column(
+                    modifier = layoutModifier
+                        .padding(16.dp)
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(MaterialTheme.colorScheme.background)
+                        .padding(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    logsContent(
+                        Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    actionButtons(
+                        Modifier.fillMaxWidth()
+                    )
+                }
+            } else {
+                Row(
+                    modifier = layoutModifier
+                        .padding(24.dp)
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(MaterialTheme.colorScheme.background)
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    logsContent(
+                        Modifier
+                            .weight(0.65f)
+                            .fillMaxHeight()
+                    )
+
+                    Spacer(modifier = Modifier.width(20.dp))
+
+                    actionButtons(
+                        Modifier
+                            .weight(0.35f)
+                            .fillMaxHeight()
                     )
                 }
             }
         }
     }
+
     if (aiError != null) {
         HyperAlertDialog(
             onDismissRequest = { aiError = null },
@@ -345,6 +390,18 @@ fun ExitScreen(
 @Preview(showBackground = true, device = "spec:width=800dp,height=400dp,dpi=420")
 @Composable
 fun ExitScreenPreview() {
+    PojavTheme {
+        ExitScreen(
+            logs = "[10:57:55] [main/INFO]: Loading Minecraft...\n".repeat(20),
+            onShareClick = {},
+            onRestartClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, device = "spec:width=400dp,height=800dp,dpi=420")
+@Composable
+fun ExitScreenPortraitPreview() {
     PojavTheme {
         ExitScreen(
             logs = "[10:57:55] [main/INFO]: Loading Minecraft...\n".repeat(20),

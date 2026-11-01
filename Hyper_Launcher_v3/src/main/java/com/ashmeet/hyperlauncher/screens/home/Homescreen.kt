@@ -13,6 +13,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -194,98 +195,40 @@ fun MainMenuFragmentCompose(
         contentColor = MaterialTheme.colorScheme.onBackground,
         tonalElevation = 3.dp
     ) {
-        val configuration = LocalConfiguration.current
-        val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            val isPortrait = maxHeight > maxWidth
 
-        if (isPortrait) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            if (isPortrait) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    ActionCardsContent(
-                        hideActionButtons = hideActionButtons,
-                        isPortrait = isPortrait,
-                        onAboutClick = onAboutClick,
-                        onSocialMediaClick = onSocialMediaClick,
-                        onCustomControlsClick = onCustomControlsClick,
-                        onContentInstallerClick = onContentInstallerClick,
-                        onInstanceDirectoryClick = onInstanceDirectoryClick,
-                        onRecordingsGalleryClick = onRecordingsGalleryClick,
-                        onInstallJarClick = onInstallJarClick,
-                        onShareLogsClick = onShareLogsClick,
-                        onOpenFilesClick = onOpenFilesClick
-                    )
-                }
-                SidebarCardContent(
-                    modifier = Modifier.fillMaxWidth(),
-                    hasBackground = hasBackground,
-                    backgroundTransparency = backgroundTransparency,
-                    headScale = headScale,
-                    headInteractionSource = headInteractionSource,
-                    currentAccount = currentAccount,
-                    skinHead = skinHead,
-                    instanceIcon = instanceIcon,
-                    selectedInstance = selectedInstance,
-                    onAccountManagerClick = onAccountManagerClick,
-                    onVersionSpinnerClick = onVersionSpinnerClick,
-                    onEditProfileClick = onEditProfileClick,
-                    onPlayClick = onPlayClick,
-                    showHead = false
-                )
-            }
-        } else {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                Row(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    val rightSidebarWidth = 260.dp
-                    if (!hideActionButtons) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .weight(1f)
-                                .padding(end = 8.dp)
-                                .verticalScroll(rememberScrollState()),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            ActionCardsContent(
-                                hideActionButtons = hideActionButtons,
-                                isPortrait = isPortrait,
-                                onAboutClick = onAboutClick,
-                                onSocialMediaClick = onSocialMediaClick,
-                                onCustomControlsClick = onCustomControlsClick,
-                                onContentInstallerClick = onContentInstallerClick,
-                                onInstanceDirectoryClick = onInstanceDirectoryClick,
-                                onRecordingsGalleryClick = onRecordingsGalleryClick,
-                                onInstallJarClick = onInstallJarClick,
-                                onShareLogsClick = onShareLogsClick,
-                                onOpenFilesClick = onOpenFilesClick
-                            )
-                        }
-                    } else {
-                        Spacer(modifier = Modifier.weight(1f))
-                    }
-
-                    SidebarCardContent(
+                    Column(
                         modifier = Modifier
-                            .width(rightSidebarWidth)
-                            .fillMaxHeight(),
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        ActionCardsContent(
+                            hideActionButtons = hideActionButtons,
+                            isPortrait = isPortrait,
+                            onAboutClick = onAboutClick,
+                            onSocialMediaClick = onSocialMediaClick,
+                            onCustomControlsClick = onCustomControlsClick,
+                            onContentInstallerClick = onContentInstallerClick,
+                            onInstanceDirectoryClick = onInstanceDirectoryClick,
+                            onRecordingsGalleryClick = onRecordingsGalleryClick,
+                            onInstallJarClick = onInstallJarClick,
+                            onShareLogsClick = onShareLogsClick,
+                            onOpenFilesClick = onOpenFilesClick
+                        )
+                    }
+                    SidebarCardContent(
+                        modifier = Modifier.fillMaxWidth(),
                         hasBackground = hasBackground,
                         backgroundTransparency = backgroundTransparency,
                         headScale = headScale,
@@ -297,8 +240,67 @@ fun MainMenuFragmentCompose(
                         onAccountManagerClick = onAccountManagerClick,
                         onVersionSpinnerClick = onVersionSpinnerClick,
                         onEditProfileClick = onEditProfileClick,
-                        onPlayClick = onPlayClick
+                        onPlayClick = onPlayClick,
+                        showHead = false
                     )
+                }
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        val rightSidebarWidth = 260.dp
+                        if (!hideActionButtons) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .weight(1f)
+                                    .padding(end = 8.dp)
+                                    .verticalScroll(rememberScrollState()),
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                ActionCardsContent(
+                                    hideActionButtons = hideActionButtons,
+                                    isPortrait = isPortrait,
+                                    onAboutClick = onAboutClick,
+                                    onSocialMediaClick = onSocialMediaClick,
+                                    onCustomControlsClick = onCustomControlsClick,
+                                    onContentInstallerClick = onContentInstallerClick,
+                                    onInstanceDirectoryClick = onInstanceDirectoryClick,
+                                    onRecordingsGalleryClick = onRecordingsGalleryClick,
+                                    onInstallJarClick = onInstallJarClick,
+                                    onShareLogsClick = onShareLogsClick,
+                                    onOpenFilesClick = onOpenFilesClick
+                                )
+                            }
+                        } else {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
+
+                        SidebarCardContent(
+                            modifier = Modifier
+                                .width(rightSidebarWidth)
+                                .fillMaxHeight(),
+                            hasBackground = hasBackground,
+                            backgroundTransparency = backgroundTransparency,
+                            headScale = headScale,
+                            headInteractionSource = headInteractionSource,
+                            currentAccount = currentAccount,
+                            skinHead = skinHead,
+                            instanceIcon = instanceIcon,
+                            selectedInstance = selectedInstance,
+                            onAccountManagerClick = onAccountManagerClick,
+                            onVersionSpinnerClick = onVersionSpinnerClick,
+                            onEditProfileClick = onEditProfileClick,
+                            onPlayClick = onPlayClick
+                        )
+                    }
                 }
             }
         }

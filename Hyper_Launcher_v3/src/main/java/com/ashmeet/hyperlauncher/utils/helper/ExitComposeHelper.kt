@@ -8,7 +8,6 @@ object ExitComposeHelper {
     @JvmStatic
     fun setExitContent(
         composeView: ComposeView,
-        title: String,
         logs: String,
         onShareClick: () -> Unit,
         onRestartClick: () -> Unit,

@@ -1,9 +1,9 @@
 package com.ashmeet.hyperlauncher.components.layout
 
-import android.content.res.Configuration
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -43,8 +42,6 @@ fun ScreenLayout(
     sidebar: @Composable (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val configuration = LocalConfiguration.current
-    val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
     val focusManager = LocalFocusManager.current
 
     Surface(
@@ -52,10 +49,12 @@ fun ScreenLayout(
         color = if (LauncherPreferences.PREF_LAUNCHER_BACKGROUND_PATH != null) Color.Transparent else MaterialTheme.colorScheme.background,
         contentColor = MaterialTheme.colorScheme.onBackground
     ) {
-        val blur = if (LauncherPreferences.PREF_LAUNCHER_BACKGROUND_BLUR > 0) LauncherPreferences.PREF_LAUNCHER_BACKGROUND_BLUR else 25
-        val glassColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            val isPortrait = maxHeight > maxWidth
+            val blur = if (LauncherPreferences.PREF_LAUNCHER_BACKGROUND_BLUR > 0) LauncherPreferences.PREF_LAUNCHER_BACKGROUND_BLUR else 25
+            val glassColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
 
-        if (isPortrait) {
+            if (isPortrait) {
             Column(modifier = Modifier.fillMaxSize()) {
                 Surface(
                     modifier = Modifier
@@ -171,4 +170,5 @@ fun ScreenLayout(
             }
         }
     }
+  }
 }

@@ -88,7 +88,8 @@ object LauncherComposeHelper {
         onRestartClick: () -> Unit,
         onOpenCrashReport: (String) -> Unit
     ) {
-        ExitComposeHelper.setExitContent(composeView, title, logs, onShareClick, onRestartClick, onOpenCrashReport)
+        ExitComposeHelper.setExitContent(composeView,
+            logs, onShareClick, onRestartClick, onOpenCrashReport)
     }
 
     @JvmStatic

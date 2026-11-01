@@ -3,10 +3,9 @@ package com.ashmeet.hyperlauncher.activity
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
-import android.os.Build
 import android.os.Bundle
 import android.provider.DocumentsContract
-import android.window.OnBackInvokedDispatcher
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.ui.platform.ComposeView
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
@@ -47,8 +46,15 @@ class CustomControlsActivity : BaseActivity(), EditorExitable, CropperUtils.Crop
         mControlLayout = ControlLayout(this)
         mControlLayout.setModifiable(true)
 
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                mControlLayout.askToExit(this@CustomControlsActivity)
+            }
+        })
+
         LauncherComposeHelper.setControlsEditorContent(composeView, mControlLayout) { position ->
             when (position) {
+                -1 -> mControlLayout.askToExit(this)
                 0 -> mControlLayout.addControlButton(ControlData("New"))
                 1 -> mControlLayout.addDrawer(ControlDrawerData())
                 2 -> mControlLayout.addJoystickButton(ControlJoystickData())
@@ -98,15 +104,8 @@ class CustomControlsActivity : BaseActivity(), EditorExitable, CropperUtils.Crop
         CropperUtils.startCropper(mCropperLauncher)
     }
 
-    override fun getOnBackInvokedDispatcher(): OnBackInvokedDispatcher {
-        mControlLayout.askToExit(this)
-        return super.getOnBackInvokedDispatcher()
-    }
-
     override fun exitEditor() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            super.getOnBackInvokedDispatcher()
-        }
+        finish()
     }
 
     override fun getAspectRatio(): Float {
