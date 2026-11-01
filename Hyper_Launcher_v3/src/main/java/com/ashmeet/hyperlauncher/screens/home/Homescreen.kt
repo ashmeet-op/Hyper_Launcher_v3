@@ -56,7 +56,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.asImageBitmap
@@ -198,16 +197,18 @@ fun MainMenuFragmentCompose(
             val isPortrait = maxHeight > maxWidth
 
             if (isPortrait) {
-                Box(
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(12.dp)
+                        .padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Column(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                            .padding(bottom = 144.dp),
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         ActionCardsContent(
@@ -225,14 +226,7 @@ fun MainMenuFragmentCompose(
                         )
                     }
                     SidebarCardContent(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .align(Alignment.BottomCenter)
-                            .shadow(
-                                elevation = 12.dp,
-                                shape = RoundedCornerShape(32.dp),
-                                clip = false
-                            ),
+                        modifier = Modifier.fillMaxWidth(),
                         hasBackground = hasBackground,
                         backgroundTransparency = backgroundTransparency,
                         headScale = headScale,
@@ -441,8 +435,8 @@ private fun SidebarCardContent(
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(32.dp),
-        color = if (hasBackground) MaterialTheme.colorScheme.surface.copy(alpha = maxOf(backgroundTransparency, 0.9f))
-                else MaterialTheme.colorScheme.surface,
+        color = if (hasBackground) MaterialTheme.colorScheme.surface.copy(alpha = backgroundTransparency)
+                else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
         tonalElevation = 0.dp,
     ) {
         Column(
