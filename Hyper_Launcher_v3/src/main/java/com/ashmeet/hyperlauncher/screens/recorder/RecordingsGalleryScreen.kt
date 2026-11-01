@@ -50,7 +50,6 @@ import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -77,7 +76,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -88,12 +86,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.edit
-import com.ashmeet.hyperlauncher.components.HyperAlertDialog
 import com.ashmeet.hyperlauncher.components.HyperDropdownMenu
-import com.ashmeet.hyperlauncher.components.button.MineButton
 import com.ashmeet.hyperlauncher.components.dialog.SimpleAlertDialog
-import com.ashmeet.hyperlauncher.components.switch.DefaultSwitch
 import com.ashmeet.hyperlauncher.recorder.RecordingItem
 import com.ashmeet.hyperlauncher.recorder.RecordingManager
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
@@ -118,7 +112,6 @@ fun RecordingsGalleryScreen(
     var recordings by remember { mutableStateOf<List<RecordingItem>>(emptyList()) }
     var selectedItem by remember { mutableStateOf<RecordingItem?>(null) }
     var itemToDelete by remember { mutableStateOf<RecordingItem?>(null) }
-    var showSettingsDialog by remember { mutableStateOf(false) }
 
     fun refreshList() {
 
@@ -198,13 +191,6 @@ fun RecordingsGalleryScreen(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                             )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            MineButton(
-                                text = translatedText("Recorder Settings"),
-                                onClick = { showSettingsDialog = true },
-                                icon = rememberVectorPainter(Icons.Rounded.Settings),
-                                tintIcon = true
-                            )
                         }
                     }
                 } else {
@@ -229,8 +215,7 @@ fun RecordingsGalleryScreen(
                                 if (selectedItem != null) {
                                     BuiltInMediaPlayerView(
                                         item = selectedItem!!,
-                                        onDelete = { itemToDelete = selectedItem },
-                                        onSettingsClick = { showSettingsDialog = true }
+                                        onDelete = { itemToDelete = selectedItem }
                                     )
                                 } else {
                                     Box(
@@ -314,8 +299,7 @@ fun RecordingsGalleryScreen(
                                 if (selectedItem != null) {
                                     BuiltInMediaPlayerView(
                                         item = selectedItem!!,
-                                        onDelete = { itemToDelete = selectedItem },
-                                        onSettingsClick = { showSettingsDialog = true }
+                                        onDelete = { itemToDelete = selectedItem }
                                     )
                                 } else {
                                     Box(
@@ -354,100 +338,6 @@ fun RecordingsGalleryScreen(
                 refreshList()
             },
             onDismiss = { itemToDelete = null }
-        )
-    }
-
-    if (showSettingsDialog) {
-        var recordMicSound by remember { mutableStateOf(LauncherPreferences.PREF_RECORD_MIC_SOUND) }
-        var autoSaveGallery by remember { mutableStateOf(LauncherPreferences.PREF_AUTO_SAVE_TO_GALLERY) }
-
-        HyperAlertDialog(
-            onDismissRequest = { showSettingsDialog = false },
-            title = {
-                Text(
-                    text = translatedText("Recorder Settings"),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            },
-            text = {
-                Column(
-                    modifier = Modifier.padding(top = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable {
-                                recordMicSound = !recordMicSound
-                                LauncherPreferences.PREF_RECORD_MIC_SOUND = recordMicSound
-                                LauncherPreferences.prefs.edit { putBoolean("record_mic_sound", recordMicSound) }
-                            },
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
-                            Text(
-                                text = translatedText("Record Microphone Sound"),
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(
-                                text = translatedText("Record mic audio along with game video"),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        DefaultSwitch(
-                            checked = recordMicSound,
-                            onCheckedChange = { checked ->
-                                recordMicSound = checked
-                                LauncherPreferences.PREF_RECORD_MIC_SOUND = checked
-                                LauncherPreferences.prefs.edit { putBoolean("record_mic_sound", checked) }
-                            }
-                        )
-                    }
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable {
-                                autoSaveGallery = !autoSaveGallery
-                                LauncherPreferences.PREF_AUTO_SAVE_TO_GALLERY = autoSaveGallery
-                                LauncherPreferences.prefs.edit { putBoolean("auto_save_to_gallery", autoSaveGallery) }
-                            },
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
-                            Text(
-                                text = translatedText("Always Save to Gallery"),
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(
-                                text = translatedText("Automatically save new game recordings to your Gallery"),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        DefaultSwitch(
-                            checked = autoSaveGallery,
-                            onCheckedChange = { checked ->
-                                autoSaveGallery = checked
-                                LauncherPreferences.PREF_AUTO_SAVE_TO_GALLERY = checked
-                                LauncherPreferences.prefs.edit { putBoolean("auto_save_to_gallery", checked) }
-                            }
-                        )
-                    }
-                }
-            },
-            confirmText = translatedText("Done"),
-            onConfirm = { showSettingsDialog = false }
         )
     }
 }
@@ -575,8 +465,7 @@ fun RecordingListItemCard(
 @Composable
 fun BuiltInMediaPlayerView(
     item: RecordingItem,
-    onDelete: () -> Unit,
-    onSettingsClick: () -> Unit
+    onDelete: () -> Unit
 ) {
     val context = LocalContext.current
     var isPrepared by remember(item.file.absolutePath) { mutableStateOf(false) }
@@ -1019,16 +908,6 @@ fun BuiltInMediaPlayerView(
                     Icon(
                         imageVector = Icons.Rounded.Download,
                         contentDescription = translatedText("Save to Gallery"),
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-
-                IconButton(
-                    onClick = onSettingsClick
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Settings,
-                        contentDescription = translatedText("Recorder Settings"),
                         tint = MaterialTheme.colorScheme.onSurface
                     )
                 }

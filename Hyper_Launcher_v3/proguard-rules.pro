@@ -30,6 +30,7 @@
 -keep class com.ashmeet.hyperlauncher.fragments.settings.LauncherPreferenceVideoFragment { *; }
 -keep class com.ashmeet.hyperlauncher.fragments.settings.LauncherPreferenceControlFragment { *; }
 -keep class com.ashmeet.hyperlauncher.fragments.settings.LauncherPreferenceAppearanceFragment { *; }
+-keep class com.ashmeet.hyperlauncher.fragments.settings.LauncherPreferenceRecorderFragment { *; }
 -keep class com.ashmeet.hyperlauncher.fragments.settings.LauncherPreferenceExperimentalFragment { *; }
 -keep class com.ashmeet.hyperlauncher.fragments.settings.LauncherPreferenceMiscellaneousFragment { *; }
 

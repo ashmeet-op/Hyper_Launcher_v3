@@ -12,6 +12,7 @@ import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import net.ashmeet.hyperlauncher.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -95,17 +96,18 @@ object RecordingManager {
 
         try {
             val dm = context.resources.displayMetrics
-            var recordWidth = if (width > 0) width else dm.widthPixels
-            var recordHeight = if (height > 0) height else dm.heightPixels
+            var baseWidth = dm.widthPixels
+            var baseHeight = dm.heightPixels
 
-            if (width <= 0 || height <= 0) {
-                if (recordWidth < recordHeight) {
-                    val tmp = recordWidth
-                    recordWidth = recordHeight
-                    recordHeight = tmp
-                }
+            if (baseWidth < baseHeight) {
+                val tmp = baseWidth
+                baseWidth = baseHeight
+                baseHeight = tmp
             }
 
+            val scaleFactor = (LauncherPreferences.PREF_RECORD_RESOLUTION_RATIO.coerceIn(25, 100)) / 100f
+            var recordWidth = if (width > 0) width else HyperUtils.getDisplayFriendlyRes(baseWidth, scaleFactor)
+            var recordHeight = if (height > 0) height else HyperUtils.getDisplayFriendlyRes(baseHeight, scaleFactor)
 
             recordWidth = if (recordWidth % 2 == 0) recordWidth else recordWidth - 1
             recordHeight = if (recordHeight % 2 == 0) recordHeight else recordHeight - 1

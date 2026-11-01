@@ -38,8 +38,8 @@ import com.ashmeet.hyperlauncher.screens.settings.layouts.CardPosition
 import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsCard
 import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsScreenWrapper
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.screens.settings.preferences.ResolutionSelectionDialog
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsActionItem
-import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSliderItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSwitchItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SingleChoiceDialog
 import com.ashmeet.hyperlauncher.utils.HyperUtils
@@ -76,6 +76,7 @@ fun VideoSettingsScreen(
     var showRendererDialog by remember { mutableStateOf(false) }
     var showBackendDialog by remember { mutableStateOf(false) }
     var showDriverDialog by remember { mutableStateOf(false) }
+    var showResolutionDialog by remember { mutableStateOf(false) }
 
     val importLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -206,18 +207,17 @@ fun VideoSettingsScreen(
             }
 
             SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
-                SettingsSliderItem(
+                val metrics = context.resources.displayMetrics
+                val maxSide = maxOf(metrics.widthPixels, metrics.heightPixels)
+                val minSide = minOf(metrics.widthPixels, metrics.heightPixels)
+                val resW = HyperUtils.getDisplayFriendlyRes(maxSide, resolutionRatio / 100f)
+                val resH = HyperUtils.getDisplayFriendlyRes(minSide, resolutionRatio / 100f)
+
+                SettingsActionItem(
                     title = translatedText(stringResource(R.string.mcl_setting_title_resolution_scaler)),
-                    summary = translatedText(stringResource(R.string.mcl_setting_subtitle_resolution_scaler)),
+                    summary = "${resolutionRatio.toInt()}% ($resW × $resH)",
                     icon = Icons.Default.Monitor,
-                    value = resolutionRatio,
-                    valueRange = integerResource(R.integer.resolution_seekbar_min).toFloat()..100f,
-                    onValueChange = {
-                        resolutionRatio = it
-                        LauncherPreferences.prefs.edit { putInt("resolutionRatio", it.toInt()) }
-                        LauncherPreferences.loadPreferences(context)
-                    },
-                    valueSuffix = "%"
+                    onClick = { showResolutionDialog = true }
                 )
             }
         }
@@ -386,6 +386,21 @@ fun VideoSettingsScreen(
                 driver = LauncherPreferences.PREF_DRIVER
                 LauncherPreferences.loadPreferences(context)
             }
+        )
+    }
+
+    if (showResolutionDialog) {
+        val minRatio = integerResource(R.integer.resolution_seekbar_min)
+        ResolutionSelectionDialog(
+            title = stringResource(R.string.mcl_setting_title_resolution_scaler),
+            currentRatio = resolutionRatio.toInt(),
+            minRatio = minRatio,
+            onResolutionSelected = { newRatio ->
+                resolutionRatio = newRatio.toFloat()
+                LauncherPreferences.prefs.edit { putInt("resolutionRatio", newRatio) }
+                LauncherPreferences.loadPreferences(context)
+            },
+            onDismiss = { showResolutionDialog = false }
         )
     }
 }

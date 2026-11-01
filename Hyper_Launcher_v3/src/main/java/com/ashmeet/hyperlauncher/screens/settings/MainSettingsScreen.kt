@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.SettingsApplications
 import androidx.compose.material.icons.filled.VideogameAsset
+import androidx.compose.material.icons.rounded.Videocam
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,6 +40,7 @@ fun MainSettingsScreen(
     onNavigateToExperimental: () -> Unit,
     onNavigateToDeveloper: () -> Unit,
     onNavigateToAppearance: () -> Unit,
+    onNavigateToRecorder: () -> Unit,
     onNavigateToAbout: () -> Unit,
     showNotificationRequest: Boolean,
     onNotificationRequestClick: () -> Unit
@@ -112,6 +114,15 @@ fun MainSettingsScreen(
                     summary = translatedText(stringResource(R.string.preference_appearance_description)),
                     icon = Icons.Default.Palette,
                     onClick = onNavigateToAppearance
+                )
+            }
+
+            SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
+                SettingsActionItem(
+                    title = translatedText("Recorder Settings"),
+                    summary = translatedText("Resolution, microphone audio, and gallery preferences"),
+                    icon = Icons.Rounded.Videocam,
+                    onClick = onNavigateToRecorder
                 )
             }
 

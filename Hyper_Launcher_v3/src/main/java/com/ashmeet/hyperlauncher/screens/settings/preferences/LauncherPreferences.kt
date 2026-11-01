@@ -169,6 +169,9 @@ object LauncherPreferences {
     var PREF_AUTO_SAVE_TO_GALLERY = true
 
     @JvmField
+    var PREF_RECORD_RESOLUTION_RATIO = 100
+
+    @JvmField
     var PREF_VSYNC_IN_ZINK = true
 
     @JvmField
@@ -416,6 +419,7 @@ object LauncherPreferences {
         PREF_SKIP_INCOMPATIBLE_WARNING = pref.getBoolean("skipIncompatibleWarning", false)
         PREF_RECORD_MIC_SOUND = pref.getBoolean("record_mic_sound", false)
         PREF_AUTO_SAVE_TO_GALLERY = pref.getBoolean("auto_save_to_gallery", false)
+        PREF_RECORD_RESOLUTION_RATIO = pref.getInt("record_resolution_ratio", 100)
         PREF_VSYNC_IN_ZINK = pref.getBoolean("vsync_in_zink", true)
         PREF_FULLSCREEN_LAUNCHER = pref.getBoolean("fullscreen_launcher", true)
         PREF_PORTRAIT_MODE = pref.getBoolean("portrait_mode", false)
