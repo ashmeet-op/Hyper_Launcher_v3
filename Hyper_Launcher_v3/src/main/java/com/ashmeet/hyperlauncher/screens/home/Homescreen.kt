@@ -2,7 +2,6 @@ package com.ashmeet.hyperlauncher.screens.home
 
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
-import android.content.res.Configuration
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -57,12 +56,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
@@ -199,18 +198,16 @@ fun MainMenuFragmentCompose(
             val isPortrait = maxHeight > maxWidth
 
             if (isPortrait) {
-                Column(
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .padding(12.dp)
                 ) {
                     Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                            .verticalScroll(rememberScrollState()),
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .padding(bottom = 144.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         ActionCardsContent(
@@ -228,7 +225,14 @@ fun MainMenuFragmentCompose(
                         )
                     }
                     SidebarCardContent(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.BottomCenter)
+                            .shadow(
+                                elevation = 12.dp,
+                                shape = RoundedCornerShape(32.dp),
+                                clip = false
+                            ),
                         hasBackground = hasBackground,
                         backgroundTransparency = backgroundTransparency,
                         headScale = headScale,
@@ -437,8 +441,8 @@ private fun SidebarCardContent(
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(32.dp),
-        color = if (hasBackground) MaterialTheme.colorScheme.surface.copy(alpha = backgroundTransparency)
-                else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
+        color = if (hasBackground) MaterialTheme.colorScheme.surface.copy(alpha = maxOf(backgroundTransparency, 0.9f))
+                else MaterialTheme.colorScheme.surface,
         tonalElevation = 0.dp,
     ) {
         Column(
