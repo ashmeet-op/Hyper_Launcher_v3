@@ -24,6 +24,8 @@ import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.game.renderer.impl.FCLRenderSpec;
 import com.ashmeet.hyperbackend.game.renderer.impl.GLESRenderSpec;
 import com.ashmeet.hyperbackend.game.renderer.impl.MesaRenderSpec;
+import com.ashmeet.hyperbackend.vulkan.DriverManager;
+import java.io.File;
 import java.util.Map;
 
 import git.artdeell.mojoexec.MojoExec;
@@ -173,6 +175,13 @@ public class GameRenderer {
                 Os.setenv("TU_DEBUG", "sysmem", true);
             } catch (ErrnoException e) {
                 Log.e(TAG, "Failed to set TU_DEBUG", e);
+            }
+        }
+        String driverRoot = DriverManager.getPreferredDriverRootPath();
+        if (driverRoot != null) {
+            File qglConfig = new File(driverRoot, "qgl_config.txt");
+            if (qglConfig.exists()) {
+                MojoExec.overrideQglConfigPath(qglConfig.getAbsolutePath());
             }
         }
         MojoExec.setUseTurnip(true);
