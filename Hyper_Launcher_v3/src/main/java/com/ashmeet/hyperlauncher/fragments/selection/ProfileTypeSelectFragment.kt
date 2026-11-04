@@ -34,6 +34,7 @@ import com.ashmeet.hyperlauncher.fragments.modloader.QuiltInstallFragment
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.ashmeet.hyperlauncher.R
+import com.ashmeet.hyperlauncher.utils.horizon.HorizonUtils
 import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperbackend.instances.Instances
 import java.io.IOException
@@ -138,6 +139,26 @@ class ProfileTypeSelectFragment : Fragment() {
                                     LegacyFabricInstallFragment.TAG,
                                     null
                                 )
+                            },
+                            onHorizonClick = {
+                                try {
+                                    val instance = Instances.createInstance({ inst ->
+                                        inst.name = "Horizon 26.3 (Rust)"
+                                        inst.versionId = HorizonUtils.HORIZON_VERSION_ID
+                                        inst.selectedRuntime = HorizonUtils.HORIZON_RUNTIME
+                                        inst.icon = "horizon"
+                                        inst.sharedData = true
+                                    }, "Horizon-26.3")
+                                    Instances.setSelectedInstance(instance)
+                                    HyperUtils.swapFragment(
+                                        requireActivity(),
+                                        InstanceEditorFragment::class.java,
+                                        InstanceEditorFragment.TAG,
+                                        Bundle(1)
+                                    )
+                                } catch (e: IOException) {
+                                    HyperUtils.showError(context, e)
+                                }
                             }
                         )
                     }
@@ -157,7 +178,8 @@ fun ProfileTypeContent(
     onQuiltClick: () -> Unit,
     onBTAClick: () -> Unit,
     onNeoForgeClick: () -> Unit,
-    onLegacyFabricClick: () -> Unit
+    onLegacyFabricClick: () -> Unit,
+    onHorizonClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -167,6 +189,21 @@ fun ProfileTypeContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        Text(
+            text = translatedText(stringResource(R.string.create_profile_rust_native_versions)),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+
+        MineButton(
+            text = translatedText(stringResource(R.string.create_instance_horizon_rust)),
+            onClick = onHorizonClick,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         Text(
             text = translatedText(stringResource(R.string.create_profile_vanilla_like_versions)),
             style = MaterialTheme.typography.titleLarge,

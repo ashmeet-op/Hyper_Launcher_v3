@@ -122,6 +122,17 @@
             android:launchMode="singleTop"
             android:process=":game"
             android:screenOrientation="sensorLandscape" />
+        <activity
+            android:name="dev.horizon.android.HorizonActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize|uiMode|smallestScreenSize|screenLayout"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:process=":horizon"
+            android:screenOrientation="sensorLandscape">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="horizon_android" />
+        </activity>
 
         <provider
             android:name="com.ashmeet.hyperlauncher.scoped.FolderProvider"

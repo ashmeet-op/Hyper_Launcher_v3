@@ -63,7 +63,6 @@ public class HyperDownloader extends Downloader {
 
     private File mSourceJarFile;
     private File mTargetJarFile;
-    private String mVersionName;
 
     public HyperDownloader() {
         super(TrackerLayout.DOWNLOAD_GAME);
@@ -110,8 +109,6 @@ public class HyperDownloader extends Downloader {
         if(sSubstitutionMapFuture == null) throw new RuntimeException("SubstitutionMap not prepared");
         mSubstitutionMap = sSubstitutionMapFuture.get();
 
-        mVersionName = versionName;
-
         downloadAndProcessMetadata(assetManager, verInfo, versionName);
 
         int downloadLibCount = mAllLibraries.size();
@@ -136,7 +133,7 @@ public class HyperDownloader extends Downloader {
         mScheduledDownloadTasks = null;
 
         ensureJarFileCopy();
-        extractNatives(mVersionName);
+        extractNatives(versionName);
 
         mDeclaredNatives.clear();
         mDeclaredNatives = null;
@@ -345,7 +342,7 @@ public class HyperDownloader extends Downloader {
         submitBareLibrary(path, baseUrl);
     }
 
-    private void scheduleLibraryDownloads(DependentLibrary[] dependentLibraries) throws IOException {
+    private void scheduleLibraryDownloads(DependentLibrary[] dependentLibraries) {
         HyperUtils.preProcessLibraries(dependentLibraries);
         for(DependentLibrary dependentLibrary : dependentLibraries) {
             if(dependentLibrary.rules != null) {

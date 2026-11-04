@@ -50,6 +50,7 @@ import com.ashmeet.hyperbackend.tasks.AsyncVersionList
 import com.ashmeet.hyperbackend.tasks.HyperDownloader
 import com.ashmeet.hyperbackend.tasks.HyperExtras
 import com.ashmeet.hyperbackend.utils.NotificationUtils
+import com.ashmeet.hyperlauncher.utils.horizon.HorizonUtils
 import java.io.IOException
 
 class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
@@ -152,6 +153,11 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
 
         if (!HyperUtils.isValidString(selectedInstance.versionId)) {
             Toast.makeText(this, R.string.error_no_version, Toast.LENGTH_LONG).show()
+            return@ExtraListener false
+        }
+
+        if (HorizonUtils.isHorizonInstance(selectedInstance)) {
+            HorizonUtils.launchHorizon(this, selectedInstance)
             return@ExtraListener false
         }
 

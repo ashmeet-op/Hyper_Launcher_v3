@@ -56,10 +56,11 @@ import com.ashmeet.hyperbackend.utils.KeycodeUtils
 object GameComposeHelper {
 
     @JvmStatic
+    @JvmOverloads
     fun setBaseMainContent(
         composeView: ComposeView,
         isInEditor: Boolean,
-        controlLayout: ControlLayout,
+        controlLayout: ControlLayout? = null,
         loggerView: LoggerView,
         gameView: GameView?,
         hostViews: Boolean,
@@ -122,15 +123,17 @@ object GameComposeHelper {
                                 Box(modifier = Modifier.fillMaxSize()) {
 
                                     if (hostViews) {
-                                        AndroidView(
-                                            factory = {
-                                                controlLayout.apply {
-                                                    val parent = parent as? ViewGroup
-                                                    parent?.removeView(this)
-                                                }
-                                            },
-                                            modifier = Modifier.fillMaxSize()
-                                        )
+                                        controlLayout?.let { layout ->
+                                            AndroidView(
+                                                factory = {
+                                                    layout.apply {
+                                                        val parent = parent as? ViewGroup
+                                                        parent?.removeView(this)
+                                                    }
+                                                },
+                                                modifier = Modifier.fillMaxSize()
+                                            )
+                                        }
                                         AndroidView(
                                             factory = {
                                                 loggerView.apply {
@@ -143,19 +146,23 @@ object GameComposeHelper {
                                     }
 
                                     if (isInEditor) {
-                                        ControlsEditorScreen(
-                                            controlLayout = controlLayout,
-                                            drawerState = drawerState,
-                                            hostViews = false
-                                        )
+                                        controlLayout?.let { layout ->
+                                            ControlsEditorScreen(
+                                                controlLayout = layout,
+                                                drawerState = drawerState,
+                                                hostViews = false
+                                            )
+                                        }
                                     } else {
-                                        GameControlsScreen(
-                                            drawerState = drawerState,
-                                            controlLayout = controlLayout,
-                                            loggerView = loggerView,
-                                            gameView = gameView,
-                                            hostViews = false
-                                        )
+                                        controlLayout?.let {
+                                            GameControlsScreen(
+                                                drawerState = drawerState,
+                                                controlLayout = it,
+                                                loggerView = loggerView,
+                                                gameView = gameView,
+                                                hostViews = false
+                                            )
+                                        }
                                     }
 
                                     if (showForceCloseDialog) {

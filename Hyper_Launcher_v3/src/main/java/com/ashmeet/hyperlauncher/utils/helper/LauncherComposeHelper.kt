@@ -52,6 +52,20 @@ object LauncherComposeHelper {
             view.setViewTreeLifecycleOwner(activity)
             view.setViewTreeViewModelStoreOwner(activity)
             view.setViewTreeSavedStateRegistryOwner(activity)
+        } else {
+            var curr = view.context
+            while (curr is ContextWrapper) {
+                if (curr is androidx.lifecycle.LifecycleOwner) {
+                    view.setViewTreeLifecycleOwner(curr)
+                }
+                if (curr is androidx.lifecycle.ViewModelStoreOwner) {
+                    view.setViewTreeViewModelStoreOwner(curr)
+                }
+                if (curr is androidx.savedstate.SavedStateRegistryOwner) {
+                    view.setViewTreeSavedStateRegistryOwner(curr)
+                }
+                curr = curr.baseContext
+            }
         }
         if (view is ComposeView) {
             view.setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
@@ -112,10 +126,11 @@ object LauncherComposeHelper {
     }
 
     @JvmStatic
+    @JvmOverloads
     fun setBaseMainContent(
         composeView: ComposeView,
         isInEditor: Boolean,
-        controlLayout: ControlLayout,
+        controlLayout: ControlLayout? = null,
         loggerView: LoggerView,
         gameView: GameView?,
         hostViews: Boolean,

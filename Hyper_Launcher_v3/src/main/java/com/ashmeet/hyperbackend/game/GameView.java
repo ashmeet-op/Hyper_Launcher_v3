@@ -69,7 +69,15 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
     final Object mSurfaceReadyListenerLock = new Object();
 
     View mSurface;
-    GameCursorView mCursorView;
+    public GameCursorView mCursorView;
+
+    public void setCursorView(GameCursorView cursorView) {
+        this.mCursorView = cursorView;
+    }
+
+    public GameCursorView getCursorView() {
+        return mCursorView;
+    }
 
     private Bitmap mRecorderBitmap = null;
     private final Paint mRecorderPaint = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG);

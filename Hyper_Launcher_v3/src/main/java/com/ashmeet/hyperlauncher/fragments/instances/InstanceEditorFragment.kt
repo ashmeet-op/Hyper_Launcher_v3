@@ -28,6 +28,7 @@ import com.ashmeet.hyperlauncher.runtime.RuntimeUtils
 import com.ashmeet.hyperlauncher.screens.instances.InstanceEditorScreen
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.utils.HyperUtils
+import com.ashmeet.hyperlauncher.utils.horizon.HorizonUtils
 import net.ashmeet.hyperlauncher.R
 import java.io.IOException
 
@@ -93,6 +94,9 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
                         mSelectedRenderer != (mInitialRenderer ?: "default") ||
                         mIconChanged
 
+                val isHorizon = HorizonUtils.isHorizonInstance(mInstance) ||
+                        HorizonUtils.isHorizonInstance(mVersionId, mSelectedRuntime?.name)
+
                 PojavTheme {
                     InstanceEditorScreen(
                         instanceName = mInstanceName,
@@ -117,6 +121,7 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
                             mRecommendedIconSize = 256
                             CropperUtils.startCropper(mCropperLauncher)
                         },
+                        isHorizon = isHorizon,
                         hasChanges = hasChanges,
                         onSave = { save() },
                         onDelete = { delete() },

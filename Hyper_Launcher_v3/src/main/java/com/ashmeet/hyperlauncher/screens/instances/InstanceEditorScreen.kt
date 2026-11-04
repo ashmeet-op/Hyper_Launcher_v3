@@ -87,6 +87,7 @@ fun InstanceEditorScreen(
     onRendererSelected: (String) -> Unit,
     instanceIcon: Drawable?,
     onChangeIcon: () -> Unit,
+    isHorizon: Boolean = false,
     hasChanges: Boolean,
     onSave: () -> Unit,
     onDelete: () -> Unit,
@@ -190,48 +191,59 @@ fun InstanceEditorScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                SettingsCard(position = CardPosition.TOP, useSurface = true) {
-                    val corruptText = translatedText(stringResource(R.string.multirt_runtime_corrupt))
-                    val currentSummary = selectedRuntime?.let {
-                        when (it.name) {
-                            "auto" -> {
-                                translatedText(stringResource(R.string.multirt_auto))
-                            }
-                            "<Default>" -> {
-                                it.name
-                            }
-                            else -> {
-                                "${it.name.replace(".tar.xz", "")} - ${it.versionString ?: corruptText}"
-                            }
-                        }
-                    } ?: translatedText(stringResource(R.string.global_default))
-
+            if (isHorizon) {
+                SettingsCard(position = CardPosition.SINGLE, useSurface = true) {
                     SettingsActionItem(
-                        title = translatedText(stringResource(R.string.pedit_java_runtime)),
-                        summary = currentSummary,
+                        title = translatedText("Runtime Engine"),
+                        summary = translatedText(stringResource(R.string.engine_horizon_native_desc)),
                         icon = Icons.Rounded.Memory,
-                        onClick = { showRuntimeDialog = true }
+                        onClick = {}
                     )
                 }
-                SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
-                    val index = renderers.indexOf(selectedRenderer)
-                    val currentSummary = if (index != -1 && index < rendererDisplayNames.size) rendererDisplayNames[index] else selectedRenderer
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    SettingsCard(position = CardPosition.TOP, useSurface = true) {
+                        val corruptText = translatedText(stringResource(R.string.multirt_runtime_corrupt))
+                        val currentSummary = selectedRuntime?.let {
+                            when (it.name) {
+                                "auto" -> {
+                                    translatedText(stringResource(R.string.multirt_auto))
+                                }
+                                "<Default>" -> {
+                                    it.name
+                                }
+                                else -> {
+                                    "${it.name.replace(".tar.xz", "")} - ${it.versionString ?: corruptText}"
+                                }
+                            }
+                        } ?: translatedText(stringResource(R.string.global_default))
 
-                    SettingsActionItem(
-                        title = translatedText(stringResource(R.string.pedit_renderer)),
-                        summary = currentSummary,
-                        icon = Icons.Rounded.Settings,
-                        onClick = { showRendererDialog = true }
-                    )
-                }
-                SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
-                    SettingsActionItem(
-                        title = translatedText(stringResource(R.string.pvc_jvmArgs)),
-                        summary = jvmArgs.ifEmpty { translatedText(stringResource(R.string.use_global_default)) },
-                        icon = Icons.Rounded.Terminal,
-                        onClick = { showJvmArgsDialog = true }
-                    )
+                        SettingsActionItem(
+                            title = translatedText(stringResource(R.string.pedit_java_runtime)),
+                            summary = currentSummary,
+                            icon = Icons.Rounded.Memory,
+                            onClick = { showRuntimeDialog = true }
+                        )
+                    }
+                    SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
+                        val index = renderers.indexOf(selectedRenderer)
+                        val currentSummary = if (index != -1 && index < rendererDisplayNames.size) rendererDisplayNames[index] else selectedRenderer
+
+                        SettingsActionItem(
+                            title = translatedText(stringResource(R.string.pedit_renderer)),
+                            summary = currentSummary,
+                            icon = Icons.Rounded.Settings,
+                            onClick = { showRendererDialog = true }
+                        )
+                    }
+                    SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
+                        SettingsActionItem(
+                            title = translatedText(stringResource(R.string.pvc_jvmArgs)),
+                            summary = jvmArgs.ifEmpty { translatedText(stringResource(R.string.use_global_default)) },
+                            icon = Icons.Rounded.Terminal,
+                            onClick = { showJvmArgsDialog = true }
+                        )
+                    }
                 }
             }
 
