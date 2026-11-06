@@ -13,11 +13,10 @@ import androidx.core.content.ContextCompat;
 
 import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperlauncher.utils.HyperUtils;
+import com.ashmeet.hyperbackend.customcontrols.ControlLayout;
 import com.ashmeet.hyperbackend.game.platform.Platform;
 import com.ashmeet.hyperbackend.game.platform.cursor.PlatformCursor;
 import com.ashmeet.hyperbackend.game.platform.cursor.PlatformCursorImplementor;
-
-
 
 public class GameCursorView extends View implements PlatformCursorImplementor {
     private final Paint customCursorPaint = new Paint();
@@ -45,11 +44,57 @@ public class GameCursorView extends View implements PlatformCursorImplementor {
         cursorDrawable.setBounds(0, 0, size, (int) (size * ((float) cursorDrawable.getIntrinsicHeight() / cursorDrawable.getIntrinsicWidth())));
     }
 
+    private GameView findGameView() {
+        if (getParent() instanceof GameView) {
+            return (GameView) getParent();
+        }
+        if (getParent() instanceof ControlLayout) {
+            GameView gv = ((ControlLayout) getParent()).getGameSurface();
+            if (gv != null) return gv;
+        }
+        if (getParent() instanceof View) {
+            View root = ((View) getParent()).getRootView();
+            if (root != null) {
+                View gv = root.findViewById(R.id.main_game_render_view);
+                if (gv instanceof GameView) {
+                    return (GameView) gv;
+                }
+            }
+        }
+        return Platform.getHostView();
+    }
+
+    private double getCursorRatioX() {
+        GameView gameView = findGameView();
+        if (gameView != null && gameView.cursorRatioX > 0) {
+            return gameView.cursorRatioX;
+        }
+        int windowWidth = GameView.getWindowWidth();
+        int currentWidth = gameView != null ? gameView.getWidth() : getWidth();
+        if (windowWidth > 0 && currentWidth > 0) {
+            return (double) currentWidth / windowWidth;
+        }
+        return 1.0;
+    }
+
+    private double getCursorRatioY() {
+        GameView gameView = findGameView();
+        if (gameView != null && gameView.cursorRatioY > 0) {
+            return gameView.cursorRatioY;
+        }
+        int windowHeight = GameView.getWindowHeight();
+        int currentHeight = gameView != null ? gameView.getHeight() : getHeight();
+        if (windowHeight > 0 && currentHeight > 0) {
+            return (double) currentHeight / windowHeight;
+        }
+        return 1.0;
+    }
+
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
         if (noDraw) return;
-        int dx = (int) (Platform.cursorX * ((GameView)getParent()).cursorRatioX);
-        int dy = (int) (Platform.cursorY * ((GameView)getParent()).cursorRatioY);
+        int dx = (int) (Platform.cursorX * getCursorRatioX());
+        int dy = (int) (Platform.cursorY * getCursorRatioY());
         canvas.translate(dx, dy);
         PlatformCursor cursor = Platform.getCursor();
         canvas.scale(mouseScale, mouseScale);

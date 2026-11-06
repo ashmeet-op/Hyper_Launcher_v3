@@ -177,16 +177,12 @@ public class ControlDrawer extends ControlButton {
     }
 
     @Override
-    public void loadEditValues(EditControlSideDialog editControlPopup) {
-        editControlPopup.setCurrentlyEditedButton(this);
-    }
-
-    @Override
     public void cloneButton() {
         ControlDrawerData cloneData = new ControlDrawerData(getDrawerData());
         cloneData.properties.dynamicX = "0.5 * ${screen_width}";
         cloneData.properties.dynamicY = "0.5 * ${screen_height}";
-        ((ControlLayout) getParent()).addDrawer(cloneData);
+        ControlLayout parent = getControlLayoutParent();
+        if (parent != null) parent.addDrawer(cloneData);
     }
 
     @Override

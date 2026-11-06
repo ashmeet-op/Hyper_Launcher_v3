@@ -19,9 +19,6 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
 import android.widget.FrameLayout;
-
-import androidx.annotation.RequiresApi;
-
 import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperbackend.CallbackBridge;
 import com.ashmeet.hyperlauncher.utils.HyperUtils;
@@ -30,8 +27,6 @@ import com.ashmeet.hyperbackend.customcontrols.gamepad.Gamepad;
 import com.ashmeet.hyperbackend.customcontrols.mouse.AndroidPointerCapture;
 import com.ashmeet.hyperbackend.game.platform.input.PlatformGrabListener;
 import com.ashmeet.hyperbackend.game.platform.Platform;
-
-
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -109,7 +104,6 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
         Platform.setCursorImplementor(mCursorView);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private void setUpPointerCapture() {
         if(mPointerCapture != null) mPointerCapture.detach();
         mPointerCapture = new AndroidPointerCapture(mCursorView, this);
@@ -131,7 +125,7 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
     @SuppressWarnings("accessibility")
     public boolean onTouchEvent(MotionEvent e) {
 
-        if(((ControlLayout)getParent()).getModifiable()) return false;
+        if(getParent() instanceof ControlLayout && ((ControlLayout) getParent()).getModifiable()) return false;
 
         for (int i = 0; i < e.getPointerCount(); i++) {
             int toolType = e.getToolType(i);
@@ -318,6 +312,7 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
         mSurfaceProvider.updateSize();
     }
 
+    @SuppressLint("ThreadConstraint")
     private void realStart(){
 
 
@@ -469,11 +464,7 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
                                             mRecorderBitmap.setHasAlpha(false);
                                             Canvas canvas;
 
-                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                                canvas = targetSurface.lockHardwareCanvas();
-                                            } else {
-                                                canvas = targetSurface.lockCanvas(null);
-                                            }
+                                            canvas = targetSurface.lockHardwareCanvas();
                                             if (canvas != null) {
                                                 canvas.drawColor(Color.BLACK);
                                                 canvas.drawBitmap(mRecorderBitmap, null, new Rect(0, 0, canvas.getWidth(), canvas.getHeight()), mRecorderPaint);

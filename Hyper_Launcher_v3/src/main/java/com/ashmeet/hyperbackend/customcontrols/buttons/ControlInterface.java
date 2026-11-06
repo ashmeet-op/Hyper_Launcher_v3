@@ -15,6 +15,7 @@ import android.os.Build;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewParent;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
@@ -66,7 +67,8 @@ public interface ControlInterface extends View.OnLongClickListener, PlatformGrab
     }
 
     default ControlLayout getControlLayoutParent() {
-        return (ControlLayout) getControlView().getParent();
+        ViewParent parent = getControlView().getParent();
+        return parent instanceof ControlLayout ? (ControlLayout) parent : null;
     }
 
 
@@ -196,7 +198,9 @@ public interface ControlInterface extends View.OnLongClickListener, PlatformGrab
         getControlView().setX(x);
         getControlView().setY(y);
 
-        for (ControlInterface button : ((ControlLayout) getControlView().getParent()).getButtonChildren()) {
+        ControlLayout layoutParent = getControlLayoutParent();
+        if (layoutParent == null) return;
+        for (ControlInterface button : layoutParent.getButtonChildren()) {
 
             if (!canSnap(button)) continue;
 

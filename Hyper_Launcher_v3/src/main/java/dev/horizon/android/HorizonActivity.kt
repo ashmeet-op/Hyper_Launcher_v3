@@ -1,24 +1,28 @@
 package dev.horizon.android
 
 import android.app.NativeActivity
+import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
+import android.graphics.Color
+import android.graphics.PixelFormat
 import android.os.Build
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
-import android.view.InputDevice
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowInsets
-import android.view.WindowInsetsController
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.widget.FrameLayout
+import android.widget.Toast
 import androidx.annotation.Keep
 import androidx.compose.ui.platform.ComposeView
+import androidx.core.graphics.drawable.toDrawable
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -42,11 +46,12 @@ import com.ashmeet.hyperbackend.customcontrols.buttons.ControlInterface
 import com.ashmeet.hyperbackend.customcontrols.keyboard.TouchCharInput
 import com.ashmeet.hyperbackend.customcontrols.mouse.GyroControl
 import com.ashmeet.hyperbackend.customcontrols.mouse.HotbarView
+import com.ashmeet.hyperbackend.game.GameActivity
 import com.ashmeet.hyperbackend.game.GameCursorView
-import com.ashmeet.hyperbackend.game.GameView
 import com.ashmeet.hyperbackend.game.platform.Platform
 import com.ashmeet.hyperbackend.game.platform.backend.HorizonBackend
 import com.ashmeet.hyperbackend.instances.Instances
+import com.ashmeet.hyperbackend.lifecycle.ContextExecutor
 import com.ashmeet.hyperlauncher.fragments.dialog.EditControlSideDialog
 import com.ashmeet.hyperlauncher.fragments.dialog.QuickSettingSideDialog
 import com.ashmeet.hyperlauncher.screens.game.LoggerView
@@ -58,7 +63,6 @@ import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
 import net.ashmeet.hyperlauncher.R
 import java.lang.ref.WeakReference
 
-@Suppress("KotlinJniMissingFunction")
 @Keep
 class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner, ControlButtonMenuListener, EditorExitable {
 
@@ -72,11 +76,11 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
 
     private var loggerView: LoggerView? = null
     private var controlLayout: ControlLayout? = null
-    private var launcherGLView: GameView? = null
     private var touchCharInput: TouchCharInput? = null
     private var hotbarView: HotbarView? = null
     private var gyroControl: GyroControl? = null
     private var mainComposeView: ComposeView? = null
+    private var overlayView: View? = null
     private var drawerController: LauncherComposeHelper.DrawerController? = null
     private var quickSettingSideDialog: QuickSettingSideDialog? = null
     private var editControlSideDialog: EditControlSideDialog? = null
@@ -85,11 +89,41 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
 
     companion object {
         var weakCursor: WeakReference<GameCursorView>? = null
+
+        init {
+            try {
+                System.loadLibrary("horizon_android")
+            } catch (e: Throwable) {
+                Log.e("HorizonActivity", "Failed to load libhorizon_android.so", e)
+            }
+        }
+
+        @JvmStatic
+        @Suppress("unused")
+        fun toggleMouse(ctx: Context) {
+            if (Platform.isGrabbing()) return
+            val cursorView = HyperUtils.getWeakReference(weakCursor) ?: return
+            var toastString = 0
+            when (cursorView.visibility) {
+                View.GONE, View.INVISIBLE -> {
+                    toastString = R.string.control_mouseon
+                    cursorView.visibility = View.VISIBLE
+                }
+                View.VISIBLE -> {
+                    toastString = R.string.control_mouseoff
+                    cursorView.visibility = View.GONE
+                }
+            }
+            if (toastString != 0) {
+                Toast.makeText(ctx, toastString, Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         savedStateRegistryController.performRestore(savedInstanceState)
         super.onCreate(savedInstanceState)
+
         lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
 
         window.decorView.setViewTreeLifecycleOwner(this)
@@ -97,15 +131,20 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
         window.decorView.setViewTreeSavedStateRegistryOwner(this)
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        hideSystemUI()
+        window.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            window.attributes.layoutInDisplayCutoutMode =
+                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        }
 
+        hideSystemUI()
         initLayout()
 
-        Platform.initialize(this, launcherGLView!!)
         Platform.setPlatformLibrary(HorizonBackend())
         Platform.grabStateChanged(true)
 
         gyroControl = GyroControl(this)
+        ContextExecutor.setActivity(this)
 
         LauncherComposeHelper.setLoadingVisible(false)
     }
@@ -118,15 +157,9 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
             setMenuListener(this@HorizonActivity)
         }
 
-        launcherGLView = GameView(this).apply {
-            id = R.id.main_game_render_view
-            clipChildren = false
-            clipToPadding = false
-        }
-
         val cursorView = GameCursorView(this).apply {
             id = R.id.main_cursorview
-            visibility = View.GONE
+            visibility = if (LauncherPreferences.PREF_VIRTUAL_MOUSE_START) View.VISIBLE else View.GONE
             layoutParams = FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
@@ -134,9 +167,9 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
             isFocusable = false
             translationZ = HyperUtils.dpToPx(1f)
         }
-        launcherGLView?.addView(cursorView)
-        launcherGLView?.cursorView = cursorView
-        launcherGLView?.let { weakCursor = WeakReference(cursorView) }
+        controlLayout?.addView(cursorView)
+        weakCursor = WeakReference(cursorView)
+        Platform.setCursorImplementor(cursorView)
 
         loggerView = LoggerView(this).apply {
             id = R.id.mainLoggerView
@@ -157,13 +190,13 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
                     InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE or
                     InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
         }
+        GameActivity.touchCharInput = touchCharInput
 
         hotbarView = HotbarView(this).apply {
             id = R.id.hotbar_view
             layoutParams = FrameLayout.LayoutParams(0, 0)
         }
 
-        controlLayout?.addView(launcherGLView)
         controlLayout?.addView(touchCharInput)
         controlLayout?.addView(hotbarView)
 
@@ -178,14 +211,67 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
             view.setViewTreeSavedStateRegistryOwner(this)
         }
 
-        setContentView(mainComposeView!!)
+        val overlay = object : FrameLayout(this) {
+            override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+                this@HorizonActivity.dispatchTouchEvent(ev)
+                return super.dispatchTouchEvent(ev)
+            }
 
+            override fun dispatchGenericMotionEvent(ev: MotionEvent): Boolean {
+                this@HorizonActivity.dispatchGenericMotionEvent(ev)
+                return super.dispatchGenericMotionEvent(ev)
+            }
+
+            override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+                return this@HorizonActivity.dispatchKeyEvent(event) || super.dispatchKeyEvent(event)
+            }
+        }.apply {
+            clipChildren = false
+            clipToPadding = false
+            addView(
+                mainComposeView,
+                FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+            )
+        }
+        LauncherComposeHelper.ensureViewTreeOwners(overlay)
+        overlay.setViewTreeLifecycleOwner(this)
+        overlay.setViewTreeViewModelStoreOwner(this)
+        overlay.setViewTreeSavedStateRegistryOwner(this)
+        overlayView = overlay
+
+        window.decorView.post {
+            if (!isFinishing && !isDestroyed && overlayView?.parent == null) {
+                val params = WindowManager.LayoutParams().apply {
+                    type = WindowManager.LayoutParams.TYPE_APPLICATION_PANEL
+                    token = window.decorView.windowToken
+                    format = PixelFormat.TRANSLUCENT
+                    flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                            WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+                    width = WindowManager.LayoutParams.MATCH_PARENT
+                    height = WindowManager.LayoutParams.MATCH_PARENT
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        layoutInDisplayCutoutMode =
+                            WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                    }
+                }
+                try {
+                    windowManager.addView(overlayView, params)
+                } catch (e: Throwable) {
+                    Log.e("HorizonActivity", "Failed to add mainComposeView overlay", e)
+                }
+            }
+        }
+        
         LauncherComposeHelper.setBaseMainContent(
             mainComposeView!!,
             isInEditor,
             controlLayout!!,
             loggerView!!,
-            launcherGLView,
+            null,
             true,
             { },
             { controller -> drawerController = controller },
@@ -211,7 +297,36 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
             }
         })
 
-        launcherGLView?.mCursorView?.setCursorScale(LauncherPreferences.PREF_MOUSESCALE)
+        cursorView.setCursorScale(LauncherPreferences.PREF_MOUSESCALE)
+
+        ViewCompat.setOnApplyWindowInsetsListener(window.decorView) { _, insets ->
+            val animCursor = cursorView.animate().setDuration(100)
+            if (!insets.isVisible(WindowInsetsCompat.Type.ime())) {
+                animCursor.translationY(0f).start()
+                GameActivity.mImeHeight = 0
+            } else {
+                val imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+                GameActivity.mImeHeight = imeHeight
+                if (GameActivity.mForcedPanningHeight != 0 || LauncherPreferences.PREF_KEYBOARD_AUTOPANNING) {
+                    val translationY = if (GameActivity.mForcedPanningHeight == 0) {
+                        HyperUtils.getTranslationFromCursorY(
+                            (Platform.cursorY * 1.0 + 100).toInt(),
+                            controlLayout?.height ?: 0,
+                            imeHeight,
+                            0
+                        )
+                    } else {
+                        if (GameActivity.mForcedPanningHeight == -1) {
+                            imeHeight
+                        } else {
+                            (imeHeight - GameActivity.mForcedPanningHeight).coerceIn(0, imeHeight)
+                        }
+                    }
+                    animCursor.translationY(-translationY.toFloat()).start()
+                }
+            }
+            insets
+        }
 
         controlLayout?.post {
             HyperUtils.getDisplayMetrics(this)
@@ -264,7 +379,7 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
                 isInEditor,
                 controlLayout!!,
                 loggerView!!,
-                launcherGLView,
+                null,
                 true,
                 { },
                 { controller -> drawerController = controller },
@@ -286,7 +401,6 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
         if (quickSettingSideDialog == null) {
             quickSettingSideDialog = object : QuickSettingSideDialog() {
                 override fun onResolutionChanged() {
-                    launcherGLView?.refreshSize()
                     hotbarView?.onResolutionChanged()
                 }
 
@@ -343,7 +457,7 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
                 isInEditor,
                 controlLayout!!,
                 loggerView!!,
-                launcherGLView,
+                null,
                 true,
                 { },
                 { controller -> drawerController = controller },
@@ -360,12 +474,14 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
 
     override fun onResume() {
         super.onResume()
+        ContextExecutor.setActivity(this)
         lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
         if (PREF_ENABLE_GYRO) gyroControl?.enable()
         Platform.PLATFORM.setHovered(true)
     }
 
     override fun onPause() {
+        ContextExecutor.clearActivity()
         lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
         gyroControl?.disable()
         if (Platform.isGrabbing()) {
@@ -383,8 +499,15 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
     }
 
     override fun onDestroy() {
+        if (overlayView?.parent != null) {
+            try {
+                windowManager.removeViewImmediate(overlayView)
+            } catch (e: Throwable) {
+                Log.e("HorizonActivity", "Failed to remove mainComposeView overlay", e)
+            }
+        }
         Platform.PLATFORM.setVisible(false)
-        launcherGLView?.onSurfaceDestroyed()
+        ContextExecutor.clearActivity()
         lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         store.clear()
         super.onDestroy()
@@ -407,12 +530,47 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
         gyroControl?.updateOrientation()
         controlLayout?.requestLayout()
         controlLayout?.post {
-            launcherGLView?.refreshSize()
             controlLayout?.refreshControlButtonPositions()
         }
     }
 
+    override fun dispatchGenericMotionEvent(ev: MotionEvent): Boolean {
+        return super.dispatchGenericMotionEvent(ev)
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        if (!isInEditor && SideDialogUtils.activeDialog == null && drawerController?.isOpen() != true) {
+            CallbackBridge.setModifiers(KeyEvent.KEYCODE_UNKNOWN, false)
+            val action = ev.actionMasked
+            val pointerCount = ev.pointerCount
+            for (i in 0 until pointerCount) {
+                val pointerId = ev.getPointerId(i)
+                val x = ev.getX(i)
+                val y = ev.getY(i)
+                if (i == 0) {
+                    Platform.cursorX = x.toDouble()
+                    Platform.cursorY = y.toDouble()
+                    if (weakCursor?.get()?.visibility == View.VISIBLE) {
+                        Platform.sendCursorPosition()
+                    }
+                }
+                val act = when (action) {
+                    MotionEvent.ACTION_POINTER_DOWN -> if (i == ev.actionIndex) MotionEvent.ACTION_DOWN else MotionEvent.ACTION_MOVE
+                    MotionEvent.ACTION_POINTER_UP -> if (i == ev.actionIndex) MotionEvent.ACTION_UP else MotionEvent.ACTION_MOVE
+                    else -> action
+                }
+                try {
+                    nativeRegisterTouch(pointerId, act, x, y)
+                } catch (_: Throwable) {
+                    HorizonInput.registerTouch(pointerId, act, x, y)
+                }
+            }
+        }
+        return super.dispatchTouchEvent(ev)
+    }
+
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        CallbackBridge.setModifiers(event)
         if (isInEditor) {
             if (event.keyCode == KeyEvent.KEYCODE_BACK) {
                 if (event.action == KeyEvent.ACTION_DOWN) {
@@ -422,30 +580,19 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
             }
             return super.dispatchKeyEvent(event)
         }
-        var handleEvent = false
-        if (launcherGLView?.processKeyEvent(event) == false) {
-            if (event.keyCode == KeyEvent.KEYCODE_BACK && touchCharInput?.isEnabled == false) {
-                if (event.action != KeyEvent.ACTION_UP) return true
+        if (event.keyCode == KeyEvent.KEYCODE_BACK && touchCharInput?.isEnabled == false) {
+            if (event.action == KeyEvent.ACTION_UP) {
                 CallbackBridge.sendKeyPress(KeyEvent.KEYCODE_ESCAPE)
-                return true
             }
-        } else {
-            handleEvent = true
+            return true
         }
-        return handleEvent
+        val isDown = event.action == KeyEvent.ACTION_DOWN
+        Platform.PLATFORM.sendKeyEvent(event.keyCode, isDown, CallbackBridge.getCurrentMods())
+        return super.dispatchKeyEvent(event)
     }
 
     override fun dispatchTrackballEvent(ev: MotionEvent): Boolean {
-        if (HyperUtils.isAndroid8OrHigher() && checkCaptureDispatchConditions(ev)) {
-            return launcherGLView?.dispatchCapturedPointerEvent(ev) == true
-        }
         return super.dispatchTrackballEvent(ev)
-    }
-
-    private fun checkCaptureDispatchConditions(event: MotionEvent): Boolean {
-        val eventSource = event.source
-        return (eventSource and InputDevice.SOURCE_MOUSE_RELATIVE) != 0 ||
-                (eventSource and InputDevice.SOURCE_MOUSE) != 0
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -458,24 +605,17 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
     }
 
     private fun hideSystemUI() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.insetsController?.let { controller ->
-                controller.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
-                controller.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            }
-        } else {
-            @Suppress("DEPRECATION")
-            window.decorView.systemUiVisibility = (
-                View.SYSTEM_UI_FLAG_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                )
-        }
+        HyperUtils.setInsetsMode(this, noSystemBars = true, ignoreNotch = true)
     }
 
+    @Suppress("KotlinJniMissingFunction")
+    @Keep
+    external fun nativeRegisterTouch(pointerId: Int, action: Int, x: Float, y: Float)
+
+    @Suppress("KotlinJniMissingFunction")
+    //I DONT KNOW WHAT IT IS//
     @Keep
     external fun nativeDocumentResult(requestCode: Int, resultCode: Int, data: String?)
 }
+
+

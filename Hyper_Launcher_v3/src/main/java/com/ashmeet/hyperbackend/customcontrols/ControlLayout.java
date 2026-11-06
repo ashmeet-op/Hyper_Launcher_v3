@@ -28,7 +28,6 @@ import com.ashmeet.hyperbackend.game.GameView;
 import java.io.File;
 
 
-import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.customcontrols.buttons.ControlButton;
 import com.ashmeet.hyperbackend.customcontrols.buttons.ControlDrawer;
 import com.ashmeet.hyperbackend.customcontrols.buttons.ControlInterface;
@@ -474,7 +473,8 @@ public class ControlLayout extends FrameLayout {
 	}
 
 
-	public boolean hasMenuButton() {
+	@SuppressWarnings("unused")
+    public boolean hasMenuButton() {
 		for(ControlInterface controlInterface : getButtonChildren()){
 			for (int keycode : controlInterface.getProperties().keycodes) {
 				if (keycode == ControlData.SPECIALBTN_MENU) return true;
@@ -494,7 +494,10 @@ public class ControlLayout extends FrameLayout {
 
 	public GameView getGameSurface(){
 		if(mGameSurface == null){
-			mGameSurface = findViewById(R.id.main_game_render_view);
+			View view = findViewById(R.id.main_game_render_view);
+			if (view instanceof GameView) {
+				mGameSurface = (GameView) view;
+			}
 		}
 		return mGameSurface;
 	}

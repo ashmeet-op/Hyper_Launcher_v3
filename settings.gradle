@@ -32,3 +32,5 @@ include ':sdl:android-gradle'
 include ':mojoexec:android-gradle'
 include ':mojoexec:jni_bindings'
 include ':ColorPicker'
+include ':horizon-android:packaging:android-aar'
+project(':horizon-android:packaging:android-aar').projectDir = new File(settingsDir, 'horizon-android/packaging/android-aar')

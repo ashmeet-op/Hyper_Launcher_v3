@@ -57,6 +57,10 @@ public class Platform {
     private static GameView mHostView;
     private static RemapperManager mInputManager;
 
+    public static GameView getHostView() {
+        return mHostView;
+    }
+
 
     public static void initialize(Activity activity, GameView view) {
         Platform.mHostView = view;

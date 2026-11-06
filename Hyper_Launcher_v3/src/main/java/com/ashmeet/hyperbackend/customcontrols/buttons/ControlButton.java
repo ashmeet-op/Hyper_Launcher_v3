@@ -129,7 +129,7 @@ public class ControlButton extends TextView implements ControlInterface {
         ControlData cloneData = props != null ? new ControlData(props) : new ControlData();
         cloneData.dynamicX = "0.5 * ${screen_width}";
         cloneData.dynamicY = "0.5 * ${screen_height}";
-        ControlLayout parent = (ControlLayout) getParent();
+        ControlLayout parent = getControlLayoutParent();
         if (parent != null) {
             parent.addControlButton(cloneData);
         }

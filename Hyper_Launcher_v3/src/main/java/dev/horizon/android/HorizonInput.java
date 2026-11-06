@@ -63,9 +63,29 @@ public class HorizonInput {
         }
     }
 
+    public static void sendTouch(int pointerId, int action, float x, float y) {
+        if (!sLoaded) return;
+        try {
+            nativeSendTouch(pointerId, action, x, y);
+        } catch (Throwable e) {
+            Log.e("HorizonInput", "nativeSendTouch failed", e);
+        }
+    }
+
+    public static void registerTouch(int pointerId, int action, float x, float y) {
+        if (!sLoaded) return;
+        try {
+            nativeRegisterTouch(pointerId, action, x, y);
+        } catch (Throwable e) {
+            Log.e("HorizonInput", "nativeRegisterTouch failed", e);
+        }
+    }
+
     private static native void nativeSendKey(int key, boolean isDown, int mods);
     private static native void nativeSendMouseButton(int button, boolean isDown);
     private static native void nativeSendMouseMotion(float dx, float dy);
     private static native void nativeSendCursorPosition(float x, float y);
     private static native void nativeSendScroll(float dx, float dy);
+    private static native void nativeSendTouch(int pointerId, int action, float x, float y);
+    private static native void nativeRegisterTouch(int pointerId, int action, float x, float y);
 }

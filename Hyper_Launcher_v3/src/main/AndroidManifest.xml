@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-sdk tools:overrideLibrary="dev.horizon.android" />
+
     <attribution
         android:tag="${applicationId}"
         android:label="@string/app_short_name" />
@@ -124,7 +126,8 @@
             android:screenOrientation="sensorLandscape" />
         <activity
             android:name="dev.horizon.android.HorizonActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize|uiMode|smallestScreenSize|screenLayout"
+            android:configChanges="orientation|keyboardHidden|screenSize|uiMode|smallestScreenSize|screenLayout|keyboard|density"
+            tools:replace="android:configChanges"
             android:exported="false"
             android:launchMode="singleTask"
             android:process=":horizon"
