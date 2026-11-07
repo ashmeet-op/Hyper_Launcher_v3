@@ -26,7 +26,7 @@
 
 ## About
 
-Hyper Launcher 3 is a fast and customizable Minecraft: Java Edition launcher for Android, forked from [MojoLauncher](https://github.com/MojoLauncher/MojoLauncher) and ultimately based on [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher).
+Hyper Launcher 3 is a fast and customizable Minecraft: Java Edition launcher for Android, forked from [MojoLauncher](https://github.com/MojoLauncher/MojoLauncher) and ultimately based on [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher). It also features built-in support for the Rust edition powered by [horizon-rust/horizon](https://github.com/horizon-rust/horizon), specifically utilizing the fork [starling-client/starling (Release v0.7.7)](https://github.com/starling-client/starling/releases#release-v0.7.7).
 
 It can run almost every version of Minecraft — from `rd-132211` to the latest snapshots (including Combat Test versions) — and supports modloaders such as [Forge](https://files.minecraftforge.net/), [Fabric](http://fabricmc.net/), NeoForge, and Quilt, as well as mods like [OptiFine](https://optifine.net).
 
@@ -49,6 +49,7 @@ Hyper Launcher is designed for:
 - Performance tuning options
 - Built-in modding tools
 - Mobile Glues support
+- Rust edition support (powered by [horizon-rust/horizon](https://github.com/horizon-rust/horizon) via [starling-client/starling](https://github.com/starling-client/starling))
 ---
 
 ## Supported Mod Loaders
@@ -125,6 +126,8 @@ Any code change should be submitted as a pull request. The description should ex
 
 Hyper Launcher 3 is a fork of [MojoLauncher](https://github.com/MojoLauncher/MojoLauncher), which is itself based on [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher). Full credit goes to both teams and all upstream contributors.
 
+- [horizon-rust/horizon](https://github.com/horizon-rust/horizon): Rust edition backend / engine
+- [starling-client/starling](https://github.com/starling-client/starling) Actual fork used for Rust edition support in this project
 - [MojoLauncher](https://github.com/MojoLauncher/MojoLauncher): [GNU LGPLv3 License](https://github.com/MojoLauncher/MojoLauncher/blob/v3_openjdk/LICENSE)
 - [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher): [GNU LGPLv3 License](https://github.com/PojavLauncherTeam/PojavLauncher/blob/v3_openjdk/LICENSE)
 - [Boardwalk](https://github.com/zhuowei/Boardwalk) (JVM Launcher): Unknown License / [Apache License 2.0](https://github.com/zhuowei/Boardwalk/blob/master/LICENSE) or GNU GPLv2

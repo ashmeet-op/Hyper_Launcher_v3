@@ -25,7 +25,7 @@
 
 ## О проекте
 
-Hyper Launcher 3 — быстрый и настраиваемый лаунчер Minecraft: Java Edition для Android, форк [MojoLauncher](https://github.com/MojoLauncher/MojoLauncher), в основе которого лежит [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher).
+Hyper Launcher 3 — быстрый и настраиваемый лаунчер Minecraft: Java Edition для Android, форк [MojoLauncher](https://github.com/MojoLauncher/MojoLauncher), в основе которого лежит [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher). Он также включает встроенную поддержку Rust edition на базе [horizon-rust/horizon](https://github.com/horizon-rust/horizon), используя в качестве конкретной реализации форк [starling-client/starling (Релиз v0.7.7)](https://github.com/starling-client/starling/releases#release-v0.7.7).
 
 Он способен запускать практически любую версию Minecraft — от `rd-132211` до последних снапшотов (включая версии Combat Test) — и поддерживает такие загрузчики модов, как [Forge](https://files.minecraftforge.net/), [Fabric](http://fabricmc.net/), NeoForge и Quilt, а также моды вроде [OptiFine](https://optifine.net).
 
@@ -48,6 +48,7 @@ Hyper Launcher создан для того, чтобы обеспечить:
 - Настройки производительности
 - Встроенные инструменты для моддинга
 - Поддержка Mobile Glues
+- Поддержка Rust edition (на базе [horizon-rust/horizon](https://github.com/horizon-rust/horizon) через форк [starling-client/starling v0.7.7](https://github.com/starling-client/starling/releases#release-v0.7.7))
 
 ---
 
@@ -126,6 +127,8 @@ Hyper Launcher 3 распространяется под лицензией [GNU
 
 Hyper Launcher 3 — форк [MojoLauncher](https://github.com/MojoLauncher/MojoLauncher), который, в свою очередь, основан на [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher). Вся заслуга принадлежит обеим командам и всем участникам разработки выше по цепочке.
 
+- [horizon-rust/horizon](https://github.com/horizon-rust/horizon): Движок/бэкенд Rust edition
+- [starling-client/starling](https://github.com/starling-client/starling/releases#release-v0.7.7) (Релиз v0.7.7): Используемый форк для поддержки Rust edition в проекте
 - [MojoLauncher](https://github.com/MojoLauncher/MojoLauncher): [лицензия GNU LGPLv3](https://github.com/MojoLauncher/MojoLauncher/blob/v3_openjdk/LICENSE)
 - [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher): [лицензия GNU LGPLv3](https://github.com/PojavLauncherTeam/PojavLauncher/blob/v3_openjdk/LICENSE)
 - [Boardwalk](https://github.com/zhuowei/Boardwalk) (JVM Launcher): лицензия неизвестна / [Apache License 2.0](https://github.com/zhuowei/Boardwalk/blob/master/LICENSE) or GNU GPLv2
