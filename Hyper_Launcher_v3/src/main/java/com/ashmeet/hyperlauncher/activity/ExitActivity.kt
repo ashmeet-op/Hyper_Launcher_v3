@@ -48,7 +48,6 @@ class ExitActivity : AppCompatActivity() {
         LauncherComposeHelper.ensureViewTreeOwners(composeView)
         LauncherComposeHelper.setExitContent(
             composeView,
-            title,
             logs,
             onShareClick = { HyperUtils.shareLog(this) },
             onRestartClick = { HyperUtils.restartLauncherActivity(this) },

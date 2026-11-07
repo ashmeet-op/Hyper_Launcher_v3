@@ -5,7 +5,9 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
 
 import static com.ashmeet.hyperbackend.game.platform.Platform.PLATFORM;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.text.Editable;
 import android.text.Selection;
 import android.util.AttributeSet;
@@ -14,6 +16,8 @@ import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperbackend.CallbackBridge;
@@ -61,9 +65,18 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
 
 
 
-    public void switchKeyboardState(){
-        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(INPUT_METHOD_SERVICE);
+    private Activity getActivity() {
+        Context context = getContext();
+        while (context instanceof ContextWrapper) {
+            if (context instanceof Activity) {
+                return (Activity) context;
+            }
+            context = ((ContextWrapper) context).getBaseContext();
+        }
+        return null;
+    }
 
+    public void switchKeyboardState(){
         if(isEnabled() && hasFocus()){
             clear();
             disable();
@@ -71,8 +84,20 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
             enable();
             post(() -> {
                 requestFocus();
+                Activity activity = getActivity();
+                if (activity != null) {
+                    try {
+                        WindowCompat.getInsetsController(activity.getWindow(), this).show(WindowInsetsCompat.Type.ime());
+                    } catch (Throwable t) {
+                        // ignore
+                    }
+                }
+                InputMethodManager imm = (InputMethodManager) getContext().getSystemService(INPUT_METHOD_SERVICE);
                 if (imm != null) {
                     imm.showSoftInput(this, InputMethodManager.SHOW_FORCED);
+                    try {
+                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                    } catch (Throwable ignored) {}
                 }
             });
         }
@@ -80,7 +105,6 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
 
 
     public void setKeyboardState(boolean state){
-        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(INPUT_METHOD_SERVICE);
         if(!state){
             clear();
             disable();
@@ -88,8 +112,20 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
             enable();
             post(() -> {
                 requestFocus();
+                Activity activity = getActivity();
+                if (activity != null) {
+                    try {
+                        WindowCompat.getInsetsController(activity.getWindow(), this).show(WindowInsetsCompat.Type.ime());
+                    } catch (Throwable t) {
+                        // ignore
+                    }
+                }
+                InputMethodManager imm = (InputMethodManager) getContext().getSystemService(INPUT_METHOD_SERVICE);
                 if (imm != null) {
                     imm.showSoftInput(this, InputMethodManager.SHOW_FORCED);
+                    try {
+                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                    } catch (Throwable ignored) {}
                 }
             });
         }
@@ -123,7 +159,19 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
         setVisibility(GONE);
         clearFocus();
         setEnabled(false);
-
+        try {
+            Activity activity = getActivity();
+            if (activity != null) {
+                WindowCompat.getInsetsController(activity.getWindow(), this).hide(WindowInsetsCompat.Type.ime());
+            }
+        } catch (Throwable t) {
+            try {
+                InputMethodManager imm = (InputMethodManager) getContext().getSystemService(INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.hideSoftInputFromWindow(getWindowToken(), 0);
+                }
+            } catch (Throwable ignored) {}
+        }
     }
 
 

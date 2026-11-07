@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.dp
 import com.ashmeet.hyperlauncher.components.dialog.SideDialog
 
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.utils.SideDialogUtils
 import kotlin.time.Duration.Companion.milliseconds
 
 
@@ -66,6 +67,10 @@ abstract class SideDialogView {
                 visible = true
             } else {
                 visible = false
+                kotlinx.coroutines.delay(650.milliseconds)
+                if (!isDisplaying && SideDialogUtils.activeDialog == this@SideDialogView) {
+                    SideDialogUtils.activeDialog = null
+                }
             }
         }
 

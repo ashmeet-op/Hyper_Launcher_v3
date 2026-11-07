@@ -44,7 +44,6 @@ class FatalErrorActivity : AppCompatActivity() {
         LauncherComposeHelper.ensureViewTreeOwners(composeView)
         LauncherComposeHelper.setExitContent(
             composeView,
-            getString(R.string.error_fatal),
             finalLogs,
             {
                 val intent = Intent(Intent.ACTION_SEND)

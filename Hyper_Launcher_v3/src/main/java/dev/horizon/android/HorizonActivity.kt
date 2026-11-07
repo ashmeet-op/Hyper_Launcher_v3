@@ -228,6 +228,8 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
         }.apply {
             clipChildren = false
             clipToPadding = false
+            isFocusable = true
+            isFocusableInTouchMode = true
             addView(
                 mainComposeView,
                 FrameLayout.LayoutParams(
@@ -539,7 +541,7 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-        if (!isInEditor && SideDialogUtils.activeDialog == null && drawerController?.isOpen() != true) {
+        if (!isInEditor && SideDialogUtils.activeDialog?.isDisplaying != true && drawerController?.isOpen() != true) {
             CallbackBridge.setModifiers(KeyEvent.KEYCODE_UNKNOWN, false)
             val action = ev.actionMasked
             val pointerCount = ev.pointerCount
