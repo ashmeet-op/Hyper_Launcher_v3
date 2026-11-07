@@ -48,7 +48,7 @@ Hyper Launcher создан для того, чтобы обеспечить:
 - Настройки производительности
 - Встроенные инструменты для моддинга
 - Поддержка Mobile Glues
-- Поддержка Rust edition (на базе [horizon-rust/horizon](https://github.com/horizon-rust/horizon) через форк [starling-client/starling v0.7.7](https://github.com/starling-client/starling/releases#release-v0.7.7))
+- Поддержка Rust edition (на базе [horizon-rust/horizon](https://github.com/horizon-rust/horizon) через форк [starling-client/starling](https://github.com/starling-client/starling))
 
 ---
 
@@ -128,7 +128,7 @@ Hyper Launcher 3 распространяется под лицензией [GNU
 Hyper Launcher 3 — форк [MojoLauncher](https://github.com/MojoLauncher/MojoLauncher), который, в свою очередь, основан на [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher). Вся заслуга принадлежит обеим командам и всем участникам разработки выше по цепочке.
 
 - [horizon-rust/horizon](https://github.com/horizon-rust/horizon): Движок/бэкенд Rust edition
-- [starling-client/starling](https://github.com/starling-client/starling/releases#release-v0.7.7) (Релиз v0.7.7): Используемый форк для поддержки Rust edition в проекте
+- [starling-client/starling](https://github.com/starling-client/starling): Используемый форк для поддержки Rust edition в проекте
 - [MojoLauncher](https://github.com/MojoLauncher/MojoLauncher): [лицензия GNU LGPLv3](https://github.com/MojoLauncher/MojoLauncher/blob/v3_openjdk/LICENSE)
 - [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher): [лицензия GNU LGPLv3](https://github.com/PojavLauncherTeam/PojavLauncher/blob/v3_openjdk/LICENSE)
 - [Boardwalk](https://github.com/zhuowei/Boardwalk) (JVM Launcher): лицензия неизвестна / [Apache License 2.0](https://github.com/zhuowei/Boardwalk/blob/master/LICENSE) or GNU GPLv2
