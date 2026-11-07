@@ -1,7 +1,6 @@
 package dev.horizon.android
 
 import android.app.NativeActivity
-import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
@@ -17,7 +16,6 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.widget.FrameLayout
-import android.widget.Toast
 import androidx.annotation.Keep
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.graphics.drawable.toDrawable
@@ -47,7 +45,6 @@ import com.ashmeet.hyperbackend.customcontrols.keyboard.TouchCharInput
 import com.ashmeet.hyperbackend.customcontrols.mouse.GyroControl
 import com.ashmeet.hyperbackend.customcontrols.mouse.HotbarView
 import com.ashmeet.hyperbackend.game.GameActivity
-import com.ashmeet.hyperbackend.game.GameCursorView
 import com.ashmeet.hyperbackend.game.platform.Platform
 import com.ashmeet.hyperbackend.game.platform.backend.HorizonBackend
 import com.ashmeet.hyperbackend.instances.Instances
@@ -73,9 +70,9 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
         field = LifecycleRegistry(this)
     override val viewModelStore: ViewModelStore get() = store
     override val savedStateRegistry: SavedStateRegistry get() = savedStateRegistryController.savedStateRegistry
-
     private var loggerView: LoggerView? = null
     private var controlLayout: ControlLayout? = null
+    private var cursorView: HorizonCursorView? = null
     private var touchCharInput: TouchCharInput? = null
     private var hotbarView: HotbarView? = null
     private var gyroControl: GyroControl? = null
@@ -88,34 +85,11 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
     private val instance = Instances.loadSelectedInstance()
 
     companion object {
-        var weakCursor: WeakReference<GameCursorView>? = null
-
         init {
             try {
                 System.loadLibrary("horizon_android")
             } catch (e: Throwable) {
                 Log.e("HorizonActivity", "Failed to load libhorizon_android.so", e)
-            }
-        }
-
-        @JvmStatic
-        @Suppress("unused")
-        fun toggleMouse(ctx: Context) {
-            if (Platform.isGrabbing()) return
-            val cursorView = HyperUtils.getWeakReference(weakCursor) ?: return
-            var toastString = 0
-            when (cursorView.visibility) {
-                View.GONE, View.INVISIBLE -> {
-                    toastString = R.string.control_mouseon
-                    cursorView.visibility = View.VISIBLE
-                }
-                View.VISIBLE -> {
-                    toastString = R.string.control_mouseoff
-                    cursorView.visibility = View.GONE
-                }
-            }
-            if (toastString != 0) {
-                Toast.makeText(ctx, toastString, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -138,11 +112,19 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
         }
 
         hideSystemUI()
+        val dm = resources.displayMetrics
+        CallbackBridge.windowWidth = dm.widthPixels
+        CallbackBridge.windowHeight = dm.heightPixels
+        CallbackBridge.windowRate = dm.widthPixels.toFloat() / dm.heightPixels
+
+        LauncherPreferences.loadPreferences(this)
+
         initLayout()
 
         Platform.setPlatformLibrary(HorizonBackend())
+        //we work on this after some launcher fixes until then it remain forceably true
+        //Platform.grabStateChanged(false)
         Platform.grabStateChanged(true)
-
         gyroControl = GyroControl(this)
         ContextExecutor.setActivity(this)
 
@@ -157,7 +139,7 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
             setMenuListener(this@HorizonActivity)
         }
 
-        val cursorView = GameCursorView(this).apply {
+        cursorView = HorizonCursorView(this).apply {
             id = R.id.main_cursorview
             visibility = if (LauncherPreferences.PREF_VIRTUAL_MOUSE_START) View.VISIBLE else View.GONE
             layoutParams = FrameLayout.LayoutParams(
@@ -168,7 +150,7 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
             translationZ = HyperUtils.dpToPx(1f)
         }
         controlLayout?.addView(cursorView)
-        weakCursor = WeakReference(cursorView)
+        HorizonInput.weakCursor = WeakReference(cursorView)
         Platform.setCursorImplementor(cursorView)
 
         loggerView = LoggerView(this).apply {
@@ -299,12 +281,12 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
             }
         })
 
-        cursorView.setCursorScale(LauncherPreferences.PREF_MOUSESCALE)
+        cursorView?.setCursorScale(LauncherPreferences.PREF_MOUSESCALE)
 
         ViewCompat.setOnApplyWindowInsetsListener(window.decorView) { _, insets ->
-            val animCursor = cursorView.animate().setDuration(100)
+            val animCursor = cursorView?.animate()?.setDuration(100)
             if (!insets.isVisible(WindowInsetsCompat.Type.ime())) {
-                animCursor.translationY(0f).start()
+                animCursor?.translationY(0f)?.start()
                 GameActivity.mImeHeight = 0
             } else {
                 val imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
@@ -324,7 +306,7 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
                             (imeHeight - GameActivity.mForcedPanningHeight).coerceIn(0, imeHeight)
                         }
                     }
-                    animCursor.translationY(-translationY.toFloat()).start()
+                    animCursor?.translationY(-translationY.toFloat())?.start()
                 }
             }
             insets
@@ -476,6 +458,8 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
 
     override fun onResume() {
         super.onResume()
+        LauncherPreferences.loadPreferences(this)
+        cursorView?.setCursorScale(LauncherPreferences.PREF_MOUSESCALE)
         ContextExecutor.setActivity(this)
         lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
         if (PREF_ENABLE_GYRO) gyroControl?.enable()
@@ -552,7 +536,7 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
                 if (i == 0) {
                     Platform.cursorX = x.toDouble()
                     Platform.cursorY = y.toDouble()
-                    if (weakCursor?.get()?.visibility == View.VISIBLE) {
+                    if (HorizonInput.weakCursor?.get()?.visibility == View.VISIBLE) {
                         Platform.sendCursorPosition()
                     }
                 }

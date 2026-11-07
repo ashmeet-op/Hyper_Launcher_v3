@@ -49,6 +49,10 @@ public class ContextExecutor {
         sActivity = new WeakReference<>(activity);
     }
 
+    public static Activity getActivity() {
+        return HyperUtils.getWeakReference(sActivity);
+    }
+
 
     public static void clearActivity() {
         if(sActivity != null)

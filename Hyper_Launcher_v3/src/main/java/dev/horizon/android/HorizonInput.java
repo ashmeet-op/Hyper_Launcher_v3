@@ -3,11 +3,31 @@ package dev.horizon.android;
 import android.util.Log;
 import androidx.annotation.Keep;
 
-@SuppressWarnings("JavaJniMissingFunction")
+@SuppressWarnings({"unused", "JavaJniMissingFunction"})
 @Keep
 public class HorizonInput {
 
     private static boolean sLoaded = false;
+
+    public static java.lang.ref.WeakReference<HorizonCursorView> weakCursor;
+
+    public static void toggleMouse(android.content.Context ctx) {
+        if (com.ashmeet.hyperbackend.game.platform.Platform.isGrabbing()) return;
+        HorizonCursorView cursorView = com.ashmeet.hyperlauncher.utils.HyperUtils.getWeakReference(weakCursor);
+        if (cursorView == null) return;
+        int toastString = 0;
+        int visibility = cursorView.getVisibility();
+        if (visibility == android.view.View.GONE || visibility == android.view.View.INVISIBLE) {
+            toastString = net.ashmeet.hyperlauncher.R.string.control_mouseon;
+            cursorView.setVisibility(android.view.View.VISIBLE);
+        } else if (visibility == android.view.View.VISIBLE) {
+            toastString = net.ashmeet.hyperlauncher.R.string.control_mouseoff;
+            cursorView.setVisibility(android.view.View.GONE);
+        }
+        if (toastString != 0) {
+            android.widget.Toast.makeText(ctx, toastString, android.widget.Toast.LENGTH_SHORT).show();
+        }
+    }
 
     static {
         try {

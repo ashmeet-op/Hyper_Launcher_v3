@@ -91,6 +91,8 @@ import java.lang.ref.WeakReference;
 import java.util.Objects;
 import androidx.compose.ui.platform.ComposeView;
 
+import dev.horizon.android.HorizonActivity;
+import dev.horizon.android.HorizonInput;
 import kotlin.Unit;
 
 
@@ -583,11 +585,8 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
                 public void onButtonTransparencyChanged() {
                     mControlLayout.updateButtonOpacity();
                 }
-
                 @Override
                 public void onShowFpsChanged() {
-
-
                 }
 
                 @Override
@@ -610,8 +609,15 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
     }
 
     public static void toggleMouse(Context ctx) {
+        android.app.Activity activity = ContextExecutor.getActivity();
+
+        if (activity instanceof HorizonActivity) {
+            HorizonInput.toggleMouse(ctx);
+            return;
+        }
 
         if (Platform.isGrabbing()) return;
+
         GameCursorView cursorView = HyperUtils.getWeakReference(weakCursor);
         if(cursorView == null) return;
         int toastString = 0;

@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import com.ashmeet.hyperbackend.customcontrols.ControlData;
 import com.ashmeet.hyperbackend.customcontrols.ControlDrawerData;
 import com.ashmeet.hyperbackend.customcontrols.ControlLayout;
-import com.ashmeet.hyperlauncher.fragments.dialog.EditControlSideDialog;
 
 import java.util.ArrayList;
 
@@ -33,10 +32,6 @@ public class ControlDrawer extends ControlButton {
         areButtonsVisible = layout.getModifiable();
     }
 
-
-    public void addButton(ControlData properties){
-        addButton(new ControlSubButton(parentLayout, properties, this));
-    }
 
     public void addButton(ControlSubButton button){
         buttons.add(button);
