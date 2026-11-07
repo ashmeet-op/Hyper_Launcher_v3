@@ -64,12 +64,17 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
     public void switchKeyboardState(){
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(INPUT_METHOD_SERVICE);
 
-        if(hasFocus()){
+        if(isEnabled() && hasFocus()){
             clear();
             disable();
         }else{
             enable();
-            imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT);
+            post(() -> {
+                requestFocus();
+                if (imm != null) {
+                    imm.showSoftInput(this, InputMethodManager.SHOW_FORCED);
+                }
+            });
         }
     }
 
@@ -81,7 +86,12 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
             disable();
         }else{
             enable();
-            imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT);
+            post(() -> {
+                requestFocus();
+                if (imm != null) {
+                    imm.showSoftInput(this, InputMethodManager.SHOW_FORCED);
+                }
+            });
         }
     }
 

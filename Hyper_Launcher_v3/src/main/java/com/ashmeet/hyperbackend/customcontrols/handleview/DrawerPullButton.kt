@@ -99,12 +99,12 @@ open class DrawerPullButton @JvmOverloads constructor(
             while (isActive && showFps) {
                 val nativeFps = withContext(Dispatchers.IO) {
                     try {
-                        CallbackBridge.windowRate
+                        CallbackBridge.windowRate.toInt()
                     } catch (_: Throwable) {
                         60
                     }
                 }
-                fpsValue = nativeFps as Int
+                fpsValue = nativeFps
                 delay(1000.milliseconds)
             }
         }
@@ -216,14 +216,12 @@ open class DrawerPullButton @JvmOverloads constructor(
         val dm = resources.displayMetrics
         val dpSize = (25 + (pullSizePerc - 10) * (35f / 90f))
         val size = (dpSize * dm.density).toInt()
-
         val width = (size * widthMultiplier).toInt()
-        val height = size
 
         val newWidthSpec = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY)
-        val newHeightSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
+        val newHeightSpec = MeasureSpec.makeMeasureSpec(size, MeasureSpec.EXACTLY)
         super.onMeasure(newWidthSpec, newHeightSpec)
-        setMeasuredDimension(width, height)
+        setMeasuredDimension(width, size)
     }
 
     @Composable

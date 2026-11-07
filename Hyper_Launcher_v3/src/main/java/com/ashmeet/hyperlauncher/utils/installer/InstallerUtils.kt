@@ -1,8 +1,8 @@
 package com.ashmeet.hyperlauncher.utils.installer
 
-private val RELEASE_REGEX = Regex("""^1\.\d+(\.\d+)*$""")
+private val RELEASE_REGEX = Regex("""^\d+\.\d+(\.\d+)*$""")
 private val SNAPSHOT_REGEX = Regex("""\d+w\d+[a-z]""")
-private val BASE_VERSION_REGEX = Regex("""1\.\d+(\.\d+)*""")
+private val BASE_VERSION_REGEX = Regex("""\d+\.\d+(\.\d+)*""")
 
 private val LOADER_PREFIX_REGEX = Regex("""(fabric|quilt|neoforge|forge)-loader-[0-9.]+-""", RegexOption.IGNORE_CASE)
 private val LOADER_DASH_REGEX = Regex("""(fabric|quilt|neoforge|forge)-loader-""", RegexOption.IGNORE_CASE)
@@ -29,7 +29,7 @@ fun isMcVersionCompatible(v1: String, v2: String): Boolean {
     if (isR1) {
         val parts1 = cv1.split(".")
         val parts2 = cv2.split(".")
-        if (parts1.size >= 2 && parts2.size >= 2 && parts1[1] == parts2[1]) {
+        if (parts1.size >= 2 && parts2.size >= 2 && parts1[0] == parts2[0] && parts1[1] == parts2[1]) {
             if (parts1.size >= 3 && parts2.size >= 3) {
                 return parts1[2] == parts2[2]
             }
@@ -61,6 +61,8 @@ fun cleanMcVersion(version: String?): String {
         val snapshotMatch = SNAPSHOT_REGEX.find(cleaned)
         if (snapshotMatch != null) {
             cleaned = snapshotMatch.value
+        } else if (cleaned.contains("horizon", ignoreCase = true)) {
+            cleaned = "26.3"
         }
     }
 

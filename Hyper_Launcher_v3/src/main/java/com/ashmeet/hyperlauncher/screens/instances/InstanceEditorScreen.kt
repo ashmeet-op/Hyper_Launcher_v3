@@ -88,6 +88,14 @@ fun InstanceEditorScreen(
     instanceIcon: Drawable?,
     onChangeIcon: () -> Unit,
     isHorizon: Boolean = false,
+    horizonRenderScale: Float = 1.0f,
+    onHorizonRenderScaleChange: (Float) -> Unit = {},
+    horizonOrientation: String = "sensor_landscape",
+    onHorizonOrientationChange: (String) -> Unit = {},
+    horizonInputHost: String = "keyboard_mouse",
+    onHorizonInputHostChange: (String) -> Unit = {},
+    horizonImmersive: Boolean = true,
+    onHorizonImmersiveChange: (Boolean) -> Unit = {},
     hasChanges: Boolean,
     onSave: () -> Unit,
     onDelete: () -> Unit,
@@ -98,6 +106,9 @@ fun InstanceEditorScreen(
     var showRuntimeDialog by remember { mutableStateOf(false) }
     var showRendererDialog by remember { mutableStateOf(false) }
     var showControlDialog by remember { mutableStateOf(false) }
+    var showHorizonRenderScaleDialog by remember { mutableStateOf(false) }
+    var showHorizonOrientationDialog by remember { mutableStateOf(false) }
+    var showHorizonInputHostDialog by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         SettingsScreenWrapper(
@@ -192,13 +203,72 @@ fun InstanceEditorScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             if (isHorizon) {
-                SettingsCard(position = CardPosition.SINGLE, useSurface = true) {
-                    SettingsActionItem(
-                        title = translatedText("Runtime Engine"),
-                        summary = translatedText(stringResource(R.string.engine_horizon_native_desc)),
-                        icon = Icons.Rounded.Memory,
-                        onClick = {}
-                    )
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    SettingsCard(position = CardPosition.TOP, useSurface = true) {
+                        SettingsActionItem(
+                            title = translatedText("Runtime Engine"),
+                            summary = translatedText("Horizon Rust Engine (Native)"),
+                            icon = Icons.Rounded.Memory,
+                            onClick = {}
+                        )
+                    }
+                    SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
+                        val index = renderers.indexOf(selectedRenderer)
+                        val currentSummary = if (index != -1 && index < rendererDisplayNames.size) rendererDisplayNames[index] else selectedRenderer
+                        SettingsActionItem(
+                            title = translatedText(stringResource(R.string.pedit_renderer)),
+                            summary = currentSummary,
+                            icon = Icons.Rounded.Settings,
+                            onClick = { showRendererDialog = true }
+                        )
+                    }
+                    SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
+                        val summaryText = when (horizonRenderScale) {
+                            0.75f -> "75% (Balanced)"
+                            0.50f -> "50% (Performance)"
+                            else -> "100% (Native Resolution)"
+                        }
+                        SettingsActionItem(
+                            title = translatedText("Render Scale"),
+                            summary = translatedText(summaryText),
+                            icon = Icons.Rounded.Settings,
+                            onClick = { showHorizonRenderScaleDialog = true }
+                        )
+                    }
+                    SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
+                        val summaryText = when (horizonOrientation) {
+                            "sensor_portrait", "portrait" -> "Portrait (sensor)"
+                            "auto" -> "Automatic rotation"
+                            else -> "Landscape (sensor)"
+                        }
+                        SettingsActionItem(
+                            title = translatedText("Orientation"),
+                            summary = translatedText(summaryText),
+                            icon = Icons.Rounded.Settings,
+                            onClick = { showHorizonOrientationDialog = true }
+                        )
+                    }
+                    SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
+                        val summaryText = when (horizonInputHost) {
+                            "touch" -> "Touch Controls"
+                            "gamepad" -> "Gamepad"
+                            else -> "Keyboard & Mouse"
+                        }
+                        SettingsActionItem(
+                            title = translatedText("Input Mode"),
+                            summary = translatedText(summaryText),
+                            icon = Icons.Rounded.Terminal,
+                            onClick = { showHorizonInputHostDialog = true }
+                        )
+                    }
+                    SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
+                        SettingsSwitchItem(
+                            title = translatedText("Immersive Mode"),
+                            summary = stringResource(if (horizonImmersive) R.string.instance_shared_data_on else R.string.instance_shared_data_off),
+                            checked = horizonImmersive,
+                            onCheckedChange = onHorizonImmersiveChange
+                        )
+                    }
                 }
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -360,6 +430,48 @@ fun InstanceEditorScreen(
                     showControlDialog = false
                 },
                 onDismiss = { showControlDialog = false }
+            )
+        }
+
+        if (showHorizonRenderScaleDialog) {
+            SingleChoiceDialog(
+                title = translatedText("Render Scale"),
+                options = listOf("100% (Native Resolution)", "75% (Balanced)", "50% (Performance)"),
+                optionValues = listOf("1.0", "0.75", "0.5"),
+                selectedValue = horizonRenderScale.toString(),
+                onValueChange = {
+                    onHorizonRenderScaleChange(it.toFloatOrNull() ?: 1.0f)
+                    showHorizonRenderScaleDialog = false
+                },
+                onDismiss = { showHorizonRenderScaleDialog = false }
+            )
+        }
+
+        if (showHorizonOrientationDialog) {
+            SingleChoiceDialog(
+                title = translatedText("Orientation"),
+                options = listOf("Landscape (sensor)", "Portrait (sensor)", "Automatic rotation"),
+                optionValues = listOf("sensor_landscape", "sensor_portrait", "auto"),
+                selectedValue = horizonOrientation,
+                onValueChange = {
+                    onHorizonOrientationChange(it)
+                    showHorizonOrientationDialog = false
+                },
+                onDismiss = { showHorizonOrientationDialog = false }
+            )
+        }
+
+        if (showHorizonInputHostDialog) {
+            SingleChoiceDialog(
+                title = translatedText("Input Mode"),
+                options = listOf("Keyboard & Mouse", "Touch Controls", "Gamepad"),
+                optionValues = listOf("keyboard_mouse", "touch", "gamepad"),
+                selectedValue = horizonInputHost,
+                onValueChange = {
+                    onHorizonInputHostChange(it)
+                    showHorizonInputHostDialog = false
+                },
+                onDismiss = { showHorizonInputHostDialog = false }
             )
         }
 

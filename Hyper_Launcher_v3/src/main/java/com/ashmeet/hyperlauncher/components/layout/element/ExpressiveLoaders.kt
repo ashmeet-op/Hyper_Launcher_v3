@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSliderState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -47,9 +49,12 @@ fun LoadingIndicatorDemo() {
         Spacer(Modifier.requiredHeight(30.dp))
         Text("Set loading progress:")
         Slider(
-            value = progressValue,
+            state = rememberSliderState(
+                value = progressValue
+            ),
             onValueChange = { progressValue = it },
-            modifier = Modifier.width(300.dp)
+            modifier = Modifier.width(300.dp),
         )
     }
 }
+

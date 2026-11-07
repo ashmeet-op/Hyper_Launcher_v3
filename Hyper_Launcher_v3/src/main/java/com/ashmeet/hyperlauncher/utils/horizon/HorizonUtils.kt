@@ -89,26 +89,34 @@ object HorizonUtils {
             cmdArgs.addAll(authArgs)
 
             val renderer = instance?.getLaunchRenderer() ?: "vulkan"
+            val renderScale = instance?.horizonRenderScale ?: 1.0f
+            val inputHost = instance?.horizonInputHost ?: "keyboard_mouse"
+            val orientation = instance?.horizonOrientation ?: "sensor_landscape"
+            val immersive = instance?.horizonImmersive ?: true
+
             val launchConfig = JSONObject().apply {
                 put("args", JSONArray(cmdArgs))
                 put("renderer", if (renderer.lowercase().contains("opengl")) "opengl" else "vulkan")
-                put("render_scale", 1.0)
-                put("input_host", "keyboard_mouse")
-                put("orientation", "sensor_landscape")
-                put("immersive", true)
+                put("render_scale", renderScale.toDouble())
+                put("input_host", inputHost)
+                put("orientation", orientation)
+                put("immersive", immersive)
                 put("avoid_cutout", true)
             }
 
-            val configFile = File(context.filesDir, "launch_config.json")
-            FileWriter(configFile).use { writer ->
-                writer.write(launchConfig.toString(2))
+            val jsonContent = launchConfig.toString(2)
+            val filesToSave = listOf(
+                File(context.filesDir, "launch_config.json"),
+                File(context.filesDir, "launch.json"),
+                File(gameDir, "launch_config.json"),
+                File(gameDir, "launch.json")
+            )
+            for (file in filesToSave) {
+                FileWriter(file).use { writer ->
+                    writer.write(jsonContent)
+                }
             }
-            Log.i(TAG, "Wrote launch_config.json to ${configFile.absolutePath}")
-
-            val instanceConfigFile = File(gameDir, "launch_config.json")
-            FileWriter(instanceConfigFile).use { writer ->
-                writer.write(launchConfig.toString(2))
-            }
+            Log.i(TAG, "Wrote launch_config.json and launch.json for Horizon engine")
 
             val intent = Intent(context, HorizonActivity::class.java)
             context.startActivity(intent)

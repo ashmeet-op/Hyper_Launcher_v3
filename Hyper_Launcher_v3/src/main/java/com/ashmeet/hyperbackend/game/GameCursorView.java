@@ -3,6 +3,7 @@ package com.ashmeet.hyperbackend.game;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.PointerIcon;
@@ -15,6 +16,7 @@ import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.customcontrols.ControlLayout;
 import com.ashmeet.hyperbackend.game.platform.Platform;
+import com.ashmeet.hyperbackend.game.platform.cursor.CursorUtils;
 import com.ashmeet.hyperbackend.game.platform.cursor.PlatformCursor;
 import com.ashmeet.hyperbackend.game.platform.cursor.PlatformCursorImplementor;
 
@@ -38,10 +40,20 @@ public class GameCursorView extends View implements PlatformCursorImplementor {
 
     public GameCursorView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        cursorDrawable = ContextCompat.getDrawable(context, R.drawable.img_mouse_pointer_arrow);
-        assert cursorDrawable != null;
-        int size = (int) HyperUtils.dpToPx(24);
-        cursorDrawable.setBounds(0, 0, size, (int) (size * ((float) cursorDrawable.getIntrinsicHeight() / cursorDrawable.getIntrinsicWidth())));
+        PlatformCursor launcherCursor = null;
+        try {
+            launcherCursor = CursorUtils.loadStandardCursor(context, 0);
+        } catch (Throwable ignored) {}
+
+        if (launcherCursor != null && launcherCursor.bitmap != null && !launcherCursor.bitmap.isRecycled()) {
+            cursorDrawable = new BitmapDrawable(context.getResources(), launcherCursor.bitmap);
+            cursorDrawable.setBounds(0, 0, launcherCursor.bitmap.getWidth(), launcherCursor.bitmap.getHeight());
+        } else {
+            cursorDrawable = ContextCompat.getDrawable(context, R.drawable.img_mouse_pointer_arrow);
+            assert cursorDrawable != null;
+            int size = (int) HyperUtils.dpToPx(24);
+            cursorDrawable.setBounds(0, 0, size, (int) (size * ((float) cursorDrawable.getIntrinsicHeight() / cursorDrawable.getIntrinsicWidth())));
+        }
     }
 
     private GameView findGameView() {

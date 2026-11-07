@@ -125,11 +125,21 @@ object RecordingManager {
             }
 
             recorder.setVideoSource(MediaRecorder.VideoSource.SURFACE)
+            var hasAudioSource = false
             if (LauncherPreferences.PREF_RECORD_MIC_SOUND) {
-                try {
-                    recorder.setAudioSource(MediaRecorder.AudioSource.MIC)
-                } catch (e: Exception) {
-                    Log.w(TAG, "Audio source MIC unavailable, recording video only: ${e.message}")
+                if (androidx.core.content.ContextCompat.checkSelfPermission(
+                        context,
+                        android.Manifest.permission.RECORD_AUDIO
+                    ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                ) {
+                    try {
+                        recorder.setAudioSource(MediaRecorder.AudioSource.MIC)
+                        hasAudioSource = true
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Audio source MIC unavailable, recording video only: ${e.message}")
+                    }
+                } else {
+                    Log.w(TAG, "RECORD_AUDIO permission not granted, recording video only")
                 }
             }
 
@@ -140,13 +150,13 @@ object RecordingManager {
             recorder.setVideoSize(recordWidth, recordHeight)
             recorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264)
 
-            if (LauncherPreferences.PREF_RECORD_MIC_SOUND) {
+            if (hasAudioSource) {
                 try {
                     recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
                     recorder.setAudioSamplingRate(44100)
                     recorder.setAudioEncodingBitRate(128000)
-                } catch (_: Exception) {
-
+                } catch (e: Exception) {
+                    Log.w(TAG, "Audio encoder setup failed: ${e.message}")
                 }
             }
 

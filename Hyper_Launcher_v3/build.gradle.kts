@@ -402,7 +402,7 @@ dependencies {
     implementation("androidx.viewpager2:viewpager2:1.1.0")
     implementation("androidx.annotation:annotation:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.2.2")
-    implementation("androidx.compose.material3:material3:1.5.0-beta02")
+    implementation("androidx.compose.material3:material3:1.5.0-rc01")
     implementation("com.github.duanhong169:checkerboarddrawable:1.0.2")
     implementation("com.github.PojavLauncherTeam:portrait-sdp:ed33e89cbc")
     implementation("com.github.PojavLauncherTeam:portrait-ssp:6c02fd739b")
@@ -423,7 +423,7 @@ dependencies {
 
     implementation("com.github.MojoLauncher:alsoft-android-aar:f369161d5f")
 
-    val ktorVersion = "3.6.0"
+    val ktorVersion = "3.6.1"
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-cio:$ktorVersion")
     implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")

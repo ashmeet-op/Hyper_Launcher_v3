@@ -29,6 +29,10 @@ public class Instance extends DisplayInstance {
     public String controlLayout;
     public boolean sharedData;
     public String hyperClientVersion;
+    public Float horizonRenderScale;
+    public String horizonOrientation;
+    public String horizonInputHost;
+    public Boolean horizonImmersive;
 
     protected Instance() {
     }
