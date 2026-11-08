@@ -61,7 +61,6 @@ import com.ashmeet.hyperlauncher.utils.installer.cleanLoaderName
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import com.ashmeet.hyperlauncher.profiles.VersionSelectorDialog
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProjectDetailsSidebar(
     project: ModrinthProject,
@@ -347,7 +346,11 @@ fun FilterSourceItem(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
-                                    imageVector = if (source == ContentSource.MODRINTH) Icons.Rounded.Language else Icons.Rounded.Extension,
+                                    imageVector = when (source) {
+                                        ContentSource.MODRINTH -> Icons.Rounded.Language
+                                        ContentSource.CURSEFORGE -> Icons.Rounded.Extension
+                                        ContentSource.HORIZON -> Icons.Rounded.Code
+                                    },
                                     contentDescription = null,
                                     tint = if (currentSource == source)
                                         MaterialTheme.colorScheme.primary

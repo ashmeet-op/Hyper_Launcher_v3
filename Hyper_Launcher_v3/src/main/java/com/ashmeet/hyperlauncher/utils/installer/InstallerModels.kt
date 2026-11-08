@@ -20,7 +20,8 @@ enum class ContentInstallerType(val labelRes: Int, val iconRes: ImageVector) {
 
 enum class ContentSource(val displayName: String) {
     MODRINTH("Modrinth"),
-    CURSEFORGE("CurseForge")
+    CURSEFORGE("CurseForge"),
+    HORIZON("Horizon")
 }
 
 data class ModrinthProject(

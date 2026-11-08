@@ -95,6 +95,7 @@ object CurseForgeService {
             val item = it.asJsonObject
             if (item.has("status") && !item.get("status").isJsonNull) {
                 if (item.get("status").asInt != 4) {
+                  println("status")
                 }
             }
 

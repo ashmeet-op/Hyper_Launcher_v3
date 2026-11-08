@@ -36,6 +36,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SecondaryScrollableTabRow
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
@@ -221,6 +222,20 @@ fun ContentInstallerScreen(
         )
     }
 
+    LaunchedEffect(selectedSource) {
+        if (selectedSource == ContentSource.HORIZON && (selectedType == ContentInstallerType.MODPACKS || selectedType == ContentInstallerType.WORLDS)) {
+            onSearch(searchQuery, ContentInstallerType.MODS, selectedVersion, selectedLoader, selectedSource)
+        }
+    }
+
+    val availableTypes = remember(selectedSource) {
+        if (selectedSource == ContentSource.HORIZON) {
+            ContentInstallerType.entries.filter { it != ContentInstallerType.MODPACKS && it != ContentInstallerType.WORLDS }
+        } else {
+            ContentInstallerType.entries
+        }
+    }
+
     ScreenLayout(
         onBack = handleBack,
         onRefresh = onRefresh,
@@ -234,7 +249,7 @@ fun ContentInstallerScreen(
         },
         isSearchActive = isSearchActive,
         fabMenuContent = { onDismiss ->
-            ContentInstallerType.entries.forEach { type ->
+            availableTypes.forEach { type ->
                 FloatingActionButtonMenuItem(
                     onClick = {
                         onDismiss()
@@ -289,67 +304,114 @@ fun ContentInstallerScreen(
                         )
                     }
                 } else {
-                    SecondaryScrollableTabRow(
-                        selectedTabIndex = ContentInstallerType.entries.indexOf(selectedType),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
-                            .drawWithContent {
-                                drawContent()
-                                val fadeWidth = 32.dp.toPx()
-                                drawRect(
-                                    brush = Brush.horizontalGradient(
-                                        colors = listOf(Color.Transparent, Color.Black),
-                                        startX = 0f,
-                                        endX = fadeWidth
-                                    ),
-                                    blendMode = BlendMode.DstIn
-                                )
-                                drawRect(
-                                    brush = Brush.horizontalGradient(
-                                        colors = listOf(Color.Black, Color.Transparent),
-                                        startX = size.width - fadeWidth,
-                                        endX = size.width
-                                    ),
-                                    blendMode = BlendMode.DstIn
-                                )
-                            },
-                        containerColor = Color.Transparent,
-                        edgePadding = 0.dp,
-                        divider = {},
-                        indicator = @Composable {
-                            val index = ContentInstallerType.entries.indexOf(selectedType)
-                            if (index >= 0) {
-                                TabRowDefaults.SecondaryIndicator(
-                                    modifier = Modifier
-                                        .tabIndicatorOffset(index)
-                                        .padding(horizontal = 16.dp)
-                                        .clip(RoundedCornerShape(3.dp)),
-                                    height = 4.dp,
-                                    color = MaterialTheme.colorScheme.primary
+                    if (selectedSource == ContentSource.HORIZON) {
+                        SecondaryTabRow(
+                            selectedTabIndex = availableTypes.indexOf(selectedType).coerceAtLeast(0),
+                            modifier = Modifier.fillMaxWidth(),
+                            containerColor = Color.Transparent,
+                            divider = {},
+                            indicator = @Composable {
+                                val index = availableTypes.indexOf(selectedType)
+                                if (index >= 0) {
+                                    TabRowDefaults.SecondaryIndicator(
+                                        modifier = Modifier
+                                            .tabIndicatorOffset(index)
+                                            .padding(horizontal = 16.dp)
+                                            .clip(RoundedCornerShape(3.dp)),
+                                        height = 4.dp,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        ) {
+                            availableTypes.forEach { type ->
+                                Tab(
+                                    selected = selectedType == type,
+                                    onClick = {
+                                        if (selectedType != type) {
+                                            if (viewingProject != null) onBackToProjects()
+                                            onSearch(searchQuery, type, selectedVersion, selectedLoader, selectedSource)
+                                        }
+                                    },
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    text = {
+                                        Text(
+                                            text = stringResource(type.labelRes),
+                                            fontWeight = if (selectedType == type) FontWeight.Bold else FontWeight.Normal,
+                                            fontSize = 12.sp,
+                                            textAlign = TextAlign.Center
+                                        )
+                                    }
                                 )
                             }
                         }
-                    ) {
-                        ContentInstallerType.entries.forEach { type ->
-                            Tab(
-                                selected = selectedType == type,
-                                onClick = {
-                                    if (selectedType != type) {
-                                        if (viewingProject != null) onBackToProjects()
-                                        val newSource = if (type == ContentInstallerType.WORLDS) ContentSource.CURSEFORGE else ContentSource.MODRINTH
-                                        onSearch(searchQuery, type, selectedVersion, selectedLoader, newSource)
-                                    }
+                    } else {
+                        SecondaryScrollableTabRow(
+                            selectedTabIndex = availableTypes.indexOf(selectedType).coerceAtLeast(0),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
+                                .drawWithContent {
+                                    drawContent()
+                                    val fadeWidth = 32.dp.toPx()
+                                    drawRect(
+                                        brush = Brush.horizontalGradient(
+                                            colors = listOf(Color.Transparent, Color.Black),
+                                            startX = 0f,
+                                            endX = fadeWidth
+                                        ),
+                                        blendMode = BlendMode.DstIn
+                                    )
+                                    drawRect(
+                                        brush = Brush.horizontalGradient(
+                                            colors = listOf(Color.Black, Color.Transparent),
+                                            startX = size.width - fadeWidth,
+                                            endX = size.width
+                                        ),
+                                        blendMode = BlendMode.DstIn
+                                    )
                                 },
-                                interactionSource = remember { MutableInteractionSource() },
-                                text = {
-                                    Text(
-                                        text = stringResource(type.labelRes),
-                                        fontWeight = if (selectedType == type) FontWeight.Bold else FontWeight.Normal,
-                                        fontSize = 12.sp
+                            containerColor = Color.Transparent,
+                            edgePadding = 0.dp,
+                            divider = {},
+                            indicator = @Composable {
+                                val index = availableTypes.indexOf(selectedType)
+                                if (index >= 0) {
+                                    TabRowDefaults.SecondaryIndicator(
+                                        modifier = Modifier
+                                            .tabIndicatorOffset(index)
+                                            .padding(horizontal = 16.dp)
+                                            .clip(RoundedCornerShape(3.dp)),
+                                        height = 4.dp,
+                                        color = MaterialTheme.colorScheme.primary
                                     )
                                 }
-                            )
+                            }
+                        ) {
+                            availableTypes.forEach { type ->
+                                Tab(
+                                    selected = selectedType == type,
+                                    onClick = {
+                                        if (selectedType != type) {
+                                            if (viewingProject != null) onBackToProjects()
+                                            val newSource = when {
+                                                selectedSource == ContentSource.HORIZON -> ContentSource.HORIZON
+                                                type == ContentInstallerType.WORLDS -> ContentSource.CURSEFORGE
+                                                else -> selectedSource
+                                            }
+                                            onSearch(searchQuery, type, selectedVersion, selectedLoader, newSource)
+                                        }
+                                    },
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    text = {
+                                        Text(
+                                            text = stringResource(type.labelRes),
+                                            fontWeight = if (selectedType == type) FontWeight.Bold else FontWeight.Normal,
+                                            fontSize = 12.sp
+                                        )
+                                    }
+                                )
+                            }
                         }
                     }
                 }

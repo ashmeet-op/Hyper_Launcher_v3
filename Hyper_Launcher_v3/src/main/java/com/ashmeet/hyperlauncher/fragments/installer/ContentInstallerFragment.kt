@@ -35,6 +35,7 @@ import com.ashmeet.hyperlauncher.components.dialog.DependencyDialog
 import com.ashmeet.hyperlauncher.components.dialog.MissingDependency
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.utils.ModMetadataReader
+import com.ashmeet.hyperlauncher.utils.horizon.HorizonUtils
 import com.ashmeet.hyperlauncher.utils.translation.Translator
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import com.ashmeet.hyperlauncher.screens.installer.ContentInstallerScreen
@@ -60,6 +61,7 @@ import com.ashmeet.hyperbackend.instances.MMCInstanceImporter
 import com.ashmeet.hyperbackend.modloaders.modpacks.api.CommonApi
 import com.ashmeet.hyperbackend.modloaders.modpacks.api.CurseForgeService
 import com.ashmeet.hyperbackend.modloaders.modpacks.api.CurseforgeApi
+import com.ashmeet.hyperbackend.modloaders.modpacks.api.HorizonService
 import com.ashmeet.hyperbackend.modloaders.modpacks.api.ModpackApi
 import com.ashmeet.hyperbackend.modloaders.modpacks.api.ModrinthApi
 import com.ashmeet.hyperbackend.modloaders.modpacks.api.ModrinthService
@@ -73,6 +75,7 @@ import java.util.zip.ZipFile
 import kotlin.time.Duration.Companion.milliseconds
 
 class ContentInstallerFragment : Fragment() {
+    private var mSelectedSource = ContentSource.MODRINTH
 
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @SuppressLint("LocalContextGetResourceValueCall")
@@ -103,9 +106,17 @@ class ContentInstallerFragment : Fragment() {
                     }
                     val initialBypass = remember { arguments?.getBoolean("bypass", false) ?: false }
 
+                    val instance = remember { Instances.loadSelectedInstance() }
+                    val isHorizon = remember(instance) { HorizonUtils.isHorizonInstance(instance) }
+
                     var selectedType by remember { mutableStateOf(initialType) }
                     var selectedSource by remember {
-                        mutableStateOf(if (LauncherPreferences.PREF_LAST_CONTENT_SOURCE == 1) ContentSource.CURSEFORGE else ContentSource.MODRINTH)
+                        mutableStateOf(
+                            if (isHorizon) ContentSource.HORIZON else ContentSource.MODRINTH
+                        )
+                    }
+                    LaunchedEffect(selectedSource) {
+                        mSelectedSource = selectedSource
                     }
                     var projectVersions by remember {
                         mutableStateOf<List<ModrinthVersion>>(
@@ -127,7 +138,6 @@ class ContentInstallerFragment : Fragment() {
                     }
                     var isDependencyChecking by remember { mutableStateOf(false) }
 
-                    val instance = remember { Instances.loadSelectedInstance() }
                     val instanceVersion = remember(instance) {
                         instance?.let {
                             val id = it.versionId
@@ -190,15 +200,20 @@ class ContentInstallerFragment : Fragment() {
                         }
 
                         isSearching = true
-                        val results = if (selectedSource == ContentSource.MODRINTH) {
-                            ModrinthService.search(
+                        val results = when (selectedSource) {
+                            ContentSource.MODRINTH -> ModrinthService.search(
                                 searchQuery,
                                 selectedType,
                                 cleanMcVersion(selectedVersion ?: instanceVersion),
                                 selectedLoader ?: instanceLoader
                             )
-                        } else {
-                            CurseForgeService.search(
+                            ContentSource.CURSEFORGE -> CurseForgeService.search(
+                                searchQuery,
+                                selectedType,
+                                cleanMcVersion(selectedVersion ?: instanceVersion),
+                                selectedLoader ?: instanceLoader
+                            )
+                            ContentSource.HORIZON -> HorizonService.search(
                                 searchQuery,
                                 selectedType,
                                 cleanMcVersion(selectedVersion ?: instanceVersion),
@@ -223,18 +238,18 @@ class ContentInstallerFragment : Fragment() {
 
                         try {
                             val detailsDeferred = async(Dispatchers.IO) {
-                                if (selectedSource == ContentSource.MODRINTH) {
-                                    ModrinthService.getProjectDetails(projectId)
-                                } else {
-                                    CurseForgeService.getProjectDetails(projectId)
+                                when (selectedSource) {
+                                    ContentSource.MODRINTH -> ModrinthService.getProjectDetails(projectId)
+                                    ContentSource.CURSEFORGE -> CurseForgeService.getProjectDetails(projectId)
+                                    ContentSource.HORIZON -> HorizonService.getProjectDetails(projectId)
                                 }
                             }
 
                             val versionsDeferred = async(Dispatchers.IO) {
-                                if (selectedSource == ContentSource.MODRINTH) {
-                                    ModrinthService.getProjectVersions(projectId)
-                                } else {
-                                    CurseForgeService.getProjectVersions(projectId)
+                                when (selectedSource) {
+                                    ContentSource.MODRINTH -> ModrinthService.getProjectVersions(projectId)
+                                    ContentSource.CURSEFORGE -> CurseForgeService.getProjectVersions(projectId)
+                                    ContentSource.HORIZON -> HorizonService.getProjectVersions(projectId)
                                 }
                             }
 
@@ -272,14 +287,15 @@ class ContentInstallerFragment : Fragment() {
                             }
 
                             if (selectedSource != source) {
-                                LauncherPreferences.prefs.edit {
-                                    putInt(
-                                        "last_content_source",
-                                        if (source == ContentSource.CURSEFORGE) 1 else 0
-                                    )
+                                val sourceVal = when (source) {
+                                    ContentSource.CURSEFORGE -> 1
+                                    ContentSource.HORIZON -> 2
+                                    else -> 0
                                 }
-                                LauncherPreferences.PREF_LAST_CONTENT_SOURCE =
-                                    if (source == ContentSource.CURSEFORGE) 1 else 0
+                                LauncherPreferences.prefs.edit {
+                                    putInt("last_content_source", sourceVal)
+                                }
+                                LauncherPreferences.PREF_LAST_CONTENT_SOURCE = sourceVal
                             }
 
                             searchQuery = query
@@ -488,7 +504,7 @@ class ContentInstallerFragment : Fragment() {
         val requiredDeps = version.dependencies.filter { it.dependencyType == "required" }
         if (requiredDeps.isEmpty()) return emptyList()
 
-        val modsFolder = File(instance.gameDirectory, "mods")
+        val modsFolder = if (source == ContentSource.HORIZON || HorizonUtils.isHorizonInstance(instance)) File(instance.gameDirectory, "horizon-mods") else File(instance.gameDirectory, "mods")
         if (!modsFolder.exists()) modsFolder.mkdirs()
 
         val installedMods = modsFolder.listFiles()?.mapNotNull { file ->
@@ -563,7 +579,7 @@ class ContentInstallerFragment : Fragment() {
                 } ?: versions.firstOrNull()
 
                 bestVersion?.let {
-                    performDirectDownload(it, instance, ContentInstallerType.MODS, "download_content")
+                    performDirectDownload(it, instance, ContentInstallerType.MODS, "download_content", source)
                 }
             } catch (e: Exception) {
                 Log.e("ContentInstaller", "Failed to download dependency ${dep.name}", e)
@@ -683,10 +699,10 @@ class ContentInstallerFragment : Fragment() {
         }
     }
 
-    private suspend fun performDirectDownload(version: ModrinthVersion, instance: Instance, type: ContentInstallerType, progressKey: String) {
+    private suspend fun performDirectDownload(version: ModrinthVersion, instance: Instance, type: ContentInstallerType, progressKey: String, source: ContentSource = mSelectedSource) {
         try {
             val destFolder = when (type) {
-                ContentInstallerType.MODS -> File(instance.gameDirectory, "mods")
+                ContentInstallerType.MODS -> if (source == ContentSource.HORIZON || HorizonUtils.isHorizonInstance(instance)) File(instance.gameDirectory, "horizon-mods") else File(instance.gameDirectory, "mods")
                 ContentInstallerType.RESOURCEPACKS -> File(instance.gameDirectory, "resourcepacks")
                 ContentInstallerType.SHADERS -> File(instance.gameDirectory, "shaderpacks")
                 else -> File(instance.gameDirectory, "downloads")
@@ -798,7 +814,7 @@ class ContentInstallerFragment : Fragment() {
                 }
 
                 val destFolder = when (type) {
-                    ContentInstallerType.MODS -> File(instance.gameDirectory, "mods")
+                    ContentInstallerType.MODS -> if (HorizonUtils.isHorizonInstance(instance) || mSelectedSource == ContentSource.HORIZON) File(instance.gameDirectory, "horizon-mods") else File(instance.gameDirectory, "mods")
                     ContentInstallerType.RESOURCEPACKS -> File(instance.gameDirectory, "resourcepacks")
                     ContentInstallerType.SHADERS -> File(instance.gameDirectory, "shaderpacks")
                     ContentInstallerType.WORLDS -> File(instance.gameDirectory, "saves")
