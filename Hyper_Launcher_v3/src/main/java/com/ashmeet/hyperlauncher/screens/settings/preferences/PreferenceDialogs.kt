@@ -69,17 +69,41 @@ fun SingleChoiceDialog(
     optionValues: List<String>,
     selectedValue: String,
     onValueChange: (String) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    searchable: Boolean = false
 ) {
     var tempValue by remember { mutableStateOf(selectedValue) }
+    val searchQuery = remember { androidx.compose.foundation.text.input.TextFieldState() }
+
+    val filteredIndices = remember(options, optionValues, searchable, searchQuery.text.toString()) {
+        if (!searchable || searchQuery.text.isBlank()) {
+            options.indices.toList()
+        } else {
+            val query = searchQuery.text.toString().lowercase()
+            options.indices.filter { index ->
+                options[index].lowercase().contains(query) || optionValues[index].lowercase().contains(query)
+            }
+        }
+    }
 
     HyperAlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(text = translatedText(title)) },
         text = {
             Column {
+                if (searchable) {
+                    com.ashmeet.hyperlauncher.components.HyperSearchBar(
+                        state = searchQuery,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
+                        label = "Search..."
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
                 LazyColumn(modifier = Modifier.weight(1f, fill = false)) {
-                    items(options.size) { index ->
+                    items(filteredIndices.size) { filteredIndex ->
+                        val index = filteredIndices[filteredIndex]
                         val value = optionValues[index]
                         val label = options[index]
                         Row(

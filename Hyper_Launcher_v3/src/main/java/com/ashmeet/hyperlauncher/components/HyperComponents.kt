@@ -196,7 +196,6 @@ fun HyperDropdownMenu(
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HyperSearchBar(
     state: TextFieldState,

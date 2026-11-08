@@ -93,22 +93,192 @@ object Translator {
         }
     }
 
-    private val languageMap = mapOf(
-        "en" to "english",
-        "ru" to "russian",
-        "es" to "spanish",
-        "fr" to "french",
-        "zh" to "chinese_simplified",
-        "ja" to "japanese",
-        "ko" to "korean",
-        "de" to "german",
-        "it" to "italian",
-        "pt" to "portuguese",
-        "tr" to "turkish",
-        "vi" to "vietnamese",
-        "hi" to "hindi",
+    val languageMap = mapOf(
+        "aa" to "afar",
+        "ab" to "abkhazian",
+        "ae" to "avestan",
+        "af" to "afrikaans",
+        "ak" to "akan",
+        "am" to "amharic",
+        "an" to "aragonese",
         "ar" to "arabic",
-        "uk" to "ukrainian"
+        "as" to "assamese",
+        "av" to "avaric",
+        "ay" to "aymara",
+        "az" to "azerbaijani",
+        "ba" to "bashkir",
+        "be" to "belarusian",
+        "bg" to "bulgarian",
+        "bh" to "bihari",
+        "bi" to "bislama",
+        "bm" to "bambara",
+        "bn" to "bengali",
+        "bo" to "tibetan",
+        "br" to "breton",
+        "bs" to "bosnian",
+        "ca" to "catalan",
+        "ce" to "chechen",
+        "ch" to "chamorro",
+        "co" to "corsican",
+        "cr" to "cree",
+        "cs" to "czech",
+        "cu" to "church_slavic",
+        "cv" to "chuvash",
+        "cy" to "welsh",
+        "da" to "danish",
+        "de" to "german",
+        "dv" to "divehi",
+        "dz" to "dzongkha",
+        "ee" to "ewe",
+        "el" to "greek",
+        "en" to "english",
+        "eo" to "esperanto",
+        "es" to "spanish",
+        "et" to "estonian",
+        "eu" to "basque",
+        "fa" to "persian",
+        "ff" to "fulah",
+        "fi" to "finnish",
+        "fj" to "fijian",
+        "fo" to "faroese",
+        "fr" to "french",
+        "fy" to "western_frisian",
+        "ga" to "irish",
+        "gd" to "scottish_gaelic",
+        "gl" to "galician",
+        "gn" to "guarani",
+        "gu" to "gujarati",
+        "gv" to "manx",
+        "ha" to "hausa",
+        "he" to "hebrew",
+        "hi" to "hindi",
+        "ho" to "hiri_motu",
+        "hr" to "croatian",
+        "ht" to "haitian",
+        "hu" to "hungarian",
+        "hy" to "armenian",
+        "hz" to "herero",
+        "ia" to "interlingua",
+        "id" to "indonesian",
+        "ie" to "interlingue",
+        "ig" to "igbo",
+        "ii" to "sichuan_yi",
+        "ik" to "inupiaq",
+        "io" to "ido",
+        "is" to "icelandic",
+        "it" to "italian",
+        "iu" to "inuktitut",
+        "ja" to "japanese",
+        "jv" to "javanese",
+        "ka" to "georgian",
+        "kg" to "kongo",
+        "ki" to "kikuyu",
+        "kj" to "kuanyama",
+        "kk" to "kazakh",
+        "kl" to "greenlandic",
+        "km" to "khmer",
+        "kn" to "kannada",
+        "ko" to "korean",
+        "kr" to "kanuri",
+        "ks" to "kashmiri",
+        "ku" to "kurdish",
+        "kv" to "komi",
+        "kw" to "cornish",
+        "ky" to "kyrgyz",
+        "la" to "latin",
+        "lb" to "luxembourgish",
+        "lg" to "ganda",
+        "li" to "limburgan",
+        "ln" to "lingala",
+        "lo" to "lao",
+        "lt" to "lithuanian",
+        "lu" to "luba_katanga",
+        "lv" to "latvian",
+        "mg" to "malagasy",
+        "mh" to "marshallese",
+        "mi" to "maori",
+        "mk" to "macedonian",
+        "ml" to "malayalam",
+        "mn" to "mongolian",
+        "mr" to "marathi",
+        "ms" to "malay",
+        "mt" to "maltese",
+        "my" to "burmese",
+        "na" to "nauru",
+        "nb" to "norwegian_bokmal",
+        "nd" to "north_ndebele",
+        "ne" to "nepali",
+        "ng" to "ndonga",
+        "nl" to "dutch",
+        "nn" to "norwegian_nynorsk",
+        "no" to "norwegian",
+        "nr" to "south_ndebele",
+        "nv" to "navajo",
+        "ny" to "chichewa",
+        "oc" to "occitan",
+        "oj" to "ojibwa",
+        "om" to "oromo",
+        "or" to "odia",
+        "os" to "ossetian",
+        "pa" to "punjabi",
+        "pi" to "pali",
+        "pl" to "polish",
+        "ps" to "pashto",
+        "pt" to "portuguese",
+        "qu" to "quechua",
+        "rm" to "romansh",
+        "rn" to "rundi",
+        "ro" to "romanian",
+        "ru" to "russian",
+        "rw" to "kinyarwanda",
+        "sa" to "sanskrit",
+        "sc" to "sardinian",
+        "sd" to "sindhi",
+        "se" to "northern_sami",
+        "sg" to "sango",
+        "si" to "sinhala",
+        "sk" to "slovak",
+        "sl" to "slovenian",
+        "sm" to "samoan",
+        "sn" to "shona",
+        "so" to "somali",
+        "sq" to "albanian",
+        "sr" to "serbian",
+        "ss" to "swati",
+        "st" to "southern_sotho",
+        "su" to "sundanese",
+        "sv" to "swedish",
+        "sw" to "swahili",
+        "ta" to "tamil",
+        "te" to "telugu",
+        "tg" to "tajik",
+        "th" to "thai",
+        "ti" to "tigrinya",
+        "tk" to "turkmen",
+        "tl" to "tagalog",
+        "tn" to "tswana",
+        "to" to "tongan",
+        "tr" to "turkish",
+        "ts" to "tsonga",
+        "tt" to "tatar",
+        "tw" to "twi",
+        "ty" to "tahitian",
+        "ug" to "uyghur",
+        "uk" to "ukrainian",
+        "ur" to "urdu",
+        "uz" to "uzbek",
+        "ve" to "venda",
+        "vi" to "vietnamese",
+        "vo" to "volapuk",
+        "wa" to "walloon",
+        "wo" to "wolof",
+        "xh" to "xhosa",
+        "yi" to "yiddish",
+        "yo" to "yoruba",
+        "za" to "zhuang",
+        "zh" to "chinese_simplified",
+        "zh-Hant" to "chinese_traditional",
+        "zu" to "zulu"
     )
 
     private val cache = ConcurrentHashMap<String, ConcurrentHashMap<String, String>>()
@@ -182,7 +352,11 @@ object Translator {
                     val persistentCache = json.decodeFromString<PersistentCache>(text)
                     persistentCache.translations.forEach { (lang, map) ->
                         val langMap = cache.getOrPut(lang) { ConcurrentHashMap() }
-                        langMap.putAll(map)
+                        map.forEach { (k, v) ->
+                            if (v != "0" && v.isNotBlank()) {
+                                langMap[k] = v
+                            }
+                        }
                     }
                     Log.i("Translator", "Loaded cache: ${persistentCache.translations.size} languages")
                 }
@@ -235,11 +409,24 @@ object Translator {
     }
 
     private fun extractResults(response: TranslationResponse): List<String>? {
-        response.text?.let { return it }
+        response.text?.let { list ->
+            if (list.isNotEmpty() && list.all { it.isNotBlank() && it != "0" }) {
+                return list
+            }
+        }
         val res = response.result ?: return null
         return when (res) {
-            is JsonArray -> res.map { it.jsonPrimitive.content }
-            is JsonPrimitive -> listOf(res.content)
+            is JsonArray -> {
+                val list = res.map { it.jsonPrimitive.content }
+                if (list.isNotEmpty() && list.all { it.isNotBlank() && it != "0" }) list else null
+            }
+            is JsonPrimitive -> {
+                if (res.isString && res.content.isNotBlank() && res.content != "0") {
+                    listOf(res.content)
+                } else {
+                    null
+                }
+            }
             else -> null
         }
     }
@@ -248,7 +435,9 @@ object Translator {
         if (text.isBlank()) return text
         val target = targetLanguage ?: _targetLanguage.value
         if (target == "english") return text
-        return cache[target]?.get(text)
+        val cached = cache[target]?.get(text)
+        if (cached == "0" || cached.isNullOrBlank()) return null
+        return cached
     }
 
     suspend fun translate(text: String, targetLanguage: String? = null): String {
@@ -257,7 +446,7 @@ object Translator {
         if (target == "english") return text
 
         ensureCacheLoaded()
-        cache[target]?.get(text)?.let { return it }
+        getCached(text, target)?.let { return it }
 
         return withContext(Dispatchers.IO) {
             try {
@@ -278,7 +467,7 @@ object Translator {
                         ) {
                             val response: TranslationResponse = httpResponse.body()
                             translated = extractResults(response)?.firstOrNull()
-                            if (translated != null) break
+                            if (translated != null && translated != "0") break
                         } else {
                             Log.w("Translator", "Service $serviceUrl returned ${httpResponse.status}")
                         }
@@ -288,9 +477,9 @@ object Translator {
                     }
                 }
 
-                if (translated == null && lastException != null) throw lastException
+                if ((translated == null || translated == "0") && lastException != null) throw lastException
 
-                val finalResult = translated?.ifBlank { text } ?: text
+                val finalResult = translated?.takeIf { it.isNotBlank() && it != "0" } ?: text
                 cache.getOrPut(target) { ConcurrentHashMap() }[text] = finalResult
                 appContext?.let { scheduleSaveCache(it) }
                 finalResult
@@ -374,11 +563,11 @@ object Translator {
                             batchResults?.let { results ->
                                 if (results.size == batch.size) {
                                     batch.zip(results).forEach { (original, translated) ->
-                                        langCache[original] = translated.ifBlank { original }
+                                        langCache[original] = if (translated.isBlank() || translated == "0") original else translated
                                     }
                                 } else {
                                     batch.forEachIndexed { index, original ->
-                                        val translated = results.getOrNull(index)?.ifBlank { original } ?: original
+                                        val translated = results.getOrNull(index)?.let { if (it.isBlank() || it == "0") original else it } ?: original
                                         langCache[original] = translated
                                     }
                                 }

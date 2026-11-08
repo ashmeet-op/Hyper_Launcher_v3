@@ -257,7 +257,7 @@ fun AppearanceSettingsScreen(
         }
     }
 
-    val languageOptions = listOf("system", "en", "es", "fr", "de", "it", "ja", "zh", "ru", "ko", "pt", "tr", "vi", "hi", "ar", "uk")
+    val languageOptions = listOf("system") + Translator.languageMap.keys.sorted()
     val languageOptionNames = languageOptions.map { id ->
         when (id) {
             "system" -> translatedText(stringResource(R.string.preference_language_system))
@@ -267,7 +267,7 @@ fun AppearanceSettingsScreen(
             "de" -> translatedText(stringResource(R.string.preference_language_german))
             "it" -> translatedText(stringResource(R.string.preference_language_italian))
             "ja" -> translatedText(stringResource(R.string.preference_language_japanese))
-            "zh" -> translatedText(stringResource(R.string.preference_language_chinese))
+            "zh", "zh-CN" -> translatedText(stringResource(R.string.preference_language_chinese))
             "ru" -> translatedText(stringResource(R.string.preference_language_russian))
             "ko" -> translatedText(stringResource(R.string.preference_language_korean))
             "pt" -> translatedText(stringResource(R.string.preference_language_portuguese))
@@ -276,7 +276,10 @@ fun AppearanceSettingsScreen(
             "hi" -> translatedText(stringResource(R.string.preference_language_hindi))
             "ar" -> translatedText(stringResource(R.string.preference_language_arabic))
             "uk" -> translatedText(stringResource(R.string.preference_language_ukrainian))
-            else -> id
+            else -> {
+                val langName = Translator.languageMap[id] ?: id
+                translatedText(langName.replace('_', ' ').replaceFirstChar { it.uppercase() })
+            }
         }
     }
 
@@ -836,6 +839,7 @@ fun AppearanceSettingsScreen(
                 options = languageOptionNames,
                 optionValues = languageOptions,
                 selectedValue = appLanguage,
+                searchable = true,
                 onValueChange = { newValue ->
                     appLanguage = newValue
                     LauncherPreferences.prefs.edit { putString("app_language", newValue) }
