@@ -387,6 +387,11 @@ androidComponents.onVariants { variant ->
 }
 
 dependencies {
+    val ktorVersion = "3.6.1"
+    val composeBom = platform("androidx.compose:compose-bom:2026.09.00")
+    val lwjglVersion = "3.4.3"
+    val imguiVersion = "1.92.7.1"
+
     implementation("androidx.compose.foundation:foundation-layout:1.12.1")
     implementation("androidx.compose.material3:material3:1.4.0")
     implementation("org.ow2.asm:asm:9.11.1")
@@ -394,7 +399,6 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.4.0")
     implementation("javax.annotation:javax.annotation-api:1.3.2")
     implementation("commons-codec:commons-codec:1.23.0")
-
     implementation("androidx.preference:preference:1.2.1")
     implementation("androidx.activity:activity:1.13.0")
     implementation("com.google.android.material:material:1.14.0")
@@ -409,37 +413,29 @@ dependencies {
     implementation("com.github.Mathias-Boulay:ExtendedView:1.0.0")
     implementation("com.github.Mathias-Boulay:android_gamepad_remapper:2.0.3")
     implementation("com.github.Mathias-Boulay:virtual-joystick-android:1.14")
-    implementation("com.github.dead8309:KizzyRPC:1.0.71") {
-        exclude(group = "com.google.code.gson", module = "gson")
-    }
-
     implementation("com.tencent:mmkv-kmp:2.4.3")
-
     implementation("org.tukaani:xz:1.12")
     implementation("net.sourceforge.htmlcleaner:htmlcleaner:2.29")
+    implementation("com.github.MojoLauncher:alsoft-android-aar:f369161d5f")
+
     implementation("com.bytedance:bytehook:1.1.2") {
         exclude(group = "com.bytedance.android", module = "shadowhook")
     }
 
-    implementation("com.github.MojoLauncher:alsoft-android-aar:f369161d5f")
-
-    val ktorVersion = "3.6.1"
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-cio:$ktorVersion")
     implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-android:$ktorVersion")
+    implementation("io.ktor:ktor-client-websockets:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.12.0")
-
     implementation(project(":glfw:android-gradle"))
     implementation(project(":sdl:android-gradle"))
     implementation(project(":mojoexec:jni_bindings"))
     implementation(project(":ColorPicker"))
-
-    val composeBom = platform("androidx.compose:compose-bom:2026.09.00")
     implementation(composeBom)
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
@@ -459,9 +455,6 @@ dependencies {
             )
         )
     )
-
-    val lwjglVersion = "3.4.3"
-    val imguiVersion = "1.92.7.1"
 
     compileOnly("org.lwjgl:lwjgl:$lwjglVersion")
     compileOnly("org.lwjgl:lwjgl-glfw:$lwjglVersion")

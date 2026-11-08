@@ -3,6 +3,7 @@ package com.ashmeet.hyperbackend.authenticator.accounts;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.Keep;
@@ -67,19 +68,31 @@ public class Account {
 
 
             Bitmap skinFace = renderer.render2D(100, skinBitmap);
-            if(skinFace != null) {
-                try(FileOutputStream fileOutputStream = new FileOutputStream(skinFile)) {
-                    skinFace.compress(Bitmap.CompressFormat.WEBP, 90, fileOutputStream);
+            if( skinFace != null) {
+
+                try (FileOutputStream fileOutputStream = new FileOutputStream(skinFile)) {
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        skinFace.compress(Bitmap.CompressFormat.WEBP_LOSSY, 90, fileOutputStream);
+                    }
+
                 }
+
                 skinFace.recycle();
             }
 
 
             Bitmap skinFace3D = renderer.render(100, skinBitmap);
-            if(skinFace3D != null) {
-                try(FileOutputStream fileOutputStream = new FileOutputStream(skinFile3D)) {
-                    skinFace3D.compress(Bitmap.CompressFormat.WEBP, 90, fileOutputStream);
+            if( skinFace3D != null) {
+
+                try (FileOutputStream fileOutputStream = new FileOutputStream(skinFile3D)) {
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        skinFace3D.compress(Bitmap.CompressFormat.WEBP_LOSSY, 90, fileOutputStream);
+                    }
+
                 }
+
                 skinFace3D.recycle();
             }
 

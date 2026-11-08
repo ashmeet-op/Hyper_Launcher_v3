@@ -18,12 +18,16 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Refresh
+import com.ashmeet.hyperbackend.authenticator.impl.MicrosoftBackgroundLogin
 import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuPopup
 import androidx.compose.material3.Icon
@@ -51,6 +55,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.core.content.edit
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -106,6 +111,44 @@ fun AccountSpinnerCompose(
         }
     }
 
+    val autoRefreshAccounts: (List<Account>) -> Unit = { accountsList ->
+        PojavApplication.sExecutorService.execute {
+            val prefs = LauncherPreferences.prefs
+            val currentTime = System.currentTimeMillis()
+            val oneDayMs = 24 * 60 * 60 * 1000L
+            var refreshedAny = false
+
+            for (account in accountsList) {
+                if (account.authType == AuthType.MICROSOFT) {
+                    val key = "last_auto_refresh_${account.profileId}"
+                    val lastRefresh = prefs.getLong(key, 0L)
+                    if (lastRefresh == 0L || currentTime - lastRefresh > oneDayMs) {
+                        try {
+                            val refreshed = MicrosoftBackgroundLogin.performRefresh(account)
+                            refreshed.save()
+                            prefs.edit { putLong(key, currentTime) }
+                            refreshedAny = true
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                }
+            }
+            if (refreshedAny) {
+                try {
+                    val loadedAccounts = Accounts.load()
+                    HyperUtils.runOnUiThread {
+                        accounts = loadedAccounts.accounts
+                        selectedIndex = loadedAccounts.selectionIndex
+                        ExtraCore.setValue(ExtraConstants.REFRESH_ACCOUNT_SPINNER, true)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
     val reloadAccounts: (Boolean) -> Unit = { notifyOthers ->
         PojavApplication.sExecutorService.execute {
             try {
@@ -118,6 +161,7 @@ fun AccountSpinnerCompose(
                         ExtraCore.setValue(ExtraConstants.REFRESH_ACCOUNT_SPINNER, true)
                     }
                 }
+                autoRefreshAccounts(loadedAccounts.accounts)
             } catch (e: IOException) {
                 e.printStackTrace()
             }
@@ -186,6 +230,18 @@ fun AccountSpinnerCompose(
             Accounts.setCurrent(account)
             reloadAccounts(true)
         },
+        onAccountRefresh = { account ->
+            expanded = false
+            PojavApplication.sExecutorService.execute {
+                try {
+                    val refreshed = MicrosoftBackgroundLogin.performRefresh(account)
+                    refreshed.save()
+                    reloadAccounts(true)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        },
         onAccountDelete = { account ->
             expanded = false
             accountToDelete = account
@@ -230,6 +286,7 @@ fun AccountSpinnerUI(
     onExpandedChange: (Boolean) -> Unit,
     onAddAccountClick: () -> Unit,
     onAccountSelected: (Account) -> Unit,
+    onAccountRefresh: (Account) -> Unit,
     onAccountDelete: (Account) -> Unit,
     modifier: Modifier = Modifier,
     hideDivider: Boolean = false,
@@ -347,21 +404,46 @@ fun AccountSpinnerUI(
                                                 account = account,
                                                 modifier = Modifier.weight(1f)
                                             )
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(32.dp)
-                                                    .clickable(
-                                                        interactionSource = remember { MutableInteractionSource() },
-                                                        indication = null
-                                                    ) { onAccountDelete(account) },
-                                                contentAlignment = Alignment.Center
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(4.dp)
                                             ) {
-                                                Icon(
-                                                    Icons.Default.Delete,
-                                                    contentDescription = translatedText("Delete"),
-                                                    tint = MaterialTheme.colorScheme.error,
-                                                    modifier = Modifier.size(24.dp)
-                                                )
+                                                if (account.authType == AuthType.MICROSOFT) {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .size(32.dp)
+                                                            .pointerInput(account) {
+                                                                detectTapGestures(
+                                                                    onTap = { onAccountRefresh(account) }
+                                                                )
+                                                            },
+                                                        contentAlignment = Alignment.Center
+                                                    ) {
+                                                        Icon(
+                                                            Icons.Default.Refresh,
+                                                            contentDescription = translatedText("Refresh"),
+                                                            tint = MaterialTheme.colorScheme.primary,
+                                                            modifier = Modifier.size(20.dp)
+                                                        )
+                                                    }
+                                                }
+                                                Box(
+                                                    modifier = Modifier
+                                                        .size(32.dp)
+                                                        .pointerInput(account) {
+                                                            detectTapGestures(
+                                                                onTap = { onAccountDelete(account) }
+                                                            )
+                                                        },
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    Icon(
+                                                        Icons.Default.Delete,
+                                                        contentDescription = translatedText("Delete"),
+                                                        tint = MaterialTheme.colorScheme.error,
+                                                        modifier = Modifier.size(24.dp)
+                                                    )
+                                                }
                                             }
                                         }
                                     },
@@ -515,6 +597,7 @@ fun AccountSpinnerPreview() {
                     onExpandedChange = { expanded = it },
                     onAddAccountClick = {},
                     onAccountSelected = {},
+                    onAccountRefresh = {},
                     onAccountDelete = {}
                 )
             }
@@ -530,6 +613,7 @@ fun AccountSpinnerPreview() {
                     onExpandedChange = {},
                     onAddAccountClick = {},
                     onAccountSelected = {},
+                    onAccountRefresh = {},
                     onAccountDelete = {}
                 )
             }

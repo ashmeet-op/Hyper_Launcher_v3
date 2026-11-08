@@ -130,19 +130,29 @@ public class MicrosoftBackgroundLogin implements BackgroundLogin{
         if (account.refreshToken == null || account.refreshToken.equals("0") || account.refreshToken.isEmpty()) {
             return account;
         }
-        MicrosoftBackgroundLogin login = new MicrosoftBackgroundLogin();
-        String accessToken = login.acquireAccessToken(true, account.refreshToken);
-        String xboxLiveToken = login.acquireXBLToken(accessToken);
-        String[] xsts = login.acquireXsts(xboxLiveToken);
-        String token = login.acquireToken(xsts[0], xsts[1]);
-        login.fetchOwnedItems(token);
-        login.checkProfile(token);
-        login.msXsts = xsts[0];
-        if (login.doesOwnGame) {
-            login.fillAccount(account);
-            account.save();
+        TrackerLayout.setTracker(TrackerLayout.AUTHENTICATE, 0);
+        try {
+            MicrosoftBackgroundLogin login = new MicrosoftBackgroundLogin();
+            TrackerLayout.setTracker(TrackerLayout.AUTHENTICATE, 20);
+            String accessToken = login.acquireAccessToken(true, account.refreshToken);
+            TrackerLayout.setTracker(TrackerLayout.AUTHENTICATE, 40);
+            String xboxLiveToken = login.acquireXBLToken(accessToken);
+            TrackerLayout.setTracker(TrackerLayout.AUTHENTICATE, 60);
+            String[] xsts = login.acquireXsts(xboxLiveToken);
+            TrackerLayout.setTracker(TrackerLayout.AUTHENTICATE, 80);
+            String token = login.acquireToken(xsts[0], xsts[1]);
+            login.fetchOwnedItems(token);
+            login.checkProfile(token);
+            login.msXsts = xsts[0];
+            if (login.doesOwnGame) {
+                login.fillAccount(account);
+                account.save();
+            }
+            TrackerLayout.setTracker(TrackerLayout.AUTHENTICATE, 100);
+            return account;
+        } finally {
+            TrackerLayout.clearTracker(TrackerLayout.AUTHENTICATE);
         }
-        return account;
     }
 
     private String acquireAccessToken(boolean isRefresh, String code) throws IOException {

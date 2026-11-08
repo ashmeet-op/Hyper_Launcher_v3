@@ -1,7 +1,5 @@
 package com.ashmeet.hyperlauncher.screens.settings
 
-import com.ashmeet.hyperlauncher.utils.translation.translatedText
-
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -27,18 +25,19 @@ import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
+import com.ashmeet.hyperbackend.game.renderer.RendererCache
 import com.ashmeet.hyperlauncher.screens.settings.layouts.CardPosition
 import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsCard
 import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsScreenWrapper
+import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsActionItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSwitchItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SingleChoiceDialog
-import com.ashmeet.hyperlauncher.screens.settings.preferences.TextInputDialog
+import com.ashmeet.hyperlauncher.utils.Discord
 import com.ashmeet.hyperlauncher.utils.DiscordRpcManager
-import net.ashmeet.hyperlauncher.R
-import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.utils.HyperUtils
-import com.ashmeet.hyperbackend.game.renderer.RendererCache
+import com.ashmeet.hyperlauncher.utils.translation.translatedText
+import net.ashmeet.hyperlauncher.R
 import java.io.File
 
 @Composable
@@ -55,10 +54,8 @@ fun MiscSettingsScreen(
     var verifyManifest by remember { mutableStateOf(LauncherPreferences.PREF_VERIFY_MANIFEST) }
     var disableBlocklist by remember { mutableStateOf(LauncherPreferences.PREF_DISABLE_BLOCKLIST) }
     var enableRpc by remember { mutableStateOf(LauncherPreferences.PREF_ENABLE_RPC) }
-    var discordToken by remember { mutableStateOf(LauncherPreferences.PREF_DISCORD_TOKEN ?: "") }
 
     var showDownloadSourceDialog by remember { mutableStateOf(false) }
-    var showDiscordTokenDialog by remember { mutableStateOf(false) }
 
     if (showDownloadSourceDialog) {
         val names = stringArrayResource(R.array.download_source_names)
@@ -74,23 +71,6 @@ fun MiscSettingsScreen(
                 LauncherPreferences.loadPreferences(context)
             },
             onDismiss = { showDownloadSourceDialog = false }
-        )
-    }
-
-    if (showDiscordTokenDialog) {
-        TextInputDialog(
-            title = translatedText("Discord Token"),
-            initialValue = discordToken,
-            onConfirm = { newValue ->
-                discordToken = newValue.trim()
-                LauncherPreferences.prefs.edit { putString("discord_token", discordToken) }
-                LauncherPreferences.loadPreferences(context)
-                showDiscordTokenDialog = false
-                if (enableRpc) {
-                    DiscordRpcManager.startRpc()
-                }
-            },
-            onDismiss = { showDiscordTokenDialog = false }
         )
     }
 
@@ -170,7 +150,7 @@ fun MiscSettingsScreen(
             SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
                 SettingsSwitchItem(
                     title = translatedText("Discord Rich Presence"),
-                    summary = translatedText("Show your Minecraft activity on Discord using KizzyRPC"),
+                    summary = translatedText("Show your Minecraft activity on Discord via Native RPC"),
                     icon = Icons.Default.Share,
                     checked = enableRpc,
                     onCheckedChange = {
@@ -188,14 +168,10 @@ fun MiscSettingsScreen(
 
             SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
                 SettingsActionItem(
-                    title = translatedText("Discord Token"),
-                    summary = if (discordToken.isNotBlank()) {
-                        if (discordToken.length > 8) "••••••••" + discordToken.takeLast(4) else "••••••••"
-                    } else {
-                        translatedText("Tap to set Discord account token for Rich Presence")
-                    },
+                    title = translatedText("Login with Discord"),
+                    summary = translatedText("Tap to authenticate with Discord natively via OAuth2"),
                     icon = Icons.Default.Key,
-                    onClick = { showDiscordTokenDialog = true }
+                    onClick = { Discord.safeAuthorize(context) }
                 )
             }
         }

@@ -44,10 +44,6 @@ public enum AuthType {
         this.skinUrl = skinUrl;
     }
 
-    public boolean requiresLogin() {
-        return mCreator != null;
-    }
-
     public BackgroundLogin createAuth() {
         if(mCreator == null) throw new RuntimeException("This account does not support login");
         return mCreator.create();

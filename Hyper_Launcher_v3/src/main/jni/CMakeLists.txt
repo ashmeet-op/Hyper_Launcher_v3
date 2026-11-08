@@ -81,3 +81,9 @@ add_library(awt_xawt SHARED
         awt_xawt/xawt_fake.c
 )
 target_link_libraries(awt_xawt PRIVATE awt_headless)
+
+add_library(discord_bridge SHARED
+        discord_bridge.cpp
+)
+target_link_libraries(discord_bridge PRIVATE android log)
+
