@@ -848,6 +848,86 @@ fun ProjectItemView(
     }
 }
 
+@SuppressLint("LocalContextResourcesRead")
+@Composable
+fun ProfileTypeListItem(
+    modifier: Modifier = Modifier,
+    instance: DisplayInstance,
+    onClick: () -> Unit
+) {
+    val context = LocalContext.current
+    val icon = remember(instance) {
+        InstanceIconProvider.fetchIcon(context.resources, instance)
+    }
+
+    val displayName = if (instance.name.isNullOrBlank()) "UNNAMED" else instance.name
+
+    val isInPreview = LocalInspectionMode.current
+    val animatedAlpha = remember { Animatable(if (isInPreview) 1f else 0f) }
+    LaunchedEffect(Unit) {
+        if (!isInPreview) {
+            animatedAlpha.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(durationMillis = 400)
+            )
+        }
+    }
+
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(72.dp)
+            .graphicsLayer {
+                alpha = animatedAlpha.value
+            }
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(20.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+        tonalElevation = 0.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = rememberDrawablePainter(icon),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = displayName,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontSize = 15.sp
+                )
+                Text(
+                    text = instance.versionId ?: "Unknown Version",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ProjectIcon(project: ModrinthProject, size: Dp = 56.dp) {

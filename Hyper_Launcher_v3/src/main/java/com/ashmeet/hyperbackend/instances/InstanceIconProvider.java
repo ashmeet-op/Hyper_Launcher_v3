@@ -33,7 +33,11 @@ public class InstanceIconProvider {
         sStaticIcons.put("forge", R.drawable.ic_forge);
         sStaticIcons.put("neoforge", R.drawable.ic_neoforge);
         sStaticIcons.put("optifine", R.drawable.img_loader_optifine);
+        sStaticIcons.put("vanilla", R.drawable.img_old_grass_block);
         sStaticIcons.put("horizon", R.drawable.ic_horizon);
+        sStaticIcons.put("modrinth", R.drawable.ic_modrinth);
+        sStaticIcons.put("curseforge", R.drawable.ic_curseforge);
+        sStaticIcons.put("legacyfabric", R.drawable.img_loader_legacy_fabric);
     }
 
 

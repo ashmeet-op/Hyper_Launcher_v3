@@ -1,27 +1,27 @@
 package com.ashmeet.hyperlauncher.fragments.selection
 
-import com.ashmeet.hyperlauncher.utils.translation.translatedText
-
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
-import com.ashmeet.hyperlauncher.components.button.MineButton
-
 import com.ashmeet.hyperlauncher.fragments.modloader.BTAInstallFragment
 import com.ashmeet.hyperlauncher.fragments.installer.ContentInstallerFragment
 import com.ashmeet.hyperlauncher.fragments.modloader.FabricInstallFragment
@@ -31,12 +31,18 @@ import com.ashmeet.hyperlauncher.fragments.modloader.LegacyFabricInstallFragment
 import com.ashmeet.hyperlauncher.fragments.modloader.NeoforgeInstallFragment
 import com.ashmeet.hyperlauncher.fragments.modloader.OptiFineInstallFragment
 import com.ashmeet.hyperlauncher.fragments.modloader.QuiltInstallFragment
-import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.components.list.ProfileTypeListItem
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.ashmeet.hyperlauncher.R
+import com.ashmeet.hyperlauncher.utils.Architecture
 import com.ashmeet.hyperlauncher.utils.horizon.HorizonUtils
 import com.ashmeet.hyperlauncher.utils.HyperUtils
+import com.ashmeet.hyperbackend.instances.DisplayInstance
 import com.ashmeet.hyperbackend.instances.Instances
+import com.ashmeet.hyperlauncher.utils.translation.translatedText
+import com.google.gson.Gson
+import com.google.gson.JsonObject
+import java.io.File
 import java.io.IOException
 
 class ProfileTypeSelectFragment : Fragment() {
@@ -52,121 +58,124 @@ class ProfileTypeSelectFragment : Fragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 PojavTheme {
-                    Surface(
-                        modifier = Modifier.fillMaxSize(),
-                        color = if (LauncherPreferences.PREF_LAUNCHER_BACKGROUND_PATH != null) androidx.compose.ui.graphics.Color.Transparent else MaterialTheme.colorScheme.background,
-                        contentColor = MaterialTheme.colorScheme.onBackground
-                    ) {
-                        ProfileTypeContent(
-                            onVanillaClick = {
-                                try {
-                                    val instance = Instances.createDefaultInstance()
-                                    Instances.setSelectedInstance(instance)
-                                    HyperUtils.swapFragment(
-                                        requireActivity(),
-                                        InstanceEditorFragment::class.java,
-                                        InstanceEditorFragment.TAG,
-                                        Bundle(1)
-                                    )
-                                } catch (e: IOException) {
-                                    HyperUtils.showError(context, e)
-                                }
-                            },
-                            onOptiFineClick = {
+                    ProfileTypeContent(
+                        onVanillaClick = {
+                            try {
+                                val instance = Instances.createDefaultInstance()
+                                Instances.setSelectedInstance(instance)
                                 HyperUtils.swapFragment(
                                     requireActivity(),
-                                    OptiFineInstallFragment::class.java,
-                                    OptiFineInstallFragment.TAG,
-                                    null
+                                    InstanceEditorFragment::class.java,
+                                    InstanceEditorFragment.TAG,
+                                    Bundle(1)
                                 )
-                            },
-                            onFabricClick = {
-                                HyperUtils.swapFragment(
-                                    requireActivity(),
-                                    FabricInstallFragment::class.java,
-                                    FabricInstallFragment.TAG,
-                                    null
-                                )
-                            },
-                            onForgeClick = {
-                                HyperUtils.swapFragment(
-                                    requireActivity(),
-                                    ForgeInstallFragment::class.java,
-                                    ForgeInstallFragment.TAG,
-                                    null
-                                )
-                            },
-                            onModpackClick = {
-                                val args = Bundle().apply {
-                                    putString("type", "MODPACKS")
-                                    putBoolean("bypass", true)
-                                }
-                                HyperUtils.swapFragment(
-                                    requireActivity(),
-                                    ContentInstallerFragment::class.java,
-                                    ContentInstallerFragment.TAG,
-                                    args
-                                )
-                            },
-                            onQuiltClick = {
-                                HyperUtils.swapFragment(
-                                    requireActivity(),
-                                    QuiltInstallFragment::class.java,
-                                    QuiltInstallFragment.TAG,
-                                    null
-                                )
-                            },
-                            onBTAClick = {
-                                HyperUtils.swapFragment(
-                                    requireActivity(),
-                                    BTAInstallFragment::class.java,
-                                    BTAInstallFragment.TAG,
-                                    null
-                                )
-                            },
-                            onNeoForgeClick = {
-                                HyperUtils.swapFragment(
-                                    requireActivity(),
-                                    NeoforgeInstallFragment::class.java,
-                                    NeoforgeInstallFragment.TAG,
-                                    null
-                                )
-                            },
-                            onLegacyFabricClick = {
-                                HyperUtils.swapFragment(
-                                    requireActivity(),
-                                    LegacyFabricInstallFragment::class.java,
-                                    LegacyFabricInstallFragment.TAG,
-                                    null
-                                )
-                            },
-                            onHorizonClick = {
-                                try {
-                                    val instance = Instances.createInstance({ inst ->
-                                        inst.name = "Horizon 26.3 (Rust)"
-                                        inst.versionId = HorizonUtils.HORIZON_VERSION_ID
-                                        inst.selectedRuntime = HorizonUtils.HORIZON_RUNTIME
-                                        inst.icon = "horizon"
-                                        inst.sharedData = true
-                                    }, "Horizon-26.3")
-                                    Instances.setSelectedInstance(instance)
-                                    HyperUtils.swapFragment(
-                                        requireActivity(),
-                                        InstanceEditorFragment::class.java,
-                                        InstanceEditorFragment.TAG,
-                                        Bundle(1)
-                                    )
-                                } catch (e: IOException) {
-                                    HyperUtils.showError(context, e)
-                                }
+                            } catch (e: IOException) {
+                                HyperUtils.showError(context, e)
                             }
-                        )
-                    }
+                        },
+                        onOptiFineClick = {
+                            HyperUtils.swapFragment(
+                                requireActivity(),
+                                OptiFineInstallFragment::class.java,
+                                OptiFineInstallFragment.TAG,
+                                null
+                            )
+                        },
+                        onFabricClick = {
+                            HyperUtils.swapFragment(
+                                requireActivity(),
+                                FabricInstallFragment::class.java,
+                                FabricInstallFragment.TAG,
+                                null
+                            )
+                        },
+                        onForgeClick = {
+                            HyperUtils.swapFragment(
+                                requireActivity(),
+                                ForgeInstallFragment::class.java,
+                                ForgeInstallFragment.TAG,
+                                null
+                            )
+                        },
+                        onModpackClick = {
+                            val args = Bundle().apply {
+                                putString("type", "MODPACKS")
+                                putBoolean("bypass", true)
+                            }
+                            HyperUtils.swapFragment(
+                                requireActivity(),
+                                ContentInstallerFragment::class.java,
+                                ContentInstallerFragment.TAG,
+                                args
+                            )
+                        },
+                        onQuiltClick = {
+                            HyperUtils.swapFragment(
+                                requireActivity(),
+                                QuiltInstallFragment::class.java,
+                                QuiltInstallFragment.TAG,
+                                null
+                            )
+                        },
+                        onBTAClick = {
+                            HyperUtils.swapFragment(
+                                requireActivity(),
+                                BTAInstallFragment::class.java,
+                                BTAInstallFragment.TAG,
+                                null
+                            )
+                        },
+                        onNeoForgeClick = {
+                            HyperUtils.swapFragment(
+                                requireActivity(),
+                                NeoforgeInstallFragment::class.java,
+                                NeoforgeInstallFragment.TAG,
+                                null
+                            )
+                        },
+                        onLegacyFabricClick = {
+                            HyperUtils.swapFragment(
+                                requireActivity(),
+                                LegacyFabricInstallFragment::class.java,
+                                LegacyFabricInstallFragment.TAG,
+                                null
+                            )
+                        },
+                        onHorizonClick = {
+                            try {
+                                val instance = Instances.createInstance({ inst ->
+                                    inst.name = "Horizon 26.3 (Rust)"
+                                    inst.versionId = HorizonUtils.HORIZON_VERSION_ID
+                                    inst.selectedRuntime = HorizonUtils.HORIZON_RUNTIME
+                                    inst.icon = "horizon"
+                                    inst.sharedData = true
+                                }, "Horizon-26.3")
+                                Instances.setSelectedInstance(instance)
+                                HyperUtils.swapFragment(
+                                    requireActivity(),
+                                    InstanceEditorFragment::class.java,
+                                    InstanceEditorFragment.TAG,
+                                    Bundle(1)
+                                )
+                            } catch (e: IOException) {
+                                HyperUtils.showError(context, e)
+                            }
+                        }
+                    )
                 }
             }
         }
     }
 }
+
+data class ProfileOption(
+    val name: String,
+    val versionId: String,
+    val icon: String,
+    val enabled: Boolean = true,
+    val warningMessage: String? = null,
+    val onClick: () -> Unit
+)
 
 @Composable
 fun ProfileTypeContent(
@@ -181,97 +190,171 @@ fun ProfileTypeContent(
     onLegacyFabricClick: () -> Unit,
     onHorizonClick: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp, vertical = 32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+    val context = LocalContext.current
+    var selectedTab by remember { mutableIntStateOf(0) }
+    val tabs = listOf(
+        translatedText("Vanilla"),
+        translatedText("Modded"),
+        translatedText("Misc")
+    )
+
+    val isArm64 = remember { Architecture.getDeviceArchitecture() == Architecture.ARCH_ARM64 }
+    val gson = remember { Gson() }
+
+    val vanillaOptions = listOf(
+        ProfileOption(
+            name = translatedText(stringResource(R.string.create_instance_vanilla)),
+            versionId = "Vanilla",
+            icon = "vanilla",
+            onClick = onVanillaClick
+        ),
+        ProfileOption(
+            name = translatedText(stringResource(R.string.mod_dl_install_optifine)),
+            versionId = "OptiFine",
+            icon = "optifine",
+            onClick = onOptiFineClick
+        )
+    )
+
+    val moddedOptions = listOf(
+        ProfileOption(
+            name = translatedText(stringResource(R.string.modloader_dl_install_fabric_instance)),
+            versionId = "Fabric",
+            icon = "fabric",
+            onClick = onFabricClick
+        ),
+        ProfileOption(
+            name = translatedText(stringResource(R.string.modloader_dl_install_quilt_instance)),
+            versionId = "Quilt",
+            icon = "quilt",
+            onClick = onQuiltClick
+        ),
+        ProfileOption(
+            name = translatedText(stringResource(R.string.modloader_dl_install_legacy_fabric_instance)),
+            versionId = "Legacy Fabric",
+            icon = "legacyfabric",
+            onClick = onLegacyFabricClick
+        ),
+        ProfileOption(
+            name = translatedText(stringResource(R.string.modloader_dl_install_forge_instance)),
+            versionId = "Forge",
+            icon = "forge",
+            onClick = onForgeClick
+        ),
+        ProfileOption(
+            name = translatedText(stringResource(R.string.modloader_dl_install_neoforge_instance)),
+            versionId = "NeoForge",
+            icon = "neoforge",
+            onClick = onNeoForgeClick
+        ),
+        ProfileOption(
+            name = translatedText(stringResource(R.string.modpack_install_instance_button)),
+            versionId = "Modpack",
+            icon = "modrinth",
+            onClick = onModpackClick
+        ),
+        ProfileOption(
+            name = translatedText(stringResource(R.string.create_bta_instance)),
+            versionId = "Better Than Adventure",
+            icon = "curseforge",
+            onClick = onBTAClick
+        )
+    )
+
+    val miscOptions = listOf(
+        ProfileOption(
+            name = translatedText(stringResource(R.string.create_instance_horizon_rust)),
+            versionId = if (isArm64) "Minecraft 26.3 only" else "Not available: requires ARM64 device",
+            icon = "horizon",
+            enabled = isArm64,
+            warningMessage = "Horizon Rust engine is only available on ARM64 devices.",
+            onClick = onHorizonClick
+        )
+    )
+
+    val currentOptions = when (selectedTab) {
+        0 -> vanillaOptions
+        1 -> moddedOptions
+        else -> miscOptions
+    }
+
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.onBackground
     ) {
-        Text(
-            text = translatedText(stringResource(R.string.create_profile_rust_native_versions)),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            SecondaryTabRow(
+                selectedTabIndex = selectedTab,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                containerColor = Color.Transparent,
+                divider = {},
+                indicator = @Composable {
+                    TabRowDefaults.SecondaryIndicator(
+                        modifier = Modifier
+                            .tabIndicatorOffset(selectedTab)
+                            .padding(horizontal = 16.dp)
+                            .clip(RoundedCornerShape(3.dp)),
+                        height = 4.dp,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            ) {
+                tabs.forEachIndexed { index, title ->
+                    Tab(
+                        selected = selectedTab == index,
+                        onClick = { selectedTab = index },
+                        text = {
+                            Text(
+                                text = title,
+                                fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Normal
+                            )
+                        }
+                    )
+                }
+            }
 
-        MineButton(
-            text = translatedText(stringResource(R.string.create_instance_horizon_rust)),
-            onClick = onHorizonClick,
-            modifier = Modifier.fillMaxWidth()
-        )
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(vertical = 8.dp)
+            ) {
+                items(currentOptions) { option ->
+                    val displayInstance = remember(option) {
+                        val jsonObj = JsonObject().apply {
+                            addProperty("name", option.name)
+                            addProperty("versionId", option.versionId)
+                            addProperty("icon", option.icon)
+                        }
+                        gson.fromJson(jsonObj, DisplayInstance::class.java).apply {
+                            mInstanceRoot = File(context.cacheDir, option.name)
+                        }
+                    }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = translatedText(stringResource(R.string.create_profile_vanilla_like_versions)),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-
-        MineButton(
-            text = translatedText(stringResource(R.string.create_instance_vanilla)),
-            onClick = onVanillaClick,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        MineButton(
-            text = translatedText(stringResource(R.string.mod_dl_install_optifine)),
-            onClick = onOptiFineClick,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = translatedText(stringResource(R.string.create_profile_modded_versions)),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-
-        MineButton(
-            text = translatedText(stringResource(R.string.modloader_dl_install_fabric_instance)),
-            onClick = onFabricClick,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        MineButton(
-            text = translatedText(stringResource(R.string.modloader_dl_install_quilt_instance)),
-            onClick = onQuiltClick,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        MineButton(
-            text = translatedText(stringResource(R.string.modloader_dl_install_legacy_fabric_instance)),
-            onClick = onLegacyFabricClick,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        MineButton(
-            text = translatedText(stringResource(R.string.modloader_dl_install_forge_instance)),
-            onClick = onForgeClick,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        MineButton(
-            text = translatedText(stringResource(R.string.modloader_dl_install_neoforge_instance)),
-            onClick = onNeoForgeClick,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        MineButton(
-            text = translatedText(stringResource(R.string.modpack_install_instance_button)),
-            onClick = onModpackClick,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        MineButton(
-            text = translatedText(stringResource(R.string.create_bta_instance)),
-            onClick = onBTAClick,
-            modifier = Modifier.fillMaxWidth()
-        )
+                    ProfileTypeListItem(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .alpha(if (option.enabled) 1f else 0.5f),
+                        instance = displayInstance,
+                        onClick = {
+                            if (option.enabled) {
+                                option.onClick()
+                            } else {
+                                Toast.makeText(context, option.warningMessage ?: "Not available on this device architecture.", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    )
+                }
+            }
+        }
     }
 }

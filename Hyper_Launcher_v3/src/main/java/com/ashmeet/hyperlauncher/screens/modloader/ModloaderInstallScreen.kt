@@ -50,7 +50,6 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreference
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <T> ModloaderInstallScreen(
     title: String,

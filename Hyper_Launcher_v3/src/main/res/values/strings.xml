@@ -375,14 +375,13 @@
     <string name="create_profile_vanilla_like_versions">Vanilla-like versions</string>
     <string name="create_profile_modded_versions">Modded versions</string>
     <string name="create_profile_rust_native_versions">Rust / Native versions</string>
-    <string name="create_instance_horizon_rust">Create Horizon 26.3 (Rust) instance</string>
+    <string name="create_instance_horizon_rust">Create Horizon instance</string>
     <string name="engine_horizon_native_desc">Horizon Native Engine (Rust - Minecraft 26.3)</string>
     <string name="fabric_dl_loader_title">Select versions</string>
     <string name="of_dl_select_version">Select OptiFine version</string>
     <string name="of_dl_failed_to_scrape">Failed to collect data for OptiFine installation</string>
     <string name="of_dl_progress">Downloading %s</string>
     <string name="mod_dl_install_optifine">Install OptiFine</string>
-
 
     <string name="hint_search_modpack">Search for modpacks</string>
 

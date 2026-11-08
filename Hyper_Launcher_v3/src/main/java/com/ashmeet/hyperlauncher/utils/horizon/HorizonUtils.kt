@@ -8,6 +8,8 @@ import com.ashmeet.hyperbackend.authenticator.accounts.Account
 import com.ashmeet.hyperbackend.authenticator.accounts.Accounts
 import com.ashmeet.hyperbackend.instances.DisplayInstance
 import com.ashmeet.hyperbackend.instances.Instance
+import com.ashmeet.hyperlauncher.extra.ExtraConstants
+import com.ashmeet.hyperlauncher.extra.ExtraCore
 import com.ashmeet.hyperlauncher.utils.Architecture
 import com.ashmeet.hyperlauncher.utils.HyperUtils
 import dev.horizon.android.HorizonActivity
@@ -87,6 +89,24 @@ object HorizonUtils {
             cmdArgs.add("--game-dir")
             cmdArgs.add(gameDir.absolutePath)
             cmdArgs.addAll(authArgs)
+
+            val quickPlayWorld = ExtraCore.consumeValue(ExtraConstants.QUICK_PLAY_WORLD) as String?
+            if (quickPlayWorld != null && quickPlayWorld.trim().isNotEmpty()) {
+                val worldName = quickPlayWorld.trim()
+                if (!cmdArgs.contains("--quickPlaySingleplayer")) {
+                    cmdArgs.add("--quickPlaySingleplayer")
+                    cmdArgs.add(worldName)
+                }
+            }
+
+            val quickPlayServer = ExtraCore.consumeValue(ExtraConstants.QUICK_PLAY_SERVER) as String?
+            if (quickPlayServer != null && quickPlayServer.trim().isNotEmpty()) {
+                val serverAddress = quickPlayServer.trim()
+                if (!cmdArgs.contains("--quickPlayMultiplayer") && !cmdArgs.contains("--quickPlayServer")) {
+                    cmdArgs.add("--quickPlayMultiplayer")
+                    cmdArgs.add(serverAddress)
+                }
+            }
 
             val renderer = instance?.getLaunchRenderer() ?: "vulkan"
             val renderScale = instance?.horizonRenderScale ?: 1.0f
