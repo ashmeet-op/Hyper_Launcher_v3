@@ -3,7 +3,7 @@ package com.ashmeet.hyperbackend.modloaders.modpacks.imagecache;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.ashmeet.hyperbackend.utils.DownloadUtils;
+import com.ashmeet.hyperlauncher.utils.DownloadUtils;
 
 import java.io.FileOutputStream;
 import java.io.IOException;

@@ -8,7 +8,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.annotations.SerializedName;
 
 import com.ashmeet.hyperlauncher.utils.HyperUtils;
-import com.ashmeet.hyperbackend.utils.DownloadUtils;
+import com.ashmeet.hyperlauncher.utils.DownloadUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;

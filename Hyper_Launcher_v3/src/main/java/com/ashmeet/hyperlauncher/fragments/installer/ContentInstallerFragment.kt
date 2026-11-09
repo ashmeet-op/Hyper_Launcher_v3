@@ -67,9 +67,9 @@ import com.ashmeet.hyperbackend.modloaders.modpacks.api.ModrinthApi
 import com.ashmeet.hyperbackend.modloaders.modpacks.api.ModrinthService
 import com.ashmeet.hyperbackend.modloaders.modpacks.models.ModItem
 import com.ashmeet.hyperbackend.progresskeeper.ProgressKeeper
+import com.ashmeet.hyperlauncher.utils.DownloadUtils
 import java.io.File
 import java.io.IOException
-import java.net.URL
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import kotlin.time.Duration.Companion.milliseconds
@@ -598,36 +598,38 @@ class ContentInstallerFragment : Fragment() {
             ProgressKeeper.submitProgress(progressKey, 0, -1, "Downloading $fileName...")
 
             withContext(Dispatchers.IO) {
-                val url = URL(version.downloadUrl)
-                val connection = url.openConnection()
-                connection.connect()
-                val totalSize = connection.contentLength.toLong()
+                val connection = DownloadUtils.openHttpConnection(version.downloadUrl)
+                try {
+                    val totalSize = connection.contentLength.toLong()
 
-                connection.getInputStream().use { input ->
-                    tempZip.outputStream().use { output ->
-                        var bytesCopied = 0L
-                        val buffer = ByteArray(8192)
-                        var bytes = input.read(buffer)
-                        var lastProgressUpdate = 0L
-                        while (bytes >= 0) {
-                            output.write(buffer, 0, bytes)
-                            bytesCopied += bytes
-                            if (totalSize > 0) {
-                                val currentTime = System.currentTimeMillis()
-                                if (currentTime - lastProgressUpdate > 100) {
-                                    val progress = ((bytesCopied * 100) / totalSize).toInt()
-                                    ProgressKeeper.submitProgress(
-                                        progressKey,
-                                        progress,
-                                        -1,
-                                        "Downloading $fileName..."
-                                    )
-                                    lastProgressUpdate = currentTime
+                    connection.inputStream.use { input ->
+                        tempZip.outputStream().use { output ->
+                            var bytesCopied = 0L
+                            val buffer = ByteArray(8192)
+                            var bytes = input.read(buffer)
+                            var lastProgressUpdate = 0L
+                            while (bytes >= 0) {
+                                output.write(buffer, 0, bytes)
+                                bytesCopied += bytes
+                                if (totalSize > 0) {
+                                    val currentTime = System.currentTimeMillis()
+                                    if (currentTime - lastProgressUpdate > 100) {
+                                        val progress = ((bytesCopied * 100) / totalSize).toInt()
+                                        ProgressKeeper.submitProgress(
+                                            progressKey,
+                                            progress,
+                                            -1,
+                                            "Downloading $fileName..."
+                                        )
+                                        lastProgressUpdate = currentTime
+                                    }
                                 }
+                                bytes = input.read(buffer)
                             }
-                            bytes = input.read(buffer)
                         }
                     }
+                } finally {
+                    connection.disconnect()
                 }
 
                 ProgressKeeper.submitProgress(progressKey, 100, -1, "Extracting world...")
@@ -714,36 +716,56 @@ class ContentInstallerFragment : Fragment() {
             ProgressKeeper.submitProgress(progressKey, 0, -1, "Downloading $fileName...")
 
             withContext(Dispatchers.IO) {
-                val url = URL(version.downloadUrl)
-                val connection = url.openConnection()
-                connection.connect()
-                val totalSize = connection.contentLength.toLong()
+                val connection = DownloadUtils.openHttpConnection(version.downloadUrl)
+                try {
+                    val totalSize = connection.contentLength.toLong()
 
-                connection.getInputStream().use { input ->
-                    destFile.outputStream().use { output ->
-                        var bytesCopied = 0L
-                        val buffer = ByteArray(8192)
-                        var bytes = input.read(buffer)
-                        var lastProgressUpdate = 0L
-                        while (bytes >= 0) {
-                            output.write(buffer, 0, bytes)
-                            bytesCopied += bytes
-                            if (totalSize > 0) {
-                                val currentTime = System.currentTimeMillis()
-                                if (currentTime - lastProgressUpdate > 100) {
-                                    val progress = ((bytesCopied * 100) / totalSize).toInt()
-                                    ProgressKeeper.submitProgress(
-                                        progressKey,
-                                        progress,
-                                        -1,
-                                        "Downloading $fileName..."
-                                    )
-                                    lastProgressUpdate = currentTime
+                    connection.inputStream.use { input ->
+                        destFile.outputStream().use { output ->
+                            var bytesCopied = 0L
+                            val buffer = ByteArray(8192)
+                            var bytes = input.read(buffer)
+                            var lastProgressUpdate = 0L
+                            while (bytes >= 0) {
+                                output.write(buffer, 0, bytes)
+                                bytesCopied += bytes
+                                if (totalSize > 0) {
+                                    val currentTime = System.currentTimeMillis()
+                                    if (currentTime - lastProgressUpdate > 100) {
+                                        val progress = ((bytesCopied * 100) / totalSize).toInt()
+                                        ProgressKeeper.submitProgress(
+                                            progressKey,
+                                            progress,
+                                            -1,
+                                            "Downloading $fileName..."
+                                        )
+                                        lastProgressUpdate = currentTime
+                                    }
                                 }
+                                bytes = input.read(buffer)
                             }
-                            bytes = input.read(buffer)
                         }
                     }
+                } finally {
+                    connection.disconnect()
+                }
+            }
+
+            if (type == ContentInstallerType.MODS && (source == ContentSource.HORIZON || HorizonUtils.isHorizonInstance(instance))) {
+                try {
+                    val modId = ModMetadataReader.getMetadata(destFile)?.id ?: fileName.substringBeforeLast(".")
+                    val horizonModsTxt = File(instance.gameDirectory, "horizon-mods.txt")
+                    val line = "mod.$modId:true"
+                    val lines = if (horizonModsTxt.exists()) horizonModsTxt.readLines().toMutableList() else mutableListOf()
+                    val existingIndex = lines.indexOfFirst { it.startsWith("mod.$modId:") }
+                    if (existingIndex != -1) {
+                        lines[existingIndex] = line
+                    } else {
+                        lines.add(line)
+                    }
+                    horizonModsTxt.writeText(lines.joinToString("\n") + "\n")
+                } catch (e: Exception) {
+                    Log.e("ContentInstaller", "Failed to enable mod in horizon-mods.txt", e)
                 }
             }
 

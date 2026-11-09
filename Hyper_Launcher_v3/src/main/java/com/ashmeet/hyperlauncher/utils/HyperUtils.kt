@@ -701,7 +701,28 @@ object HyperUtils {
     @Suppress("unchecked_cast", "rawtypes")
     fun getVersionInfo(versionName: String, skipInheriting: Boolean): JVersionList.Version {
         return try {
-            var customVer = GLOBAL_GSON.fromJson(read("$DIR_HOME_VERSION/$versionName/$versionName.json"), JVersionList.Version::class.java)
+            val jsonFile = File(DIR_HOME_VERSION, "$versionName/$versionName.json")
+            if (!jsonFile.exists()) {
+                try {
+                    jsonFile.parentFile?.mkdirs()
+                    val defaultJson = "{\"id\":\"$versionName\",\"type\":\"release\"}"
+                    write(jsonFile, defaultJson)
+                } catch (_: Exception) {}
+            }
+
+            var customVer = GLOBAL_GSON.fromJson(read(jsonFile.absolutePath), JVersionList.Version::class.java)
+
+            if (customVer == null) {
+                customVer = JVersionList.Version().apply {
+                    id = versionName
+                    type = "release"
+                }
+            }
+
+            if (customVer.libraries == null) {
+                customVer.libraries = emptyArray()
+            }
+
             if (skipInheriting || customVer.inheritsFrom == null || customVer.inheritsFrom == customVer.id) {
                 preProcessLibraries(customVer.libraries)
             } else {

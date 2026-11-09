@@ -10,7 +10,6 @@ import com.ashmeet.hyperbackend.instances.Instances
 import com.ashmeet.hyperlauncher.runtime.RuntimeUtils
 import com.ashmeet.hyperlauncher.runtime.Runtime
 import com.ashmeet.hyperbackend.progresskeeper.DownloaderProgressWrapper
-import com.ashmeet.hyperbackend.utils.DownloadUtils
 import com.ashmeet.hyperbackend.utils.MathUtils
 import com.ashmeet.hyperbackend.utils.SignatureCheckUtil
 import com.ashmeet.hyperlauncher.utils.jre.RuntimeSelectionException

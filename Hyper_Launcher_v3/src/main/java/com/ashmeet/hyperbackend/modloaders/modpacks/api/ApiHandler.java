@@ -1,5 +1,6 @@
 package com.ashmeet.hyperbackend.modloaders.modpacks.api;
 
+import android.os.Build;
 import android.util.ArrayMap;
 import android.util.Log;
 
@@ -10,7 +11,6 @@ import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "CallToPrintStackTrace"})
 public class ApiHandler {
     public final String baseUrl;
     public final Map<String, String> additionalHeaders;
@@ -61,6 +61,11 @@ public class ApiHandler {
         try {
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
             addHeaders(conn, headers);
+            int responseCode = conn.getResponseCode();
+            if (responseCode >= 400) {
+                conn.disconnect();
+                return null;
+            }
             InputStream inputStream = conn.getInputStream();
             String data = HyperUtils.read(inputStream);
             Log.d(ApiHandler.class.toString(), data);
@@ -68,7 +73,7 @@ public class ApiHandler {
             conn.disconnect();
             return data;
         } catch (IOException e) {
-            e.printStackTrace();
+            // Suppress stack trace for expected network/not found errors (e.g. fallback checks)
         }
         return null;
     }
@@ -155,10 +160,9 @@ public class ApiHandler {
     }
 
     private static String urlEncodeUTF8(String input) {
-        try {
-            return URLEncoder.encode(input, "UTF-8");
-        }catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("UTF-8 is required");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return URLEncoder.encode(input, StandardCharsets.UTF_8);
         }
+        return input;
     }
 }

@@ -4,7 +4,7 @@ import android.util.Log;
 
 import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.instances.InstanceInstaller;
-import com.ashmeet.hyperbackend.utils.DownloadUtils;
+import com.ashmeet.hyperlauncher.utils.DownloadUtils;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;

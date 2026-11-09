@@ -3,7 +3,7 @@ package com.ashmeet.hyperbackend.modloaders;
 import com.google.gson.JsonSyntaxException;
 
 import com.ashmeet.hyperlauncher.utils.HyperUtils;
-import com.ashmeet.hyperbackend.utils.DownloadUtils;
+import com.ashmeet.hyperlauncher.utils.DownloadUtils;
 import com.ashmeet.hyperbackend.utils.FileUtils;
 
 import org.json.JSONArray;

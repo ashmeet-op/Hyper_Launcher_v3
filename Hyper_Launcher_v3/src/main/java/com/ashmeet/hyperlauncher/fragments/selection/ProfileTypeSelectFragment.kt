@@ -150,6 +150,15 @@ class ProfileTypeSelectFragment : Fragment() {
                                     inst.icon = "horizon"
                                     inst.sharedData = true
                                 }, "Horizon-26.3")
+
+                                val verDir = File(HyperUtils.DIR_HOME_VERSION, HorizonUtils.HORIZON_VERSION_ID)
+                                val verFile = File(verDir, "${HorizonUtils.HORIZON_VERSION_ID}.json")
+                                if (!verFile.exists()) {
+                                    verDir.mkdirs()
+                                    val defaultJson = "{\"id\":\"${HorizonUtils.HORIZON_VERSION_ID}\",\"type\":\"release\"}"
+                                    HyperUtils.write(verFile, defaultJson)
+                                }
+
                                 Instances.setSelectedInstance(instance)
                                 HyperUtils.swapFragment(
                                     requireActivity(),

@@ -2,7 +2,7 @@ package com.ashmeet.hyperbackend.modloaders;
 
 import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.instances.InstanceInstaller;
-import com.ashmeet.hyperbackend.utils.DownloadUtils;
+import com.ashmeet.hyperlauncher.utils.DownloadUtils;
 
 import java.io.File;
 import java.io.IOException;

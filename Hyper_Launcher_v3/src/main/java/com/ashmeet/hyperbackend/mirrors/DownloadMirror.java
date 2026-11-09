@@ -1,7 +1,7 @@
 package com.ashmeet.hyperbackend.mirrors;
 
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
-import com.ashmeet.hyperbackend.utils.DownloadUtils;
+import com.ashmeet.hyperlauncher.utils.DownloadUtils;
 
 import java.io.File;
 import java.io.IOException;

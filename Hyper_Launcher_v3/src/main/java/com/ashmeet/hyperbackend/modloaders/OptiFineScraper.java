@@ -1,6 +1,6 @@
 package com.ashmeet.hyperbackend.modloaders;
 
-import com.ashmeet.hyperbackend.utils.DownloadUtils;
+import com.ashmeet.hyperlauncher.utils.DownloadUtils;
 
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;

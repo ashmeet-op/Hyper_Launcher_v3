@@ -1,10 +1,14 @@
 package com.ashmeet.hyperbackend.downloader;
 
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
 import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
 
 import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperbackend.tasks.SpeedCalculator;
-import com.ashmeet.hyperbackend.utils.DownloadUtils;
+import com.ashmeet.hyperlauncher.utils.DownloadUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -72,6 +76,7 @@ public class Downloader {
             if(exception != null) throw exception;
             if(sizeCounter) reportSizeProgress(totalMegabytes);
             else reportCountProgress(R.string.newerdl_downloading_files_count, totalCount);
+            //noinspection BusyWait
             Thread.sleep(250);
         }
         mDownloadService.shutdown();
@@ -170,6 +175,7 @@ public class Downloader {
         copy(inputStream, outputStream, listener);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     protected String downloadString(URL url) throws IOException {
         HttpURLConnection connection = openConnection(url);
         try {
@@ -181,7 +187,7 @@ public class Downloader {
             if(length < 0) length = 32;
             try(ByteArrayOutputStream outputStream = new ByteArrayOutputStream(length)) {
                 downloadToStream(connection, outputStream, null);
-                return new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
+                return outputStream.toString(StandardCharsets.UTF_8);
             }
         } finally {
             connection.disconnect();

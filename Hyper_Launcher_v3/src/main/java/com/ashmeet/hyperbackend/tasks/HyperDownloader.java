@@ -23,7 +23,7 @@ import com.ashmeet.hyperbackend.downloader.Downloader;
 import com.ashmeet.hyperbackend.downloader.TaskMetadata;
 import com.ashmeet.hyperbackend.mirrors.DownloadMirror;
 import com.ashmeet.hyperbackend.mirrors.MirrorTamperedException;
-import com.ashmeet.hyperbackend.utils.DownloadUtils;
+import com.ashmeet.hyperlauncher.utils.DownloadUtils;
 import com.ashmeet.hyperbackend.utils.FileUtils;
 import com.ashmeet.hyperbackend.utils.JSONUtils;
 import com.ashmeet.hyperbackend.utils.MavenNameUtils;
