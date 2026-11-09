@@ -63,11 +63,14 @@ class ProfileTypeSelectFragment : Fragment() {
                             try {
                                 val instance = Instances.createDefaultInstance()
                                 Instances.setSelectedInstance(instance)
+                                val args = Bundle().apply {
+                                    putBoolean("is_new_instance", true)
+                                }
                                 HyperUtils.swapFragment(
                                     requireActivity(),
                                     InstanceEditorFragment::class.java,
                                     InstanceEditorFragment.TAG,
-                                    Bundle(1)
+                                    args
                                 )
                             } catch (e: IOException) {
                                 HyperUtils.showError(context, e)
@@ -160,11 +163,14 @@ class ProfileTypeSelectFragment : Fragment() {
                                 }
 
                                 Instances.setSelectedInstance(instance)
+                                val args = Bundle().apply {
+                                    putBoolean("is_new_instance", true)
+                                }
                                 HyperUtils.swapFragment(
                                     requireActivity(),
                                     InstanceEditorFragment::class.java,
                                     InstanceEditorFragment.TAG,
-                                    Bundle(1)
+                                    args
                                 )
                             } catch (e: IOException) {
                                 HyperUtils.showError(context, e)

@@ -9,7 +9,7 @@ object DiscordRpcManager {
     private const val TAG = "DiscordRpcManager"
     private var rpcJob: Job? = null
 
-    fun startRpc(details: String = "Playing Minecraft", state: String = "HyperLauncher", largeImage: String? = null) {
+    fun startRpc(details: String = "Playing Minecraft", state: String = "HyperLauncher") {
         if (!LauncherPreferences.PREF_ENABLE_RPC) return
 
         stopRpc()

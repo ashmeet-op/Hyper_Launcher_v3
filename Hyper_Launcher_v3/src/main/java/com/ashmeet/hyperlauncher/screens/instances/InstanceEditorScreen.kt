@@ -47,6 +47,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.ashmeet.hyperlauncher.components.dialog.ControlSelectorDialog
+import com.ashmeet.hyperlauncher.runtime.Runtime
 import com.ashmeet.hyperlauncher.screens.settings.layouts.CardPosition
 import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsCard
 import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsScreenWrapper
@@ -54,16 +56,10 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsActionItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSwitchItem
 import com.ashmeet.hyperlauncher.screens.settings.preferences.SingleChoiceDialog
 import com.ashmeet.hyperlauncher.screens.settings.preferences.TextInputDialog
+import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperlauncher.utils.drawable.rememberDrawablePainter
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
-import androidx.compose.ui.viewinterop.AndroidView
-import com.ashmeet.hyperlauncher.components.HyperAlertDialog
-import com.ashmeet.hyperlauncher.components.dialog.ControlSelectorDialog
-import com.ashmeet.hyperlauncher.filemanager.components.FileListView
-import com.ashmeet.hyperlauncher.filemanager.listeners.FileSelectedListener
-import com.ashmeet.hyperlauncher.utils.HyperUtils
-import com.ashmeet.hyperlauncher.runtime.Runtime
 import java.io.File
 
 @Composable
@@ -94,8 +90,6 @@ fun InstanceEditorScreen(
     onHorizonOrientationChange: (String) -> Unit = {},
     horizonInputHost: String = "keyboard_mouse",
     onHorizonInputHostChange: (String) -> Unit = {},
-    horizonImmersive: Boolean = true,
-    onHorizonImmersiveChange: (Boolean) -> Unit = {},
     hasChanges: Boolean,
     onSave: () -> Unit,
     onDelete: () -> Unit,
@@ -178,7 +172,7 @@ fun InstanceEditorScreen(
                         onClick = onSelectVersion
                     )
                 }
-                SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
+                SettingsCard(position = if (isHorizon) CardPosition.BOTTOM else CardPosition.MIDDLE, useSurface = true) {
                     SettingsActionItem(
                         title = translatedText(stringResource(R.string.default_control)),
                         summary = if (controlLayout.isEmpty()) {
@@ -190,13 +184,15 @@ fun InstanceEditorScreen(
                         onClick = { showControlDialog = true }
                     )
                 }
-                SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
-                    SettingsSwitchItem(
-                        title = translatedText(stringResource(R.string.instance_shared_data)),
-                        summary = stringResource(if (sharedData) R.string.instance_shared_data_on else R.string.instance_shared_data_off),
-                        checked = sharedData,
-                        onCheckedChange = onSharedDataChange
-                    )
+                if (!isHorizon) {
+                    SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
+                        SettingsSwitchItem(
+                            title = translatedText(stringResource(R.string.instance_shared_data)),
+                            summary = stringResource(if (sharedData) R.string.instance_shared_data_on else R.string.instance_shared_data_off),
+                            checked = sharedData,
+                            onCheckedChange = onSharedDataChange
+                        )
+                    }
                 }
             }
 
@@ -263,10 +259,10 @@ fun InstanceEditorScreen(
                     }
                     SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
                         SettingsSwitchItem(
-                            title = translatedText("Immersive Mode"),
-                            summary = stringResource(if (horizonImmersive) R.string.instance_shared_data_on else R.string.instance_shared_data_off),
-                            checked = horizonImmersive,
-                            onCheckedChange = onHorizonImmersiveChange
+                            title = translatedText(stringResource(R.string.instance_shared_data)),
+                            summary = stringResource(if (sharedData) R.string.instance_shared_data_on else R.string.instance_shared_data_off),
+                            checked = sharedData,
+                            onCheckedChange = onSharedDataChange
                         )
                     }
                 }

@@ -48,7 +48,6 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
     private var mHorizonRenderScale by mutableFloatStateOf(1.0f)
     private var mHorizonOrientation by mutableStateOf("sensor_landscape")
     private var mHorizonInputHost by mutableStateOf("keyboard_mouse")
-    private var mHorizonImmersive by mutableStateOf(true)
 
     private var mInitialInstanceName = ""
     private var mInitialVersionId = ""
@@ -60,7 +59,6 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
     private var mInitialHorizonRenderScale = 1.0f
     private var mInitialHorizonOrientation = "sensor_landscape"
     private var mInitialHorizonInputHost = "keyboard_mouse"
-    private var mInitialHorizonImmersive = true
     private var mIconChanged by mutableStateOf(false)
 
     private var mRuntimes: List<Runtime> = emptyList()
@@ -69,10 +67,12 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
 
     private var mRecommendedIconSize = 256
     private lateinit var mCropperLauncher: ActivityResultLauncher<*>
+    private var mIsNewInstance by mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mCropperLauncher = CropperUtils.registerCropper(this, this)
+        mIsNewInstance = arguments?.getBoolean("is_new_instance", false) == true
     }
 
     override fun onCreateView(
@@ -95,7 +95,8 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
 
         return ComposeView(requireContext()).apply {
             setContent {
-                val hasChanges = mInstanceName != mInitialInstanceName ||
+                val hasChanges = mIsNewInstance ||
+                        mInstanceName != mInitialInstanceName ||
                         mVersionId != mInitialVersionId ||
                         mControlLayout != mInitialControlLayout ||
                         mSharedData != mInitialSharedData ||
@@ -105,7 +106,6 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
                         mHorizonRenderScale != mInitialHorizonRenderScale ||
                         mHorizonOrientation != mInitialHorizonOrientation ||
                         mHorizonInputHost != mInitialHorizonInputHost ||
-                        mHorizonImmersive != mInitialHorizonImmersive ||
                         mIconChanged
 
                 val isHorizon = HorizonUtils.isHorizonInstance(mInstance) ||
@@ -142,8 +142,6 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
                         onHorizonOrientationChange = { mHorizonOrientation = it },
                         horizonInputHost = mHorizonInputHost,
                         onHorizonInputHostChange = { mHorizonInputHost = it },
-                        horizonImmersive = mHorizonImmersive,
-                        onHorizonImmersiveChange = { mHorizonImmersive = it },
                         hasChanges = hasChanges,
                         onSave = { save() },
                         onDelete = { delete() },
@@ -191,7 +189,6 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
         mHorizonRenderScale = instance.horizonRenderScale ?: 1.0f
         mHorizonOrientation = instance.horizonOrientation ?: "sensor_landscape"
         mHorizonInputHost = instance.horizonInputHost ?: "keyboard_mouse"
-        mHorizonImmersive = instance.horizonImmersive ?: true
 
         mInitialInstanceName = mInstanceName
         mInitialVersionId = mVersionId
@@ -203,7 +200,6 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
         mInitialHorizonRenderScale = mHorizonRenderScale
         mInitialHorizonOrientation = mHorizonOrientation
         mInitialHorizonInputHost = mHorizonInputHost
-        mInitialHorizonImmersive = mHorizonImmersive
     }
 
     private fun openVersionSelector() {
@@ -222,7 +218,6 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
         instance.horizonRenderScale = mHorizonRenderScale
         instance.horizonOrientation = mHorizonOrientation
         instance.horizonInputHost = mHorizonInputHost
-        instance.horizonImmersive = mHorizonImmersive
 
         instance.selectedRuntime = if (mSelectedRuntime?.name == "<Default>" || (mSelectedRuntime?.versionString == null && mSelectedRuntime?.name != "auto")) {
             null
@@ -245,8 +240,8 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
             mInitialHorizonRenderScale = mHorizonRenderScale
             mInitialHorizonOrientation = mHorizonOrientation
             mInitialHorizonInputHost = mHorizonInputHost
-            mInitialHorizonImmersive = mHorizonImmersive
             mIconChanged = false
+            mIsNewInstance = false
 
             ExtraCore.setValue(ExtraConstants.REFRESH_VERSION_SPINNER, true)
             Toast.makeText(requireContext(), R.string.global_save, Toast.LENGTH_SHORT).show()

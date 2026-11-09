@@ -79,6 +79,7 @@ object HorizonUtils {
 
             File(gameDir, "saves").mkdirs()
             File(gameDir, "resourcepacks").mkdirs()
+            File(gameDir, "horizon-mods").mkdirs()
 
             val resourcesDir = HorizonInstaller.getHorizonHomeDir(context)
             val authArgs = HorizonAuth.prepareAuthArgs(context, account)
@@ -112,7 +113,6 @@ object HorizonUtils {
             val renderScale = instance?.horizonRenderScale ?: 1.0f
             val inputHost = instance?.horizonInputHost ?: "keyboard_mouse"
             val orientation = instance?.horizonOrientation ?: "sensor_landscape"
-            val immersive = instance?.horizonImmersive ?: true
 
             val launchConfig = JSONObject().apply {
                 put("args", JSONArray(cmdArgs))
@@ -120,7 +120,6 @@ object HorizonUtils {
                 put("render_scale", renderScale.toDouble())
                 put("input_host", inputHost)
                 put("orientation", orientation)
-                put("immersive", immersive)
                 put("avoid_cutout", true)
             }
 

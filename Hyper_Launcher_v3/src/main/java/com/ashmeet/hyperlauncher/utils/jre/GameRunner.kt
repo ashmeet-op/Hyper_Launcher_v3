@@ -201,8 +201,7 @@ object GameRunner {
 
         DiscordRpcManager.startRpc(
             "Playing Minecraft ($versionId)",
-            if (instance.mInstanceRoot != null) instance.mInstanceRoot.name else "HyperLauncher",
-            instance.icon
+            if (instance.mInstanceRoot != null) instance.mInstanceRoot.name else "HyperLauncher"
         )
 
         GameRenderer.releaseCache()

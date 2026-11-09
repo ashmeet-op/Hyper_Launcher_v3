@@ -59,6 +59,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ashmeet.hyperlauncher.activity.PojavApplication
+import com.ashmeet.hyperlauncher.utils.horizon.HorizonUtils
 import com.ashmeet.hyperlauncher.components.HyperAlertDialog
 import com.ashmeet.hyperlauncher.components.HyperSearchBar
 import com.ashmeet.hyperlauncher.components.layout.ScreenLayout
@@ -361,7 +362,11 @@ fun InstanceDirectoryContent(
         val root = instanceRoot ?: return@LaunchedEffect
         when (selectedTab) {
             0 -> loadFiles(root)
-            1 -> loadFiles(File(root, "mods"))
+            1 -> {
+                val isHorizon = HorizonUtils.isHorizonInstance(selectedInstance)
+                val modsDir = if (isHorizon) File(root, "horizon-mods") else File(root, "mods")
+                loadFiles(modsDir)
+            }
             2 -> loadFiles(File(root, "saves"))
             3 -> loadFiles(File(root, "resourcepacks"))
         }
