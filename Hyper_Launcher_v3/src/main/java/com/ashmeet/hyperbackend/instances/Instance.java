@@ -6,7 +6,6 @@ import android.util.Log;
 
 import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
-import com.ashmeet.hyperbackend.utils.JSONUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,6 +31,7 @@ public class Instance extends DisplayInstance {
     public Float horizonRenderScale;
     public String horizonOrientation;
     public String horizonInputHost;
+    public boolean horizonUseHorizonControls;
 
     protected Instance() {
     }
@@ -51,7 +51,7 @@ public class Instance extends DisplayInstance {
 
 
     public void write() throws IOException {
-        JSONUtils.writeToFile(Instances.metadataLocation(mInstanceRoot), this);
+        super.write();
     }
 
 
@@ -66,18 +66,13 @@ public class Instance extends DisplayInstance {
 
     public void encodeNewIcon(Bitmap bitmap) throws IOException {
         try(FileOutputStream fileOutputStream = new FileOutputStream(getInstanceIconLocation())) {
-            bitmap.compress(
-                    Build.VERSION.SDK_INT < Build.VERSION_CODES.R ?
-
-
-
-                            Bitmap.CompressFormat.WEBP:
-
-
-                            Bitmap.CompressFormat.WEBP_LOSSY,
-                    60,
-                    fileOutputStream
-            );
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                bitmap.compress(
+                        Bitmap.CompressFormat.WEBP_LOSSY,
+                        60,
+                        fileOutputStream
+                );
+            }
         }
     }
 

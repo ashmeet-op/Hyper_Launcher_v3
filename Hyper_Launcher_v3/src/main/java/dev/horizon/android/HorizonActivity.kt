@@ -315,6 +315,9 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
         controlLayout?.post {
             HyperUtils.getDisplayMetrics(this)
             loadControls()
+            if (instance?.horizonUseHorizonControls == true) {
+                controlLayout?.visibility = View.GONE
+            }
         }
     }
 

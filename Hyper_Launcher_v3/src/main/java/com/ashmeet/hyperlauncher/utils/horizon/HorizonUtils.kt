@@ -25,6 +25,7 @@ object HorizonUtils {
     const val HORIZON_VERSION_ID = "26.3-horizon"
     const val HORIZON_RUNTIME = "HORIZON_NATIVE"
 
+
     @JvmStatic
     fun isHorizonInstance(instance: DisplayInstance?): Boolean {
         if (instance == null) return false
@@ -109,10 +110,17 @@ object HorizonUtils {
                 }
             }
 
+            val useHorizonControls = instance?.horizonUseHorizonControls ?: false
+            val inputHost = if (useHorizonControls) {
+                instance.horizonInputHost ?: "touch"
+            } else {
+                instance?.horizonInputHost ?: "keyboard_mouse"
+            }
+
             val renderer = instance?.getLaunchRenderer() ?: "vulkan"
             val renderScale = instance?.horizonRenderScale ?: 1.0f
-            val inputHost = instance?.horizonInputHost ?: "keyboard_mouse"
             val orientation = instance?.horizonOrientation ?: "sensor_landscape"
+
 
             val launchConfig = JSONObject().apply {
                 put("args", JSONArray(cmdArgs))
@@ -121,6 +129,7 @@ object HorizonUtils {
                 put("input_host", inputHost)
                 put("orientation", orientation)
                 put("avoid_cutout", true)
+                put("use_horizon_controls", useHorizonControls)
             }
 
             val jsonContent = launchConfig.toString(2)

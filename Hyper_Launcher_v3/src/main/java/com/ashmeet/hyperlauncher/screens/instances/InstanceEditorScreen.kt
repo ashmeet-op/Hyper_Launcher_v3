@@ -90,6 +90,8 @@ fun InstanceEditorScreen(
     onHorizonOrientationChange: (String) -> Unit = {},
     horizonInputHost: String = "keyboard_mouse",
     onHorizonInputHostChange: (String) -> Unit = {},
+    horizonUseHorizonControls: Boolean = false,
+    onHorizonUseHorizonControlsChange: (Boolean) -> Unit = {},
     hasChanges: Boolean,
     onSave: () -> Unit,
     onDelete: () -> Unit,
@@ -255,6 +257,14 @@ fun InstanceEditorScreen(
                             summary = translatedText(summaryText),
                             icon = Icons.Rounded.Terminal,
                             onClick = { showHorizonInputHostDialog = true }
+                        )
+                    }
+                    SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
+                        SettingsSwitchItem(
+                            title = translatedText("Use Horizon Controls"),
+                            summary = translatedText(if (horizonUseHorizonControls) "Enabled (Using default Horizon controls)" else "Disabled (Using custom/launcher controls)"),
+                            checked = horizonUseHorizonControls,
+                            onCheckedChange = onHorizonUseHorizonControlsChange
                         )
                     }
                     SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
