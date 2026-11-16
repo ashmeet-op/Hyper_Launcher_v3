@@ -505,7 +505,14 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
         }
     }
 
+    private fun ensureUngrabbed() {
+        if (Platform.isGrabbing()) {
+            CallbackBridge.sendKeyPress(KeyEvent.KEYCODE_ESCAPE)
+        }
+    }
+
     private fun openCustomControls() {
+        ensureUngrabbed()
         isInEditor = true
         mainComposeView?.let { view ->
             LauncherComposeHelper.setBaseMainContent(
@@ -525,16 +532,19 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
     }
 
     private fun openLogOutput() {
+        ensureUngrabbed()
         loggerView?.visibility = View.VISIBLE
         updateOverlayFocusableState()
     }
 
     private fun dialogSendCustomKey() {
+        ensureUngrabbed()
         SideDialogUtils.show(CustomKeySideDialog(), true)
         updateOverlayFocusableState()
     }
 
     private fun openQuickSettings() {
+        ensureUngrabbed()
         if (quickSettingSideDialog == null) {
             quickSettingSideDialog = object : QuickSettingSideDialog() {
                 override fun onResolutionChanged() {
@@ -576,6 +586,7 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
     }
 
     override fun onClickedMenu() {
+        ensureUngrabbed()
         drawerController?.open()
         updateOverlayFocusableState(true)
     }
@@ -850,10 +861,8 @@ class HorizonActivity : NativeActivity(), LifecycleOwner, ViewModelStoreOwner, S
             cursorTouchPointerId = MotionEvent.INVALID_POINTER_ID
             activeCameraPointerIds.clear()
         }
-        if (cursorVisible && cursorTouchPointerId != MotionEvent.INVALID_POINTER_ID) {
-            return true
-        }
-        return super.dispatchTouchEvent(ev)
+        val superResult = super.dispatchTouchEvent(ev)
+        return cursorVisible && cursorTouchPointerId != MotionEvent.INVALID_POINTER_ID || superResult
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {

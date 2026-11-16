@@ -411,7 +411,7 @@ class ContentInstallerFragment : Fragment() {
                         projectVersions = projectVersions,
                         availableProjectMCVersions = availableProjectMCVersions,
                         selectedProjectMCVersion = selectedProjectMCVersion,
-                        initialBypassWarning = initialBypass,
+                        initialBypassWarning = initialBypass || isHorizon || selectedSource == ContentSource.HORIZON,
                         onProjectMCVersionClick = {
                             selectedProjectMCVersion = it.ifEmpty { null }
                         },
