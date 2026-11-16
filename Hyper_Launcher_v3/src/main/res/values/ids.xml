@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="container_fragment" type="id" />
+    <item name="container_fragment_auth" type="id" />
+    <item name="main_control_layout" type="id" />
+    <item name="main_game_render_view" type="id" />
+    <item name="main_touchpad" type="id" />
+    <item name="mainTouchCharInput" type="id" />
+    <item name="drawer_button" type="id" />
+    <item name="hotbar_view" type="id" />
+    <item name="mainLoggerView" type="id" />
+    <item name="main_cursorview" type="id" />
+    <item name="awt_touch_char" type="id" />
+    <item name="installmod_surfaceview" type="id" />
+    <item name="installmod_mouse_pri" type="id" />
+    <item name="installmod_mouse_sec" type="id" />
+    <item name="installmod_window_moveup" type="id" />
+    <item name="installmod_window_movedown" type="id" />
+    <item name="installmod_window_moveleft" type="id" />
+    <item name="installmod_window_moveright" type="id" />
+    <item name="launcherLoggerView" type="id" />
+</resources>

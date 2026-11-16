@@ -1,0 +1,102 @@
+package com.ashmeet.hyperlauncher.activity
+
+import android.content.Context
+import android.content.Intent
+import android.graphics.Color
+import android.os.Bundle
+import android.util.Log
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
+import androidx.annotation.Keep
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.platform.ComposeView
+import androidx.core.content.edit
+import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.utils.HyperUtils
+import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
+import net.ashmeet.hyperlauncher.R
+import java.io.File
+import java.io.IOException
+import kotlin.system.exitProcess
+
+@Keep
+class ExitActivity : AppCompatActivity() {
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
+        )
+        super.onCreate(savedInstanceState)
+        var code = -1
+        var isSignal = false
+        intent.extras?.let {
+            code = it.getInt("code", -1)
+            isSignal = it.getBoolean("isSignal", false)
+        }
+
+        val title = if (isSignal) getString(R.string.mcn_abort_title) else getString(R.string.mcn_exit_title, code)
+
+        val logs = try {
+            HyperUtils.read(File(HyperUtils.DIR_GAME_HOME, "latestlog.txt"))
+        } catch (e: IOException) {
+            "Failed to read logs: ${e.message}"
+        }
+
+        val composeView = ComposeView(this)
+        LauncherComposeHelper.ensureViewTreeOwners(composeView)
+        LauncherComposeHelper.setExitContent(
+            composeView,
+            logs,
+            onShareClick = { HyperUtils.shareLog(this) },
+            onRestartClick = { HyperUtils.restartLauncherActivity(this) },
+            onOpenCrashReport = { path -> HyperUtils.openPath(this, File(path), false) }
+        )
+        setContentView(composeView)
+    }
+
+    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+    companion object {
+        @Volatile
+        @JvmField
+        var isExiting: Boolean = false
+
+        @JvmStatic
+        @Suppress("unused")
+        fun showExitMessage(ctx: Context?, code: Int, isSignal: Boolean) {
+            isExiting = true
+            if (!isSignal && code == 0) {
+                ctx?.let { HyperUtils.restartLauncherActivity(it) }
+                exitProcess(0)
+            }
+
+            ctx?.let {
+                LauncherPreferences.prefs.edit {
+                    putBoolean("has_recent_crash", true)
+                }
+            }
+
+            val lock = Any()
+            HyperUtils.runOnUiThread {
+                val i = Intent(ctx, ExitActivity::class.java)
+                i.putExtra("code", code)
+                i.putExtra("isSignal", isSignal)
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                ctx?.startActivity(i)
+                synchronized(lock) {
+                    (lock as Object).notify()
+                }
+            }
+            synchronized(lock) {
+                try {
+                    (lock as Object).wait(2000)
+                } catch (e: InterruptedException) {
+                    Log.e("ExitActivity", "Waiting on lock failed: $e")
+                }
+            }
+            exitProcess(0)
+        }
+    }
+}

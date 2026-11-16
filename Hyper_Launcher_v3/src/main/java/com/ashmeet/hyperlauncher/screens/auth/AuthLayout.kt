@@ -1,0 +1,427 @@
+package com.ashmeet.hyperlauncher.screens.auth
+
+
+import android.content.res.Configuration
+import android.view.ViewGroup
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.AddReaction
+import androidx.compose.material.icons.rounded.Animation
+import androidx.compose.material.icons.rounded.Sell
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FloatingActionButtonMenu
+import androidx.compose.material3.FloatingActionButtonMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.ToggleFloatingActionButton
+import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.edit
+import androidx.fragment.app.FragmentContainerView
+import net.ashmeet.hyperlauncher.R
+import com.ashmeet.hyperbackend.authenticator.AuthType
+import com.ashmeet.hyperbackend.authenticator.accounts.Accounts
+import com.ashmeet.hyperlauncher.extra.ExtraConstants
+import com.ashmeet.hyperlauncher.extra.ExtraCore
+import com.ashmeet.hyperlauncher.extra.ExtraListener
+import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.skin.SkinPreview
+import com.ashmeet.hyperlauncher.skin.model.SkinModelType
+import com.ashmeet.hyperlauncher.utils.SkinUtils
+import com.ashmeet.hyperlauncher.utils.translation.translatedText
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun AuthLayout(
+    title: String,
+    isFullScreen: Boolean = false,
+    onBack: (() -> Unit)? = null,
+    onSkinLibraryClick: () -> Unit = {},
+    onCapeLibraryClick: () -> Unit = {},
+    onFragmentViewCreated: (ViewGroup) -> Unit
+) {
+    val animations = listOf("NewIdle", "DefaultIdle", "Walking", "Running", "Flying", "Wave", "Crouch", "Hit")
+    var currentAnimation by remember { mutableStateOf(LauncherPreferences.PREF_SKIN_ANIMATION) }
+    val backEquipment by remember {
+        derivedStateOf { if (currentAnimation == "Flying") "elytra" else "cape" }
+    }
+    var showAnimationDialog by remember { mutableStateOf(false) }
+
+    var isLoadingSkin by remember { mutableStateOf(true) }
+    var currentAccount by remember {
+        mutableStateOf(try { Accounts.getCurrent() } catch (_: Exception) { null })
+    }
+
+    var skinModel by remember(currentAccount) {
+        mutableStateOf(SkinUtils.getModelType(currentAccount))
+    }
+    var customSkinPath by remember(currentAccount) { mutableStateOf(currentAccount?.skinPath) }
+    var customCapePath by remember(currentAccount) { mutableStateOf(currentAccount?.capePath) }
+
+    DisposableEffect(Unit) {
+        val accountListener = ExtraListener<Any> { _, _ ->
+            currentAccount = try { Accounts.getCurrent() } catch (_: Exception) { null }
+            false
+        }
+        ExtraCore.addExtraListener(ExtraConstants.REFRESH_ACCOUNT_SPINNER, accountListener)
+        onDispose {
+            ExtraCore.removeExtraListenerFromValue(ExtraConstants.REFRESH_ACCOUNT_SPINNER, accountListener)
+        }
+    }
+
+    @Suppress("RemoveRedundantQualifierName")
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = if (LauncherPreferences.PREF_LAUNCHER_BACKGROUND_PATH != null) androidx.compose.ui.graphics.Color.Transparent else MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.onBackground
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            val sideWeight by animateFloatAsState(
+                targetValue = if (isFullScreen) 0.001f else 1.0f,
+                label = "SideWeightAnimation"
+            )
+
+            val mainWeight by animateFloatAsState(
+                targetValue = if (isFullScreen) 1.0f else 1.2f,
+                label = "MainWeightAnimation"
+            )
+
+            val animatedPadding by animateDpAsState(
+                targetValue = if (isFullScreen) 0.dp else 16.dp,
+                label = "PaddingAnimation"
+            )
+
+            val configuration = LocalConfiguration.current
+            val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+
+            val skinPreviewContent: @Composable () -> Unit = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(vertical = 16.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    var fabMenuExpanded by remember { mutableStateOf(false) }
+                    val modelAlpha by animateFloatAsState(if (fabMenuExpanded) 0.3f else 1.0f)
+
+                    Box(
+                        modifier = Modifier
+                            .weight(1.0f)
+                            .fillMaxWidth()
+                            .graphicsLayer(alpha = modelAlpha),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        SkinPreview(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            skinUrl = customSkinPath?.let { "file://$it" } ?: SkinUtils.getSkinUrl(currentAccount),
+                            model = skinModel,
+                            animation = currentAnimation,
+                            backEquipment = backEquipment,
+                            capeUrl = customCapePath?.let { "file://$it" } ?: currentAccount?.capePath?.let { "file://$it" } ?: when (currentAccount?.authType) {
+                                AuthType.MICROSOFT -> "https://crafatar.com/capes/${currentAccount?.profileId}"
+                                AuthType.ELY_BY -> "http://skinsystem.ely.by/capes/${currentAccount?.username}.png"
+                                else -> null
+                            },
+                            onLoadingStateChanged = { isLoadingSkin = it }
+                        )
+
+                        if (isLoadingSkin) {
+                            LoadingIndicator()
+                        }
+
+                        if (LauncherPreferences.PREF_LAUNCHER_BACKGROUND_PATH == null) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(120.dp)
+                                    .align(Alignment.BottomCenter)
+                                    .background(
+                                        brush = Brush.verticalGradient(
+                                            colors = listOf(
+                                                Color.Transparent,
+                                                MaterialTheme.colorScheme.background
+                                            )
+                                        )
+                                    )
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        SingleChoiceSegmentedButtonRow(
+                            modifier = Modifier.wrapContentSize(),
+                        ) {
+                            val options = listOf("slim", "default")
+                            options.forEachIndexed { index, option ->
+                                SegmentedButton(
+                                    selected = skinModel == option,
+                                    onClick = {
+                                        skinModel = option
+                                        currentAccount?.let { acc ->
+                                            acc.skinModel = if (option == "slim") SkinModelType.ALEX else SkinModelType.STEVE
+                                            try {
+                                                acc.save()
+                                            } catch (e: Exception) {
+                                                e.printStackTrace()
+                                            }
+                                        }
+                                    },
+                                    shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                                    label = { Text(if (option == "slim") translatedText("Slim") else translatedText("Wide")) },
+                                    modifier = Modifier.height(40.dp)
+                                )
+                            }
+                        }
+
+                        val fabMenuStartColor = MaterialTheme.colorScheme.surface
+                        val fabMenuEndColor = MaterialTheme.colorScheme.secondary
+                        val fabMenuIconStartColor = MaterialTheme.colorScheme.onSurface
+                        val fabMenuIconEndColor = MaterialTheme.colorScheme.onSecondary
+
+                        Box(
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            FloatingActionButtonMenu(
+                                modifier = Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .wrapContentSize(align = Alignment.BottomCenter, unbounded = true)
+                                    .offset(y = 16.dp),
+                                expanded = fabMenuExpanded,
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                button = {
+                                    ToggleFloatingActionButton(
+                                        checked = fabMenuExpanded,
+                                        onCheckedChange = { fabMenuExpanded = !fabMenuExpanded },
+                                        modifier = Modifier.size(40.dp),
+                                        containerSize = { 40.dp },
+                                        containerCornerRadius = { 20.dp },
+                                        contentAlignment = Alignment.Center,
+                                        containerColor = { progress ->
+                                            androidx.compose.ui.graphics.lerp(fabMenuStartColor, fabMenuEndColor, progress)
+                                        }
+                                    ) {
+                                        Box(
+                                            modifier = Modifier.fillMaxSize(),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Rounded.Add,
+                                                contentDescription = null,
+                                                modifier = Modifier
+                                                    .graphicsLayer {
+                                                        rotationZ = checkedProgress * 45f
+                                                    }
+                                                    .animateIcon(
+                                                        checkedProgress = { checkedProgress },
+                                                        color = { progress ->
+                                                            androidx.compose.ui.graphics.lerp(fabMenuIconStartColor, fabMenuIconEndColor, progress)
+                                                        }
+                                                    )
+                                            )
+                                        }
+                                    }
+                                }
+                            ) {
+                                val isMicrosoftOrElyBy = currentAccount?.authType == AuthType.MICROSOFT || currentAccount?.authType == AuthType.ELY_BY
+                                if (!isMicrosoftOrElyBy) {
+                                    FloatingActionButtonMenuItem(
+                                        onClick = {
+                                            fabMenuExpanded = false
+                                            onSkinLibraryClick()
+                                        },
+                                        icon = { Icon(Icons.Rounded.AddReaction, contentDescription = null) },
+                                        text = { Text(text = translatedText(stringResource(R.string.auth_skins_library))) },
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                    FloatingActionButtonMenuItem(
+                                        onClick = {
+                                            fabMenuExpanded = false
+                                            onCapeLibraryClick()
+                                        },
+                                        icon = { Icon(Icons.Rounded.Sell, contentDescription = null) },
+                                        text = { Text(text = translatedText(stringResource(R.string.auth_capes_library))) },
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                }
+                                FloatingActionButtonMenuItem(
+                                    onClick = {
+                                        fabMenuExpanded = false
+                                        showAnimationDialog = true
+                                    },
+                                    icon = { Icon(Icons.Rounded.Animation, contentDescription = null) },
+                                    text = { Text(text = translatedText(stringResource(R.string.auth_animations))) },
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            val androidViewContent: @Composable () -> Unit = {
+                AndroidView(
+                    factory = { context ->
+                        FragmentContainerView(context).apply {
+                            id = R.id.container_fragment_auth
+                            onFragmentViewCreated(this)
+                        }
+                    },
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+
+            if (isPortrait) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(animatedPadding),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                    ) {
+                        androidViewContent()
+                    }
+
+                    if (!isFullScreen) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(280.dp)
+                        ) {
+                            skinPreviewContent()
+                        }
+                    }
+                }
+            } else {
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(animatedPadding),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (!isFullScreen) {
+                        Box(
+                            modifier = Modifier
+                                .weight(sideWeight)
+                                .fillMaxHeight()
+                        ) {
+                            skinPreviewContent()
+                        }
+                        Spacer(modifier = Modifier.width(16.dp))
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .weight(mainWeight)
+                            .fillMaxHeight()
+                    ) {
+                        androidViewContent()
+                    }
+                }
+            }
+
+            if (showAnimationDialog) {
+                com.ashmeet.hyperlauncher.screens.settings.preferences.SingleChoiceDialog(
+                    title = translatedText(stringResource(R.string.auth_choose_animation)),
+                    options = animations,
+                    optionValues = animations,
+                    selectedValue = currentAnimation,
+                    onValueChange = {
+                        currentAnimation = it
+                        LauncherPreferences.prefs.edit { putString("skin_animation", it) }
+                        LauncherPreferences.PREF_SKIN_ANIMATION = it
+                        showAnimationDialog = false
+                    },
+                    onDismiss = { showAnimationDialog = false }
+                )
+            }
+
+            if (onBack != null) {
+                Surface(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.TopStart),
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+                    tonalElevation = 4.dp
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(end = 16.dp)
+                    ) {
+                        IconButton(onClick = onBack) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                                contentDescription = translatedText(stringResource(R.string.auth_back)),
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.padding(start = 15.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}

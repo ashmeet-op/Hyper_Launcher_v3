@@ -1,0 +1,407 @@
+package com.ashmeet.hyperlauncher.screens.settings
+
+import android.annotation.SuppressLint
+import android.content.Intent
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material.icons.Icons
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Architecture
+import androidx.compose.material.icons.filled.AspectRatio
+import androidx.compose.material.icons.filled.Brush
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Fullscreen
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Layers
+import androidx.compose.material.icons.filled.Monitor
+import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.integerResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.core.content.edit
+import androidx.core.net.toUri
+import com.ashmeet.hyperlauncher.plugin.renderer.RendererPluginManager
+import com.ashmeet.hyperlauncher.plugin.renderer_v2.RendererV2PluginManager
+import com.ashmeet.hyperlauncher.screens.settings.layouts.CardPosition
+import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsCard
+import com.ashmeet.hyperlauncher.screens.settings.layouts.SettingsScreenWrapper
+import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.screens.settings.preferences.ResolutionSelectionDialog
+import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsActionItem
+import com.ashmeet.hyperlauncher.screens.settings.preferences.SettingsSwitchItem
+import com.ashmeet.hyperlauncher.screens.settings.preferences.SingleChoiceDialog
+import com.ashmeet.hyperlauncher.utils.HyperUtils
+import com.ashmeet.hyperlauncher.utils.translation.translatedText
+import net.ashmeet.hyperlauncher.R
+import com.ashmeet.hyperbackend.game.renderer.RendererCache
+import com.ashmeet.hyperbackend.instances.Instances
+import com.ashmeet.hyperbackend.utils.MCOptionUtils
+import com.ashmeet.hyperbackend.vulkan.DriverInstaller
+import com.ashmeet.hyperbackend.vulkan.DriverManager
+import com.ashmeet.hyperbackend.vulkan.ui.VulkanDriverDialog
+
+@SuppressLint("LocalContextResourcesRead")
+@Composable
+fun VideoSettingsScreen(
+    onBack: () -> Unit,
+    isAngleAvailable: Boolean,
+    isZinkPreferSystemDriverVisible: Boolean,
+    onNavigateToRendererConfig: (() -> Unit)? = null
+) {
+    val context = LocalContext.current
+    var renderer by remember { mutableStateOf(LauncherPreferences.PREF_RENDERER) }
+    var graphicsBackend by remember { mutableStateOf(LauncherPreferences.PREF_GRAPHICS_BACKEND) }
+    var ignoreNotch by remember { mutableStateOf(LauncherPreferences.PREF_IGNORE_NOTCH) }
+    var fullscreenLauncher by remember { mutableStateOf(LauncherPreferences.PREF_FULLSCREEN_LAUNCHER) }
+    var resolutionRatio by remember { mutableFloatStateOf(LauncherPreferences.PREF_SCALE_FACTOR * 100f) }
+    var sustainedPerformance by remember { mutableStateOf(LauncherPreferences.PREF_SUSTAINED_PERFORMANCE) }
+    var alternateSurface by remember { mutableStateOf(LauncherPreferences.PREF_USE_ALTERNATE_SURFACE) }
+    var forceVsync by remember { mutableStateOf(LauncherPreferences.PREF_FORCE_VSYNC) }
+    var useAngle by remember { mutableStateOf(LauncherPreferences.PREF_USE_ANGLE) }
+    var vsyncInZink by remember { mutableStateOf(LauncherPreferences.PREF_VSYNC_IN_ZINK) }
+    var zinkPreferSystemDriver by remember { mutableStateOf(LauncherPreferences.PREF_ZINK_PREFER_SYSTEM_DRIVER) }
+    var zinkForceLegacy by remember { mutableStateOf(LauncherPreferences.PREF_ZINK_FORCE_LEGACY) }
+    var driver by remember { mutableStateOf(LauncherPreferences.PREF_DRIVER) }
+    var showRendererDialog by remember { mutableStateOf(false) }
+    var showBackendDialog by remember { mutableStateOf(false) }
+    var showDriverDialog by remember { mutableStateOf(false) }
+    var showResolutionDialog by remember { mutableStateOf(false) }
+
+    val importLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            Toast.makeText(context, R.string.driver_config_import_notify, Toast.LENGTH_SHORT).show()
+            DriverInstaller.installDriverFromUri(context, uri) {
+                driver = LauncherPreferences.PREF_DRIVER
+                LauncherPreferences.loadPreferences(context)
+            }
+        }
+    }
+
+    val compatibleRenderers = remember(context) { RendererCache.getCompatibleRenderers(context) }
+
+    SettingsScreenWrapper(
+        title = translatedText(stringResource(R.string.preference_category_video)),
+        onBack = onBack,
+        addTopGap = true
+    ) {
+        val rendererDisplayName = remember(renderer, compatibleRenderers) {
+            val index = compatibleRenderers.rendererIds.indexOf(renderer)
+            if (index != -1) compatibleRenderers.rendererDisplayNames[index] else renderer
+        }
+
+        val currentPreferredDriver = remember(driver) { DriverManager.getPreferredDriver() }
+        val driverDisplayName = currentPreferredDriver?.name ?: "Built-in"
+
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            SettingsCard(position = CardPosition.TOP, useSurface = true) {
+                SettingsActionItem(
+                    title = translatedText(stringResource(R.string.mcl_setting_category_renderer)),
+                    summary = rendererDisplayName,
+                    icon = Icons.Default.Brush,
+                    trailingIcon = Icons.Default.Download,
+                    onTrailingIconClick = {
+                        val intent = Intent(Intent.ACTION_VIEW,
+                            "https://github.com/ShirosakiMio/FCLRendererPlugin/releases/tag/Renderer".toUri())
+                        context.startActivity(intent)
+                    },
+                    onClick = { showRendererDialog = true }
+                )
+            }
+
+            val v2Plugins = remember { RendererV2PluginManager.getRendererList() }
+            val v1ConfigurablePlugins = remember { RendererPluginManager.getRendererList().filter { it.isConfigurable } }
+            val isCurrentRendererConfigurable = remember(renderer) {
+                RendererPluginManager.isConfigurablePlugin(renderer) || RendererPluginManager.selectedRendererPlugin?.isConfigurable == true
+            }
+
+            if (v2Plugins.isNotEmpty() || v1ConfigurablePlugins.isNotEmpty() || isCurrentRendererConfigurable) {
+                SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
+                    SettingsActionItem(
+                        title = translatedText("Renderer Plugin Config"),
+                        summary = translatedText("Configure environment variables and settings for renderer plugins"),
+                        icon = Icons.Default.Tune,
+                        onClick = {
+                            val currentV1Plugin = RendererPluginManager.selectedRendererPlugin
+                            if (currentV1Plugin?.isConfigurable == true) {
+                                val launchIntent = context.packageManager.getLaunchIntentForPackage(currentV1Plugin.packageName)
+                                if (launchIntent != null) {
+                                    context.startActivity(launchIntent)
+                                    return@SettingsActionItem
+                                }
+                            }
+                            onNavigateToRendererConfig?.invoke()
+                        }
+                    )
+                }
+            }
+
+            SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
+                SettingsActionItem(
+                    title = translatedText("Vulkan Driver"),
+                    summary = driverDisplayName,
+                    icon = Icons.Default.Architecture,
+                    trailingIcon = Icons.Default.Add,
+                    onTrailingIconClick = {
+                        importLauncher.launch("application/zip")
+                    },
+                    onClick = { showDriverDialog = true }
+                )
+            }
+
+            SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
+                val backendOptions = listOf("Default", "Vulkan", "OpenGL", "Let MC Decide")
+                val backendValues = listOf("default", "vulkan", "opengl", "minecraft")
+                val currentBackendLabel = backendOptions[backendValues.indexOf(graphicsBackend).coerceAtLeast(0)]
+
+                SettingsActionItem(
+                    title = translatedText("Preferred Graphics Backend"),
+                    summary = currentBackendLabel,
+                    icon = Icons.Default.Architecture,
+                    warningTooltip = if (graphicsBackend == "vulkan") "Your device must support Vulkan to use this option." else null,
+                    onClick = { showBackendDialog = true }
+                )
+            }
+
+            SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
+                SettingsSwitchItem(
+                    title = translatedText(stringResource(R.string.mcl_setting_title_ignore_notch)),
+                    summary = translatedText(stringResource(R.string.mcl_setting_subtitle_ignore_notch)),
+                    icon = Icons.Default.AspectRatio,
+                    checked = ignoreNotch,
+                    onCheckedChange = {
+                        ignoreNotch = it
+                        LauncherPreferences.prefs.edit { putBoolean("ignoreNotch", it) }
+                        LauncherPreferences.loadPreferences(context)
+                        HyperUtils.restartLauncherActivity(context)
+                    }
+                )
+            }
+
+            SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
+                SettingsSwitchItem(
+                    title = translatedText(stringResource(R.string.mcl_setting_title_fullscreen_ui)),
+                    summary = translatedText(stringResource(R.string.mcl_setting_subtitle_fullscreen_ui)),
+                    icon = Icons.Default.Fullscreen,
+                    checked = fullscreenLauncher,
+                    onCheckedChange = {
+                        fullscreenLauncher = it
+                        LauncherPreferences.prefs.edit { putBoolean("fullscreen_launcher", it) }
+                        LauncherPreferences.loadPreferences(context)
+                        HyperUtils.restartLauncherActivity(context)
+                    }
+                )
+            }
+
+            SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
+                val metrics = context.resources.displayMetrics
+                val maxSide = maxOf(metrics.widthPixels, metrics.heightPixels)
+                val minSide = minOf(metrics.widthPixels, metrics.heightPixels)
+                val resW = HyperUtils.getDisplayFriendlyRes(maxSide, resolutionRatio / 100f)
+                val resH = HyperUtils.getDisplayFriendlyRes(minSide, resolutionRatio / 100f)
+
+                SettingsActionItem(
+                    title = translatedText(stringResource(R.string.mcl_setting_title_resolution_scaler)),
+                    summary = "${resolutionRatio.toInt()}% ($resW × $resH)",
+                    icon = Icons.Default.Monitor,
+                    onClick = { showResolutionDialog = true }
+                )
+            }
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            SettingsCard(position = CardPosition.TOP, useSurface = true) {
+                SettingsSwitchItem(
+                    title = translatedText(stringResource(R.string.mcl_setting_title_use_surface_view)),
+                    summary = translatedText(stringResource(R.string.mcl_setting_subtitle_use_surface_view)),
+                    icon = Icons.Default.Layers,
+                    checked = alternateSurface,
+                    warningTooltip = "Surface View rendering might be unstable on some devices and could lead to graphical glitches.",
+                    onCheckedChange = {
+                        alternateSurface = it
+                        LauncherPreferences.prefs.edit { putBoolean("alternate_surface", it) }
+                        LauncherPreferences.loadPreferences(context)
+                    }
+                )
+            }
+
+            SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
+                SettingsSwitchItem(
+                    title = translatedText(stringResource(R.string.preference_force_vsync_title)),
+                    summary = translatedText(stringResource(R.string.preference_force_vsync_description)),
+                    icon = Icons.Default.Sync,
+                    checked = forceVsync,
+                    onCheckedChange = {
+                        forceVsync = it
+                        LauncherPreferences.prefs.edit { putBoolean("force_vsync", it) }
+                        LauncherPreferences.loadPreferences(context)
+                    }
+                )
+            }
+
+
+            SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
+                SettingsSwitchItem(
+                title = translatedText(stringResource(R.string.preference_sustained_performance_title)),
+                summary = translatedText(stringResource(R.string.preference_sustained_performance_description)),
+                icon = Icons.Default.Speed,
+                checked = sustainedPerformance,
+                onCheckedChange = {
+                sustainedPerformance = it
+                LauncherPreferences.prefs.edit { putBoolean("sustainedPerformance", it) }
+                LauncherPreferences.loadPreferences(context)
+                    }
+                )
+            }
+
+        }
+
+        val isZinkUsed = renderer.contains("zink")
+        if (isZinkUsed || isAngleAvailable) {
+
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                if (isZinkUsed) {
+                    SettingsCard(position = CardPosition.TOP, useSurface = true) {
+                        SettingsSwitchItem(
+                            title = translatedText(stringResource(R.string.preference_vsync_in_zink_title)),
+                            summary = translatedText(stringResource(R.string.preference_vsync_in_zink_description)),
+                            icon = Icons.Default.Sync,
+                            checked = vsyncInZink,
+                            onCheckedChange = {
+                                vsyncInZink = it
+                                LauncherPreferences.prefs.edit { putBoolean("vsync_in_zink", it) }
+                                LauncherPreferences.loadPreferences(context)
+                            }
+                        )
+                    }
+
+                    if (isZinkPreferSystemDriverVisible) {
+                        SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
+                            SettingsSwitchItem(
+                                title = translatedText(stringResource(R.string.preference_vulkan_driver_system_title)),
+                                summary = translatedText(stringResource(R.string.preference_vulkan_driver_system_description)),
+                                icon = Icons.Default.Architecture,
+                                checked = zinkPreferSystemDriver,
+                                onCheckedChange = {
+                                    zinkPreferSystemDriver = it
+                                    LauncherPreferences.prefs.edit { putBoolean("zinkPreferSystemDriver", it) }
+                                    LauncherPreferences.loadPreferences(context)
+                                }
+                            )
+                        }
+                    }
+                }
+
+                if (isAngleAvailable) {
+                    val anglePos = if (isZinkUsed) CardPosition.TOP else CardPosition.SINGLE
+                    SettingsCard(position = anglePos, useSurface = true) {
+                        SettingsSwitchItem(
+                            title = translatedText(stringResource(R.string.preference_use_angle_title)),
+                            summary = translatedText(stringResource(R.string.preference_use_angle_description)),
+                            icon = Icons.Default.Architecture,
+                            checked = useAngle,
+                            onCheckedChange = {
+                                useAngle = it
+                                LauncherPreferences.prefs.edit { putBoolean("use_angle", it) }
+                                LauncherPreferences.loadPreferences(context)
+                            }
+                        )
+                    }
+                }
+
+                if (isZinkUsed) {
+                    SettingsCard(position = CardPosition.BOTTOM, useSurface = true) {
+                        SettingsSwitchItem(
+                            title = translatedText(stringResource(R.string.preference_force_legacy_zink_title)),
+                            summary = translatedText(stringResource(R.string.preference_force_legacy_zink_description)),
+                            icon = Icons.Default.History,
+                            checked = zinkForceLegacy,
+                            onCheckedChange = {
+                                zinkForceLegacy = it
+                                LauncherPreferences.prefs.edit { putBoolean("zinkForceLegacy", it) }
+                                LauncherPreferences.loadPreferences(context)
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    if (showRendererDialog) {
+        val compatibleRenderers = RendererCache.getCompatibleRenderers(context)
+        SingleChoiceDialog(
+            title = translatedText(stringResource(R.string.mcl_setting_category_renderer)),
+            options = compatibleRenderers.rendererDisplayNames.toList(),
+            optionValues = compatibleRenderers.rendererIds,
+            selectedValue = renderer,
+            onValueChange = { newValue ->
+                renderer = newValue
+                LauncherPreferences.prefs.edit { putString("renderer", newValue) }
+                LauncherPreferences.loadPreferences(context)
+            },
+            onDismiss = { showRendererDialog = false }
+        )
+    }
+
+    if (showBackendDialog) {
+        SingleChoiceDialog(
+            title = translatedText("Preferred Graphics Backend"),
+            options = listOf("Default", "Vulkan", "OpenGL", "Let MC Decide"),
+            optionValues = listOf("default", "vulkan", "opengl", "minecraft"),
+            selectedValue = graphicsBackend,
+            onValueChange = { newValue ->
+                graphicsBackend = newValue
+                LauncherPreferences.prefs.edit { putString("preferredGraphicsBackend", newValue) }
+                LauncherPreferences.loadPreferences(context)
+                val selectedInstance = Instances.loadSelectedInstance()
+                val gameDir = selectedInstance?.gameDirectory?.absolutePath ?: HyperUtils.DIR_GAME_NEW
+                if (gameDir != null) {
+                    MCOptionUtils.load(gameDir)
+                    MCOptionUtils.set("preferredGraphicsBackend", newValue)
+                    MCOptionUtils.save()
+                }
+            },
+            onDismiss = { showBackendDialog = false }
+        )
+    }
+
+    if (showDriverDialog) {
+        VulkanDriverDialog(
+            onDismiss = { showDriverDialog = false },
+            onDriverChanged = {
+                driver = LauncherPreferences.PREF_DRIVER
+                LauncherPreferences.loadPreferences(context)
+            }
+        )
+    }
+
+    if (showResolutionDialog) {
+        val minRatio = integerResource(R.integer.resolution_seekbar_min)
+        ResolutionSelectionDialog(
+            title = stringResource(R.string.mcl_setting_title_resolution_scaler),
+            currentRatio = resolutionRatio.toInt(),
+            minRatio = minRatio,
+            onResolutionSelected = { newRatio ->
+                resolutionRatio = newRatio.toFloat()
+                LauncherPreferences.prefs.edit { putInt("resolutionRatio", newRatio) }
+                LauncherPreferences.loadPreferences(context)
+            },
+            onDismiss = { showResolutionDialog = false }
+        )
+    }
+}

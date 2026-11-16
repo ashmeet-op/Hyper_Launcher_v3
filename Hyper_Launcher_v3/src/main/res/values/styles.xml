@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Material 3 Base Theme -->
+    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Main surface and background -->
+        <item name="android:windowBackground">@color/background_app</item>
+        <item name="colorSurface">@color/background_app</item>
+        <item name="android:colorBackground">@color/background_app</item>
+
+        <!-- Primary colors -->
+        <item name="colorPrimary">@color/minebutton_color</item>
+        <item name="colorOnPrimary">@color/minebutton_text_color</item>
+        <item name="colorControlActivated">?attr/colorPrimary</item>
+
+        <!-- Text colors -->
+        <item name="android:textColorPrimary">@color/primary_text</item>
+        <item name="android:textColorSecondary">@color/secondary_text</item>
+
+        <!-- Dialog specific theming to match colors.xml -->
+        <item name="materialAlertDialogTheme">@style/AppTheme.AlertDialog</item>
+        <item name="alertDialogTheme">@style/AppTheme.AlertDialog</item>
+
+        <!-- Preference theming -->
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
+
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+
+        <item name="android:textSize">@dimen/_12ssp</item>
+    </style>
+
+    <style name="AppTheme.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <!-- Background of the dialog card -->
+        <item name="colorSurface">@color/background_overlay</item>
+        <item name="android:colorBackground">@color/background_overlay</item>
+
+        <!-- Surface variants (e.g., input fields, dividers) -->
+        <item name="colorSurfaceVariant">@color/background_overlay</item>
+
+        <!-- Text on the dialog -->
+        <item name="colorOnSurface">@color/primary_text</item>
+        <item name="colorOnSurfaceVariant">@color/secondary_text</item>
+
+        <!-- Action buttons -->
+        <item name="colorPrimary">@color/minebutton_color</item>
+
+        <!-- Shapes -->
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.App.MediumComponent</item>
+    </style>
+
+    <style name="ShapeAppearance.App.MediumComponent" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerSize">12dp</item>
+    </style>
+
+    <style name="LauncherFragment_Divider">
+        <item name="android:layout_width">@dimen/padding_tiny</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:background">@color/divider</item>
+    </style>
+
+    <style name="LauncherMenuButton" parent="Widget.AppCompat.Button">
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+    </style>
+
+    <style name="LauncherMenuButton.Universal" parent="LauncherMenuButton">
+        <item name="android:layout_height">@dimen/_66sdp</item>
+    </style>
+
+    <style name="ThickDivider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/_1sdp</item>
+        <item name="android:background">?android:attr/listDivider</item>
+    </style>
+
+    <style name="AppSeekBar" parent="Widget.AppCompat.SeekBar">
+        <item name="android:progressTint">@color/minebutton_color</item>
+        <item name="android:thumbTint">@color/minebutton_color</item>
+        <item name="android:progressBackgroundTint">@color/divider</item>
+    </style>
+
+    <item name="dimension_tracker" type="id" />
+    <style name="DimensionTracker">
+        <item name="android:id">@id/dimension_tracker</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+</resources>

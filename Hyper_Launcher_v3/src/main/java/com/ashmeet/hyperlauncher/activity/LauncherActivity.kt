@@ -1,0 +1,423 @@
+package com.ashmeet.hyperlauncher.activity
+
+import android.Manifest
+import android.app.NotificationManager
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import android.os.Bundle
+import android.system.Os
+import android.util.Log
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.edit
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
+import com.ashmeet.hyperlauncher.fragments.auth.AuthHostFragment
+import com.ashmeet.hyperlauncher.fragments.home.MainMenuFragment
+import com.ashmeet.hyperlauncher.fragments.installer.ContentInstallerFragment
+import com.ashmeet.hyperlauncher.fragments.instances.InstanceDirectoryFragment
+import com.ashmeet.hyperlauncher.fragments.recorder.RecordingsGalleryFragment
+import com.ashmeet.hyperlauncher.fragments.settings.LauncherPreferenceFragment
+import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.utils.Architecture
+import com.ashmeet.hyperlauncher.utils.ShortcutUtils
+import com.ashmeet.hyperlauncher.utils.HyperUtils
+import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import net.ashmeet.hyperlauncher.BuildConfig
+import net.ashmeet.hyperlauncher.R
+import com.ashmeet.hyperbackend.authenticator.accounts.Accounts
+import com.ashmeet.hyperlauncher.extra.ExtraConstants
+import com.ashmeet.hyperlauncher.extra.ExtraCore
+import com.ashmeet.hyperlauncher.extra.ExtraListener
+import com.ashmeet.hyperbackend.instances.InstanceInstaller
+import com.ashmeet.hyperbackend.instances.Instances
+import com.ashmeet.hyperbackend.lifecycle.ContextAwareDoneListener
+import com.ashmeet.hyperbackend.lifecycle.ContextExecutor
+import com.ashmeet.hyperbackend.modloaders.modpacks.imagecache.IconCacheJanitor
+import com.ashmeet.hyperbackend.progresskeeper.ProgressKeeper
+import com.ashmeet.hyperbackend.progresskeeper.TaskCountListener
+import com.ashmeet.hyperlauncher.tracker.services.TrackerServiceKeeper
+import com.ashmeet.hyperbackend.tasks.AsyncVersionList
+import com.ashmeet.hyperbackend.tasks.HyperDownloader
+import com.ashmeet.hyperbackend.tasks.HyperExtras
+import com.ashmeet.hyperbackend.utils.NotificationUtils
+import com.ashmeet.hyperlauncher.utils.horizon.HorizonUtils
+import java.io.IOException
+
+class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
+
+    private var mProgressServiceKeeper: TrackerServiceKeeper? = null
+    private var mNotificationManager: NotificationManager? = null
+    private lateinit var mRequestPermissionLauncher: ActivityResultLauncher<String>
+
+
+    private val mFragmentCallbackListener = object : FragmentManager.FragmentLifecycleCallbacks() {
+        override fun onFragmentResumed(fm: FragmentManager, f: Fragment) {
+            val isMain = f is MainMenuFragment
+            LauncherComposeHelper.setSettingsIcon(
+                if (isMain) com.ashmeet.hyperlauncher.utils.drawable.MaterialIconUtil.ICON_SETTINGS
+                else com.ashmeet.hyperlauncher.utils.drawable.MaterialIconUtil.ICON_HOME
+            )
+            LauncherComposeHelper.setFileManagerVisible(isMain)
+        }
+    }
+
+
+    private val mBackPreferenceListener = ExtraListener<String> { _, value ->
+        if (value == "true") onBackPressedDispatcher.onBackPressed()
+        false
+    }
+
+
+    private val mSelectAuthMethod = ExtraListener<Boolean> { _, value ->
+
+        val manager = supportFragmentManager
+        if (!value || manager.isStateSaved) return@ExtraListener false
+        val fragment = manager.findFragmentById(R.id.container_fragment)
+
+        if (fragment !is MainMenuFragment) return@ExtraListener false
+
+        HyperUtils.swapFragment(this, AuthHostFragment::class.java, AuthHostFragment.TAG, null)
+        false
+    }
+
+
+    private val mSettingButtonListener = View.OnClickListener {
+        val manager = supportFragmentManager
+        if (manager.isStateSaved) return@OnClickListener
+        val fragment = manager.findFragmentById(R.id.container_fragment)
+        if (fragment is MainMenuFragment) {
+            HyperUtils.swapFragment(this, LauncherPreferenceFragment::class.java, SETTING_FRAGMENT_TAG, null)
+        } else {
+
+            HyperUtils.backToMainMenu(this)
+        }
+    }
+
+
+    private val mInstanceDirectoryButtonListener = View.OnClickListener {
+        val manager = supportFragmentManager
+        if (manager.isStateSaved) return@OnClickListener
+        val fragment = manager.findFragmentById(R.id.container_fragment)
+        if (fragment is MainMenuFragment) {
+            HyperUtils.swapFragment(this, InstanceDirectoryFragment::class.java, InstanceDirectoryFragment.TAG, null)
+        }
+    }
+
+
+    private val mContentInstallerButtonListener = View.OnClickListener {
+        val manager = supportFragmentManager
+        if (manager.isStateSaved) return@OnClickListener
+        val fragment = manager.findFragmentById(R.id.container_fragment)
+        if (fragment is MainMenuFragment) {
+            HyperUtils.swapFragment(this, ContentInstallerFragment::class.java, ContentInstallerFragment.TAG, null)
+        }
+    }
+
+
+    private val mRecordingsGalleryButtonListener = View.OnClickListener {
+        val manager = supportFragmentManager
+        if (manager.isStateSaved) return@OnClickListener
+        val fragment = manager.findFragmentById(R.id.container_fragment)
+        if (fragment is MainMenuFragment) {
+            HyperUtils.swapFragment(this, RecordingsGalleryFragment::class.java, RecordingsGalleryFragment.TAG, null)
+        }
+    }
+
+    private val mLaunchGameListener = ExtraListener<Boolean> { _, _ ->
+        if (ProgressKeeper.getTaskCount() > 0) {
+            Toast.makeText(this, R.string.tasks_ongoing, Toast.LENGTH_LONG).show()
+            return@ExtraListener false
+        }
+
+        val selectedInstance = Instances.loadSelectedInstance()
+
+        if (selectedInstance == null) {
+            Toast.makeText(this, R.string.no_instance, Toast.LENGTH_LONG).show()
+            return@ExtraListener false
+        }
+
+        if (selectedInstance.installer != null) {
+            selectedInstance.installer.start()
+            return@ExtraListener false
+        }
+
+        if (!HyperUtils.isValidString(selectedInstance.versionId)) {
+            Toast.makeText(this, R.string.error_no_version, Toast.LENGTH_LONG).show()
+            return@ExtraListener false
+        }
+
+        if (HorizonUtils.isHorizonInstance(selectedInstance)) {
+            HorizonUtils.launchHorizon(this, selectedInstance)
+            return@ExtraListener false
+        }
+
+        if (Accounts.getCurrent() == null) {
+            Toast.makeText(this, R.string.no_saved_accounts, Toast.LENGTH_LONG).show()
+            ExtraCore.setValue(ExtraConstants.SELECT_AUTH_METHOD, true)
+            return@ExtraListener false
+        }
+        val normalizedVersionId = HyperExtras.normalizeVersionId(selectedInstance.versionId)
+        val mcVersion = HyperExtras.getListedVersion(normalizedVersionId)
+        HyperDownloader().start(
+            this.assets,
+            mcVersion,
+            normalizedVersionId,
+            ContextAwareDoneListener(this, normalizedVersionId)
+        )
+        false
+    }
+
+    private val mDoubleLaunchPreventionListener = TaskCountListener { taskCount ->
+
+
+        if (taskCount > 0) {
+            HyperUtils.runOnUiThread {
+                mNotificationManager?.cancel(NotificationUtils.NOTIFICATION_ID_GAME_START)
+            }
+        }
+        false
+    }
+
+    override fun setFullscreen(): Boolean {
+        return LauncherPreferences.PREF_FULLSCREEN_LAUNCHER
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        savedInstanceState?.remove("android:support:fragments")
+        savedInstanceState?.remove("androidx:fragment:1")
+        super.onCreate(savedInstanceState)
+        LauncherComposeHelper.setContent(
+            this,
+            { mSettingButtonListener.onClick(null) },
+            { mContentInstallerButtonListener.onClick(null) },
+            { mInstanceDirectoryButtonListener.onClick(null) },
+            { mRecordingsGalleryButtonListener.onClick(null) },
+            object : LauncherComposeHelper.OnFragmentViewCreatedListener {
+                override fun onCreated(view: ViewGroup) {
+                    val fm = supportFragmentManager
+                    val f = fm.findFragmentById(R.id.container_fragment)
+                    if (f == null) {
+                        fm.beginTransaction()
+                            .setReorderingAllowed(true)
+                            .replace(R.id.container_fragment, MainMenuFragment::class.java, null, MainMenuFragment.TAG)
+                            .commitAllowingStateLoss()
+                    } else {
+                        fm.beginTransaction()
+                            .setReorderingAllowed(true)
+                            .replace(R.id.container_fragment, f, f.tag)
+                            .commitAllowingStateLoss()
+                    }
+                }
+            }
+        )
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (supportFragmentManager.backStackEntryCount > 0) {
+                    if (findViewById<View>(R.id.container_fragment) == null) {
+                        Log.w("LauncherActivity", "onBackPressed: container not ready, ignoring")
+                        return
+                    }
+                    supportFragmentManager.popBackStack()
+                } else {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                    isEnabled = true
+                }
+            }
+        })
+
+        try {
+            Os.setenv("TMPDIR", HyperUtils.DIR_CACHE?.absolutePath ?: "", true)
+        } catch (e: Exception) {
+            throw RuntimeException(e)
+        }
+
+        IconCacheJanitor.runJanitor()
+
+        window.setBackgroundDrawable(null)
+        mRequestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isAllowed ->
+            if (!isAllowed) HyperUtils.runOnUiThread {
+                Toast.makeText(this, R.string.notification_permission_toast, Toast.LENGTH_LONG).show()
+            }
+        }
+        checkNotificationPermission()
+        checkX8664Warning()
+        if (LauncherPreferences.PREF_MIGRATION_NOTICE)
+            PojavApplication.sExecutorService.submit { checkPreviousInstalls() }
+
+        mNotificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        ProgressKeeper.addTaskCountListener(mDoubleLaunchPreventionListener)
+        mProgressServiceKeeper = TrackerServiceKeeper(this).also {
+            ProgressKeeper.addTaskCountListener(it)
+        }
+
+        ExtraCore.addExtraListener(ExtraConstants.BACK_PREFERENCE, mBackPreferenceListener)
+        ExtraCore.addExtraListener(ExtraConstants.SELECT_AUTH_METHOD, mSelectAuthMethod)
+        ExtraCore.addExtraListener(ExtraConstants.LAUNCH_GAME, mLaunchGameListener)
+
+        AsyncVersionList().getVersionList { versions ->
+            ExtraCore.setValue(ExtraConstants.RELEASE_TABLE, versions)
+        }
+
+        handleIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent?) {
+        if (intent == null) return
+        val instanceName = intent.getStringExtra(ShortcutUtils.EXTRA_INSTANCE_NAME)
+        if (instanceName != null) {
+            PojavApplication.sExecutorService.execute {
+                try {
+                    val instances = Instances.loadAllInstances()
+                    for (instance in instances) {
+                        if (instance.mInstanceRoot.name == instanceName) {
+                            Instances.setSelectedInstance(instance)
+                            HyperUtils.runOnUiThread { ExtraCore.setValue(ExtraConstants.LAUNCH_GAME, true) }
+                            break
+                        }
+                    }
+                } catch (e: IOException) {
+                    Log.e("LauncherActivity", "Failed to load instances for shortcut", e)
+                }
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        ContextExecutor.setActivity(this)
+        InstanceInstaller.postInstallCheck(this)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        ContextExecutor.clearActivity()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        supportFragmentManager.registerFragmentLifecycleCallbacks(mFragmentCallbackListener, true)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mProgressServiceKeeper?.let { ProgressKeeper.removeTaskCountListener(it) }
+        ExtraCore.removeExtraListenerFromValue(ExtraConstants.BACK_PREFERENCE, mBackPreferenceListener)
+        ExtraCore.removeExtraListenerFromValue(ExtraConstants.SELECT_AUTH_METHOD, mSelectAuthMethod)
+        ExtraCore.removeExtraListenerFromValue(ExtraConstants.LAUNCH_GAME, mLaunchGameListener)
+
+        supportFragmentManager.unregisterFragmentLifecycleCallbacks(mFragmentCallbackListener)
+    }
+
+    override fun onPreferenceStartFragment(caller: PreferenceFragmentCompat, pref: Preference): Boolean {
+        val fragmentName = pref.fragment ?: return false
+        return try {
+            @Suppress("UNCHECKED_CAST")
+            val fragmentClass = classLoader.loadClass(fragmentName) as Class<out Fragment>
+            HyperUtils.swapFragment(this, fragmentClass, null, pref.extras)
+            true
+        } catch (e: ClassNotFoundException) {
+            Log.e("LauncherActivity", "Could not find fragment class: $fragmentName", e)
+            false
+        }
+    }
+
+    fun askForPermission(minApi: Int, permission: String) {
+        if (Build.VERSION.SDK_INT < minApi) return
+        mRequestPermissionLauncher.launch(permission)
+    }
+
+    fun checkForPermission(minApi: Int, permission: String): Boolean {
+        return Build.VERSION.SDK_INT < minApi ||
+                ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_DENIED
+    }
+
+    private fun checkNotificationPermission() {
+        if (LauncherPreferences.PREF_SKIP_NOTIFICATION_PERMISSION_CHECK ||
+            checkForPermission(33, Manifest.permission.POST_NOTIFICATIONS)
+        ) {
+            return
+        }
+        showNotificationPermissionReasoning()
+    }
+
+    private fun checkPreviousInstalls() {
+        val packages = arrayOf("git.artdeell.mjlaunch", "git.artdeell.mojo")
+        for (s in packages) {
+            if (s == BuildConfig.APPLICATION_ID) continue
+
+            packageManager.getLaunchIntentForPackage(s) ?: continue
+            HyperUtils.runOnUiThread {
+                MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.migration_progress_warning_title)
+                    .setMessage(R.string.migration_notice)
+                    .setPositiveButton(android.R.string.ok) { _, _ ->
+                        LauncherPreferences.DEFAULT_PREF?.edit { putBoolean("migrationNotice", false) }
+                    }
+                    .setOnDismissListener { LauncherPreferences.PREF_MIGRATION_NOTICE = false }
+                    .show()
+            }
+            break
+        }
+    }
+
+    private fun showNotificationPermissionReasoning() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.notification_permission_dialog_title)
+                .setMessage(R.string.notification_permission_dialog_text)
+                .setPositiveButton(android.R.string.ok) { _, _ ->
+                    askForPermission(33, Manifest.permission.POST_NOTIFICATIONS)
+                }
+                .setNegativeButton(android.R.string.cancel) { _, _ -> handleNoNotificationPermission() }
+                .show()
+        }
+    }
+
+    private fun handleNoNotificationPermission() {
+        LauncherPreferences.PREF_SKIP_NOTIFICATION_PERMISSION_CHECK = true
+        LauncherPreferences.DEFAULT_PREF?.edit {
+            putBoolean(LauncherPreferences.PREF_KEY_SKIP_NOTIFICATION_CHECK, true)
+        }
+    }
+
+    private fun checkX8664Warning() {
+        if (Architecture.getDeviceArchitecture() == Architecture.ARCH_X86_64) {
+            val shown = LauncherPreferences.DEFAULT_PREF?.getBoolean("x86_64_warning_shown", false) ?: false
+            if (!shown) {
+                HyperUtils.runOnUiThread {
+                    MaterialAlertDialogBuilder(this)
+                        .setTitle("x86_64 Architecture Warning")
+                        .setMessage("Some native libraries may be missing on x86_64. Please use a native launcher for Windows or Linux if supported.")
+                        .setPositiveButton(android.R.string.ok) { _, _ ->
+                            LauncherPreferences.DEFAULT_PREF?.edit { putBoolean("x86_64_warning_shown", true) }
+                        }
+                        .show()
+                }
+            }
+        }
+    }
+
+    companion object {
+        const val SETTING_FRAGMENT_TAG = "SETTINGS_FRAGMENT"
+    }
+}

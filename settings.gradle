@@ -1,0 +1,36 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+    }
+}
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        mavenLocal()
+        maven { url "https://jitpack.io" }
+        flatDir {
+            dirs 'Hyper_Launcher_v3/libs'
+        }
+    }
+}
+
+rootProject.name='HyperLauncher'
+include ':Hyper_Launcher_v3'
+project(':Hyper_Launcher_v3').projectDir = new File(settingsDir, 'Hyper_Launcher_v3')
+
+include ':forge_installer'
+include ':NoBlocklist'
+include ':glfw:android-gradle'
+include ':sdl:android-gradle'
+include ':mojoexec:android-gradle'
+include ':mojoexec:jni_bindings'
+include ':ColorPicker'
+include ':horizon-android:packaging:android'
+project(':horizon-android:packaging:android').projectDir = new File(settingsDir, 'horizon-android/packaging/android')

@@ -1,0 +1,130 @@
+package com.ashmeet.hyperlauncher.activity
+
+import android.content.Intent
+import android.content.pm.ActivityInfo
+import android.graphics.Bitmap
+import android.os.Bundle
+import android.provider.DocumentsContract
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.ActivityResultLauncher
+import androidx.compose.ui.platform.ComposeView
+import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.utils.HyperUtils
+import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
+import com.google.gson.JsonSyntaxException
+import net.ashmeet.hyperlauncher.R
+import com.ashmeet.hyperbackend.customcontrols.ControlData
+import com.ashmeet.hyperbackend.customcontrols.ControlDrawerData
+import com.ashmeet.hyperbackend.customcontrols.ControlJoystickData
+import com.ashmeet.hyperbackend.customcontrols.ControlLayout
+import com.ashmeet.hyperbackend.customcontrols.EditorExitable
+import com.ashmeet.hyperbackend.utils.CropperUtils
+import java.io.IOException
+
+class CustomControlsActivity : BaseActivity(), EditorExitable, CropperUtils.CropperReceiver {
+    private lateinit var mControlLayout: ControlLayout
+    private var mCropperReceiver: CropperUtils.CropperReceiver? = null
+    private lateinit var mCropperLauncher: ActivityResultLauncher<*>
+
+    override fun updateOrientation() {
+        requestedOrientation = if (LauncherPreferences.PREF_PORTRAIT_MODE) {
+            ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
+        } else {
+            ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+        }
+    }
+
+    override fun shouldEnableEdgeToEdge(): Boolean {
+        return LauncherPreferences.PREF_FULLSCREEN_LAUNCHER
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        mCropperLauncher = CropperUtils.registerCropper(this, this)
+
+        val composeView = ComposeView(this)
+        LauncherComposeHelper.ensureViewTreeOwners(composeView)
+        setContentView(composeView)
+
+        mControlLayout = ControlLayout(this)
+        mControlLayout.setModifiable(true)
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                mControlLayout.askToExit(this@CustomControlsActivity)
+            }
+        })
+
+        LauncherComposeHelper.setControlsEditorContent(composeView, mControlLayout) { position ->
+            when (position) {
+                -1 -> mControlLayout.askToExit(this)
+                0 -> mControlLayout.addControlButton(ControlData("New"))
+                1 -> mControlLayout.addDrawer(ControlDrawerData())
+                2 -> mControlLayout.addJoystickButton(ControlJoystickData())
+                3, 4, 5 -> {
+                    // empty
+                }
+                6 -> {
+                    try {
+                        val contentUri = DocumentsContract.buildDocumentUri(
+                            getString(R.string.storageProviderAuthorities),
+                            mControlLayout.saveToDirectory(mControlLayout.mLayoutFileName)
+                        )
+
+                        val shareIntent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            putExtra(Intent.EXTRA_STREAM, contentUri)
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            type = "application/json"
+                        }
+                        startActivity(shareIntent)
+
+                        val sendIntent = Intent.createChooser(shareIntent, mControlLayout.mLayoutFileName)
+                        startActivity(sendIntent)
+                    } catch (e: Exception) {
+                        HyperUtils.showError(this, e)
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        mControlLayout.post {
+            try {
+                mControlLayout.loadLayout(LauncherPreferences.PREF_DEFAULTCTRL_PATH)
+            } catch (e: IOException) {
+                HyperUtils.showError(this, e)
+            } catch (e: JsonSyntaxException) {
+                HyperUtils.showError(this, e)
+            }
+        }
+    }
+
+    fun startCropping(cropperReceiver: CropperUtils.CropperReceiver) {
+        mCropperReceiver = cropperReceiver
+        CropperUtils.startCropper(mCropperLauncher)
+    }
+
+    override fun exitEditor() {
+        finish()
+    }
+
+    override fun getAspectRatio(): Float {
+        return mCropperReceiver?.aspectRatio ?: 1f
+    }
+
+    override fun getTargetMaxSide(): Int {
+        return mCropperReceiver?.targetMaxSide ?: 128
+    }
+
+    override fun onCropped(contentBitmap: Bitmap?) {
+        mCropperReceiver?.onCropped(contentBitmap)
+    }
+
+    override fun onFailed(exception: Exception?) {
+        mCropperReceiver?.onFailed(exception)
+    }
+}

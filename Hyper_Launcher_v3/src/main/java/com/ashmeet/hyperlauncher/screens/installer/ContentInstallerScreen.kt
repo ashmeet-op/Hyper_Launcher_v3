@@ -1,0 +1,565 @@
+package com.ashmeet.hyperlauncher.screens.installer
+
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Warning
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FloatingActionButtonMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SecondaryScrollableTabRow
+import androidx.compose.material3.SecondaryTabRow
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.content.edit
+import com.ashmeet.hyperlauncher.components.HyperAlertDialog
+import com.ashmeet.hyperlauncher.components.HyperSearchBar
+import com.ashmeet.hyperlauncher.components.layout.ScreenLayout
+import com.ashmeet.hyperlauncher.components.list.ProjectItemView
+import com.ashmeet.hyperlauncher.components.list.VersionList
+import com.ashmeet.hyperlauncher.components.sidebar.ProjectDetailsSidebar
+import com.ashmeet.hyperlauncher.components.sidebar.SearchFiltersSidebar
+import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.theme.PojavTheme
+import com.ashmeet.hyperlauncher.utils.installer.ContentInstallerType
+import com.ashmeet.hyperlauncher.utils.installer.ContentSource
+import com.ashmeet.hyperlauncher.utils.installer.ModrinthProject
+import com.ashmeet.hyperlauncher.utils.installer.ModrinthVersion
+import com.ashmeet.hyperlauncher.utils.translation.translatedText
+import net.ashmeet.hyperlauncher.R
+import kotlin.time.Duration.Companion.milliseconds
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun ContentInstallerScreen(
+    onBack: () -> Unit,
+    onSearch: (String, ContentInstallerType, version: String?, loader: String?, source: ContentSource) -> Unit,
+    onProjectClick: (ModrinthProject) -> Unit,
+    onVersionClick: (ModrinthVersion) -> Unit,
+    onRefresh: () -> Unit,
+    onImportContent: (ContentInstallerType) -> Unit,
+    projects: List<ModrinthProject>,
+    isLoading: Boolean,
+    selectedVersion: String?,
+    selectedLoader: String?,
+    instanceVersion: String?,
+    instanceLoader: String?,
+    viewingProject: ModrinthProject? = null,
+    selectedType: ContentInstallerType = ContentInstallerType.MODS,
+    selectedSource: ContentSource = ContentSource.MODRINTH,
+    projectVersions: List<ModrinthVersion> = emptyList(),
+    availableProjectMCVersions: List<String> = emptyList(),
+    selectedProjectMCVersion: String? = null,
+    initialBypassWarning: Boolean = false,
+    onProjectMCVersionClick: (String) -> Unit = {},
+    onBackToProjects: () -> Unit = {},
+) {
+    var searchQuery by remember { mutableStateOf("") }
+    val searchTextFieldState = rememberTextFieldState(searchQuery)
+    var isSearchActive by remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val interactionSource = remember { MutableInteractionSource() }
+
+    var bypassWarning by remember { mutableStateOf(initialBypassWarning || LauncherPreferences.PREF_SKIP_INCOMPATIBLE_WARNING) }
+    var skipWarningPermanently by remember { mutableStateOf(false) }
+
+    LaunchedEffect(viewingProject) {
+        if (viewingProject != null) {
+            isSearchActive = false
+            searchTextFieldState.edit { replace(0, length, "") }
+        }
+    }
+
+    LaunchedEffect(searchTextFieldState.text) {
+        val query = searchTextFieldState.text.toString()
+        if (query != searchQuery) {
+            searchQuery = query
+            onSearch(query, selectedType, selectedVersion, selectedLoader, selectedSource)
+        }
+    }
+
+    val handleBack = {
+        if (viewingProject != null) {
+            isSearchActive = false
+            searchTextFieldState.edit { replace(0, length, "") }
+            onSearch(
+                "",
+                selectedType,
+                selectedVersion,
+                selectedLoader,
+                selectedSource
+            )
+            onBackToProjects()
+        } else if (isSearchActive) {
+            isSearchActive = false
+            searchTextFieldState.edit { replace(0, length, "") }
+            onSearch(
+                "",
+                selectedType,
+                selectedVersion,
+                selectedLoader,
+                selectedSource
+            )
+        } else {
+            onBack()
+        }
+    }
+
+    BackHandler(enabled = (isSearchActive || viewingProject != null), onBack = handleBack)
+
+    val isUnsupported = remember(instanceLoader, selectedType) {
+        (selectedType == ContentInstallerType.MODS || selectedType == ContentInstallerType.MODPACKS) &&
+                (instanceLoader == null || instanceLoader == "optifine")
+    }
+
+    if (isUnsupported && !bypassWarning) {
+        HyperAlertDialog(
+            onDismissRequest = onBack,
+            icon = {
+                Icon(
+                    imageVector = Icons.Rounded.Warning,
+                    contentDescription = null,
+                    modifier = Modifier.size(32.dp),
+                    tint = MaterialTheme.colorScheme.error
+                )
+            },
+            title = {
+                Text(
+                    text = translatedText(stringResource(R.string.installer_unsupported_instance)),
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = if (instanceLoader == "optifine")
+                            stringResource(R.string.installer_optifine_warning)
+                        else
+                            stringResource(R.string.installer_vanilla_warning),
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable { skipWarningPermanently = !skipWarningPermanently }
+                    ) {
+                        Checkbox(
+                            checked = skipWarningPermanently,
+                            onCheckedChange = { skipWarningPermanently = it }
+                        )
+                        Text(text = stringResource(R.string.installer_do_not_show_again), style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+            },
+            confirmText = stringResource(R.string.installer_use_anyway),
+            onConfirm = {
+                if (skipWarningPermanently) {
+                    LauncherPreferences.PREF_SKIP_INCOMPATIBLE_WARNING = true
+                    LauncherPreferences.prefs.edit {
+                        putBoolean("skipIncompatibleWarning", true)
+                    }
+                }
+                bypassWarning = true
+            },
+            dismissText = stringResource(R.string.installer_cancel),
+            onDismiss = onBack
+        )
+    }
+
+    LaunchedEffect(selectedSource) {
+        if (selectedSource == ContentSource.HORIZON && (selectedType == ContentInstallerType.MODPACKS || selectedType == ContentInstallerType.WORLDS)) {
+            onSearch(searchQuery, ContentInstallerType.MODS, selectedVersion, selectedLoader, selectedSource)
+        }
+    }
+
+    val availableTypes = remember(selectedSource) {
+        if (selectedSource == ContentSource.HORIZON) {
+            ContentInstallerType.entries.filter { it != ContentInstallerType.MODPACKS && it != ContentInstallerType.WORLDS }
+        } else {
+            ContentInstallerType.entries
+        }
+    }
+
+    ScreenLayout(
+        onBack = handleBack,
+        onRefresh = onRefresh,
+        onImportModpack = {
+            if (viewingProject == null) {
+                isSearchActive = !isSearchActive
+                if (!isSearchActive) {
+                    searchTextFieldState.edit { replace(0, length, "") }
+                }
+            }
+        },
+        isSearchActive = isSearchActive,
+        fabMenuContent = { onDismiss ->
+            availableTypes.forEach { type ->
+                FloatingActionButtonMenuItem(
+                    onClick = {
+                        onDismiss()
+                        onImportContent(type)
+                    },
+                    icon = { Icon(type.iconRes, contentDescription = null) },
+                    text = { Text(text = translatedText("Import ${stringResource(type.labelRes)}")) },
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+        },
+        header = {
+            AnimatedContent(
+                targetState = isSearchActive,
+                transitionSpec = {
+                    (scaleIn(
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessLow
+                        ),
+                        initialScale = 0.9f
+                    ) + fadeIn()) togetherWith fadeOut(animationSpec = tween(200))
+                },
+                label = "search_transition"
+            ) { active ->
+                if (active) {
+                    LaunchedEffect(Unit) {
+                        kotlinx.coroutines.delay(200.milliseconds)
+                        focusRequester.requestFocus()
+                        keyboardController?.show()
+                    }
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .semantics { isTraversalGroup = true }
+                    ) {
+                        HyperSearchBar(
+                            state = searchTextFieldState,
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .semantics { traversalIndex = 0f }
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            label = "Search content...",
+                            focusRequester = focusRequester,
+                            interactionSource = interactionSource,
+                            onSearchAction = {
+                                onSearch(searchTextFieldState.text.toString(), selectedType, selectedVersion, selectedLoader, selectedSource)
+                                isSearchActive = false
+                            }
+                        )
+                    }
+                } else {
+                    if (selectedSource == ContentSource.HORIZON) {
+                        SecondaryTabRow(
+                            selectedTabIndex = availableTypes.indexOf(selectedType).coerceAtLeast(0),
+                            modifier = Modifier.fillMaxWidth(),
+                            containerColor = Color.Transparent,
+                            divider = {},
+                            indicator = @Composable {
+                                val index = availableTypes.indexOf(selectedType)
+                                if (index >= 0) {
+                                    TabRowDefaults.SecondaryIndicator(
+                                        modifier = Modifier
+                                            .tabIndicatorOffset(index)
+                                            .padding(horizontal = 16.dp)
+                                            .clip(RoundedCornerShape(3.dp)),
+                                        height = 4.dp,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        ) {
+                            availableTypes.forEach { type ->
+                                Tab(
+                                    selected = selectedType == type,
+                                    onClick = {
+                                        if (selectedType != type) {
+                                            if (viewingProject != null) onBackToProjects()
+                                            onSearch(searchQuery, type, selectedVersion, selectedLoader, selectedSource)
+                                        }
+                                    },
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    text = {
+                                        Text(
+                                            text = stringResource(type.labelRes),
+                                            fontWeight = if (selectedType == type) FontWeight.Bold else FontWeight.Normal,
+                                            fontSize = 12.sp,
+                                            textAlign = TextAlign.Center
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                    } else {
+                        SecondaryScrollableTabRow(
+                            selectedTabIndex = availableTypes.indexOf(selectedType).coerceAtLeast(0),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
+                                .drawWithContent {
+                                    drawContent()
+                                    val fadeWidth = 32.dp.toPx()
+                                    drawRect(
+                                        brush = Brush.horizontalGradient(
+                                            colors = listOf(Color.Transparent, Color.Black),
+                                            startX = 0f,
+                                            endX = fadeWidth
+                                        ),
+                                        blendMode = BlendMode.DstIn
+                                    )
+                                    drawRect(
+                                        brush = Brush.horizontalGradient(
+                                            colors = listOf(Color.Black, Color.Transparent),
+                                            startX = size.width - fadeWidth,
+                                            endX = size.width
+                                        ),
+                                        blendMode = BlendMode.DstIn
+                                    )
+                                },
+                            containerColor = Color.Transparent,
+                            edgePadding = 0.dp,
+                            divider = {},
+                            indicator = @Composable {
+                                val index = availableTypes.indexOf(selectedType)
+                                if (index >= 0) {
+                                    TabRowDefaults.SecondaryIndicator(
+                                        modifier = Modifier
+                                            .tabIndicatorOffset(index)
+                                            .padding(horizontal = 16.dp)
+                                            .clip(RoundedCornerShape(3.dp)),
+                                        height = 4.dp,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        ) {
+                            availableTypes.forEach { type ->
+                                Tab(
+                                    selected = selectedType == type,
+                                    onClick = {
+                                        if (selectedType != type) {
+                                            if (viewingProject != null) onBackToProjects()
+                                            val newSource = when {
+                                                selectedSource == ContentSource.HORIZON -> ContentSource.HORIZON
+                                                type == ContentInstallerType.WORLDS -> ContentSource.CURSEFORGE
+                                                else -> selectedSource
+                                            }
+                                            onSearch(searchQuery, type, selectedVersion, selectedLoader, newSource)
+                                        }
+                                    },
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    text = {
+                                        Text(
+                                            text = stringResource(type.labelRes),
+                                            fontWeight = if (selectedType == type) FontWeight.Bold else FontWeight.Normal,
+                                            fontSize = 12.sp
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        sidebar = {
+            if (viewingProject != null) {
+                ProjectDetailsSidebar(viewingProject, projectVersions)
+            } else {
+                SearchFiltersSidebar(
+                    instanceVersion = instanceVersion,
+                    instanceLoader = instanceLoader,
+                    selectedVersion = selectedVersion,
+                    selectedLoader = selectedLoader,
+                    selectedSource = selectedSource,
+                    showLoaderFilter = (selectedType == ContentInstallerType.MODS || selectedType == ContentInstallerType.MODPACKS),
+                    selectedType = selectedType,
+                    onVersionChange = { onSearch(searchQuery, selectedType, it, selectedLoader, selectedSource) },
+                    onLoaderChange = { onSearch(searchQuery, selectedType, selectedVersion, it, selectedSource) },
+                    onSourceChange = { onSearch(searchQuery, selectedType, selectedVersion, selectedLoader, it) },
+                    onImportContent = onImportContent
+                )
+            }
+        }
+    ) {
+        AnimatedContent(
+            targetState = isLoading to viewingProject,
+            transitionSpec = {
+                fadeIn(animationSpec = tween(300)) togetherWith fadeOut(animationSpec = tween(300))
+            },
+            label = "content_transition",
+            modifier = Modifier.weight(1f)
+        ) { (loading, project) ->
+            if (loading && projects.isEmpty() && project == null) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    LoadingIndicator()
+                }
+            } else if (project != null) {
+                VersionList(
+                    projectVersions = projectVersions,
+                    availableProjectMCVersions = availableProjectMCVersions,
+                    selectedProjectMCVersion = selectedProjectMCVersion,
+                    instanceVersion = instanceVersion,
+                    instanceLoader = instanceLoader,
+                    selectedType = selectedType,
+                    isLoading = loading,
+                    onProjectMCVersionClick = onProjectMCVersionClick,
+                    onVersionClick = onVersionClick
+                )
+            } else if (projects.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = if (searchQuery.isNotEmpty()) stringResource(R.string.installer_no_content_found, searchQuery) else stringResource(R.string.installer_search_to_find),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            } else {
+                val lazyListState = rememberLazyListState()
+                LazyColumn(
+                    state = lazyListState,
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 48.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(projects, key = { it.id }) { p ->
+                        ProjectItemView(
+                            project = p,
+                            onClick = { onProjectClick(p) }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 800, heightDp = 400)
+@Composable
+fun ContentInstallerScreenPreview() {
+    val sampleProject = ModrinthProject(
+        id = "1",
+        title = translatedText("Sample Mod"),
+        description = "A sample mod for testing the installer screen.",
+        iconUrl = null,
+        fullDescription = "This is a detailed description of the sample mod."
+    )
+
+    PojavTheme {
+        ContentInstallerScreen(
+            onBack = {},
+            onSearch = { _, _, _, _, _ -> },
+            onProjectClick = {},
+            onVersionClick = {},
+            onRefresh = {},
+            onImportContent = {},
+            projects = listOf(
+                sampleProject,
+                sampleProject.copy(id = "2", title = translatedText("Another Mod"), description = "Description for the second mod.")
+            ),
+            isLoading = false,
+            selectedVersion = "1.20.1",
+            selectedLoader = "fabric",
+            instanceVersion = "1.20.1",
+            instanceLoader = "fabric"
+        )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 800, heightDp = 400)
+@Composable
+fun ContentInstallerScreenDetailPreview() {
+    val sampleProject = ModrinthProject(
+        id = "1",
+        title = translatedText("Sample Mod"),
+        description = "A sample mod for testing the installer screen.",
+        iconUrl = null,
+        fullDescription = "This is a detailed description of the sample mod."
+    )
+
+    val sampleVersion = ModrinthVersion(
+        id = "v1",
+        name = "1.0.0",
+        gameVersions = listOf("1.20.1"),
+        loaders = listOf("fabric"),
+        downloadUrl = "https://example.com"
+    )
+
+    PojavTheme {
+        ContentInstallerScreen(
+            onBack = {},
+            onSearch = { _, _, _, _, _ -> },
+            onProjectClick = {},
+            onVersionClick = {},
+            onRefresh = {},
+            onImportContent = {},
+            projects = emptyList(),
+            isLoading = false,
+            selectedVersion = "1.20.1",
+            selectedLoader = "fabric",
+            instanceVersion = "1.20.1",
+            instanceLoader = "fabric",
+            viewingProject = sampleProject,
+            projectVersions = listOf(sampleVersion),
+            availableProjectMCVersions = listOf("1.20.1", "1.19.2"),
+            selectedProjectMCVersion = "1.20.1"
+        )
+    }
+}

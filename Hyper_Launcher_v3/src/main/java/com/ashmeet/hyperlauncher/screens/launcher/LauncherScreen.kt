@@ -1,0 +1,256 @@
+package com.ashmeet.hyperlauncher.screens.launcher
+
+import android.content.SharedPreferences
+import android.content.res.Configuration
+import android.view.ViewGroup
+import androidx.fragment.app.FragmentContainerView
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Download
+import androidx.compose.material.icons.rounded.Folder
+import androidx.compose.material.icons.rounded.Videocam
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import com.ashmeet.hyperlauncher.utils.blur.backgroundGlass
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.zIndex
+import com.ashmeet.hyperlauncher.components.layout.background.LauncherBackground
+import com.ashmeet.hyperlauncher.components.spinner.AccountSpinnerCompose
+import com.ashmeet.hyperlauncher.recorder.RecordingManager
+import com.ashmeet.hyperlauncher.recorder.RecordingState
+import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.theme.PojavTheme
+import com.ashmeet.hyperlauncher.tracker.TrackerView
+import com.ashmeet.hyperlauncher.utils.drawable.MaterialIconUtil
+import com.ashmeet.hyperlauncher.utils.translation.translatedText
+import net.ashmeet.hyperlauncher.R
+import com.ashmeet.hyperbackend.progresskeeper.ProgressKeeper
+import com.ashmeet.hyperbackend.progresskeeper.TaskCountListener
+
+@Composable
+fun PojavLauncherScreen(
+    settingsIconRes: Int,
+    isFileManagerVisible: Boolean,
+    onSettingsClick: () -> Unit,
+    onContentInstallerClick: () -> Unit,
+    onInstanceDirectoryClick: () -> Unit,
+    onRecordingsGalleryClick: () -> Unit,
+    onFragmentViewCreated: (ViewGroup) -> Unit
+) {
+    var taskCount by remember { mutableIntStateOf(ProgressKeeper.getTaskCount()) }
+    var launcherBgPath by remember { mutableStateOf(LauncherPreferences.PREF_LAUNCHER_BACKGROUND_PATH) }
+    var liquidGlassElementsEnabled by remember { mutableStateOf(LauncherPreferences.PREF_LIQUID_GLASS_ELEMENTS_ENABLED) }
+
+    val recordingState by RecordingManager.recordingState.collectAsState()
+    val isRecording = recordingState is RecordingState.Recording
+
+    DisposableEffect(Unit) {
+        val listener = TaskCountListener { count ->
+            taskCount = count
+            false
+        }
+        val prefListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            when (key) {
+                "launcher_background_path" -> launcherBgPath = LauncherPreferences.prefs.getString("launcher_background_path", null)
+                "liquid_glass_elements_enabled" -> liquidGlassElementsEnabled = LauncherPreferences.prefs.getBoolean("liquid_glass_elements_enabled", false)
+            }
+        }
+        ProgressKeeper.addTaskCountListener(listener)
+        LauncherPreferences.prefs.registerOnSharedPreferenceChangeListener(prefListener)
+        onDispose {
+            ProgressKeeper.removeTaskCountListener(listener)
+            LauncherPreferences.prefs.unregisterOnSharedPreferenceChangeListener(prefListener)
+        }
+    }
+
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = if (launcherBgPath != null) Color.Transparent else MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.onBackground
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            LauncherBackground()
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .zIndex(1f)
+                ) {
+                    if (liquidGlassElementsEnabled) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .backgroundGlass(blur = 30, color = MaterialTheme.colorScheme.surface.copy(alpha = 0.2f), enabled = true)
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(if (launcherBgPath != null) Color.Transparent else MaterialTheme.colorScheme.surface.copy(alpha = 0.1f))
+                        )
+                    }
+
+                    AccountSpinnerCompose(
+                        modifier = Modifier.fillMaxHeight().wrapContentWidth(),
+                        hideDivider = taskCount > 0,
+                        containerColor = Color.Transparent
+                    )
+
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                    ) {
+                        val configuration = LocalConfiguration.current
+                        val isPortrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+
+                        if (isFileManagerVisible && !isPortrait) {
+                            IconButton(
+                                onClick = onContentInstallerClick,
+                                modifier = Modifier.size(56.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Download,
+                                    contentDescription = translatedText("Content Installer"),
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+
+                            IconButton(
+                                onClick = onInstanceDirectoryClick,
+                                modifier = Modifier.size(56.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Folder,
+                                    contentDescription = translatedText("Instance Directory"),
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+
+                            IconButton(
+                                onClick = onRecordingsGalleryClick,
+                                modifier = Modifier.size(56.dp)
+                            ) {
+                                BadgedBox(
+                                    badge = {
+                                        if (isRecording) {
+                                            Badge(containerColor = Color.Red)
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Videocam,
+                                        contentDescription = translatedText("Recordings Gallery"),
+                                        tint = if (isRecording) Color.Red else MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                            }
+                        }
+
+                        IconButton(
+                            onClick = onSettingsClick,
+                            modifier = Modifier.size(56.dp)
+                        ) {
+                            Icon(
+                                imageVector = MaterialIconUtil.getIconVector(settingsIconRes),
+                                contentDescription = translatedText("Settings"),
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
+
+                if (taskCount > 0) {
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(2.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        trackColor = if (launcherBgPath != null) Color.Transparent else  MaterialTheme.colorScheme.surface.copy(alpha = 0.1f)
+                    )
+                }
+
+                Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                    AndroidView(
+                        factory = { context ->
+                            FragmentContainerView(context).apply {
+                                id = R.id.container_fragment
+                                onFragmentViewCreated(this)
+                            }
+                        },
+                        update = {},
+                        modifier = Modifier.fillMaxSize()
+                    )
+
+                    TrackerView(
+                        modifier = Modifier.align(Alignment.BottomCenter)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "File Manager Visible")
+@Composable
+fun PojavLauncherScreenPreview() {
+    PojavTheme {
+        PojavLauncherScreen(
+            settingsIconRes = MaterialIconUtil.ICON_SETTINGS,
+            isFileManagerVisible = true,
+            onSettingsClick = {},
+            onContentInstallerClick = {},
+            onInstanceDirectoryClick = {},
+            onRecordingsGalleryClick = {},
+            onFragmentViewCreated = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "File Manager Hidden")
+@Composable
+fun PojavLauncherScreenHiddenPreview() {
+    PojavTheme {
+        PojavLauncherScreen(
+            settingsIconRes = MaterialIconUtil.ICON_SETTINGS,
+            isFileManagerVisible = false,
+            onSettingsClick = {},
+            onContentInstallerClick = {},
+            onInstanceDirectoryClick = {},
+            onRecordingsGalleryClick = {},
+            onFragmentViewCreated = {}
+        )
+    }
+}
