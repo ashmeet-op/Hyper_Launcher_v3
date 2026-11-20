@@ -31,6 +31,7 @@ fun ExperimentalSettingsScreen(
     var dumpShaders by remember { mutableStateOf(LauncherPreferences.PREF_DUMP_SHADERS) }
     var bigCoreAffinity by remember { mutableStateOf(LauncherPreferences.PREF_BIG_CORE_AFFINITY) }
     var freedrenoSysmem by remember { mutableStateOf(LauncherPreferences.PREF_FREEDRENO_SYSMEM) }
+    var ubwcWorkaround by remember { mutableStateOf(LauncherPreferences.PREF_UBWC_WORKAROUND) }
     var alsoftForceOpenSL by remember { mutableStateOf(LauncherPreferences.PREF_ALSOFT_FORCE_OPENSL) }
 
     SettingsScreenWrapper(
@@ -79,6 +80,19 @@ fun ExperimentalSettingsScreen(
                         onCheckedChange = {
                             freedrenoSysmem = it
                             LauncherPreferences.prefs.edit { putBoolean("freedrenoSysmem", it) }
+                            LauncherPreferences.loadPreferences(context)
+                        }
+                    )
+                }
+                items.add {
+                    SettingsSwitchItem(
+                        title = translatedText(stringResource(R.string.preference_ubwc_workaround_title)),
+                        summary = translatedText(stringResource(R.string.preference_ubwc_workaround_summary)),
+                        icon = Icons.Default.Settings,
+                        checked = ubwcWorkaround,
+                        onCheckedChange = {
+                            ubwcWorkaround = it
+                            LauncherPreferences.prefs.edit { putBoolean("ubwcWorkaround", it) }
                             LauncherPreferences.loadPreferences(context)
                         }
                     )

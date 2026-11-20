@@ -7,10 +7,9 @@ import static com.ashmeet.hyperbackend.game.renderer.def.Renderers.MESA_RENDERER
 import static com.ashmeet.hyperbackend.game.renderer.def.Renderers.ZINK_RENDERER;
 
 import android.content.Context;
-import android.system.ErrnoException;
-import android.system.Os;
 import android.util.Log;
 
+import com.ashmeet.hyperbackend.vulkan.driver.Driver;
 import com.ashmeet.hyperlauncher.plugin.natives.NativePlugin;
 import com.ashmeet.hyperlauncher.plugin.natives.NativePluginManager;
 import com.ashmeet.hyperlauncher.plugin.renderer.RendererPlugin;
@@ -26,6 +25,7 @@ import com.ashmeet.hyperbackend.game.renderer.impl.GLESRenderSpec;
 import com.ashmeet.hyperbackend.game.renderer.impl.MesaRenderSpec;
 import com.ashmeet.hyperbackend.vulkan.DriverManager;
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 
 import git.artdeell.mojoexec.MojoExec;
@@ -37,6 +37,8 @@ public class GameRenderer {
     public static final String LTW_RENDERER = com.ashmeet.hyperbackend.game.renderer.def.Renderers.LTW_RENDERER;
     public static final String GL4ES_RENDERER = com.ashmeet.hyperbackend.game.renderer.def.Renderers.GL4ES_RENDERER;
     public static final String MOBILEGLUES_RENDERER = com.ashmeet.hyperbackend.game.renderer.def.Renderers.MOBILEGLUES_RENDERER;
+
+    private final Map<String, String> environment = new HashMap<>();
 
     private final static String TAG = "Renderer";
     private final static String FALLBACK_RENDERER = GL4ES_RENDERER;
@@ -170,21 +172,15 @@ public class GameRenderer {
      * Enable custom Vulkan driver (Turnip) usage
      */
     public void overrideVulkanDriver() {
-        if(LauncherPreferences.PREF_FREEDRENO_SYSMEM) {
-            try {
-                Os.setenv("TU_DEBUG", "sysmem", true);
-            } catch (ErrnoException e) {
-                Log.e(TAG, "Failed to set TU_DEBUG", e);
-            }
-        }
-        String driverRoot = DriverManager.getPreferredDriverRootPath();
-        if (driverRoot != null) {
-            File qglConfig = new File(driverRoot, "qgl_config.txt");
-            if (qglConfig.exists()) {
-                MojoExec.overrideQglConfigPath(qglConfig.getAbsolutePath());
-            }
-        }
-        MojoExec.setUseTurnip(true);
+        // In most cases we load Turnip so use Turnip environment variables
+        if(LauncherPreferences.PREF_FREEDRENO_SYSMEM) environment.put("TU_DEBUG", "sysmem");
+        if(LauncherPreferences.PREF_UBWC_WORKAROUND) environment.put("FD_DEV_FEATURES", "enable_tp_ubwc_flag_hint=1");
+
+        Driver driver = DriverManager.getPreferredDriver();
+        File root = DriverManager.getDriverRoot(driver);
+        File config = new File(HyperUtils.DIR_GAME_HOME, "qgl_config.txt");
+        if(config.exists() && config.isFile()) MojoExec.setQglConfigPath(config.getAbsolutePath());
+        MojoExec.configureCustomVulkanDriver(driver.getMainLibrary(), root == null ? null : root.getAbsolutePath());
     }
 
     /**

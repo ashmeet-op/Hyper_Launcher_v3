@@ -193,6 +193,9 @@ object LauncherPreferences {
     var PREF_FREEDRENO_SYSMEM = false
 
     @JvmField
+    var PREF_UBWC_WORKAROUND = false
+
+    @JvmField
     var PREF_KEYBOARD_AUTOPANNING = true
 
     @JvmField
@@ -431,6 +434,7 @@ object LauncherPreferences {
         PREF_DISABLE_BLOCKLIST = pref.getBoolean("disableServerBlocklist", true)
         PREF_RAPID_START = pref.getBoolean("fastStartupCheck", true)
         PREF_FREEDRENO_SYSMEM = pref.getBoolean("freedrenoSysmem", false)
+        PREF_UBWC_WORKAROUND = pref.getBoolean("ubwcWorkaround", false)
         PREF_KEYBOARD_AUTOPANNING = pref.getBoolean("keyboardAutoPanning", true)
         PREF_ZINK_FORCE_LEGACY = pref.getBoolean("zinkForceLegacy", false)
         PREF_MIGRATION_NOTICE = pref.getBoolean("migrationNotice", true)
