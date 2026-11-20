@@ -3,6 +3,8 @@ package com.ashmeet.hyperbackend.customcontrols.keyboard;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
 
+import static com.ashmeet.hyperbackend.game.platform.Platform.PLATFORM;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -114,10 +116,11 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
     }
 
     public void switchKeyboardState(){
-        if(isEnabled() && hasFocus()){
+
+         if( isEnabled() && hasFocus() ){
             clear();
             disable();
-        }else{
+        } else{
             setKeyboardState(true, null);
         }
     }
@@ -173,21 +176,21 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
     }
 
 
-
     public void clear(){
         mIsDoingInternalChanges = true;
-
-
+        // Edit the Editable directly as it doesn't affect the state
+        // of the TextView.
         Editable editable = getEditableText();
         editable.clear();
-
+        //wsp beijing i stole the code lmao
         if (!mIsHorizonMode) {
-            editable.append(TEXT_FILLER);
-            Selection.setSelection(editable, TEXT_FILLER.length());
-        } else {
             Selection.setSelection(editable, 0);
             dev.horizon.android.HorizonInput.setCurrentText("");
         }
+
+        //Braille space, doesn't trigger keyboard auto-complete
+        editable.append(TEXT_FILLER);
+        Selection.setSelection(editable, TEXT_FILLER.length());
         mIsDoingInternalChanges = false;
     }
 
@@ -279,8 +282,8 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
 
         @Override
         public void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
-            if( mIsDoingInternalChanges ) return;
 
+            if(mIsDoingInternalChanges) return;
             for(int i=0; i < lengthBefore; ++i){
                 CallbackBridge.sendKeyPress(KeyEvent.KEYCODE_DEL);
             }
@@ -296,13 +299,7 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
                 return;
             }
 
-            if( mIsDoingInternalChanges ) return;
-
-            for (int i = 0; i < lengthBefore; ++i) {
-                mCharacterSender.sendBackspace();
-            }
-
-            mCharacterSender.sendChars(text.subSequence(start, start + lengthAfter));
+            PLATFORM.sendBulkUnicodeEvent(text.subSequence(start, start + lengthAfter).toString(), CallbackBridge.getCurrentMods());
         }
 
         @Override
