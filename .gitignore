@@ -19,3 +19,5 @@ Hyper_Launcher_v3/full/
 Hyper_Launcher_v3/src/main/jni/glfw
 Hyper_Launcher_v3/src/main/jni/mojoexec
 Hyper_Launcher_v3/src/main/jni/sdl
+/INTEGRATION_PLAN.md
+/my-local-changes.patch

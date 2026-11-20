@@ -17,6 +17,8 @@ import androidx.annotation.Nullable;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.ashmeet.hyperbackend.CallbackBridge;
+
 import net.ashmeet.hyperlauncher.R;
 
 
@@ -33,12 +35,13 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
     }
     public TouchCharInput(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        mIsHorizonMode = com.ashmeet.hyperlauncher.utils.horizon.HorizonUtils.isHorizonInstance(com.ashmeet.hyperbackend.instances.Instances.loadSelectedInstance());
         setup();
     }
 
 
     private boolean mIsDoingInternalChanges = false;
-    private boolean mIsHorizonMode = false;
+    private boolean mIsHorizonMode;
     private final CharacterSenderStrategy mCharacterSender = new LwjglCharSender();
 
     public void setHorizonMode(boolean horizonMode) {
@@ -48,6 +51,37 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
 
     public boolean isHorizonMode() {
         return mIsHorizonMode;
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (mIsHorizonMode && event.getAction() == KeyEvent.ACTION_DOWN) {
+            dev.horizon.android.HorizonInput.mirrorKey(event.getKeyCode());
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_DEL) {
+            mCharacterSender.sendBackspace();
+            if (!mIsHorizonMode) {
+                Editable editable = getEditableText();
+                int selStart = Selection.getSelectionStart(editable);
+                int selEnd = Selection.getSelectionEnd(editable);
+                if (selStart != selEnd) {
+                    editable.delete(selStart, selEnd);
+                } else if (selStart > 0) {
+                    mIsDoingInternalChanges = true;
+                    editable.delete(selStart - 1, selStart);
+                    mIsDoingInternalChanges = false;
+                }
+            } else {
+                dev.horizon.android.HorizonInput.mirrorKey(KeyEvent.KEYCODE_DEL);
+            }
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
 
@@ -199,6 +233,8 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
         addTextChangedListener(new InputTextWatcher());
         setOnEditorActionListener((textView, i, keyEvent) -> {
             if (mIsHorizonMode) {
+                dev.horizon.android.HorizonInput.mirrorAction();
+                dev.horizon.android.HorizonInput.mirrorKey(KeyEvent.KEYCODE_ENTER);
                 mIsDoingInternalChanges = true;
                 Editable editable = getEditableText();
                 if (!editable.toString().endsWith("\n")) {
@@ -243,11 +279,24 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
 
         @Override
         public void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
-            if (mIsHorizonMode) {
+            if( mIsDoingInternalChanges ) return;
+
+            for(int i=0; i < lengthBefore; ++i){
+                CallbackBridge.sendKeyPress(KeyEvent.KEYCODE_DEL);
+            }
+
+            if ( mIsHorizonMode ) {
+
                 dev.horizon.android.HorizonInput.setCurrentText(text.toString());
+
+                for (int i = 0; i < lengthBefore; ++i) {
+                    dev.horizon.android.HorizonInput.mirrorKey(KeyEvent.KEYCODE_DEL);
+                }
+
                 return;
             }
-            if(mIsDoingInternalChanges) return;
+
+            if( mIsDoingInternalChanges ) return;
 
             for (int i = 0; i < lengthBefore; ++i) {
                 mCharacterSender.sendBackspace();
@@ -258,11 +307,13 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
 
         @Override
         public void afterTextChanged(Editable editable) {
+
             if(mIsDoingInternalChanges) return;
+
             if(mIsHorizonMode) return;
 
-
             if(editable.length() < 1) clear();
+
         }
     }
 }

@@ -35,7 +35,6 @@ import com.ashmeet.hyperlauncher.components.dialog.DependencyDialog
 import com.ashmeet.hyperlauncher.components.dialog.MissingDependency
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.utils.ModMetadataReader
-import com.ashmeet.hyperlauncher.utils.horizon.HorizonUtils
 import com.ashmeet.hyperlauncher.utils.translation.Translator
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import com.ashmeet.hyperlauncher.screens.installer.ContentInstallerScreen
@@ -68,6 +67,7 @@ import com.ashmeet.hyperbackend.modloaders.modpacks.api.ModrinthService
 import com.ashmeet.hyperbackend.modloaders.modpacks.models.ModItem
 import com.ashmeet.hyperbackend.progresskeeper.ProgressKeeper
 import com.ashmeet.hyperlauncher.utils.DownloadUtils
+import com.ashmeet.hyperlauncher.utils.horizon.HorizonUtils
 import java.io.File
 import java.io.IOException
 import java.util.zip.ZipEntry

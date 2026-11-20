@@ -3,10 +3,6 @@ import de.undercouch.gradle.tasks.download.Download
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
 import java.util.Properties
-import java.util.zip.ZipInputStream
-import java.util.zip.ZipOutputStream
-import java.util.zip.ZipEntry
-import java.io.FileOutputStream
 
 
 plugins {
@@ -399,7 +395,7 @@ dependencies {
     val lwjglVersion = "3.4.3"
     val imguiVersion = "1.92.7.1"
 
-    implementation("androidx.compose.foundation:foundation-layout:1.12.1")
+    implementation("androidx.compose.foundation:foundation-layout:1.13.0")
     implementation("androidx.compose.material3:material3:1.4.0")
     implementation("org.ow2.asm:asm:9.11.1")
     //noinspection GradleDependency
@@ -442,6 +438,7 @@ dependencies {
     implementation(project(":glfw:android-gradle"))
     implementation(project(":sdl:android-gradle"))
     implementation(project(":mojoexec:jni_bindings"))
+    implementation(files("libs/libhorizon_android.aar"))
     implementation(project(":ColorPicker"))
     implementation(composeBom)
     implementation("androidx.compose.ui:ui")

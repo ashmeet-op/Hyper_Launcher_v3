@@ -17,7 +17,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -86,19 +85,6 @@ public class MCOptionUtils {
     }
 
 
-    public static List<String> getAsList(String key){
-        String value = get(key);
-
-
-        if (value == null) return new ArrayList<>();
-
-
-        value = value.replace("[", "").replace("]", "");
-        if (value.isEmpty()) return new ArrayList<>();
-
-        return Arrays.asList(value.split(","));
-    }
-
     public static void save() {
         StringBuilder result = new StringBuilder();
         for(String key : sParameterMap.keySet())
@@ -108,9 +94,19 @@ public class MCOptionUtils {
                     .append('\n');
 
         try {
-            sFileObserver.stopWatching();
+            if (sOptionFolderPath == null) {
+                sOptionFolderPath = HyperUtils.DIR_GAME_NEW;
+            }
+            if (sFileObserver == null) {
+                setupFileObserver();
+            }
+            if (sFileObserver != null) {
+                sFileObserver.stopWatching();
+            }
             HyperUtils.write(sOptionFolderPath + "/options.txt", result.toString());
-            sFileObserver.startWatching();
+            if (sFileObserver != null) {
+                sFileObserver.startWatching();
+            }
         } catch (IOException e) {
             Log.w(HyperUtils.APP_NAME, "Could not save options.txt", e);
         }

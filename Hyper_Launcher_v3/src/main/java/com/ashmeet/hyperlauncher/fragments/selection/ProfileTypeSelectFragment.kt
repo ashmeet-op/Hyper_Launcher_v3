@@ -35,10 +35,10 @@ import com.ashmeet.hyperlauncher.components.list.ProfileTypeListItem
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.utils.Architecture
-import com.ashmeet.hyperlauncher.utils.horizon.HorizonUtils
 import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperbackend.instances.DisplayInstance
 import com.ashmeet.hyperbackend.instances.Instances
+import com.ashmeet.hyperlauncher.utils.horizon.HorizonUtils
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import com.google.gson.Gson
 import com.google.gson.JsonObject

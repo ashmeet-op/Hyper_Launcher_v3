@@ -66,14 +66,6 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
     View mSurface;
     public GameCursorView mCursorView;
 
-    public void setCursorView(GameCursorView cursorView) {
-        this.mCursorView = cursorView;
-    }
-
-    public GameCursorView getCursorView() {
-        return mCursorView;
-    }
-
     private Bitmap mRecorderBitmap = null;
     private final Paint mRecorderPaint = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG);
 
@@ -124,6 +116,22 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
     @Override
     @SuppressWarnings("accessibility")
     public boolean onTouchEvent(MotionEvent e) {
+        if (Platform.PLATFORM instanceof com.ashmeet.hyperbackend.game.platform.backend.HorizonBackend) {
+            Context context = getContext();
+            com.ashmeet.hyperbackend.instances.Instance inst = null;
+            if (context instanceof GameActivity) {
+                inst = ((GameActivity) context).instance;
+            }
+            if (inst != null && !inst.horizonUseHorizonControls) {
+                return super.onTouchEvent(e);
+            }
+            int pointerIndex = e.getActionIndex();
+            int pointerId = e.getPointerId(pointerIndex);
+            int action = e.getActionMasked();
+            float x = e.getX(pointerIndex);
+            float y = e.getY(pointerIndex);
+            dev.horizon.android.HorizonInput.sendTouch(pointerId, action, x, y);
+        }
 
         if(getParent() instanceof ControlLayout && ((ControlLayout) getParent()).getModifiable()) return false;
 
@@ -192,7 +200,7 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
 
 
 
-        updateGrabState(Platform.isGrabbing());
+        updateGrabState();
 
         switch(event.getActionMasked()) {
             case MotionEvent.ACTION_HOVER_MOVE:
@@ -353,7 +361,7 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
         return isGrabbing ? mIngameProcessor : mInGUIProcessor;
     }
 
-    private void updateGrabState(boolean isGrabbing) {
+    private void updateGrabState() {
 
     }
 
@@ -396,10 +404,6 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
     }
     public static float getWindowRate(){
         return windowRate;
-    }
-
-    public double getCursorRatioX() {
-        return cursorRatioX;
     }
 
     public double getCursorRatioY() {

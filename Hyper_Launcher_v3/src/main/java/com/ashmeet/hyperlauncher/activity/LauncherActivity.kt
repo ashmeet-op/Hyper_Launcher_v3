@@ -30,6 +30,7 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreference
 import com.ashmeet.hyperlauncher.utils.Architecture
 import com.ashmeet.hyperlauncher.utils.ShortcutUtils
 import com.ashmeet.hyperlauncher.utils.HyperUtils
+import com.ashmeet.hyperlauncher.utils.horizon.HorizonUtils
 import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import net.ashmeet.hyperlauncher.BuildConfig
@@ -50,7 +51,6 @@ import com.ashmeet.hyperbackend.tasks.AsyncVersionList
 import com.ashmeet.hyperbackend.tasks.HyperDownloader
 import com.ashmeet.hyperbackend.tasks.HyperExtras
 import com.ashmeet.hyperbackend.utils.NotificationUtils
-import com.ashmeet.hyperlauncher.utils.horizon.HorizonUtils
 import java.io.IOException
 
 class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {

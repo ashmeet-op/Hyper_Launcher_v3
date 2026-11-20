@@ -1,6 +1,5 @@
 package com.ashmeet.hyperbackend.game;
 
-
 import static com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_ENABLE_GYRO;
 import static com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_SUSTAINED_PERFORMANCE;
 import static com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_USE_ALTERNATE_SURFACE;
@@ -8,8 +7,6 @@ import static com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPre
 import static com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_ZINK_PREFER_SYSTEM_DRIVER;
 import static com.ashmeet.hyperlauncher.utils.HyperUtils.dialogForceClose;
 import static com.ashmeet.hyperbackend.game.platform.Platform.PLATFORM;
-
-
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -34,22 +31,18 @@ import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.FrameLayout;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
-
-
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 import com.ashmeet.hyperlauncher.fragments.dialog.EditControlSideDialog;
 import com.ashmeet.hyperlauncher.fragments.dialog.QuickSettingSideDialog;
 import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper;
 import com.ashmeet.hyperlauncher.utils.SideDialogUtils;
 import com.ashmeet.hyperlauncher.screens.game.LoggerView;
-
 import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperlauncher.activity.BaseActivity;
 import com.ashmeet.hyperbackend.CallbackBridge;
@@ -72,7 +65,6 @@ import com.ashmeet.hyperbackend.instances.Instances;
 import com.ashmeet.hyperbackend.lifecycle.ContextExecutor;
 import com.ashmeet.hyperbackend.game.platform.Platform;
 import com.ashmeet.hyperbackend.game.platform.backend.DummyBackend;
-
 import com.ashmeet.hyperlauncher.tracker.services.GameService;
 import com.ashmeet.hyperbackend.tasks.AsyncAssetManager;
 import com.ashmeet.hyperbackend.utils.JREUtils;
@@ -81,18 +73,12 @@ import com.ashmeet.hyperbackend.authenticator.accounts.Account;
 import com.ashmeet.hyperbackend.game.renderer.GameRenderer;
 import com.ashmeet.hyperbackend.game.renderer.RendererCache;
 import com.ashmeet.hyperlauncher.utils.jre.GameRunner;
-
 import java.io.File;
 import java.io.IOException;
 import com.ashmeet.hyperlauncher.extra.ExtraConstants;
 import com.ashmeet.hyperlauncher.extra.ExtraCore;
-
 import java.lang.ref.WeakReference;
-import java.util.Objects;
 import androidx.compose.ui.platform.ComposeView;
-
-import dev.horizon.android.HorizonActivity;
-import dev.horizon.android.HorizonInput;
 import kotlin.Unit;
 
 
@@ -136,12 +122,18 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
             finish();
             return;
         }
-        mGameRenderer = new GameRenderer(instance.getLaunchRenderer());
-        if(!PREF_ZINK_PREFER_SYSTEM_DRIVER) {
-            mGameRenderer.overrideVulkanDriver();
+        boolean isHorizon = com.ashmeet.hyperlauncher.utils.horizon.HorizonUtils.isHorizonInstance(instance);
+        if (isHorizon) {
+            Platform.setPlatformLibrary(new com.ashmeet.hyperbackend.game.platform.backend.HorizonBackend());
+            dev.horizon.android.HorizonInput.setTouchUiEnabled(false);
+        } else {
+            mGameRenderer = new GameRenderer(instance.getLaunchRenderer());
+            if(!PREF_ZINK_PREFER_SYSTEM_DRIVER) {
+                mGameRenderer.overrideVulkanDriver();
+            }
+            AsyncAssetManager.extractDefaultSettings(this, instance.getGameDirectory());
+            MCOptionUtils.load(instance.getGameDirectory().getAbsolutePath());
         }
-        AsyncAssetManager.extractDefaultSettings(this, instance.getGameDirectory());
-        MCOptionUtils.load(instance.getGameDirectory().getAbsolutePath());
 
         Intent gameServiceIntent = new Intent(this, GameService.class);
 
@@ -149,6 +141,10 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
         initLayout();
 
         Platform.initialize(this, launcherGLView);
+        if (isHorizon) {
+            Platform.setPlatformLibrary(new com.ashmeet.hyperbackend.game.platform.backend.HorizonBackend());
+            dev.horizon.android.HorizonInput.setTouchUiEnabled(false);
+        }
 
         mGyroControl = new GyroControl(this);
 
@@ -272,34 +268,63 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
                 throw new IOException("Failed to create a new log file");
             Logger.begin(latestLogFile.getAbsolutePath());
 
-            Bundle extras = Objects.requireNonNull(getIntent().getExtras());
-            String version = extras.getString(INTENT_LAUNCH_VERSION);
-            File[] classpath;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                classpath = extras.getSerializable(INTENT_LAUNCH_CLASSPATH, File[].class);
+            boolean isHorizon = com.ashmeet.hyperlauncher.utils.horizon.HorizonUtils.isHorizonInstance(instance);
+            String version = "horizon";
+            File[] classpath = new File[0];
+
+            if (getIntent() != null && getIntent().getExtras() != null) {
+                Bundle extras = getIntent().getExtras();
+                if (extras.containsKey(INTENT_LAUNCH_VERSION)) {
+                    version = extras.getString(INTENT_LAUNCH_VERSION, "horizon");
+                }
+                if (extras.containsKey(INTENT_LAUNCH_CLASSPATH)) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        File[] cp = extras.getSerializable(INTENT_LAUNCH_CLASSPATH, File[].class);
+                        if (cp != null) classpath = cp;
+                    } else {
+                        Object cpObj = extras.getSerializable(INTENT_LAUNCH_CLASSPATH);
+                        if (cpObj instanceof File[]) classpath = (File[]) cpObj;
+                    }
+                }
+                if (extras.containsKey(INTENT_QUICK_PLAY_WORLD)) {
+                    String quickPlayWorld = extras.getString(INTENT_QUICK_PLAY_WORLD);
+                    if (quickPlayWorld != null) {
+                        ExtraCore.setValue(ExtraConstants.QUICK_PLAY_WORLD, quickPlayWorld);
+                    }
+                }
+                if (extras.containsKey(INTENT_QUICK_PLAY_SERVER)) {
+                    String quickPlayServer = extras.getString(INTENT_QUICK_PLAY_SERVER);
+                    if (quickPlayServer != null) {
+                        ExtraCore.setValue(ExtraConstants.QUICK_PLAY_SERVER, quickPlayServer);
+                    }
+                }
+            } else if (isHorizon && instance != null) {
+                version = instance.versionId != null ? instance.versionId : "horizon";
+            }
+
+            if (isHorizon) {
+                setTitle("HorizonLauncher (" + version + ")");
+                if (instance != null && !instance.horizonUseHorizonControls) {
+                    if (mControlLayout != null) {
+                        mControlLayout.setVisibility(View.GONE);
+                    }
+                }
             } else {
-                classpath = (File[]) extras.getSerializable(INTENT_LAUNCH_CLASSPATH);
+                setTitle("HyperLauncher (" + version + ")");
             }
 
-            if (extras.containsKey(INTENT_QUICK_PLAY_WORLD)) {
-                String quickPlayWorld = extras.getString(INTENT_QUICK_PLAY_WORLD);
-                if (quickPlayWorld != null) {
-                    ExtraCore.setValue(ExtraConstants.QUICK_PLAY_WORLD, quickPlayWorld);
-                }
-            }
-            if (extras.containsKey(INTENT_QUICK_PLAY_SERVER)) {
-                String quickPlayServer = extras.getString(INTENT_QUICK_PLAY_SERVER);
-                if (quickPlayServer != null) {
-                    ExtraCore.setValue(ExtraConstants.QUICK_PLAY_SERVER, quickPlayServer);
-                }
-            }
-
-            setTitle("HyperLauncher (" + version + ")");
-
+            final String finalVersion = version;
+            final File[] finalClasspath = classpath;
             launcherGLView.setSurfaceReadyListener(() -> {
                 try {
                     HyperUtils.runOnUiThread(() -> { if(PREF_VIRTUAL_MOUSE_START) launcherGLView.mCursorView.setVisibility(View.VISIBLE); });
-                    runCraft(version, classpath);
+                    if (isHorizon) {
+                        Logger.appendToLog("--------- Starting Horizon instance with GameActivity!");
+                        dev.horizon.android.HorizonInput.setTouchUiEnabled(false);
+                        hideLoadingScreen();
+                    } else {
+                        runCraft(finalVersion, finalClasspath);
+                    }
                 }catch (Throwable e){
                     HyperUtils.showErrorRemote(e);
                 }
@@ -487,6 +512,14 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
     }
 
     @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        if (instance != null && !instance.horizonUseHorizonControls) {
+            return super.dispatchTouchEvent(ev);
+        }
+        return super.dispatchTouchEvent(ev);
+    }
+
+    @Override
     protected void onPostResume() {
         super.onPostResume();
         if(mLoadingScreen != null && !(PLATFORM instanceof DummyBackend)) hideLoadingScreen();
@@ -609,12 +642,6 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
     }
 
     public static void toggleMouse(Context ctx) {
-        android.app.Activity activity = ContextExecutor.getActivity();
-
-        if (activity instanceof HorizonActivity) {
-            HorizonInput.toggleMouse(ctx);
-            return;
-        }
 
         if (Platform.isGrabbing()) return;
 

@@ -9,31 +9,21 @@ import dev.horizon.android.HorizonInput;
 public class LwjglCharSender implements CharacterSenderStrategy {
     @Override
     public void sendBackspace() {
-        if (HorizonInput.getSLoaded()) {
-            HorizonInput.sendKey(LwjglGlfwKeycode.GLFW_KEY_BACKSPACE, true, CallbackBridge.getCurrentMods());
-            HorizonInput.sendKey(LwjglGlfwKeycode.GLFW_KEY_BACKSPACE, false, CallbackBridge.getCurrentMods());
-        } else {
-            CallbackBridge.sendKeyPress(LwjglGlfwKeycode.GLFW_KEY_BACKSPACE);
-        }
+        HorizonInput.sendKey(LwjglGlfwKeycode.GLFW_KEY_BACKSPACE, true, CallbackBridge.getCurrentMods());
+        HorizonInput.sendKey(LwjglGlfwKeycode.GLFW_KEY_BACKSPACE, false, CallbackBridge.getCurrentMods());
+        CallbackBridge.sendKeyPress(LwjglGlfwKeycode.GLFW_KEY_BACKSPACE);
+
     }
 
     @Override
     public void sendEnter() {
-        if (HorizonInput.getSLoaded()) {
-            HorizonInput.sendKey(LwjglGlfwKeycode.GLFW_KEY_ENTER, true, CallbackBridge.getCurrentMods());
-            HorizonInput.sendKey(LwjglGlfwKeycode.GLFW_KEY_ENTER, false, CallbackBridge.getCurrentMods());
-        } else {
-            CallbackBridge.sendKeyPress(LwjglGlfwKeycode.GLFW_KEY_ENTER);
-        }
+       HorizonInput.sendKey(LwjglGlfwKeycode.GLFW_KEY_ENTER, true, CallbackBridge.getCurrentMods());
+       HorizonInput.sendKey(LwjglGlfwKeycode.GLFW_KEY_ENTER, false, CallbackBridge.getCurrentMods());
     }
 
     @Override
     public void sendChars(CharSequence chars) {
         if (chars == null) return;
-        if (HorizonInput.getSLoaded()) {
-            HorizonInput.sendChars(chars.toString(), CallbackBridge.getCurrentMods());
-        } else {
-            GLFW.sendBulkUnicodeEvent(chars.toString(), CallbackBridge.getCurrentMods());
-        }
+        GLFW.sendBulkUnicodeEvent(chars.toString(), CallbackBridge.getCurrentMods());
     }
 }

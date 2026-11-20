@@ -235,11 +235,6 @@ public class ControlButton extends TextView implements ControlInterface {
     }
 
     private void sendSpecialKey(int keycode, boolean isDown){
-        if (getContext() instanceof dev.horizon.android.HorizonActivity) {
-            if (((dev.horizon.android.HorizonActivity) getContext()).handleSpecialButton(keycode, isDown)) {
-                return;
-            }
-        }
         switch (keycode) {
             case ControlData.SPECIALBTN_KEYBOARD:
                 if(isDown) GameActivity.switchKeyboardState(false);

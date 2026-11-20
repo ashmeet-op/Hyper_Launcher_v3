@@ -67,6 +67,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.edit
+import dev.horizon.android.HorizonInput
 import com.ashmeet.hyperlauncher.recorder.RecordingManager
 import com.ashmeet.hyperlauncher.recorder.RecordingState
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
@@ -121,8 +122,8 @@ open class DrawerPullButton @JvmOverloads constructor(
             while (isActive && showFps) {
                 val nativeFps = withContext(Dispatchers.IO) {
                     try {
-                        if (dev.horizon.android.HorizonInput.sLoaded) {
-                            val hFps = dev.horizon.android.HorizonInput.getFps()
+                        if (HorizonInput.sLoaded) {
+                            val hFps = HorizonInput.getFps()
                             if (hFps > 0) return@withContext hFps
                         }
 
