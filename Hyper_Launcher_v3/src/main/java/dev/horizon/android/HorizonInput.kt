@@ -1,123 +1,213 @@
-package dev.horizon.android;
+package dev.horizon.android
 
-import android.util.Log;
+import kotlin.math.max
 
-@SuppressWarnings("JavaJniMissingFunction")
-public class HorizonInput {
-    private static final String TAG = "HorizonInput";
-    public static boolean sLoaded;
+@Suppress("KotlinJniMissingFunction")
+object HorizonInput {
+    @JvmField
+    var sLoaded: Boolean = true
 
-    static {
+    init {
         try {
-            System.loadLibrary("horizon_android");
-            sLoaded = true;
-        } catch (Throwable t) {
-            sLoaded = false;
+            System.loadLibrary("horizon_android")
+            sLoaded = true
+        } catch (_: Throwable) {
+            sLoaded = false
         }
     }
 
-    public static native void nativeSendKey(int key, boolean isDown, int mods);
-    public static native void nativeSendMouseButton(int button, boolean isDown);
-    public static native void nativeSendMouseMotion(float dx, float dy);
-    public static native void nativeSendCursorPosition(float x, float y);
-    public static native void nativeSendScroll(float dx, float dy);
-    public static native void nativeSendTouch(int pointerId, int action, float x, float y);
-    public static native void nativeMirrorEdit(String text, int cursor, int anchor, int generation);
-    public static native void nativeMirrorAction();
-    public static native void nativeMirrorKey(int code);
-    public static native int nativeGetFps();
-    public static native void nativeSetTouchUiEnabled(boolean enabled);
+    @JvmStatic
+    fun key(glfwKey: Int, pressed: Boolean) {
+        nativeKey(glfwKey, pressed)
+    }
 
-    public static void sendKey(int key, boolean isDown, int mods) {
+    @JvmStatic
+    fun text(text: String?) {
+        if (!text.isNullOrEmpty()) nativeText(text)
+    }
+
+    @JvmStatic
+    fun cursor(x: Float, y: Float) {
+        nativeCursor(x, y)
+    }
+
+    @JvmStatic
+    fun cursorSilently(x: Float, y: Float) {
+        nativeCursorSilently(x, y)
+    }
+
+    @JvmStatic
+    fun mouseButton(glfwButton: Int, pressed: Boolean) {
+        nativeMouseButton(glfwButton, pressed)
+    }
+
+    @JvmStatic
+    fun scroll(x: Float, y: Float) {
+        nativeScroll(x, y)
+    }
+
+    val isGrabbed: Boolean
+        @JvmStatic
+        get() = nativeIsGrabbed()
+
+    val isKeybindCaptureActive: Boolean
+        @JvmStatic
+        get() {
+            return try {
+                nativeIsKeybindCaptureActive()
+            } catch (_: UnsatisfiedLinkError) {
+                false
+            }
+        }
+
+    @JvmStatic
+    fun setImeViewportBottomInset(bottomInsetPx: Int) {
         try {
-            nativeSendKey(key, isDown, mods);
-        } catch (UnsatisfiedLinkError e) {
-            Log.w(TAG, "nativeSendKey not linked", e);
+            nativeSetImeViewportBottomInset(max(0, bottomInsetPx))
+        } catch (_: UnsatisfiedLinkError) {
+            // Older engine build: leave the frame unshifted rather than crashing the game.
         }
     }
 
-    public static void sendMouseButton(int button, boolean isDown) {
+    @JvmStatic
+    fun setMenuMouseCapture(enabled: Boolean, x: Float, y: Float): Boolean {
         try {
-            nativeSendMouseButton(button, isDown);
-        } catch (UnsatisfiedLinkError e) {
-            Log.w(TAG, "nativeSendMouseButton not linked", e);
+            nativeSetMenuMouseCapture(enabled, x, y)
+            return true
+        } catch (_: UnsatisfiedLinkError) {
+            return false
         }
     }
 
-    public static void sendMouseMotion(float dx, float dy) {
+
+    @JvmStatic
+    fun setMouseScale(scale: Float) {
         try {
-            nativeSendMouseMotion(dx, dy);
-        } catch (UnsatisfiedLinkError e) {
-            Log.w(TAG, "nativeSendMouseMotion not linked", e);
+            nativeSetMouseScale(scale)
+        } catch (_: UnsatisfiedLinkError) {
         }
     }
 
-    public static void sendCursorPosition(float x, float y) {
+
+    @JvmStatic
+    fun setKeyRepeat(enabled: Boolean) {
         try {
-            nativeSendCursorPosition(x, y);
-        } catch (UnsatisfiedLinkError e) {
-            Log.w(TAG, "nativeSendCursorPosition not linked", e);
+            nativeSetKeyRepeat(enabled)
+        } catch (_: UnsatisfiedLinkError) {
         }
     }
 
-    public static void sendScroll(float dx, float dy) {
+
+    @JvmStatic
+    fun setMenuMouseClicksToHost(enabled: Boolean): Boolean {
         try {
-            nativeSendScroll(dx, dy);
-        } catch (UnsatisfiedLinkError e) {
-            Log.w(TAG, "nativeSendScroll not linked", e);
+            nativeSetMenuMouseClicksToHost(enabled)
+            return true
+        } catch (_: UnsatisfiedLinkError) {
+            return false
         }
     }
 
-    public static void sendTouch(int pointerId, int action, float x, float y) {
-        try {
-            nativeSendTouch(pointerId, action, x, y);
-        } catch (UnsatisfiedLinkError e) {
-            Log.w(TAG, "nativeSendTouch not linked", e);
+
+    @JvmStatic
+    fun takeMenuMouseButton(): Int {
+        return try {
+            nativeTakeMenuMouseButton()
+        } catch (_: UnsatisfiedLinkError) {
+            -1
         }
     }
 
-    public static void mirrorEdit(String text, int cursor, int anchor, int generation) {
+
+    @JvmStatic
+    fun setMenuMouseScale(scale: Float) {
         try {
-            nativeMirrorEdit(text, cursor, anchor, generation);
-        } catch (UnsatisfiedLinkError e) {
-            Log.w(TAG, "nativeMirrorEdit not linked", e);
+            nativeSetMenuMouseScale(scale)
+        } catch (_: UnsatisfiedLinkError) {
         }
     }
 
-    public static void setCurrentText(String text) {
-        int len = text != null ? text.length() : 0;
-        mirrorEdit(text, len, len, 0);
-    }
 
-    public static void mirrorAction() {
-        try {
-            nativeMirrorAction();
-        } catch (UnsatisfiedLinkError e) {
-            Log.w(TAG, "nativeMirrorAction not linked", e);
+    @JvmStatic
+    fun menuCursor(): Long {
+        return try {
+            nativeMenuCursor()
+        } catch (_: UnsatisfiedLinkError) {
+            -1L
         }
     }
 
-    public static void mirrorKey(int code) {
-        try {
-            nativeMirrorKey(code);
-        } catch (UnsatisfiedLinkError e) {
-            Log.w(TAG, "nativeMirrorKey not linked", e);
+    @JvmStatic
+    fun fps(): Int {
+        return try {
+            nativeFps()
+        } catch (_: UnsatisfiedLinkError) {
+            // An engine library built before the FPS hook
+            0
         }
     }
 
-    public static int getFps() {
-        try {
-            return nativeGetFps();
-        } catch (UnsatisfiedLinkError e) {
-            return 0;
+    @JvmStatic
+    fun getFps(): Int {
+        return fps()
+    }
+
+    @JvmStatic
+    fun cursorShape(): Int {
+        return try {
+            nativeCursorShape()
+        } catch (_: UnsatisfiedLinkError) {
+            0
         }
     }
 
-    public static void setTouchUiEnabled(boolean enabled) {
+    @JvmStatic
+    fun graphicsInfo(): String {
         try {
-            nativeSetTouchUiEnabled(enabled);
-        } catch (UnsatisfiedLinkError e) {
-            Log.w(TAG, "nativeSetTouchUiEnabled not linked", e);
+            val value = nativeGraphicsInfo()
+            return value ?: ""
+        } catch (_: UnsatisfiedLinkError) {
+            return ""
         }
     }
+
+    @JvmStatic
+    fun rendererState(): Int {
+        return try {
+            nativeRendererState()
+        } catch (_: UnsatisfiedLinkError) {
+            0
+        }
+    }
+
+    @JvmStatic
+    fun vulkanDriverState(): Int {
+        return try {
+            nativeVulkanDriverState()
+        } catch (_: UnsatisfiedLinkError) {
+            0
+        }
+    }
+
+    private external fun nativeKey(glfwKey: Int, pressed: Boolean)
+    private external fun nativeText(text: String?)
+    private external fun nativeCursor(x: Float, y: Float)
+    private external fun nativeCursorSilently(x: Float, y: Float)
+    private external fun nativeMouseButton(glfwButton: Int, pressed: Boolean)
+    private external fun nativeScroll(x: Float, y: Float)
+    private external fun nativeIsGrabbed(): Boolean
+    private external fun nativeIsKeybindCaptureActive(): Boolean
+    private external fun nativeSetMenuMouseCapture(enabled: Boolean, x: Float, y: Float)
+    private external fun nativeMenuCursor(): Long
+    private external fun nativeSetMouseScale(scale: Float)
+    private external fun nativeSetMenuMouseScale(scale: Float)
+    private external fun nativeSetMenuMouseClicksToHost(enabled: Boolean)
+    private external fun nativeSetKeyRepeat(enabled: Boolean)
+    private external fun nativeTakeMenuMouseButton(): Int
+    private external fun nativeSetImeViewportBottomInset(bottomInsetPx: Int)
+    private external fun nativeFps(): Int
+    private external fun nativeCursorShape(): Int
+    private external fun nativeGraphicsInfo(): String?
+    private external fun nativeRendererState(): Int
+    private external fun nativeVulkanDriverState(): Int
 }
