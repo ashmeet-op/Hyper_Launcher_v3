@@ -209,7 +209,7 @@ public class FCLRenderSpec implements RenderSpec {
                 }
             }
         }
-        return MojoExec.prepareEgl(library(), true, true,4);
+        return MojoExec.prepareEgl(library(), false, true,3);
     }
 
     @Override

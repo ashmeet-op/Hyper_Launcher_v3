@@ -10,7 +10,3 @@
 [submodule "NoBlocklist"]
 	path = NoBlocklist
 	url = https://github.com/MojoLauncher/NoBlocklist
-[submodule "horizon"]
-	path = horizon-android
-	url = https://github.com/ashmeet-op/horizon-android.git
-

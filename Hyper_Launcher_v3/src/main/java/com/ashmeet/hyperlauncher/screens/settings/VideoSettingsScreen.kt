@@ -88,11 +88,15 @@ fun VideoSettingsScreen(
             DriverInstaller.installDriverFromUri(context, uri) {
                 driver = LauncherPreferences.PREF_DRIVER
                 LauncherPreferences.loadPreferences(context)
+                RendererCache.releaseRendererCache()
             }
         }
     }
 
-    val compatibleRenderers = remember(context) { RendererCache.getCompatibleRenderers(context) }
+    val compatibleRenderers = remember(context, driver) {
+        RendererCache.releaseRendererCache()
+        RendererCache.getCompatibleRenderers(context)
+    }
 
     SettingsScreenWrapper(
         title = translatedText(stringResource(R.string.preference_category_video)),
@@ -343,6 +347,7 @@ fun VideoSettingsScreen(
     }
 
     if (showRendererDialog) {
+        RendererCache.releaseRendererCache()
         val compatibleRenderers = RendererCache.getCompatibleRenderers(context)
         SingleChoiceDialog(
             title = translatedText(stringResource(R.string.mcl_setting_category_renderer)),
@@ -353,6 +358,7 @@ fun VideoSettingsScreen(
                 renderer = newValue
                 LauncherPreferences.prefs.edit { putString("renderer", newValue) }
                 LauncherPreferences.loadPreferences(context)
+                RendererCache.releaseRendererCache()
             },
             onDismiss = { showRendererDialog = false }
         )
@@ -386,6 +392,7 @@ fun VideoSettingsScreen(
             onDriverChanged = {
                 driver = LauncherPreferences.PREF_DRIVER
                 LauncherPreferences.loadPreferences(context)
+                RendererCache.releaseRendererCache()
             }
         )
     }

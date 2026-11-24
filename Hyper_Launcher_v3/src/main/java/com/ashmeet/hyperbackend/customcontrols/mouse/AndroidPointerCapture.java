@@ -8,16 +8,14 @@ import android.view.ViewTreeObserver;
 
 import androidx.annotation.RequiresApi;
 
+import com.ashmeet.hyperbackend.CallbackBridge;
+import com.ashmeet.hyperbackend.game.platform.Platform;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
-
 import com.ashmeet.hyperlauncher.utils.HyperUtils;
 
-import com.ashmeet.hyperbackend.CallbackBridge;
-import com.ashmeet.hyperbackend.game.platform.input.PlatformGrabListener;
-import com.ashmeet.hyperbackend.game.platform.Platform;
 
 @RequiresApi(api = Build.VERSION_CODES.O)
-public class AndroidPointerCapture implements ViewTreeObserver.OnWindowFocusChangeListener, View.OnCapturedPointerListener, PlatformGrabListener {
+public class AndroidPointerCapture implements ViewTreeObserver.OnWindowFocusChangeListener, View.OnCapturedPointerListener, View.OnFocusChangeListener {
     private static final float TOUCHPAD_SCROLL_THRESHOLD = 1;
     private final View mTouchpadView;
     private final View mHostView;
@@ -28,14 +26,13 @@ public class AndroidPointerCapture implements ViewTreeObserver.OnWindowFocusChan
 
     private int mInputDeviceIdentifier;
     private boolean mDeviceSupportsRelativeAxis;
-    private boolean mHasMouse = false;
 
     public AndroidPointerCapture(View touchpad, View hostView) {
         this.mTouchpadView = touchpad;
         this.mHostView = hostView;
+        hostView.setOnFocusChangeListener(this);
         hostView.setOnCapturedPointerListener(this);
         hostView.getViewTreeObserver().addOnWindowFocusChangeListener(this);
-        Platform.addGrabListener(this);
     }
 
     private void enableTouchpadIfNecessary() {
@@ -43,15 +40,12 @@ public class AndroidPointerCapture implements ViewTreeObserver.OnWindowFocusChan
     }
 
     public void handleAutomaticCapture() {
-        if(!mHostView.hasWindowFocus()) {
+        if(mHostView.hasPointerCapture()) return;
+        if(!mHostView.hasWindowFocus()) return;
+        if(!mHostView.hasFocus()) {
             mHostView.requestFocus();
         } else {
-            if (mHasMouse && !Platform.isGrabbing()) {
-
-                mHostView.releasePointerCapture();
-            } else {
-                mHostView.requestPointerCapture();
-            }
+            mHostView.requestPointerCapture();
         }
     }
 
@@ -71,42 +65,42 @@ public class AndroidPointerCapture implements ViewTreeObserver.OnWindowFocusChan
     @Override
     public boolean onCapturedPointer(View view, MotionEvent event) {
         checkSameDevice(event.getDevice());
-
-
+        // Yes, we actually not only receive relative mouse events here, but also absolute touchpad ones!
+        // Therefore, we need to know when it's a touchpad and when it's a mouse.
 
         if((event.getSource() & InputDevice.SOURCE_CLASS_TRACKBALL) != 0) {
-
-
+            // If the source claims to be a relative device by belonging to the trackball class,
+            // use its coordinates directly.
             if(mDeviceSupportsRelativeAxis) {
-
-
+                // If some OEM decides to do a funny and make an absolute touchpad report itself as
+                // a trackball, we will at least have semi-valid relative positions
                 accumulateHistoricalValues(event, MotionEvent.AXIS_RELATIVE_X, MotionEvent.AXIS_RELATIVE_Y);
             }else {
-
+                // Otherwise trust the OS, i guess??
                 accumulateHistoricalValues(event, MotionEvent.AXIS_X, MotionEvent.AXIS_Y);
             }
         }else {
-
+            // If it's not a trackball, it's likely a touchpad and needs tracking like a touchscreen.
             mPointerTracker.trackEvent(event);
-
+            // The relative position will already be written down into the mVector variable.
         }
 
-
+        // Avoid going through the JNI each time.
         if(!Platform.isGrabbing()) {
-            if (!mHasMouse) enableTouchpadIfNecessary();
-
-
+            enableTouchpadIfNecessary();
+            // Yes, if the user's touchpad is multi-touch we will also receive events for that.
+            // So, handle the scrolling gesture ourselves.
             mVector[0] *= mMousePrescale;
             mVector[1] *= mMousePrescale;
             if(event.getPointerCount() < 2) {
-                applyMotionVector(view, LauncherPreferences.PREF_MOUSESPEED);
+                applyMotionVector(LauncherPreferences.PREF_MOUSESPEED);
                 mScroller.resetScrollOvershoot();
             } else {
                 mScroller.performScroll(mVector);
             }
         } else {
-
-            applyMotionVector(view, 1);
+            // Position is updated by many events, hence it is send regardless of the event value
+            applyMotionVector(1);
         }
 
         switch (event.getActionMasked()) {
@@ -128,7 +122,7 @@ public class AndroidPointerCapture implements ViewTreeObserver.OnWindowFocusChan
         }
     }
 
-    private void applyMotionVector(View view, float speed) {
+    private void applyMotionVector(float speed) {
         Platform.cursorX += mVector[0] * speed;
         Platform.cursorY += mVector[1] * speed;
         Platform.sendCursorPosition();
@@ -136,14 +130,8 @@ public class AndroidPointerCapture implements ViewTreeObserver.OnWindowFocusChan
 
     private void checkSameDevice(InputDevice inputDevice) {
         int newIdentifier;
-        if(inputDevice != null) {
-            newIdentifier = inputDevice.getId();
-            mHasMouse = (inputDevice.getSources() & InputDevice.SOURCE_MOUSE) == InputDevice.SOURCE_MOUSE;
-        }
-        else {
-            newIdentifier = Integer.MAX_VALUE;
-            mHasMouse = false;
-        }
+        if(inputDevice != null) newIdentifier = inputDevice.getId();
+        else newIdentifier = Integer.MAX_VALUE;
         if(mInputDeviceIdentifier != newIdentifier) {
             reinitializeDeviceSpecificProperties(inputDevice);
             mInputDeviceIdentifier = newIdentifier;
@@ -162,17 +150,22 @@ public class AndroidPointerCapture implements ViewTreeObserver.OnWindowFocusChan
     }
 
     @Override
-    public void onGrabState(boolean isGrabbing) {
-        HyperUtils.runOnUiThread(this::handleAutomaticCapture);
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        if(hasFocus && HyperUtils.isAndroid8OrHigher()) handleAutomaticCapture();
+    public void onWindowFocusChanged(boolean hasWindowFocus) {
+        if(!hasWindowFocus) return;
+        if(!mHostView.hasFocus()) mHostView.requestFocus();
+        else mHostView.requestPointerCapture();
     }
 
     public void detach() {
         mHostView.setOnCapturedPointerListener(null);
         mHostView.getViewTreeObserver().removeOnWindowFocusChangeListener(this);
+        mHostView.setOnFocusChangeListener(null);
+    }
+
+    @Override
+    public void onFocusChange(View v, boolean hasFocus) {
+        if(v != mHostView) return;
+        if(hasFocus && mHostView.hasWindowFocus()) mHostView.requestPointerCapture();
+        if(!hasFocus) mHostView.releasePointerCapture();
     }
 }

@@ -202,6 +202,7 @@ configure<com.android.build.api.dsl.ApplicationExtension> {
     packaging {
         jniLibs {
             useLegacyPackaging = true
+            pickFirsts.add("**/libhorizon_android.so")
             excludes += "**/x86/libshaderc.so"
             excludes += "**/x86/libspirv-cross-c-shared.so"
             excludes += "**/x86_64/libshaderc.so"
@@ -396,7 +397,6 @@ dependencies {
     val imguiVersion = "1.92.7.1"
 
     implementation("androidx.compose.foundation:foundation-layout:1.13.0")
-    implementation("androidx.compose.material3:material3:1.5.0")
     implementation("org.ow2.asm:asm:9.11.1")
     //noinspection GradleDependency
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.4.0")
@@ -435,11 +435,14 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.13.0")
+
     implementation(project(":glfw:android-gradle"))
     implementation(project(":sdl:android-gradle"))
     implementation(project(":mojoexec:jni_bindings"))
     implementation(project(":ColorPicker"))
+
     implementation(composeBom)
+
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -449,13 +452,12 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.7.0")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
-
-    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    implementation(project(":horizon"))
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
 
     compileOnly("org.lwjgl:lwjgl:$lwjglVersion")
     compileOnly("org.lwjgl:lwjgl-glfw:$lwjglVersion")
     compileOnly("org.lwjgl:lwjgl-opengl:$lwjglVersion")
+
     implementation("io.github.spair:imgui-java-binding:$imguiVersion")
     implementation("io.github.spair:imgui-java-lwjgl3:$imguiVersion")
 }

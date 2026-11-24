@@ -276,7 +276,7 @@ class AWTActivity : BaseActivity() {
             JavaRunner.nativeSetupExit(applicationContext)
             JavaRunner.startJvm(runtime, javaArgList, listOf(modFile.absolutePath), mainClass, emptyList())
 
-            JREUtils.launchJavaVM(this, runtime, null, javaArgList, LauncherPreferences.PREF_CUSTOM_JAVA_ARGS)
+            JREUtils.launchJavaVM()
         } catch (th: Throwable) {
             HyperUtils.showError(this, th, true)
         }

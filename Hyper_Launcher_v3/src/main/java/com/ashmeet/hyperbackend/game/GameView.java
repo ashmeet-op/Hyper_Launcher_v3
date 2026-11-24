@@ -63,7 +63,7 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
     SurfaceReadyListener mSurfaceReadyListener = null;
     final Object mSurfaceReadyListenerLock = new Object();
 
-    View mSurface;
+    public View mSurface;
     public GameCursorView mCursorView;
 
     private Bitmap mRecorderBitmap = null;
@@ -130,7 +130,12 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
             int action = e.getActionMasked();
             float x = e.getX(pointerIndex);
             float y = e.getY(pointerIndex);
-            dev.horizon.android.HorizonInput.sendTouch(pointerId, action, x, y);
+            dev.horizon.android.HorizonInput.cursor(x, y);
+            if (action == MotionEvent.ACTION_DOWN) {
+                dev.horizon.android.HorizonInput.mouseButton(0, true);
+            } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+                dev.horizon.android.HorizonInput.mouseButton(0, false);
+            }
         }
 
         if(getParent() instanceof ControlLayout && ((ControlLayout) getParent()).getModifiable()) return false;
@@ -216,6 +221,26 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
             default:
                 return false;
         }
+    }
+
+    @SuppressLint("NewApi")
+    public boolean dispatchCapturedPointerEvent(MotionEvent event) {
+        float relX = event.getAxisValue(MotionEvent.AXIS_RELATIVE_X);
+        float relY = event.getAxisValue(MotionEvent.AXIS_RELATIVE_Y);
+        if (relX == 0f && relY == 0f) {
+            relX = event.getAxisValue(MotionEvent.AXIS_X);
+            relY = event.getAxisValue(MotionEvent.AXIS_Y);
+        }
+
+        if (Platform.PLATFORM instanceof com.ashmeet.hyperbackend.game.platform.backend.HorizonBackend) {
+            com.ashmeet.hyperbackend.game.platform.backend.HorizonBackend.sendMouseMotion(relX, relY);
+            return true;
+        }
+
+        Platform.cursorX += relX;
+        Platform.cursorY += relY;
+        Platform.sendCursorPosition();
+        return true;
     }
 
 

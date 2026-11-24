@@ -12,6 +12,7 @@ public class HorizonBackend implements PlatformBackend {
 
     @Override
     public void surfaceCreated(Surface surface) {
+        System.loadLibrary("horizon_android");
         Log.i("HorizonBackend", "surfaceCreated");
     }
 
@@ -27,11 +28,11 @@ public class HorizonBackend implements PlatformBackend {
 
     @Override
     public void sendMousePosition() {
-        HorizonInput.sendCursorPosition((float) Platform.cursorX, (float) Platform.cursorY);
+        HorizonInput.cursor((float) Platform.cursorX, (float) Platform.cursorY);
     }
 
     public static void sendMouseMotion(float dx, float dy) {
-        HorizonInput.sendMouseMotion(dx, dy);
+        HorizonInput.cursor(dx, dy);
     }
 
     @Override
@@ -53,7 +54,7 @@ public class HorizonBackend implements PlatformBackend {
                 mouseBtn = button;
                 break;
         }
-        HorizonInput.sendMouseButton(mouseBtn, state == 1);
+        HorizonInput.mouseButton(mouseBtn, state == 1);
     }
 
     @Override
@@ -64,7 +65,7 @@ public class HorizonBackend implements PlatformBackend {
     @Override
     public boolean sendKeyEvent(int key, int state, int mods) {
         int glfwKey = toGlfwKeycode(key);
-        HorizonInput.sendKey(glfwKey, state == 1, mods);
+        HorizonInput.key(glfwKey, state == 1);
         return true;
     }
 
@@ -182,54 +183,13 @@ public class HorizonBackend implements PlatformBackend {
 
     @Override
     public void sendScrollEvent(double x, double y) {
-        HorizonInput.sendScroll((float) x, (float) y);
+        HorizonInput.scroll((float) x, (float) y);
     }
 
     @Override
     public void sendBulkUnicodeEvent(String text, int mods) {
-        if (text == null) return;
-        for (char c : text.toCharArray()) {
-            int glfwKey = charToGlfwKeycode(c);
-            if (glfwKey != 0) {
-                int charMods = mods;
-                if (c >= 'A' && c <= 'Z') {
-                    charMods |= LwjglGlfwKeycode.GLFW_MOD_SHIFT;
-                }
-                HorizonInput.sendKey(glfwKey, true, charMods);
-                HorizonInput.sendKey(glfwKey, false, charMods);
-            }
-        }
-    }
-
-    public static int charToGlfwKeycode(char c) {
-        if (c >= 'a' && c <= 'z') {
-            return LwjglGlfwKeycode.GLFW_KEY_A + (c - 'a');
-        }
-        if (c >= 'A' && c <= 'Z') {
-            return LwjglGlfwKeycode.GLFW_KEY_A + (c - 'A');
-        }
-        if (c >= '0' && c <= '9') {
-            return LwjglGlfwKeycode.GLFW_KEY_0 + (c - '0');
-        }
-        switch (c) {
-            case ' ': return LwjglGlfwKeycode.GLFW_KEY_SPACE;
-            case '\n': return LwjglGlfwKeycode.GLFW_KEY_ENTER;
-            case '\t': return LwjglGlfwKeycode.GLFW_KEY_TAB;
-            case '\b': return LwjglGlfwKeycode.GLFW_KEY_BACKSPACE;
-            case '-': return LwjglGlfwKeycode.GLFW_KEY_MINUS;
-            case '=': return LwjglGlfwKeycode.GLFW_KEY_EQUAL;
-            case '[': return LwjglGlfwKeycode.GLFW_KEY_LEFT_BRACKET;
-            case ']': return LwjglGlfwKeycode.GLFW_KEY_RIGHT_BRACKET;
-            case '\\': return LwjglGlfwKeycode.GLFW_KEY_BACKSLASH;
-            case ';': return LwjglGlfwKeycode.GLFW_KEY_SEMICOLON;
-            case '\'': return LwjglGlfwKeycode.GLFW_KEY_APOSTROPHE;
-            case '`': return LwjglGlfwKeycode.GLFW_KEY_GRAVE_ACCENT;
-            case ',': return LwjglGlfwKeycode.GLFW_KEY_COMMA;
-            case '.': return LwjglGlfwKeycode.GLFW_KEY_PERIOD;
-            case '/': return LwjglGlfwKeycode.GLFW_KEY_SLASH;
-            default:
-                return c;
-        }
+        if (text == null || text.isEmpty()) return;
+        HorizonInput.text(text);
     }
 
     @Override

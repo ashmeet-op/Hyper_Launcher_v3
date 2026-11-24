@@ -73,6 +73,7 @@ public class CursorUtils {
             try {
                 bitmap = BitmapFactory.decodeFile(customPath);
             } catch (Exception e) {
+                //noinspection CallToPrintStackTrace
                 e.printStackTrace();
             }
         }
@@ -108,7 +109,7 @@ public class CursorUtils {
         if (bitmap == null) return null;
 
         float targetSize = HyperUtils.dpToPx(24);
-        float scale = 1f;
+        float scale;
         if (bitmap.getWidth() > targetSize || bitmap.getHeight() > targetSize) {
             scale = targetSize / Math.max(bitmap.getWidth(), bitmap.getHeight());
             bitmap = Bitmap.createScaledBitmap(bitmap, (int) (bitmap.getWidth() * scale), (int) (bitmap.getHeight() * scale), true);

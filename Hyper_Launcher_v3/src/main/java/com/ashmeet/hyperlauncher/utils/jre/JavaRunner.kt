@@ -1,5 +1,6 @@
 package com.ashmeet.hyperlauncher.utils.jre
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.system.ErrnoException
@@ -93,11 +94,14 @@ object JavaRunner {
             "-Duser.country=US",
             "-Dos.name=Linux",
             "-Dos.version=Android-" + Build.VERSION.RELEASE,
+            "-Dmojo.path.game=" + HyperUtils.DIR_GAME_NEW,
+            "-Dmojo.path.account=" + HyperUtils.DIR_ACCOUNT_NEW,
             "-Dpojav.path.minecraft=" + HyperUtils.DIR_GAME_NEW,
             "-Dpojav.path.private.account=" + HyperUtils.DIR_ACCOUNT_NEW,
             "-Duser.timezone=" + TimeZone.getDefault().id,
             "-Dorg.lwjgl.vulkan.libname=libvulkan.so",
             "-Dorg.lwjgl.spvc.libname=spirv-cross-c-shared",
+            "-Dorg.lwjgl.shaderc.libname=shaderc",
             "-Dorg.lwjgl.sdl.libname=" + File(HyperUtils.NATIVE_LIB_DIR, "libSDL3.so").absolutePath,
             "-Dorg.lwjgl.system.allocator=system",
             "-Dext.net.resolvPath=$resolvFile",
@@ -154,20 +158,34 @@ object JavaRunner {
         return null
     }
 
-    private fun relocateLdLibPath(vmPath: File) {
+    private fun relocateLdLibPath(vmPath: File, extraDirs: List<String>? = null) {
         val vmDir = requireNotNull(vmPath.parentFile)
         val libsDir = requireNotNull(vmDir.parentFile)
-        val ldLibPath = libsDir.absolutePath + ":" +
-                HyperUtils.NATIVE_LIB_DIR + ":" +
-                vmDir.absolutePath + ":" +
-                File(libsDir, "jli").absolutePath
+        val libPathBuilder = StringBuilder()
+            .append(libsDir.absolutePath).append(":")
+            .append(HyperUtils.NATIVE_LIB_DIR).append(":")
+            .append(vmDir.absolutePath).append(":")
+            .append(File(libsDir, "jli").absolutePath)
 
+        if (extraDirs != null) {
+            for (path in extraDirs) {
+                libPathBuilder.append(':').append(path)
+            }
+        }
+
+        val ldLibPath = libPathBuilder.toString()
         try {
             Os.setenv("LD_LIBRARY_PATH", ldLibPath, true)
         } catch (e: ErrnoException) {
             throw RuntimeException(e)
         }
         JREUtils.setLdLibraryPath(ldLibPath)
+    }
+
+    private fun addx86SignalWorkaround(args: MutableList<String>) {
+        if (com.ashmeet.hyperlauncher.utils.Architecture.is32BitsDevice()) {
+            args.add("-Xrs")
+        }
     }
 
     private fun setImmutableEnvVars(jreHome: File) {
@@ -246,6 +264,7 @@ object JavaRunner {
         Log.i("JavaRunner", "Final JVM args: $runtimeArgs")
 
         runtimeArgs.add("-XX:ActiveProcessorCount=" + java.lang.Runtime.getRuntime().availableProcessors())
+        addx86SignalWorkaround(runtimeArgs)
         val classpathBuilder = StringBuilder().append("-Djava.class.path=")
         var first = true
         for (entry in classpathEntries) {

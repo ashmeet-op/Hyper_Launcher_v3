@@ -111,6 +111,15 @@ public class Account {
         return accessToken.equals("0");
     }
 
+    public Account toLocal() {
+        Account localAccount = new Account();
+        localAccount.username = this.username;
+        localAccount.accessToken = "0";
+        localAccount.profileId = "00000000-0000-0000-0000-000000000000";
+        localAccount.authType = AuthType.LOCAL;
+        return localAccount;
+    }
+
     public void save() throws IOException {
         FileUtils.ensureParentDirectory(mSaveLocation);
         JSONUtils.writeToFile(mSaveLocation, this);

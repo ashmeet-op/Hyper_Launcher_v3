@@ -125,7 +125,6 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
         boolean isHorizon = com.ashmeet.hyperlauncher.utils.horizon.HorizonUtils.isHorizonInstance(instance);
         if (isHorizon) {
             Platform.setPlatformLibrary(new com.ashmeet.hyperbackend.game.platform.backend.HorizonBackend());
-            dev.horizon.android.HorizonInput.setTouchUiEnabled(false);
         } else {
             mGameRenderer = new GameRenderer(instance.getLaunchRenderer());
             if(!PREF_ZINK_PREFER_SYSTEM_DRIVER) {
@@ -143,7 +142,6 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
         Platform.initialize(this, launcherGLView);
         if (isHorizon) {
             Platform.setPlatformLibrary(new com.ashmeet.hyperbackend.game.platform.backend.HorizonBackend());
-            dev.horizon.android.HorizonInput.setTouchUiEnabled(false);
         }
 
         mGyroControl = new GyroControl(this);
@@ -318,14 +316,8 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
             launcherGLView.setSurfaceReadyListener(() -> {
                 try {
                     HyperUtils.runOnUiThread(() -> { if(PREF_VIRTUAL_MOUSE_START) launcherGLView.mCursorView.setVisibility(View.VISIBLE); });
-                    if (isHorizon) {
-                        Logger.appendToLog("--------- Starting Horizon instance with GameActivity!");
-                        dev.horizon.android.HorizonInput.setTouchUiEnabled(false);
-                        hideLoadingScreen();
-                    } else {
-                        runCraft(finalVersion, finalClasspath);
-                    }
-                }catch (Throwable e){
+                    runCraft(finalVersion, finalClasspath);
+                } catch (Throwable e){
                     HyperUtils.showErrorRemote(e);
                 }
             });
@@ -513,9 +505,6 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (instance != null && !instance.horizonUseHorizonControls) {
-            return super.dispatchTouchEvent(ev);
-        }
         return super.dispatchTouchEvent(ev);
     }
 

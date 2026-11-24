@@ -1,5 +1,8 @@
 package com.ashmeet.hyperbackend.game.renderer;
 
+
+import android.content.Context;
+import android.content.res.Resources;
 import static com.ashmeet.hyperbackend.game.renderer.def.Renderers.FREEDRENO_RENDERER;
 import static com.ashmeet.hyperbackend.game.renderer.def.Renderers.GL4ES_RENDERER;
 import static com.ashmeet.hyperbackend.game.renderer.def.Renderers.LEGACYZINK_RENDERER;
@@ -8,12 +11,8 @@ import static com.ashmeet.hyperbackend.game.renderer.def.Renderers.MESA_RENDERER
 import static com.ashmeet.hyperbackend.game.renderer.def.Renderers.MESA_RENDERER_EXT;
 import static com.ashmeet.hyperbackend.game.renderer.def.Renderers.MOBILEGLUES_RENDERER;
 import static com.ashmeet.hyperbackend.game.renderer.def.Renderers.ZINK_RENDERER;
-
-import android.content.Context;
-import android.content.res.Resources;
 import com.ashmeet.hyperlauncher.renderer.RendererInterface;
 import com.ashmeet.hyperlauncher.renderer.Renderers;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,17 +32,17 @@ public class RendererCache {
 
     /**
      * Return a list of renderers compatible with the current device
-     * Don't forget to clean the cache when the list isn't needed anymore (i.e. when starting the game) - {@link GameRenderer#releaseCache()}
+     * Don't forget to clean the cache when the list isn't needed anymore
      *
      * @param context application context
-     * @return RendererCache containing all compatible renderers
+     * @return RenderersList containing all compatible renderers
      */
     public static RendererCache getCompatibleRenderers(Context context) {
         if (sCompatibleRenderers != null) return sCompatibleRenderers;
         Resources resources = context.getResources();
         // This is the list that controls em all!
         String[] renderers = {
-                GL4ES_RENDERER, LTW_RENDERER, MOBILEGLUES_RENDERER, ZINK_RENDERER, FREEDRENO_RENDERER, MESA_RENDERER, MESA_RENDERER_EXT, LEGACYZINK_RENDERER
+                GL4ES_RENDERER, LTW_RENDERER, ZINK_RENDERER, FREEDRENO_RENDERER, MESA_RENDERER, MESA_RENDERER_EXT, LEGACYZINK_RENDERER, MOBILEGLUES_RENDERER
         };
         ArrayList<String> rendererIds = new ArrayList<>(renderers.length);
         ArrayList<String> rendererNames = new ArrayList<>(renderers.length);
@@ -73,7 +72,6 @@ public class RendererCache {
         rendererNames.trimToSize();
         return (sCompatibleRenderers = new RendererCache(rendererIds, rendererNames.toArray(new String[0])));
     }
-
 
     public static boolean checkRendererCompatible(Context context, String rendererName) {
         return getCompatibleRenderers(context).rendererIds.contains(rendererName);

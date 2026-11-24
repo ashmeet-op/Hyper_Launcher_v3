@@ -23,7 +23,9 @@ public class JVersionList {
         public AssetIndex assetIndex;
 
         public String assets;
+        public boolean disableRendererChecks;
         public Map<String, ClientInfo> downloads;
+        public Map<String, String> environment;
         public String inheritsFrom;
         public JavaVersionInfo javaVersion;
         public DependentLibrary[] libraries;

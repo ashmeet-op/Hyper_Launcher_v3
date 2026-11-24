@@ -9,16 +9,16 @@ import dev.horizon.android.HorizonInput;
 public class LwjglCharSender implements CharacterSenderStrategy {
     @Override
     public void sendBackspace() {
-        HorizonInput.sendKey(LwjglGlfwKeycode.GLFW_KEY_BACKSPACE, true, CallbackBridge.getCurrentMods());
-        HorizonInput.sendKey(LwjglGlfwKeycode.GLFW_KEY_BACKSPACE, false, CallbackBridge.getCurrentMods());
+        HorizonInput.key(LwjglGlfwKeycode.GLFW_KEY_BACKSPACE, true);
+        HorizonInput.key(LwjglGlfwKeycode.GLFW_KEY_BACKSPACE, false);
         CallbackBridge.sendKeyPress(LwjglGlfwKeycode.GLFW_KEY_BACKSPACE);
 
     }
 
     @Override
     public void sendEnter() {
-       HorizonInput.sendKey(LwjglGlfwKeycode.GLFW_KEY_ENTER, true, CallbackBridge.getCurrentMods());
-       HorizonInput.sendKey(LwjglGlfwKeycode.GLFW_KEY_ENTER, false, CallbackBridge.getCurrentMods());
+        HorizonInput.key(LwjglGlfwKeycode.GLFW_KEY_ENTER, true);
+        HorizonInput.key(LwjglGlfwKeycode.GLFW_KEY_ENTER, false);
     }
 
     @Override

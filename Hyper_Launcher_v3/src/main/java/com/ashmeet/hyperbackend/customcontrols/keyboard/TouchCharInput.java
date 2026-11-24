@@ -58,7 +58,9 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         if (mIsHorizonMode && event.getAction() == KeyEvent.ACTION_DOWN) {
-            dev.horizon.android.HorizonInput.mirrorKey(event.getKeyCode());
+            int glfwKey = com.ashmeet.hyperbackend.game.platform.backend.HorizonBackend.toGlfwKeycode(event.getKeyCode());
+            dev.horizon.android.HorizonInput.key(glfwKey, true);
+            dev.horizon.android.HorizonInput.key(glfwKey, false);
         }
         return super.dispatchKeyEvent(event);
     }
@@ -79,7 +81,8 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
                     mIsDoingInternalChanges = false;
                 }
             } else {
-                dev.horizon.android.HorizonInput.mirrorKey(KeyEvent.KEYCODE_DEL);
+                dev.horizon.android.HorizonInput.key(com.ashmeet.hyperbackend.LwjglGlfwKeycode.GLFW_KEY_BACKSPACE, true);
+                dev.horizon.android.HorizonInput.key(com.ashmeet.hyperbackend.LwjglGlfwKeycode.GLFW_KEY_BACKSPACE, false);
             }
             return true;
         }
@@ -146,7 +149,7 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
                 editable.append(TEXT_FILLER);
             }
             if (mIsHorizonMode) {
-                dev.horizon.android.HorizonInput.setCurrentText(editable.toString());
+                dev.horizon.android.HorizonInput.text(editable.toString());
             }
             int selectionPos = editable.length();
             if (!mIsHorizonMode) {
@@ -185,7 +188,7 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
         //wsp beijing i stole the code lmao
         if (!mIsHorizonMode) {
             Selection.setSelection(editable, 0);
-            dev.horizon.android.HorizonInput.setCurrentText("");
+            dev.horizon.android.HorizonInput.text("");
         }
 
         //Braille space, doesn't trigger keyboard auto-complete
@@ -236,14 +239,14 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
         addTextChangedListener(new InputTextWatcher());
         setOnEditorActionListener((textView, i, keyEvent) -> {
             if (mIsHorizonMode) {
-                dev.horizon.android.HorizonInput.mirrorAction();
-                dev.horizon.android.HorizonInput.mirrorKey(KeyEvent.KEYCODE_ENTER);
+                dev.horizon.android.HorizonInput.key(com.ashmeet.hyperbackend.LwjglGlfwKeycode.GLFW_KEY_ENTER, true);
+                dev.horizon.android.HorizonInput.key(com.ashmeet.hyperbackend.LwjglGlfwKeycode.GLFW_KEY_ENTER, false);
                 mIsDoingInternalChanges = true;
                 Editable editable = getEditableText();
                 if (!editable.toString().endsWith("\n")) {
                     editable.append("\n");
                 }
-                dev.horizon.android.HorizonInput.setCurrentText(editable.toString());
+                dev.horizon.android.HorizonInput.text(editable.toString());
                 mIsDoingInternalChanges = false;
                 try {
                     Activity activity = getActivity();
@@ -290,10 +293,11 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
 
             if ( mIsHorizonMode ) {
 
-                dev.horizon.android.HorizonInput.setCurrentText(text.toString());
+                dev.horizon.android.HorizonInput.text(text.toString());
 
                 for (int i = 0; i < lengthBefore; ++i) {
-                    dev.horizon.android.HorizonInput.mirrorKey(KeyEvent.KEYCODE_DEL);
+                    dev.horizon.android.HorizonInput.key(com.ashmeet.hyperbackend.LwjglGlfwKeycode.GLFW_KEY_BACKSPACE, true);
+                    dev.horizon.android.HorizonInput.key(com.ashmeet.hyperbackend.LwjglGlfwKeycode.GLFW_KEY_BACKSPACE, false);
                 }
 
                 return;

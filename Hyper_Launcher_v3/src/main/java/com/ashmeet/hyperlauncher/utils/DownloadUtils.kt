@@ -253,6 +253,20 @@ object DownloadUtils {
         return -1
     }
 
+    @JvmStatic
+    fun pingInjectorUrl(url: String): Boolean {
+        return try {
+            val conn = URL(url).openConnection() as HttpURLConnection
+            conn.requestMethod = "GET"
+            conn.connectTimeout = 5000
+            conn.readTimeout = 5000
+            conn.connect()
+            conn.responseCode == 200
+        } catch (_: IOException) {
+            false
+        }
+    }
+
     interface ParseCallback<T> {
         @Throws(ParseException::class)
         fun process(input: String): T

@@ -1,15 +1,19 @@
 package com.ashmeet.hyperlauncher.utils.jre
 
+import android.content.Context
 import android.util.ArrayMap
 import android.util.Log
 import android.widget.Toast
-import androidx.core.content.edit
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.edit
 import com.ashmeet.hyperbackend.JVersionList
+import com.ashmeet.hyperbackend.Logger
 import com.ashmeet.hyperbackend.authenticator.AuthType
 import com.ashmeet.hyperbackend.authenticator.accounts.Account
 import com.ashmeet.hyperbackend.authenticator.impl.MicrosoftBackgroundLogin
 import com.ashmeet.hyperbackend.game.renderer.GameRenderer
+import com.ashmeet.hyperbackend.game.renderer.RenderSpec
+import com.ashmeet.hyperbackend.game.renderer.def.Renderers
 import com.ashmeet.hyperbackend.game.renderer.impl.GLESRenderSpec
 import com.ashmeet.hyperbackend.instances.Instance
 import com.ashmeet.hyperbackend.lifecycle.LifecycleAwareAlertDialog
@@ -21,6 +25,7 @@ import com.ashmeet.hyperbackend.utils.JREUtils
 import com.ashmeet.hyperbackend.utils.JSONUtils
 import com.ashmeet.hyperbackend.utils.MCOptionUtils
 import com.ashmeet.hyperbackend.utils.OldVersionsUtils
+import com.ashmeet.hyperbackend.utils.plugins.LibraryPlugin
 import com.ashmeet.hyperlauncher.extra.ExtraConstants
 import com.ashmeet.hyperlauncher.extra.ExtraCore
 import com.ashmeet.hyperlauncher.runtime.RuntimeUtils
@@ -30,12 +35,13 @@ import com.ashmeet.hyperlauncher.skin.SkinManager
 import com.ashmeet.hyperlauncher.utils.Architecture
 import com.ashmeet.hyperlauncher.utils.DateUtils
 import com.ashmeet.hyperlauncher.utils.DiscordRpcManager
+import com.ashmeet.hyperlauncher.utils.DownloadUtils
 import com.ashmeet.hyperlauncher.utils.HyperUtils
 import net.ashmeet.hyperlauncher.R
 import java.io.File
 import java.io.IOException
+import java.text.ParseException
 import java.util.Collections
-import java.util.Objects
 import kotlin.system.exitProcess
 
 object GameRunner {
@@ -76,7 +82,8 @@ object GameRunner {
         if (hasSodium(gamedir)) return false
         try {
             MCOptionUtils.load()
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Log.e("Tools", "Failed to load config", e)
         }
         val renderDistance = GameOptionsUtils.parseIntDefault(MCOptionUtils.get("renderDistance"), 12)
         return renderDistance > 7
@@ -101,22 +108,37 @@ object GameRunner {
     }
 
     @Throws(InterruptedException::class, IOException::class)
-    private fun switchRendererifSupported(
+    private fun switchRendererIfSupported(
         support: Boolean,
-        renderer: String,
+        renderer: RenderSpec,
         gameRenderer: GameRenderer,
         instance: Instance,
         activity: AppCompatActivity,
         resId: Int
     ) {
         if (support) {
-            instance.renderer = renderer
+            instance.renderer = renderer.tag()
             instance.write()
-            gameRenderer.setCurrentRenderer(renderer)
+            gameRenderer.currentRenderer = renderer
         } else {
             showDialog(activity, resId)
             exitProcess(0)
         }
+    }
+
+    private fun performAuthPing(context: Context, account: Account): Boolean {
+        val injectorUrl = account.authType?.injectorUrl ?: return true
+        Logger.appendToLog("Pinging authentication service...")
+        if (DownloadUtils.pingInjectorUrl(injectorUrl)) return true
+        Logger.appendToLog("Authentication service did not respond, disabling")
+        HyperUtils.runOnUiThread {
+            Toast.makeText(
+                context,
+                context.getString(R.string.warn_auth_type_missing, injectorUrl),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+        return false
     }
 
     @JvmStatic
@@ -145,6 +167,11 @@ object GameRunner {
             } catch (_: Exception) {
             }
         }
+
+        if (!performAuthPing(activity, account)) {
+            account = account.toLocal()
+        }
+
         var freeDeviceMemory = HyperUtils.getFreeDeviceMemory(activity)
         val localeString: Int
         val freeAddressSpace = if (Architecture.is32BitsDevice()) HyperUtils.getMaxContinuousAddressSpaceSize() else -1
@@ -177,6 +204,7 @@ object GameRunner {
                 return
             }
         }
+
         val gamedir = instance.getGameDirectory()
         val versionInfo = HyperUtils.getVersionInfo(versionId)
         requireNotNull(versionInfo)
@@ -185,18 +213,29 @@ object GameRunner {
 
         val renderer = gameRenderer.currentRenderer
 
-        if (isCompatContext(versionInfo) && !hasAngelica(gamedir) && renderer is GLESRenderSpec.LTWRenderSpec) {
-            switchRendererifSupported(true, GameRenderer.GL4ES_RENDERER, gameRenderer, instance, activity, 0)
-        }
+        if (!versionInfo.disableRendererChecks) {
+            if (isCompatContext(versionInfo) && !hasAngelica(gamedir) && renderer is GLESRenderSpec.LTWRenderSpec) {
+                val gl4es = GameRenderer.getKnownRenderer(Renderers.GL4ES_RENDERER)
+                if (gl4es != null) {
+                    switchRendererIfSupported(true, gl4es, gameRenderer, instance, activity, 0)
+                }
+            }
 
-        val isGl4es = renderer is GLESRenderSpec.GL4ESRenderSpec
-        val ltwSupported = Objects.requireNonNull(GameRenderer.getKnownRenderer(GameRenderer.LTW_RENDERER)).compatibleDevice(activity)
-        if (!isCompatContext(versionInfo) && isGl4es && hasSodium(gamedir)) {
-            switchRendererifSupported(ltwSupported, GameRenderer.LTW_RENDERER, gameRenderer, instance, activity, R.string.compat_sodium_not_supported)
-        }
+            val isGl4es = renderer is GLESRenderSpec.GL4ESRenderSpec
+            val ltw = GameRenderer.getKnownRenderer(Renderers.LTW_RENDERER)
+            val ltwSupported = ltw != null && ltw.compatibleDevice(activity)
 
-        if (!isGl4esCompatible(versionInfo) && isGl4es) {
-            switchRendererifSupported(ltwSupported, GameRenderer.LTW_RENDERER, gameRenderer, instance, activity, R.string.compat_sodium_not_supported)
+            if (!isCompatContext(versionInfo) && isGl4es && hasSodium(gamedir)) {
+                if (ltw != null) {
+                    switchRendererIfSupported(ltwSupported, ltw, gameRenderer, instance, activity, R.string.compat_sodium_not_supported)
+                }
+            }
+
+            if (!isGl4esCompatible(versionInfo) && isGl4es) {
+                if (ltw != null) {
+                    switchRendererIfSupported(ltwSupported, ltw, gameRenderer, instance, activity, R.string.compat_version_not_supported)
+                }
+            }
         }
 
         DiscordRpcManager.startRpc(
@@ -213,7 +252,8 @@ object GameRunner {
             try {
                 MCOptionUtils.set("renderDistance", "7")
                 MCOptionUtils.save()
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.e("Tools", "Failed to fix render distance setting", e)
             }
         }
 
@@ -268,14 +308,30 @@ object GameRunner {
             javaArgList.add("-Dlog4j.configurationFile=$configFile")
         }
 
+        val additionalNativesDir: String
+        val natives = LibraryPlugin.discoverPlugin(activity, LibraryPlugin.ID_NATIVES_PLUGIN)
+        if (natives != null) {
+            val path = natives.libraryPath
+            val dir = File(path)
+            if (dir.isDirectory) {
+                val overrides = dir.list { _, name -> name.endsWith(".so") }?.joinToString(" ") ?: ""
+                JREUtils.setLibraryOverrides(path, overrides)
+            }
+            additionalNativesDir = ":$path"
+        } else {
+            additionalNativesDir = ""
+        }
+
         versionInfo.logging = null
 
         val versionSpecificNativesDir = File(HyperUtils.DIR_CACHE, "natives/$versionId")
         if (versionSpecificNativesDir.exists()) {
             val dirPath = versionSpecificNativesDir.absolutePath
-            javaArgList.add("-Djava.library.path=$dirPath:" + HyperUtils.NATIVE_LIB_DIR)
+            javaArgList.add("-Djava.library.path=$dirPath:" + HyperUtils.NATIVE_LIB_DIR + additionalNativesDir)
             javaArgList.add("-Djna.boot.library.path=$dirPath")
             javaArgList.add("-Dorg.lwjgl.librarypath=$dirPath")
+        } else {
+            javaArgList.add("-Djava.library.path=" + HyperUtils.NATIVE_LIB_DIR + additionalNativesDir)
         }
 
         val lwjglExtractDir = File(HyperUtils.DIR_CACHE, "lwjgl_native/$versionId")
@@ -294,12 +350,16 @@ object GameRunner {
 
         javaArgList.addAll(JREUtils.parseJavaArguments(instance.getLaunchArgs()))
 
-        JREUtils.setGameEnvironment(activity, gameRenderer)
-        JREUtils.chdir(instance.getGameDirectory().absolutePath)
+        val versionEnvMap = versionInfo.environment
 
         if (GpuUtils.getGlInfo().isAdreno && !PREF_ZINK_PREFER_SYSTEM_DRIVER) {
             gameRenderer.overrideVulkanDriver()
         }
+
+        gameRenderer.setupEnvironment(activity)
+        JREUtils.setGameEnvironment(activity, gameRenderer, versionEnvMap)
+        JREUtils.chdir(instance.getGameDirectory().absolutePath)
+
         if (!gameRenderer.maybeSetupRenderer()) {
             if (showDialog(activity, R.string.gr_err_renderer_load_Failed)) return
             exitProcess(0)
@@ -397,28 +457,15 @@ object GameRunner {
 
     private fun addNoBlocklistArgs(javaArgList: MutableList<String>) {
         if (!LauncherPreferences.PREF_DISABLE_BLOCKLIST) return
-        val noBlocklistDir = File(HyperUtils.DIR_DATA, "noblocklist")
-        var jarToUse: File? = null
-        val jarFiles = noBlocklistDir.listFiles { _, name -> name.endsWith(".jar") }
-        if (jarFiles != null) {
-            for (file in jarFiles) {
-                if (file.exists() && file.isFile && file.length() > 0) {
-                    jarToUse = file
-                    break
-                }
-            }
-        }
-        if (jarToUse == null) {
-            val defaultFile = File(noBlocklistDir, "NoBlocklist-1.0-SNAPSHOT-all.jar")
-            if (defaultFile.exists() && defaultFile.isFile && defaultFile.length() > 0) {
-                jarToUse = defaultFile
-            }
-        }
-        if (jarToUse != null) {
-            Log.i("GameRunner", "Using NoBlocklist jar: " + jarToUse.absolutePath)
-            javaArgList.add("-javaagent:" + jarToUse.absolutePath)
+        val noBlocklistFile = File(HyperUtils.DIR_DATA, "noblocklist/NoBlocklist-1.0-SNAPSHOT-all.jar")
+        if (noBlocklistFile.exists() && noBlocklistFile.isFile && noBlocklistFile.length() > 0) {
+            javaArgList.add("-javaagent:" + noBlocklistFile.absolutePath)
         } else {
-            Log.w("GameRunner", "NoBlocklist is enabled, but no valid jar found in " + noBlocklistDir.absolutePath)
+            val noBlocklistDir = File(HyperUtils.DIR_DATA, "noblocklist")
+            val jarFiles = noBlocklistDir.listFiles { _, name -> name.endsWith(".jar") }
+            if (jarFiles != null && jarFiles.isNotEmpty()) {
+                javaArgList.add("-javaagent:" + jarFiles[0].absolutePath)
+            }
         }
     }
 
@@ -478,7 +525,8 @@ object GameRunner {
             if (!DateUtils.dateBefore(creationDate, 2022, 9, 26)) {
                 userType = "msa"
             }
-        } catch (_: Exception) {
+        } catch (e: ParseException) {
+            Log.e("CheckForProfileKey", "Failed to determine profile creation date, using \"mojang\"", e)
         }
 
         val varArgMap = ArrayMap<String, String>()
@@ -489,7 +537,7 @@ object GameRunner {
         varArgMap["auth_xuid"] = profile.xuid
         varArgMap["assets_root"] = HyperUtils.ASSETS_PATH
         varArgMap["assets_index_name"] = versionInfo.assets
-        varArgMap["game_assets"] = HyperUtils.ASSETS_PATH
+        varArgMap["game_assets"] = HyperUtils.ASSETS_PATH + File.separator + "virtual" + File.separator + versionInfo.assets
         varArgMap["game_directory"] = gameDir.absolutePath
         varArgMap["user_properties"] = "{}"
         varArgMap["user_type"] = userType
@@ -507,6 +555,7 @@ object GameRunner {
         if (versionInfo.minecraftArguments != null) {
             clientArgs.addAll(splitAndFilterEmpty(versionInfo.minecraftArguments))
         }
+
         val quickPlayWorld = ExtraCore.consumeValue(ExtraConstants.QUICK_PLAY_WORLD) as String?
         if (quickPlayWorld != null && quickPlayWorld.trim().isNotEmpty()) {
             val worldName = quickPlayWorld.trim()

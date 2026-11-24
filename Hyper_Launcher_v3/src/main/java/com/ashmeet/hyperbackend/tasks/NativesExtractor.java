@@ -27,7 +27,9 @@ public class NativesExtractor {
 
 
     private static ArrayList<String> createLibraryBlacklist() {
+        assert HyperUtils.NATIVE_LIB_DIR != null;
         String[] includedLibraryNames = new File(HyperUtils.NATIVE_LIB_DIR).list();
+        assert includedLibraryNames != null;
         ArrayList<String> blacklist = new ArrayList<>(includedLibraryNames.length);
         for(String libraryName : includedLibraryNames) {
 
@@ -56,18 +58,23 @@ public class NativesExtractor {
     private void extract(File source, ExtractFilter extractFilter) throws IOException {
         byte[] buffer = new byte[8192];
         try (FileInputStream fileInputStream = new FileInputStream(source);
+
              ZipInputStream zipInputStream = new ZipInputStream(fileInputStream)) {
 
 
             NonCloseableInputStream entryCopyStream = new NonCloseableInputStream(zipInputStream);
+
             ZipEntry entry;
-            while((entry = zipInputStream.getNextEntry()) != null) {
+
+            while ((entry = zipInputStream.getNextEntry()) != null) {
+
                 String entryName = entry.getName();
+
                 if(!extractFilter.shouldExtract(entryName) || entry.isDirectory()) continue;
 
                 entryName = FileUtils.getFileName(entryName);
 
-                if(entryName == null || LIBRARY_BLACKLIST.contains(entryName)) continue;
+                if(LIBRARY_BLACKLIST.contains(entryName)) continue;
 
                 processEntry(entryCopyStream, entry, new File(mDestinationDir, entryName), buffer);
             }

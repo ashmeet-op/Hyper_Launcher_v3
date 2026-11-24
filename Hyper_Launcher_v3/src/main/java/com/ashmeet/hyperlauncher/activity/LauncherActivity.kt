@@ -157,7 +157,7 @@ class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceSt
         }
 
         if (HorizonUtils.isHorizonInstance(selectedInstance)) {
-            HorizonUtils.launchHorizon(this, selectedInstance)
+            HorizonUtils.launchHorizon(this)
             return@ExtraListener false
         }
 

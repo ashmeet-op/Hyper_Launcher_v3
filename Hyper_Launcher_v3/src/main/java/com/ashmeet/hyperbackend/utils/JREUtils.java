@@ -5,8 +5,6 @@ import android.system.Os;
 import android.util.ArrayMap;
 import android.util.Log;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.ashmeet.hyperlauncher.plugin.ffmpeg.FFmpegPluginManager;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 import com.ashmeet.hyperlauncher.utils.NativeLibraryLoader;
@@ -14,7 +12,7 @@ import com.ashmeet.hyperlauncher.utils.HyperUtils;
 
 import com.ashmeet.hyperbackend.Logger;
 import com.ashmeet.hyperbackend.game.renderer.GameRenderer;
-import com.ashmeet.hyperlauncher.runtime.Runtime;
+
 import git.artdeell.mojoexec.MojoExec;
 
 import java.io.BufferedReader;
@@ -22,8 +20,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
+
+import com.ashmeet.hyperbackend.utils.plugins.LibraryPlugin;
 
 public class JREUtils {
     public static void redirectAndPrintJRELog() {
@@ -106,6 +105,11 @@ public class JREUtils {
     }
 
     public static void setupFfmpegEnv(Context ctx, Map<String, String> envMap) {
+        LibraryPlugin ffmpeg = LibraryPlugin.discoverPlugin(ctx, LibraryPlugin.ID_FFMPEG_PLUGIN);
+        if (ffmpeg != null) {
+            envMap.put("POJAV_FFMPEG_PATH", ffmpeg.resolveAbsolutePath("libffmpeg.so"));
+            return;
+        }
         if (FFmpegPluginManager.INSTANCE.isAvailable()) {
             String path = FFmpegPluginManager.INSTANCE.getExecutablePath();
             if (path != null) {
@@ -114,7 +118,11 @@ public class JREUtils {
         }
     }
 
-    public static void setGameEnvironment(Context context, GameRenderer renderer) throws Throwable {
+    public static void setLibraryOverrides(String path, String overrides) {
+        Log.i("JREUtils", "setLibraryOverrides: path=" + path + ", overrides=" + overrides);
+    }
+
+    public static void setGameEnvironment(Context context, GameRenderer renderer, Map<String, String> versionEnvMap) throws Throwable {
         Map<String, String> envMap = new ArrayMap<>();
         // This is currently required for YSM mod to function
         File modRuntimeDir = new File(HyperUtils.DIR_CACHE, "app_runtime_mod");
@@ -126,7 +134,12 @@ public class JREUtils {
         setupAngleEnv(envMap);
         setupFfmpegEnv(context, envMap);
 
-        renderer.setupEnvironment(context, envMap);
+        if (renderer != null) {
+            renderer.setupEnvironment(context, envMap);
+        }
+        if (versionEnvMap != null) {
+            envMap.putAll(versionEnvMap);
+        }
         MojoExec.setUseBigCoreAffinity(LauncherPreferences.PREF_BIG_CORE_AFFINITY);
         if(LauncherPreferences.PREF_BIG_CORE_AFFINITY) envMap.put("POJAV_BIG_CORE_AFFINITY", "1");
         if(LauncherPreferences.PREF_ALSOFT_FORCE_OPENSL) envMap.put("ALSOFT_DRIVERS", "opensl");
@@ -143,7 +156,7 @@ public class JREUtils {
         }
     }
 
-    public static void launchJavaVM(final AppCompatActivity activity, final Runtime runtime, File gameDirectory, final List<String> JVMArgs, final String userArgsString) throws Throwable {
+    public static void launchJavaVM() {
 
         // Force LWJGL to use the Freetype library intended for it, instead of using the one
         // that we ship with Java (since it may be older than what's needed)
