@@ -13,24 +13,24 @@ import android.content.res.Configuration
 import android.os.Build
 import android.util.Log
 import androidx.core.app.ActivityCompat
-import com.ashmeet.hyperlauncher.plugin.PluginLoader
-import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
-import com.ashmeet.hyperlauncher.utils.Architecture
-import com.ashmeet.hyperlauncher.utils.DiscordRpcManager
-import com.ashmeet.hyperlauncher.utils.LoggerProxy
-import com.ashmeet.hyperlauncher.utils.NativeLibraryLoader
-import com.ashmeet.hyperlauncher.utils.HyperUtils
-import com.ashmeet.hyperlauncher.utils.translation.Translator
-import net.ashmeet.hyperlauncher.BuildConfig
 import com.ashmeet.hyperbackend.lifecycle.ContextExecutor
 import com.ashmeet.hyperbackend.tasks.AsyncAssetManager
 import com.ashmeet.hyperbackend.tasks.HyperDownloader
 import com.ashmeet.hyperbackend.utils.FileUtils
 import com.ashmeet.hyperbackend.utils.LocaleUtils
+import com.ashmeet.hyperlauncher.plugin.PluginLoader
+import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.utils.Architecture
+import com.ashmeet.hyperlauncher.utils.DiscordRpcManager
+import com.ashmeet.hyperlauncher.utils.HyperUtils
+import com.ashmeet.hyperlauncher.utils.LoggerProxy
+import com.ashmeet.hyperlauncher.utils.NativeLibraryLoader
+import com.ashmeet.hyperlauncher.utils.translation.Translator
+import net.ashmeet.hyperlauncher.BuildConfig
 import java.io.File
 import java.io.PrintStream
 import java.text.DateFormat
-import java.util.*
+import java.util.Date
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.ThreadPoolExecutor
@@ -98,6 +98,7 @@ class PojavApplication : Application() {
             } catch (_: UnsatisfiedLinkError) {
                 System.loadLibrary("hyperrt")
             }
+            
             LoggerProxy.init()
 
             HyperUtils.DEVICE_ARCHITECTURE = Architecture.getDeviceArchitecture()
@@ -127,8 +128,15 @@ class PojavApplication : Application() {
         ContextExecutor.clearApplication()
     }
 
+    @SuppressLint("PrivateApi", "DiscouragedPrivateApi")
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(LocaleUtils.setLocale(base))
+        try {
+            System.setProperty("sys.gcsupression.optimize.enable", "false")
+            val systemPropertiesClass = Class.forName("android.os.SystemProperties")
+            val setMethod = systemPropertiesClass.getMethod("set", String::class.java, String::class.java)
+            setMethod.invoke(null, "sys.gcsupression.optimize.enable", "false")
+        } catch (_: Throwable) {}
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

@@ -132,12 +132,12 @@ open class DrawerPullButton @JvmOverloads constructor(
                             val hFps = HorizonInput.fps()
                             if (hFps > 0) return@withContext hFps
                         }
-
+                        0
                     } catch ( _ : Throwable) {
                         0
                     }
                 }
-                fpsValue = nativeFps as Int
+                fpsValue = nativeFps
                 delay(1000.milliseconds)
             }
         }

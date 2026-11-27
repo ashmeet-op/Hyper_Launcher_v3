@@ -21,6 +21,7 @@ import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
 import dev.horizon.android.HorizonActivity
 import dev.horizon.android.HorizonInstaller
 import java.io.File
+import java.io.FileOutputStream
 
 object HorizonUtils {
     private const val TAG = "HorizonUtils"
@@ -93,6 +94,15 @@ object HorizonUtils {
 
         Thread {
             try {
+                android.os.Looper.prepare()
+                val homeFile = File(homeDir)
+                if (!homeFile.isDirectory && !homeFile.mkdirs()) {
+                    throw java.io.IOException("Cannot create $homeFile")
+                }
+                if (!HorizonInstaller.isReady(homeDir)) {
+                    Log.i(TAG, "Copying engine data...")
+                    copyEngineData(context, homeFile)
+                }
                 Log.i(TAG, "Horizon engine not ready; installing engine resources...")
                 val installError = HorizonInstaller.install(homeDir, cacheDir, object : HorizonInstaller.Listener {
                     override fun onProgress(stageIndex: Int, label: String?, done: Long, total: Long) {
@@ -155,6 +165,27 @@ object HorizonUtils {
             if (gameDir != null) {
                 intent.putExtra(HorizonActivity.EXTRA_GAME_DIR, gameDir)
             }
+        }
+    }
+
+    private fun copyEngineData(context: Context, home: File) {
+        val engineDataName = "engine-data.zip"
+        val target = File(home, engineDataName)
+        val partial = File(home, "$engineDataName.host-partial")
+        context.assets.open(engineDataName).use { input ->
+            FileOutputStream(partial).use { output ->
+                val buffer = ByteArray(64 * 1024)
+                var read: Int
+                while (input.read(buffer).also { read = it } != -1) {
+                    output.write(buffer, 0, read)
+                }
+            }
+        }
+        if (target.exists() && !target.delete()) {
+            throw java.io.IOException("Cannot replace $target")
+        }
+        if (!partial.renameTo(target)) {
+            throw java.io.IOException("Cannot write $target")
         }
     }
 
