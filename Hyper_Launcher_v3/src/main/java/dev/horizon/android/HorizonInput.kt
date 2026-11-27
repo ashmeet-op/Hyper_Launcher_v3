@@ -2,7 +2,7 @@ package dev.horizon.android
 
 import kotlin.math.max
 
-@Suppress("KotlinJniMissingFunction")
+@Suppress("KotlinJniMissingFunction","unused")
 object HorizonInput {
     @JvmField
     var sLoaded: Boolean = true
@@ -18,37 +18,61 @@ object HorizonInput {
 
     @JvmStatic
     fun key(glfwKey: Int, pressed: Boolean) {
-        nativeKey(glfwKey, pressed)
+        if (!sLoaded) return
+        try {
+            nativeKey(glfwKey, pressed)
+        } catch (_: Throwable) {}
     }
 
     @JvmStatic
     fun text(text: String?) {
-        if (!text.isNullOrEmpty()) nativeText(text)
+        if (!sLoaded || text.isNullOrEmpty()) return
+        try {
+            nativeText(text)
+        } catch (_: Throwable) {}
     }
 
     @JvmStatic
     fun cursor(x: Float, y: Float) {
-        nativeCursor(x, y)
+        if (!sLoaded) return
+        try {
+            nativeCursor(x, y)
+        } catch (_: Throwable) {}
     }
 
     @JvmStatic
     fun cursorSilently(x: Float, y: Float) {
-        nativeCursorSilently(x, y)
+        if (!sLoaded) return
+        try {
+            nativeCursorSilently(x, y)
+        } catch (_: Throwable) {}
     }
 
     @JvmStatic
     fun mouseButton(glfwButton: Int, pressed: Boolean) {
-        nativeMouseButton(glfwButton, pressed)
+        if (!sLoaded) return
+        try {
+            nativeMouseButton(glfwButton, pressed)
+        } catch (_: Throwable) {}
     }
 
     @JvmStatic
     fun scroll(x: Float, y: Float) {
-        nativeScroll(x, y)
+        if (!sLoaded) return
+        try {
+            nativeScroll(x, y)
+        } catch (_: Throwable) {}
     }
 
     val isGrabbed: Boolean
         @JvmStatic
-        get() = nativeIsGrabbed()
+        get() {
+            return sLoaded && try {
+                nativeIsGrabbed()
+            } catch (_: Throwable) {
+                false
+            }
+        }
 
     val isKeybindCaptureActive: Boolean
         @JvmStatic

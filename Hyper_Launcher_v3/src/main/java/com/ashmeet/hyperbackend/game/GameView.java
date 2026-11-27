@@ -74,7 +74,7 @@ public class GameView extends FrameLayout implements PlatformGrabListener, Surfa
     private TouchEventProcessor mCurrentTouchProcessor = mInGUIProcessor;
     private AndroidPointerCapture mPointerCapture;
     private boolean mLastGrabState = false;
-    double cursorRatioX = 0;
+    public double cursorRatioX = 0;
     double cursorRatioY = 0;
 
     public GameView(Context context) {

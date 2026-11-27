@@ -58,9 +58,11 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         if (mIsHorizonMode && event.getAction() == KeyEvent.ACTION_DOWN) {
-            int glfwKey = com.ashmeet.hyperbackend.game.platform.backend.HorizonBackend.toGlfwKeycode(event.getKeyCode());
-            dev.horizon.android.HorizonInput.key(glfwKey, true);
-            dev.horizon.android.HorizonInput.key(glfwKey, false);
+            if (event.getKeyCode() != KeyEvent.KEYCODE_DEL) {
+                int glfwKey = com.ashmeet.hyperbackend.game.platform.backend.HorizonBackend.toGlfwKeycode(event.getKeyCode());
+                dev.horizon.android.HorizonInput.key(glfwKey, true);
+                dev.horizon.android.HorizonInput.key(glfwKey, false);
+            }
         }
         return super.dispatchKeyEvent(event);
     }
@@ -68,23 +70,10 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_DEL) {
-            CallbackBridge.sendKeyPress(KeyEvent.KEYCODE_DEL);
             if (!mIsHorizonMode) {
-                Editable editable = getEditableText();
-                int selStart = Selection.getSelectionStart(editable);
-                int selEnd = Selection.getSelectionEnd(editable);
-                if (selStart != selEnd) {
-                    editable.delete(selStart, selEnd);
-                } else if (selStart > 0) {
-                    mIsDoingInternalChanges = true;
-                    editable.delete(selStart - 1, selStart);
-                    mIsDoingInternalChanges = false;
-                }
-            } else {
-                dev.horizon.android.HorizonInput.key(com.ashmeet.hyperbackend.LwjglGlfwKeycode.GLFW_KEY_BACKSPACE, true);
-                dev.horizon.android.HorizonInput.key(com.ashmeet.hyperbackend.LwjglGlfwKeycode.GLFW_KEY_BACKSPACE, false);
+                CallbackBridge.sendKeyPress(KeyEvent.KEYCODE_DEL);
+                return true;
             }
-            return true;
         }
         return super.onKeyDown(keyCode, event);
     }

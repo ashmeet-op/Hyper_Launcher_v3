@@ -249,7 +249,13 @@ public class ControlButton extends TextView implements ControlInterface {
                 break;
 
             case ControlData.SPECIALBTN_VIRTUALMOUSE:
-                if(isDown) GameActivity.toggleMouse(getContext());
+                if (isDown) {
+                    if (getContext() instanceof dev.horizon.android.HorizonActivity) {
+                        dev.horizon.android.HorizonActivity.toggleMouse(getContext());
+                    } else {
+                        GameActivity.toggleMouse(getContext());
+                    }
+                }
                 break;
 
             case ControlData.SPECIALBTN_MOUSEPRI:

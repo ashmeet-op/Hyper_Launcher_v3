@@ -18,6 +18,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.widget.FrameLayout
+import android.widget.Toast
 import androidx.annotation.Keep
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -64,7 +65,9 @@ import com.ashmeet.hyperbackend.customcontrols.handleview.DrawerPullButton
 import com.ashmeet.hyperbackend.customcontrols.keyboard.TouchCharInput
 import com.ashmeet.hyperbackend.customcontrols.mouse.GyroControl
 import com.ashmeet.hyperbackend.customcontrols.mouse.HotbarView
+import com.ashmeet.hyperbackend.customcontrols.mouse.PointerTracker
 import com.ashmeet.hyperbackend.game.GameActivity
+import com.ashmeet.hyperbackend.game.GameView
 import com.ashmeet.hyperbackend.game.platform.Platform
 import com.ashmeet.hyperbackend.game.platform.backend.HorizonBackend
 import com.ashmeet.hyperbackend.instances.Instances
@@ -121,7 +124,45 @@ open class HorizonActivity : NativeActivity(),
     private val activeCameraPointerIds = mutableSetOf<Int>()
     private val instance = Instances.loadSelectedInstance()
 
+    private val pointerTracker = PointerTracker()
+    private var isDraggingMouse = false
+    private var mLastGrabState = false
+    private val grabStateRunnable = object : Runnable {
+        override fun run() {
+            checkGrabState()
+            weakCursor?.get()?.onCursorChanged()
+            controlLayout?.postDelayed(this, 100)
+        }
+    }
+
+    private fun checkGrabState() {
+        try {
+            val grabbed = HorizonInput.isGrabbed
+            if (grabbed != mLastGrabState) {
+                mLastGrabState = grabbed
+                Platform.grabStateChanged(grabbed)
+            }
+        } catch (_: Throwable) {}
+    }
+
     companion object {
+        const val EXTRA_ENGINE_HOME = "dev.horizon.android.extra.ENGINE_HOME"
+        const val EXTRA_GAME_DIR = "dev.horizon.android.extra.GAME_DIR"
+        const val EXTRA_SESSION_FILE = "dev.horizon.android.extra.SESSION_FILE"
+        const val EXTRA_QUICK_PLAY_WORLD = "dev.horizon.android.extra.QUICK_PLAY_WORLD"
+        const val EXTRA_QUICK_PLAY_SERVER = "dev.horizon.android.extra.QUICK_PLAY_SERVER"
+        const val EXTRA_HOST_CONTROLS = "dev.horizon.android.extra.HOST_CONTROLS"
+        const val EXTRA_RENDERER = "dev.horizon.android.extra.RENDERER"
+        private const val ENV_HOME = "HORIZON_HOME"
+        private const val ENV_GAME_DIR = "HORIZON_GAME_DIR"
+        private const val ENV_SESSION = "HORIZON_SESSION"
+        private const val ENV_QUICK_PLAY_WORLD = "HORIZON_QUICK_PLAY_WORLD"
+        private const val ENV_QUICK_PLAY_SERVER = "HORIZON_QUICK_PLAY_SERVER"
+        private const val ENV_AUTOPLAY = "HORIZON_AUTOPLAY"
+        private const val ENV_HOST_CONTROLS = "HORIZON_HOST_CONTROLS"
+        private const val ENV_RENDERER = "HORIZON_RENDERER"
+        private const val ENV_LOCK_DIR = "HORIZON_LOCK_DIR"
+        private const val ENV_TELEMETRY_URL = "HORIZON_TELEMETRY_URL"
 
         @JvmField
         var touchCharInput: TouchCharInput? = null
@@ -132,6 +173,28 @@ open class HorizonActivity : NativeActivity(),
 
         @JvmStatic
         var mImeHeight: Int = 0
+
+        private var weakCursor: java.lang.ref.WeakReference<HorizonCursorView>? = null
+
+
+        @JvmStatic
+        fun toggleMouse(ctx: android.content.Context) {
+            val cursorView = weakCursor?.get() ?: return
+            val toastString: Int
+            when (cursorView.visibility) {
+                View.VISIBLE -> {
+                    toastString = R.string.control_mouseoff
+                    cursorView.visibility = View.GONE
+                }
+                else -> {
+                    toastString = R.string.control_mouseon
+                    cursorView.visibility = View.VISIBLE
+                }
+            }
+            if (toastString != 0) {
+                Toast.makeText(ctx, toastString, Toast.LENGTH_SHORT).show()
+            }
+        }
 
         init {
             if (Architecture.is64BitsDevice()) {
@@ -166,6 +229,8 @@ open class HorizonActivity : NativeActivity(),
         LauncherPreferences.loadPreferences(this)
         updateWindowSize()
 
+        setupHorizonHandoffEnvironment()
+
         try {
             val latestLogFile = java.io.File(HyperUtils.DIR_GAME_HOME, "latestlog.txt")
             if (!latestLogFile.exists() && !latestLogFile.createNewFile()) {
@@ -178,13 +243,71 @@ open class HorizonActivity : NativeActivity(),
         }
 
         initLayout()
+        controlLayout?.post(grabStateRunnable)
 
         Platform.setPlatformLibrary(HorizonBackend())
         Platform.grabStateChanged(HorizonInput.isGrabbed)
+        mLastGrabState = HorizonInput.isGrabbed
+        HorizonInput.setKeyRepeat(true)
         gyroControl = GyroControl(this)
         ContextExecutor.setActivity(this)
 
         LauncherComposeHelper.setLoadingVisible(false)
+    }
+
+    private fun extra(intent: Intent?, key: String): String? {
+        if (intent == null) return null
+        val value = intent.getStringExtra(key)
+        return if (value.isNullOrBlank()) null else value.trim()
+    }
+
+    private fun setEnv(key: String, value: String?) {
+        try {
+            if (value == null) {
+                android.system.Os.unsetenv(key)
+            } else {
+                android.system.Os.setenv(key, value, true)
+            }
+        } catch (error: Throwable) {
+            Log.w("HorizonActivity", "Could not set $key", error)
+        }
+    }
+
+    private fun setupHorizonHandoffEnvironment() {
+        val intent = intent
+        var home = extra(intent, EXTRA_ENGINE_HOME)
+        if (home == null) {
+            home = java.io.File(filesDir, "horizon").absolutePath
+        }
+        java.io.File(home).mkdirs()
+
+        val gameDir = extra(intent, EXTRA_GAME_DIR) ?: HyperUtils.DIR_GAME_HOME
+        val hostControls = intent?.getBooleanExtra(EXTRA_HOST_CONTROLS, true) ?: true
+
+        setEnv(ENV_HOME, home)
+        setEnv(ENV_GAME_DIR, gameDir)
+        setEnv(ENV_SESSION, extra(intent, EXTRA_SESSION_FILE))
+        setEnv(ENV_QUICK_PLAY_WORLD, extra(intent, EXTRA_QUICK_PLAY_WORLD))
+        setEnv(ENV_QUICK_PLAY_SERVER, extra(intent, EXTRA_QUICK_PLAY_SERVER))
+        setEnv(ENV_AUTOPLAY, "1")
+        setEnv(ENV_HOST_CONTROLS, if (hostControls) "1" else null)
+        setEnv(ENV_TELEMETRY_URL, "off")
+        setEnv("HORIZON_NO_HEARTBEAT", "1")
+
+        val lockDir = java.io.File(cacheDir, "horizon-world-locks")
+        lockDir.mkdirs()
+        setEnv(ENV_LOCK_DIR, lockDir.absolutePath)
+        setEnv(ENV_RENDERER, extra(intent, EXTRA_RENDERER))
+    }
+
+    @Keep
+    fun quit() {
+        Log.i("HorizonActivity", "Horizon native loop finished; removing task")
+        try {
+            finishAndRemoveTask()
+        } catch (_: Throwable) {
+            finish()
+        }
     }
 
     protected fun initLayout() {
@@ -223,8 +346,25 @@ open class HorizonActivity : NativeActivity(),
             layoutParams = FrameLayout.LayoutParams(0, 0)
         }
 
+        val cursorView = HorizonCursorView(this).apply {
+            id = R.id.main_cursorview
+            visibility = if (LauncherPreferences.PREF_VIRTUAL_MOUSE_START) View.VISIBLE else View.GONE
+            layoutParams = FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+            isFocusable = false
+            translationZ = HyperUtils.dpToPx(1f)
+            setCursorScale(LauncherPreferences.PREF_MOUSESCALE)
+        }
+        HorizonInput.setMouseScale(LauncherPreferences.PREF_MOUSESCALE)
+        HorizonInput.setMenuMouseScale(LauncherPreferences.PREF_MOUSESCALE)
+
         controlLayout?.addView(touchCharInput)
         controlLayout?.addView(hotbarView)
+        controlLayout?.addView(cursorView)
+        Platform.setCursorImplementor(cursorView)
+        weakCursor = java.lang.ref.WeakReference(cursorView)
 
         mainComposeView = ComposeView(this).apply {
             clipChildren = false
@@ -336,12 +476,14 @@ open class HorizonActivity : NativeActivity(),
                 animOverlay?.translationY(0f)?.start()
                 GameActivity.mImeHeight = 0
                 mImeHeight = 0
+                HorizonInput.setImeViewportBottomInset(0)
             } else {
                 val imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
                 GameActivity.mImeHeight = imeHeight
                 mImeHeight = imeHeight
                 val translationY = imeHeight.toFloat()
                 animOverlay?.translationY(-translationY)?.start()
+                HorizonInput.setImeViewportBottomInset(imeHeight)
             }
             insets
         }
@@ -571,7 +713,7 @@ open class HorizonActivity : NativeActivity(),
             val ctrlPath = instance?.launchControls ?: HyperUtils.CTRLDEF_FILE
             controlLayout?.loadLayout(ctrlPath)
         } catch (e: Exception) {
-            Log.e("HorizonActivity", "exitEditor failed", e)
+            Log.e("HorizonActivity", "exit failed", e)
         }
 
         isInEditor = false
@@ -630,12 +772,13 @@ open class HorizonActivity : NativeActivity(),
     }
 
     override fun onDestroy() {
+        controlLayout?.removeCallbacks(grabStateRunnable)
         isActivityActive = false
         if (overlayView?.parent != null) {
             try {
                 windowManager.removeViewImmediate(overlayView)
             } catch (e: Throwable) {
-                Log.e("HorizonActivity", "Failed to remove mainComposeView overlay", e)
+                Log.e("HorizonActivity", "Failed to remove View overlay", e)
             }
         }
         Platform.PLATFORM.setVisible(false)
@@ -719,6 +862,7 @@ open class HorizonActivity : NativeActivity(),
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        checkGrabState()
         updateOverlayFocusableState()
         if (touchCharInput?.isEnabled == true) {
             return super.dispatchTouchEvent(ev)
@@ -750,13 +894,57 @@ open class HorizonActivity : NativeActivity(),
                         else -> action
                     }
                     try {
-                        HorizonInput.cursor(x, y)
-                        if (act == MotionEvent.ACTION_DOWN) {
-                            HorizonInput.mouseButton(0, true)
-                            CallbackBridge.sendMouseButton(MotionEvent.BUTTON_PRIMARY, true)
-                        } else if (act == MotionEvent.ACTION_UP || act == MotionEvent.ACTION_CANCEL) {
-                            HorizonInput.mouseButton(0, false)
-                            CallbackBridge.sendMouseButton(MotionEvent.BUTTON_PRIMARY, false)
+                        val cursorView = weakCursor?.get()
+                        val isMouseOn = cursorView?.visibility == View.VISIBLE
+
+                        if (isMouseOn) {
+                            val mouseSpeed = LauncherPreferences.PREF_MOUSESPEED.let { if (it <= 0) 1f else it }
+                            when (act) {
+                                MotionEvent.ACTION_DOWN -> {
+                                    pointerTracker.startTracking(ev)
+                                    isDraggingMouse = false
+                                }
+                                MotionEvent.ACTION_MOVE -> {
+                                    pointerTracker.trackEvent(ev)
+                                    val vector = pointerTracker.motionVector
+                                    val dx = vector[0] * mouseSpeed
+                                    val dy = vector[1] * mouseSpeed
+                                    if (kotlin.math.abs(dx) > 0.5f || kotlin.math.abs(dy) > 0.5f) {
+                                        isDraggingMouse = true
+                                    }
+                                    val newX = (Platform.cursorX + dx).coerceIn(0.0, GameView.getWindowWidth().toDouble())
+                                    val newY = (Platform.cursorY + dy).coerceIn(0.0, GameView.getWindowHeight().toDouble())
+                                    Platform.setCursorPosition(newX, newY)
+                                    HorizonInput.cursor(newX.toFloat(), newY.toFloat())
+                                }
+                                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                                    pointerTracker.cancelTracking()
+                                    if (!isDraggingMouse) {
+                                        // Click where cursor is when tapped
+                                        HorizonInput.cursor(Platform.cursorX.toFloat(), Platform.cursorY.toFloat())
+                                        HorizonInput.mouseButton(0, true)
+                                        CallbackBridge.sendMouseButton(MotionEvent.BUTTON_PRIMARY, true)
+                                        controlLayout?.postDelayed({
+                                            try {
+                                                HorizonInput.cursor(Platform.cursorX.toFloat(), Platform.cursorY.toFloat())
+                                                HorizonInput.mouseButton(0, false)
+                                                CallbackBridge.sendMouseButton(MotionEvent.BUTTON_PRIMARY, false)
+                                            } catch (_: Throwable) {
+                                            }
+                                        }, 50)
+                                    }
+                                    isDraggingMouse = false
+                                }
+                            }
+                        } else {
+                            HorizonInput.cursor(x, y)
+                            if (act == MotionEvent.ACTION_DOWN) {
+                                HorizonInput.mouseButton(0, true)
+                                CallbackBridge.sendMouseButton(MotionEvent.BUTTON_PRIMARY, true)
+                            } else if (act == MotionEvent.ACTION_UP || act == MotionEvent.ACTION_CANCEL) {
+                                HorizonInput.mouseButton(0, false)
+                                CallbackBridge.sendMouseButton(MotionEvent.BUTTON_PRIMARY, false)
+                            }
                         }
                     } catch (e: Throwable) {
                         Log.e(HyperUtils.APP_NAME, "Failed to send touch input", e)
