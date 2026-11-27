@@ -122,21 +122,22 @@ open class DrawerPullButton @JvmOverloads constructor(
             while (isActive && showFps) {
                 val nativeFps = withContext(Dispatchers.IO) {
                     try {
-                        if (HorizonInput.sLoaded) {
-                            val hFps = HorizonInput.fps()
-                            if (hFps > 0) return@withContext hFps
-                        }
                         val gFps = git.artdeell.dnbootstrap.glfw.GLFW.getFps()
                         if (gFps > 0) return@withContext gFps
 
                         val sFps = git.mojo.sdl.SDLActivity.getFps()
                         if (sFps > 0) return@withContext sFps
-                        0
+
+                        if (HorizonInput.sLoaded) {
+                            val hFps = HorizonInput.fps()
+                            if (hFps > 0) return@withContext hFps
+                        }
+
                     } catch ( _ : Throwable) {
                         0
                     }
                 }
-                fpsValue = nativeFps
+                fpsValue = nativeFps as Int
                 delay(1000.milliseconds)
             }
         }
