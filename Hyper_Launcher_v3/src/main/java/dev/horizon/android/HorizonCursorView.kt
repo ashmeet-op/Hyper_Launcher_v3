@@ -31,7 +31,7 @@ class HorizonCursorView @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr, defStyleRes), PlatformCursorImplementor {
 
     private val customCursorPaint = Paint()
-    private val defaultCursorDrawable: Drawable
+    private var defaultCursorDrawable: Drawable
     private var cursorDrawable: Drawable
     private var noDraw = false
     private var mouseScale = 1f
@@ -42,7 +42,15 @@ class HorizonCursorView @JvmOverloads constructor(
 
     init {
         LauncherPreferences.loadPreferences(context)
-        mouseScale = LauncherPreferences.PREF_MOUSESPEED.let { if (it <= 0) 1f else it }
+        val drawable = ContextCompat.getDrawable(context, R.drawable.img_mouse_pointer_arrow)
+        requireNotNull(drawable)
+        defaultCursorDrawable = drawable
+        val size = HyperUtils.dpToPx(24f).toInt()
+        val height = if (defaultCursorDrawable.intrinsicWidth > 0) {
+            (size * (defaultCursorDrawable.intrinsicHeight.toFloat() / defaultCursorDrawable.intrinsicWidth)).toInt()
+        } else size
+        defaultCursorDrawable.setBounds(0, 0, size, height)
+
         var launcherCursor: PlatformCursor? = null
         try {
             launcherCursor = CursorUtils.loadStandardCursor(context, 0)
@@ -51,18 +59,10 @@ class HorizonCursorView @JvmOverloads constructor(
         if (launcherCursor?.bitmap != null && !launcherCursor.bitmap.isRecycled) {
             defaultCursorDrawable = launcherCursor.bitmap.toDrawable(context.resources)
             defaultCursorDrawable.setBounds(0, 0, launcherCursor.bitmap.width, launcherCursor.bitmap.height)
-        } else {
-            val drawable = ContextCompat.getDrawable(context, R.drawable.img_mouse_pointer_arrow)
-            requireNotNull(drawable)
-            defaultCursorDrawable = drawable
-            val size = HyperUtils.dpToPx(24f).toInt()
-            val height = if (defaultCursorDrawable.intrinsicWidth > 0) {
-                (size * (defaultCursorDrawable.intrinsicHeight.toFloat() / defaultCursorDrawable.intrinsicWidth)).toInt()
-            } else size
-            defaultCursorDrawable.setBounds(0, 0, size, height)
         }
+
         cursorDrawable = defaultCursorDrawable
-        mouseScale = LauncherPreferences.PREF_MOUSESCALE
+        mouseScale = LauncherPreferences.PREF_MOUSESCALE * 4f
     }
 
     private fun findGameView(): GameView? {

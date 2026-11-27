@@ -346,6 +346,7 @@ open class HorizonActivity : NativeActivity(),
             layoutParams = FrameLayout.LayoutParams(0, 0)
         }
 
+        val scale4x = LauncherPreferences.PREF_MOUSESCALE * 4f
         val cursorView = HorizonCursorView(this).apply {
             id = R.id.main_cursorview
             visibility = if (LauncherPreferences.PREF_VIRTUAL_MOUSE_START) View.VISIBLE else View.GONE
@@ -355,10 +356,10 @@ open class HorizonActivity : NativeActivity(),
             )
             isFocusable = false
             translationZ = HyperUtils.dpToPx(1f)
-            setCursorScale(LauncherPreferences.PREF_MOUSESCALE)
+            setCursorScale(scale4x)
         }
-        HorizonInput.setMouseScale(LauncherPreferences.PREF_MOUSESCALE)
-        HorizonInput.setMenuMouseScale(LauncherPreferences.PREF_MOUSESCALE)
+        HorizonInput.setMouseScale(scale4x)
+        HorizonInput.setMenuMouseScale(scale4x)
 
         controlLayout?.addView(touchCharInput)
         controlLayout?.addView(hotbarView)
@@ -744,6 +745,10 @@ open class HorizonActivity : NativeActivity(),
         super.onResume()
         isActivityActive = true
         LauncherPreferences.loadPreferences(this)
+        val scale4x = LauncherPreferences.PREF_MOUSESCALE * 4f
+        weakCursor?.get()?.setCursorScale(scale4x)
+        HorizonInput.setMouseScale(scale4x)
+        HorizonInput.setMenuMouseScale(scale4x)
         ContextExecutor.setActivity(this)
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
         if (PREF_ENABLE_GYRO) gyroControl?.enable()
