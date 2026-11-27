@@ -11,9 +11,7 @@ import android.view.PointerIcon
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toDrawable
-import com.ashmeet.hyperbackend.CallbackBridge
 import com.ashmeet.hyperbackend.customcontrols.ControlLayout
-import com.ashmeet.hyperbackend.customcontrols.mouse.PointerTracker
 import com.ashmeet.hyperbackend.game.GameView
 import com.ashmeet.hyperbackend.game.platform.Platform
 import com.ashmeet.hyperbackend.game.platform.cursor.CursorUtils
@@ -36,9 +34,6 @@ class HorizonCursorView @JvmOverloads constructor(
     private var noDraw = false
     private var mouseScale = 1f
     private var lastCursorShape = -1
-
-    private val pointerTracker = PointerTracker()
-    private var isDraggingMouse = false
 
     init {
         LauncherPreferences.loadPreferences(context)
@@ -157,51 +152,9 @@ class HorizonCursorView @JvmOverloads constructor(
         return true
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (noDraw || visibility != VISIBLE) return super.onTouchEvent(event)
-        val mouseSpeed = LauncherPreferences.PREF_MOUSESPEED.let { if (it <= 0) 1f else it }
-        when (event.actionMasked) {
-            MotionEvent.ACTION_DOWN -> {
-                pointerTracker.startTracking(event)
-                isDraggingMouse = false
-                parent?.requestDisallowInterceptTouchEvent(true)
-                return true
-            }
-            MotionEvent.ACTION_MOVE -> {
-                pointerTracker.trackEvent(event)
-                val vector = pointerTracker.motionVector
-                val dx = vector[0] * mouseSpeed
-                val dy = vector[1] * mouseSpeed
-                if (kotlin.math.abs(dx) > 0.5f || kotlin.math.abs(dy) > 0.5f) {
-                    isDraggingMouse = true
-                }
-                val newX = (Platform.cursorX + dx).coerceIn(0.0, GameView.getWindowWidth().toDouble())
-                val newY = (Platform.cursorY + dy).coerceIn(0.0, GameView.getWindowHeight().toDouble())
-                Platform.setCursorPosition(newX, newY)
-                HorizonInput.cursor(newX.toFloat(), newY.toFloat())
-                return true
-            }
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                pointerTracker.cancelTracking()
-                if (!isDraggingMouse) {
-                    performClick()
-                    // Click where cursor is when tapped
-                    HorizonInput.cursor(Platform.cursorX.toFloat(), Platform.cursorY.toFloat())
-                    HorizonInput.mouseButton(0, true)
-                    CallbackBridge.sendMouseButton(MotionEvent.BUTTON_PRIMARY, true)
-                    postDelayed({
-                        try {
-                            HorizonInput.cursor(Platform.cursorX.toFloat(), Platform.cursorY.toFloat())
-                            HorizonInput.mouseButton(0, false)
-                            CallbackBridge.sendMouseButton(MotionEvent.BUTTON_PRIMARY, false)
-                        } catch (_: Throwable) {}
-                    }, 50)
-                }
-                isDraggingMouse = false
-                return true
-            }
-        }
-        return super.onTouchEvent(event)
+        return false
     }
 
     override fun onDraw(canvas: Canvas) {

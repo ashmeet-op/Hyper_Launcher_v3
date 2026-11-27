@@ -135,14 +135,17 @@ open class HorizonActivity : NativeActivity(),
         }
     }
 
-    private fun checkGrabState() {
+    private fun checkGrabState(): Boolean {
         try {
             val grabbed = HorizonInput.isGrabbed
             if (grabbed != mLastGrabState) {
                 mLastGrabState = grabbed
                 Platform.grabStateChanged(grabbed)
+            } else {
+                return false
             }
         } catch (_: Throwable) {}
+        return true
     }
 
     companion object {
@@ -925,14 +928,11 @@ open class HorizonActivity : NativeActivity(),
                                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                                     pointerTracker.cancelTracking()
                                     if (!isDraggingMouse) {
-                                        // Click where cursor is when tapped
                                         HorizonInput.cursor(Platform.cursorX.toFloat(), Platform.cursorY.toFloat())
-                                        HorizonInput.mouseButton(0, true)
                                         CallbackBridge.sendMouseButton(MotionEvent.BUTTON_PRIMARY, true)
                                         controlLayout?.postDelayed({
                                             try {
                                                 HorizonInput.cursor(Platform.cursorX.toFloat(), Platform.cursorY.toFloat())
-                                                HorizonInput.mouseButton(0, false)
                                                 CallbackBridge.sendMouseButton(MotionEvent.BUTTON_PRIMARY, false)
                                             } catch (_: Throwable) {
                                             }
@@ -944,10 +944,8 @@ open class HorizonActivity : NativeActivity(),
                         } else {
                             HorizonInput.cursor(x, y)
                             if (act == MotionEvent.ACTION_DOWN) {
-                                HorizonInput.mouseButton(0, true)
                                 CallbackBridge.sendMouseButton(MotionEvent.BUTTON_PRIMARY, true)
                             } else if (act == MotionEvent.ACTION_UP || act == MotionEvent.ACTION_CANCEL) {
-                                HorizonInput.mouseButton(0, false)
                                 CallbackBridge.sendMouseButton(MotionEvent.BUTTON_PRIMARY, false)
                             }
                         }
