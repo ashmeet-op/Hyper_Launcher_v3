@@ -67,12 +67,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.edit
-import dev.horizon.android.HorizonInput
 import com.ashmeet.hyperlauncher.recorder.RecordingManager
 import com.ashmeet.hyperlauncher.recorder.RecordingState
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.utils.HyperUtils
+import dev.horizon.android.HorizonInput
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -587,7 +587,6 @@ open class DrawerPullButton @JvmOverloads constructor(
                 modifier = Modifier.padding(horizontal = 8.dp)
             )
 
-            // Inverted Text over filled progress bar (clipped to progress width)
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier

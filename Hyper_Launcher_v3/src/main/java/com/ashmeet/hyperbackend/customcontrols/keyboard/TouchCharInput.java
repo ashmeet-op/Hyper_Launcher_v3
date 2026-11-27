@@ -68,7 +68,7 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_DEL) {
-            mCharacterSender.sendBackspace();
+            CallbackBridge.sendKeyPress(KeyEvent.KEYCODE_DEL);
             if (!mIsHorizonMode) {
                 Editable editable = getEditableText();
                 int selStart = Selection.getSelectionStart(editable);
@@ -93,7 +93,9 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
     @Override
     public void onWindowFocusChanged(boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
-        disable();
+        if (!hasWindowFocus) {
+            disable();
+        }
     }
 
 
@@ -145,11 +147,9 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
             editable.clear();
             if (mIsHorizonMode && initialText != null && !initialText.isEmpty()) {
                 editable.append(initialText);
+                dev.horizon.android.HorizonInput.text(initialText);
             } else if (!mIsHorizonMode) {
                 editable.append(TEXT_FILLER);
-            }
-            if (mIsHorizonMode) {
-                dev.horizon.android.HorizonInput.text(editable.toString());
             }
             int selectionPos = editable.length();
             if (!mIsHorizonMode) {
@@ -185,7 +185,6 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
         // of the TextView.
         Editable editable = getEditableText();
         editable.clear();
-        //wsp beijing i stole the code lmao
         if (!mIsHorizonMode) {
             Selection.setSelection(editable, 0);
             dev.horizon.android.HorizonInput.text("");
@@ -203,14 +202,17 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
         setFocusable(true);
         setVisibility(VISIBLE);
         requestFocus();
+        notifyHorizonActivityKeyboard(true);
     }
 
 
     public void disable(){
+        Thread.dumpStack();
         clear();
         setVisibility(GONE);
         clearFocus();
         setEnabled(false);
+        notifyHorizonActivityKeyboard(false);
         try {
             Activity activity = getActivity();
             if (activity != null) {
@@ -222,6 +224,17 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
                 if (imm != null) {
                     imm.hideSoftInputFromWindow(getWindowToken(), 0);
                 }
+            } catch (Throwable ignored) {}
+        }
+    }
+
+    private void notifyHorizonActivityKeyboard(boolean active) {
+        if (!mIsHorizonMode) return;
+        Activity activity = getActivity();
+        if (activity != null) {
+            try {
+                java.lang.reflect.Method m = activity.getClass().getMethod("notifyKeyboardState", boolean.class);
+                m.invoke(activity, active);
             } catch (Throwable ignored) {}
         }
     }
@@ -243,10 +256,8 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
                 dev.horizon.android.HorizonInput.key(com.ashmeet.hyperbackend.LwjglGlfwKeycode.GLFW_KEY_ENTER, false);
                 mIsDoingInternalChanges = true;
                 Editable editable = getEditableText();
-                if (!editable.toString().endsWith("\n")) {
-                    editable.append("\n");
-                }
-                dev.horizon.android.HorizonInput.text(editable.toString());
+                editable.clear();
+                editable.append(TEXT_FILLER);
                 mIsDoingInternalChanges = false;
                 try {
                     Activity activity = getActivity();
@@ -288,22 +299,22 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
 
             if(mIsDoingInternalChanges) return;
             for(int i=0; i < lengthBefore; ++i){
-                CallbackBridge.sendKeyPress(KeyEvent.KEYCODE_DEL);
-            }
-
-            if ( mIsHorizonMode ) {
-
-                dev.horizon.android.HorizonInput.text(text.toString());
-
-                for (int i = 0; i < lengthBefore; ++i) {
+                if (mIsHorizonMode) {
                     dev.horizon.android.HorizonInput.key(com.ashmeet.hyperbackend.LwjglGlfwKeycode.GLFW_KEY_BACKSPACE, true);
                     dev.horizon.android.HorizonInput.key(com.ashmeet.hyperbackend.LwjglGlfwKeycode.GLFW_KEY_BACKSPACE, false);
+                } else {
+                    CallbackBridge.sendKeyPress(KeyEvent.KEYCODE_DEL);
                 }
-
-                return;
             }
 
-            PLATFORM.sendBulkUnicodeEvent(text.subSequence(start, start + lengthAfter).toString(), CallbackBridge.getCurrentMods());
+            String addedText = text.subSequence(start, start + lengthAfter).toString();
+            if (!addedText.isEmpty()) {
+                if (mIsHorizonMode) {
+                    dev.horizon.android.HorizonInput.text(addedText);
+                } else {
+                    PLATFORM.sendBulkUnicodeEvent(addedText, CallbackBridge.getCurrentMods());
+                }
+            }
         }
 
         @Override
