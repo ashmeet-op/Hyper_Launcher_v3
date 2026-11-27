@@ -203,44 +203,6 @@ fun InstanceEditorScreen(
 
             if (isHorizon) {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    SettingsCard(position = CardPosition.TOP, useSurface = true) {
-                        val engineSummary = if (HorizonInput.sLoaded) {
-                            val gfx = HorizonInput.graphicsInfo()
-                            val fps = HorizonInput.getFps()
-                            val rendererState = HorizonInput.rendererState()
-                            val vulkanState = HorizonInput.vulkanDriverState()
-                            buildString {
-                                append("Horizon Native Engine")
-                                if (gfx.isNotEmpty()) append(" ($gfx)")
-                                if (fps > 0) append(" - $fps FPS")
-                                append(" [Renderer State: $rendererState, Vulkan: $vulkanState]")
-                            }
-                        } else {
-                            "Horizon Rust Engine (Native)"
-                        }
-                        SettingsActionItem(
-                            title = translatedText("Runtime Engine"),
-                            summary = translatedText(engineSummary),
-                            icon = Icons.Rounded.Memory,
-                            onClick = {}
-                        )
-                    }
-                    SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
-                        val inputDiag = if (HorizonInput.sLoaded) {
-                            val grabbed = HorizonInput.isGrabbed
-                            val keybindCapture = HorizonInput.isKeybindCaptureActive
-                            val shape = HorizonInput.cursorShape()
-                            "Grabbed: $grabbed | Keybind Capture: $keybindCapture | Cursor Shape: $shape"
-                        } else {
-                            "Input subsystem ready"
-                        }
-                        SettingsActionItem(
-                            title = translatedText("Input Subsystem Status"),
-                            summary = translatedText(inputDiag),
-                            icon = Icons.Rounded.Terminal,
-                            onClick = {}
-                        )
-                    }
                     SettingsCard(position = CardPosition.MIDDLE, useSurface = true) {
                         val index = renderers.indexOf(selectedRenderer)
                         val currentSummary = if (index != -1 && index < rendererDisplayNames.size) rendererDisplayNames[index] else selectedRenderer

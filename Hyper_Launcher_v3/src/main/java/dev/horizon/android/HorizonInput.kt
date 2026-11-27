@@ -161,20 +161,17 @@ object HorizonInput {
         }
     }
 
+
     @JvmStatic
     fun fps(): Int {
         return try {
             nativeFps()
-        } catch (_: UnsatisfiedLinkError) {
-            // An engine library built before the FPS hook
+        } catch (error: UnsatisfiedLinkError) {
+            // An engine library built before the FPS hook.
             0
         }
     }
 
-    @JvmStatic
-    fun getFps(): Int {
-        return fps()
-    }
 
     @JvmStatic
     fun cursorShape(): Int {
