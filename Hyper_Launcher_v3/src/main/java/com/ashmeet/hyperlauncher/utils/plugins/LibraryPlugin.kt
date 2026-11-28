@@ -1,4 +1,4 @@
-package com.ashmeet.hyperbackend.utils.plugins
+package com.ashmeet.hyperlauncher.utils.plugins
 
 import android.content.Context
 import android.content.pm.PackageManager
@@ -22,8 +22,6 @@ class LibraryPlugin private constructor(
     companion object {
         private const val TAG = "LibraryPlugin"
 
-        // Known plugins constants
-        const val ID_ANGLE_PLUGIN = "git.mojo.angle"
         const val ID_FFMPEG_PLUGIN = "git.mojo.ffmpeg"
         const val ID_ZINK_PLUGIN = "git.mojo.zink"
         const val ID_NATIVES_PLUGIN = "git.mojo.natives"

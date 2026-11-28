@@ -10,7 +10,7 @@ import android.os.IBinder
 import android.os.Process
 import androidx.core.app.NotificationCompat
 import com.ashmeet.hyperbackend.game.GameActivity
-import com.ashmeet.hyperbackend.utils.NotificationUtils
+import com.ashmeet.hyperlauncher.utils.NotificationUtils
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperlauncher.utils.HyperUtils
 

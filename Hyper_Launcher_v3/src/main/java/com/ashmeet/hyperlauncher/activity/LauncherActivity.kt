@@ -50,7 +50,7 @@ import com.ashmeet.hyperlauncher.tracker.services.TrackerServiceKeeper
 import com.ashmeet.hyperbackend.tasks.AsyncVersionList
 import com.ashmeet.hyperbackend.tasks.HyperDownloader
 import com.ashmeet.hyperbackend.tasks.HyperExtras
-import com.ashmeet.hyperbackend.utils.NotificationUtils
+import com.ashmeet.hyperlauncher.utils.NotificationUtils
 import java.io.IOException
 
 class LauncherActivity : BaseActivity(), PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {

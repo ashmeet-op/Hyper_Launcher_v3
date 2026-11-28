@@ -94,7 +94,7 @@ import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import com.ashmeet.hyperbackend.utils.KeycodeUtils
+import com.ashmeet.hyperlauncher.utils.KeycodeUtils
 import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
 

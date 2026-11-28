@@ -2,7 +2,7 @@ package com.ashmeet.hyperbackend.customcontrols.mouse;
 
 import android.os.Handler;
 
-import com.ashmeet.hyperbackend.utils.MathUtils;
+import com.ashmeet.hyperlauncher.utils.MathUtils;
 
 public abstract class DistanceGesture extends ValidatorGesture {
 

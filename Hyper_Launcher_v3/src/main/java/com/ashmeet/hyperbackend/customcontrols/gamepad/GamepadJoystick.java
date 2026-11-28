@@ -5,7 +5,7 @@ import android.view.InputDevice;
 import android.view.MotionEvent;
 
 
-import com.ashmeet.hyperbackend.utils.MathUtils;
+import com.ashmeet.hyperlauncher.utils.MathUtils;
 
 public class GamepadJoystick {
 

@@ -3,15 +3,15 @@ package com.ashmeet.hyperbackend.vulkan;
 import android.os.Build;
 import android.util.Log;
 
-import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
-import com.ashmeet.hyperlauncher.utils.HyperUtils;
-import com.ashmeet.hyperbackend.utils.FileUtils;
-import com.ashmeet.hyperbackend.utils.JSONUtils;
-import com.ashmeet.hyperbackend.utils.ZipUtils;
 import com.ashmeet.hyperbackend.vulkan.driver.AdrenoDriver;
 import com.ashmeet.hyperbackend.vulkan.driver.BuiltinDriver;
 import com.ashmeet.hyperbackend.vulkan.driver.DisplayDriver;
 import com.ashmeet.hyperbackend.vulkan.driver.Driver;
+import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
+import com.ashmeet.hyperlauncher.utils.FileUtils;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
+import com.ashmeet.hyperlauncher.utils.JSONUtils;
+import com.ashmeet.hyperlauncher.utils.ZipUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +26,7 @@ import java.util.zip.ZipInputStream;
 /**
  * AdrenoTools driver package manager
  */
+@SuppressWarnings({"unused", "SameParameterValue"})
 public class DriverManager {
     private static final String METADATA_FILENAME = "meta.json";
     public static final String TAG = "DriverManager";
@@ -33,9 +34,7 @@ public class DriverManager {
     // Must be in the exec place, /sdcard/... is noexec
     private static final File packagesPath = new File(HyperUtils.DIR_DATA, "vulkan-drivers");
     private static Boolean supported = null;
-
     private DriverManager() {}
-
     /**
      * Checks if DriverManager i.e. custom drivers are supported on the current device
      * @return True if requirements are met, false otherwise
@@ -52,10 +51,10 @@ public class DriverManager {
      * @return A driver
      */
     public static Driver getPreferredDriver() {
-        String hash = getPreferredDriverHash();
-        Driver driver = hash == null ? DEFAULT_DRIVER : loadDriver(hash);
+        String prefDriver = LauncherPreferences.getPREF_VULKAN_DRIVER();
+        Driver driver = prefDriver == null ? DEFAULT_DRIVER : loadDriver(prefDriver);
         if(driver == null) {
-            Log.e(TAG, "Failed to load preferred driver package " + hash);
+            Log.e(TAG, "Failed to load preferred driver package " + prefDriver);
             return DEFAULT_DRIVER;
         }
         return driver;
@@ -72,7 +71,7 @@ public class DriverManager {
         if(pkg == null && (driver == null || driver instanceof BuiltinDriver))
             return true;
         if(pkg != null && driver != null) {
-            return pkg.equals(driver.getHash());
+            return java.util.Objects.equals(pkg, driver.getHash());
         }
         return false;
     }
@@ -82,11 +81,7 @@ public class DriverManager {
      * @return A hash
      */
     public static String getPreferredDriverHash() {
-        String driverPref = LauncherPreferences.PREF_DRIVER;
-        if (driverPref == null || driverPref.equals("default") || driverPref.isEmpty()) {
-            return LauncherPreferences.getPREF_VULKAN_DRIVER();
-        }
-        return driverPref;
+        return LauncherPreferences.getPREF_VULKAN_DRIVER();
     }
 
     /**
@@ -122,11 +117,10 @@ public class DriverManager {
      * @param driver A driver to set
      */
     public static void setPreferredDriver(Driver driver){
-        if(driver == null || driver instanceof BuiltinDriver) driver = DEFAULT_DRIVER;
-        String hash = driver.getHash(); // Builtin will return null
-        LauncherPreferences.setPREF_VULKAN_DRIVER(hash);
-        if (LauncherPreferences.getPrefs() != null) {
-            LauncherPreferences.getPrefs().edit().putString("driver", hash != null ? hash : "default").apply();
+        Driver targetDriver = (driver == null || driver instanceof BuiltinDriver) ? DEFAULT_DRIVER : driver;
+        LauncherPreferences.setPREF_VULKAN_DRIVER(targetDriver.getHash()); // Builtin will return null
+        if (LauncherPreferences.DEFAULT_PREF != null) {
+            LauncherPreferences.DEFAULT_PREF.edit().putString("driver", LauncherPreferences.PREF_DRIVER).apply();
         }
     }
 
@@ -137,10 +131,12 @@ public class DriverManager {
         else return null;
     }
 
-    private static boolean ensureRootExists(){
-        if(!packagesPath.exists())
-            return packagesPath.mkdirs();
-        return true;
+    private static void ensureRootExists(){
+        if(!packagesPath.exists()) {
+            if(!packagesPath.mkdirs()) {
+                Log.w(TAG, "Failed to create directory: " + packagesPath.getAbsolutePath());
+            }
+        }
     }
 
     /**
@@ -151,7 +147,8 @@ public class DriverManager {
         if(!packagesPath.exists())
             return Collections.emptyList();
         File[] files = packagesPath.listFiles(File::isDirectory);
-        if (files == null) return Collections.emptyList();
+        if(files == null)
+            return Collections.emptyList();
         List<String> packages = new ArrayList<>();
         for(File dir : files) {
             if(!new File(dir, METADATA_FILENAME).exists())
@@ -171,7 +168,9 @@ public class DriverManager {
         if(!packagesPath.exists())
             return drivers;
         File[] files = packagesPath.listFiles(File::isDirectory);
-        if (files == null) return drivers;
+        if(files == null)
+            return drivers;
+        // I'm not sure how heavy is this crap
         for(File dir : files) {
             File metadata = new File(dir, METADATA_FILENAME);
             if(!metadata.exists())
@@ -216,7 +215,7 @@ public class DriverManager {
     }
 
     /**
-     * Checks if the driver package is valid by path.
+     * Checks if the driver package is valid by path. The only things checked are zip file consistency and metadata file presence.
      * @param path A path to a driver package
      * @return true if the provided zip file is a valid package
      */
@@ -230,19 +229,20 @@ public class DriverManager {
     }
 
     /**
-     * Checks if the driver package is valid in the provided input stream.
+     * Checks if the driver package is valid in the provided input stream. The only things checked are zip file consistency and metadata file presence.
+     * Might be slow because it searches the whole stream for metadata
      * @param stream An input stream containing a zip data
      * @return driver hash if valid or null if invalid
      */
     public static String validateDriver(InputStream stream){
         try (ZipInputStream zip = new ZipInputStream(stream)) {
-            ZipEntry entry;
-            do {
-                entry = zip.getNextEntry();
-            } while(entry != null && !METADATA_FILENAME.equals(entry.getName()));
-            if(entry == null) return null;
-            AdrenoDriver driver = AdrenoDriver.fromJson(zip);
-            return driver != null ? driver.getHash() : null;
+            for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
+                if (METADATA_FILENAME.equals(entry.getName())) {
+                    AdrenoDriver driver = AdrenoDriver.fromJson(zip);
+                    return driver != null ? driver.getHash() : null;
+                }
+            }
+            return null;
         } catch (IOException e) {
             return null;
         }
@@ -250,12 +250,14 @@ public class DriverManager {
 
     /**
      * Install a driver from the provided path
+     * @param path A path to a driver package
+     * @param overwrite Whether the driver should be overwritten if it has the same hash. Will return null if the driver exists and overwrite is not requested
+     * @return A driver if the install succeeded, null otherwise
      */
     public static AdrenoDriver installDriver(File path, boolean overwrite){
         ensureRootExists();
         try(ZipFile zf = new ZipFile(path)){
             AdrenoDriver driver = AdrenoDriver.fromJson(ZipUtils.getEntryStream(zf, METADATA_FILENAME));
-            if(driver == null) return null;
             String hash = driver.getHash();
             if(driverExists(hash)){
                 if(!overwrite) {
@@ -276,7 +278,7 @@ public class DriverManager {
         }
     }
 
-    public static void installDriverContent(String hash, InputStream is, boolean overwrite) throws IOException {
+    static void installDriverContent(String hash, InputStream is, boolean overwrite) throws IOException {
         ensureRootExists();
         try(ZipInputStream zis = new ZipInputStream(is)){
             if(driverExists(hash)){

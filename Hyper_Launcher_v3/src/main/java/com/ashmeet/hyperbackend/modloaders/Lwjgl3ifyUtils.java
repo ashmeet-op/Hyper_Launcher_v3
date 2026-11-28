@@ -3,7 +3,7 @@ package com.ashmeet.hyperbackend.modloaders;
 import com.ashmeet.hyperbackend.JVersionList;
 import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.tasks.HyperDownloader;
-import com.ashmeet.hyperbackend.utils.FileUtils;
+import com.ashmeet.hyperlauncher.utils.FileUtils;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -3,7 +3,7 @@ package com.ashmeet.hyperbackend.vulkan.driver;
 import java.io.File;
 
 import com.ashmeet.hyperlauncher.utils.HyperUtils;
-import com.ashmeet.hyperbackend.utils.GpuUtils;
+import com.ashmeet.hyperlauncher.utils.GpuUtils;
 
 public final class BuiltinDriver implements Driver {
     public static final String DRIVER_LIB = "libvulkan_freedreno.so";

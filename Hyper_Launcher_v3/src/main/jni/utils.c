@@ -79,7 +79,7 @@ void hstr_free(heap_str_array *arr) {
 }
 
 JNIEXPORT void JNICALL
-Java_com_ashmeet_hyperbackend_utils_JREUtils_setLdLibraryPath(JNIEnv *env, jclass clazz,
+Java_com_ashmeet_hyperlauncher_utils_JREUtils_setLdLibraryPath(JNIEnv *env, jclass clazz,
                                                               jstring ldLibraryPath) {
     // jclass exception_cls = (*env)->FindClass(env, "java/lang/UnsatisfiedLinkError");
 
@@ -105,7 +105,7 @@ Java_com_ashmeet_hyperbackend_utils_JREUtils_setLdLibraryPath(JNIEnv *env, jclas
 }
 
 JNIEXPORT jint JNICALL
-Java_com_ashmeet_hyperbackend_utils_JREUtils_chdir(JNIEnv *env, jclass clazz, jstring nameStr) {
+Java_com_ashmeet_hyperlauncher_utils_JREUtils_chdir(JNIEnv *env, jclass clazz, jstring nameStr) {
     const char *name = (*env)->GetStringUTFChars(env, nameStr, NULL);
     int retval = chdir(name);
     (*env)->ReleaseStringUTFChars(env, nameStr, name);

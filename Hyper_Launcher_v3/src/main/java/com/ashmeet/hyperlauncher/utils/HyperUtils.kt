@@ -67,12 +67,6 @@ import com.ashmeet.hyperbackend.game.GameActivity
 import com.ashmeet.hyperbackend.instances.Instance
 import com.ashmeet.hyperbackend.lifecycle.ContextExecutor
 import com.ashmeet.hyperbackend.lifecycle.ContextExecutorTask
-import com.ashmeet.hyperbackend.utils.FileUtils
-import com.ashmeet.hyperbackend.utils.GLInfoUtils
-import com.ashmeet.hyperbackend.utils.HashUtils
-import com.ashmeet.hyperbackend.utils.KeycodeUtils
-import com.ashmeet.hyperbackend.utils.memory.MemoryHoleFinder
-import com.ashmeet.hyperbackend.utils.memory.SelfMapsParser
 import com.ashmeet.hyperbackend.value.DependentLibrary
 import com.ashmeet.hyperbackend.value.LibraryArtifact
 import com.ashmeet.hyperlauncher.activity.MissingStorageActivity
@@ -87,6 +81,7 @@ import com.ashmeet.hyperlauncher.plugin.natives.NativePluginManager
 import com.ashmeet.hyperlauncher.runtime.RuntimeUtils
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.utils.drawable.InsetBackground
+import com.ashmeet.hyperlauncher.utils.memory.MemoryHoleFinder
 import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder

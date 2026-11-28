@@ -14,7 +14,7 @@ import com.ashmeet.hyperbackend.modloaders.modpacks.imagecache.ModIconCache;
 import com.ashmeet.hyperbackend.modloaders.modpacks.models.ModDetail;
 import com.ashmeet.hyperbackend.progresskeeper.DownloaderProgressWrapper;
 import com.ashmeet.hyperlauncher.utils.DownloadUtils;
-import com.ashmeet.hyperbackend.utils.FileUtils;
+import com.ashmeet.hyperlauncher.utils.FileUtils;
 
 import java.io.File;
 import java.io.IOException;

@@ -13,8 +13,8 @@ import com.google.gson.JsonParseException;
 
 import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.authenticator.AuthType;
-import com.ashmeet.hyperbackend.utils.FileUtils;
-import com.ashmeet.hyperbackend.utils.JSONUtils;
+import com.ashmeet.hyperlauncher.utils.FileUtils;
+import com.ashmeet.hyperlauncher.utils.JSONUtils;
 
 import org.apache.commons.io.IOUtils;
 

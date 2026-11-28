@@ -1,5 +1,7 @@
 package com.ashmeet.hyperbackend.vulkan;
 
+
+
 import static com.ashmeet.hyperlauncher.activity.PojavApplication.sExecutorService;
 import static com.ashmeet.hyperlauncher.utils.HyperUtils.runOnUiThread;
 
@@ -7,13 +9,16 @@ import android.content.Context;
 import android.net.Uri;
 import android.widget.Toast;
 
+
 import com.ashmeet.hyperlauncher.tracker.TrackerLayout;
+import com.ashmeet.hyperlauncher.utils.HyperUtils;
+
+import net.ashmeet.hyperlauncher.R;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.ashmeet.hyperlauncher.utils.HyperUtils;
-import net.ashmeet.hyperlauncher.R;
+
 
 public class DriverInstaller {
 
@@ -23,7 +28,7 @@ public class DriverInstaller {
             String target;
             TrackerLayout.setTracker(TrackerLayout.DRIVER_INSTALL, 0, R.string.driver_progress_validate);
             try (InputStream is = context.getContentResolver().openInputStream(uri)) {
-                if (is == null || (target = DriverManager.validateDriver(is)) == null) {
+                if ((target = DriverManager.validateDriver(is)) == null) {
                     runOnUiThread(() -> Toast.makeText(context, R.string.driver_config_import_invalid, Toast.LENGTH_LONG).show());
                     TrackerLayout.clearTracker(TrackerLayout.DRIVER_INSTALL);
                     return;
@@ -36,17 +41,13 @@ public class DriverInstaller {
             TrackerLayout.setTracker(TrackerLayout.DRIVER_INSTALL, 50, R.string.driver_progress_install);
             // We need to open a new clean InputStream here
             try (InputStream is = context.getContentResolver().openInputStream(uri)) {
-                if (is != null) {
-                    DriverManager.installDriverContent(target, is, true);
-                }
+                DriverManager.installDriverContent(target, is, true);
             } catch (IOException e) {
                 TrackerLayout.clearTracker(TrackerLayout.DRIVER_INSTALL);
                 HyperUtils.showErrorRemote(e);
                 return;
             }
-            if (callback != null) {
-                runOnUiThread(callback);
-            }
+            HyperUtils.runOnUiThread(callback);
             TrackerLayout.clearTracker(TrackerLayout.DRIVER_INSTALL);
         });
     }

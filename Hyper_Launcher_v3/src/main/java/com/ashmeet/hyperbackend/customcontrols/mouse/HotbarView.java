@@ -17,8 +17,8 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreference
 import com.ashmeet.hyperbackend.game.platform.input.PlatformGrabListener;
 import com.ashmeet.hyperbackend.game.platform.Platform;
 
-import com.ashmeet.hyperbackend.utils.MCOptionUtils;
-import com.ashmeet.hyperbackend.utils.MathUtils;
+import com.ashmeet.hyperlauncher.utils.MCOptionUtils;
+import com.ashmeet.hyperlauncher.utils.MathUtils;
 
 import com.ashmeet.hyperbackend.CallbackBridge;
 

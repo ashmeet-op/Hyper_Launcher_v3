@@ -5,8 +5,8 @@ import android.util.Log;
 import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.authenticator.AuthType;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
-import com.ashmeet.hyperbackend.utils.FileUtils;
-import com.ashmeet.hyperbackend.utils.JSONUtils;
+import com.ashmeet.hyperlauncher.utils.FileUtils;
+import com.ashmeet.hyperlauncher.utils.JSONUtils;
 
 import java.io.File;
 import java.io.IOException;

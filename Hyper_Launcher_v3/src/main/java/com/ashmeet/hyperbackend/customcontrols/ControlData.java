@@ -6,7 +6,7 @@ import android.view.KeyEvent;
 import androidx.annotation.Keep;
 
 import com.ashmeet.hyperbackend.customcontrols.buttons.ControlInterface;
-import com.ashmeet.hyperbackend.utils.JSONUtils;
+import com.ashmeet.hyperlauncher.utils.JSONUtils;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 
 import com.ashmeet.hyperlauncher.utils.HyperUtils;

@@ -5,8 +5,8 @@ import android.content.Context;
 
 import com.ashmeet.hyperbackend.game.renderer.RenderSpec;
 import com.ashmeet.hyperbackend.game.renderer.def.Renderers;
-import com.ashmeet.hyperbackend.utils.GpuUtils;
-import com.ashmeet.hyperbackend.utils.plugins.LibraryPlugin;
+import com.ashmeet.hyperlauncher.utils.GpuUtils;
+import com.ashmeet.hyperlauncher.utils.plugins.LibraryPlugin;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 import com.ashmeet.hyperlauncher.utils.HyperUtils;
 

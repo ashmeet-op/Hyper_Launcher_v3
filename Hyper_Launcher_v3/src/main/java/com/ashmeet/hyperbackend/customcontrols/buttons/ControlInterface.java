@@ -180,7 +180,7 @@ public interface ControlInterface extends View.OnLongClickListener, PlatformGrab
         float MIN_DISTANCE = getSnapDistance();
 
         if (button == this) return false;
-        return !(com.ashmeet.hyperbackend.utils.MathUtils.dist(
+        return !(com.ashmeet.hyperlauncher.utils.MathUtils.dist(
                 button.getControlView().getX() + button.getControlView().getWidth() / 2f,
                 button.getControlView().getY() + button.getControlView().getHeight() / 2f,
                 getControlView().getX() + getControlView().getWidth() / 2f,

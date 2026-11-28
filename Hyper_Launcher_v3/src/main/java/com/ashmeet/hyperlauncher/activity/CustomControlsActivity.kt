@@ -8,17 +8,17 @@ import android.provider.DocumentsContract
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.ui.platform.ComposeView
-import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
-import com.ashmeet.hyperlauncher.utils.HyperUtils
-import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
-import com.google.gson.JsonSyntaxException
-import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperbackend.customcontrols.ControlData
 import com.ashmeet.hyperbackend.customcontrols.ControlDrawerData
 import com.ashmeet.hyperbackend.customcontrols.ControlJoystickData
 import com.ashmeet.hyperbackend.customcontrols.ControlLayout
 import com.ashmeet.hyperbackend.customcontrols.EditorExitable
-import com.ashmeet.hyperbackend.utils.CropperUtils
+import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
+import com.ashmeet.hyperlauncher.utils.CropperUtils
+import com.ashmeet.hyperlauncher.utils.HyperUtils
+import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
+import com.google.gson.JsonSyntaxException
+import net.ashmeet.hyperlauncher.R
 import java.io.IOException
 
 class CustomControlsActivity : BaseActivity(), EditorExitable, CropperUtils.CropperReceiver {
@@ -113,11 +113,11 @@ class CustomControlsActivity : BaseActivity(), EditorExitable, CropperUtils.Crop
     }
 
     override fun getAspectRatio(): Float {
-        return mCropperReceiver?.aspectRatio ?: 1f
+        return mCropperReceiver?.getAspectRatio() ?: 1f
     }
 
     override fun getTargetMaxSide(): Int {
-        return mCropperReceiver?.targetMaxSide ?: 128
+        return mCropperReceiver?.getTargetMaxSide() ?: 128
     }
 
     override fun onCropped(contentBitmap: Bitmap?) {

@@ -51,7 +51,7 @@ import kotlinx.coroutines.launch
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperbackend.customcontrols.ControlLayout
 import com.ashmeet.hyperbackend.game.GameView
-import com.ashmeet.hyperbackend.utils.KeycodeUtils
+import com.ashmeet.hyperlauncher.utils.KeycodeUtils
 
 object GameComposeHelper {
 

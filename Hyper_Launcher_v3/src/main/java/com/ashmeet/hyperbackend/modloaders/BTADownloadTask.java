@@ -17,7 +17,7 @@ import com.ashmeet.hyperbackend.instances.Instance;
 import com.ashmeet.hyperbackend.instances.Instances;
 import com.ashmeet.hyperbackend.lifecycle.ContextExecutor;
 import com.ashmeet.hyperbackend.progresskeeper.ProgressKeeper;
-import com.ashmeet.hyperbackend.utils.FileUtils;
+import com.ashmeet.hyperlauncher.utils.FileUtils;
 
 import java.io.File;
 import java.io.IOException;

@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ashmeet.hyperlauncher.components.gamepad.ControllerMappingItem
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperbackend.game.platform.input.PlatformGrabListener
-import com.ashmeet.hyperbackend.utils.KeycodeUtils
+import com.ashmeet.hyperlauncher.utils.KeycodeUtils
 
 class GamepadMapperAdapter(context: Context) : RecyclerView.Adapter<GamepadMapperAdapter.ViewHolder>(), GamepadDataProvider {
     private lateinit var mSimulatedGamepadMap: GamepadMap

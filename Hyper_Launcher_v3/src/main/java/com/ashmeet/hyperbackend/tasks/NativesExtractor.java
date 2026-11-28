@@ -2,7 +2,7 @@ package com.ashmeet.hyperbackend.tasks;
 
 import com.ashmeet.hyperlauncher.utils.Architecture;
 import com.ashmeet.hyperlauncher.utils.HyperUtils;
-import com.ashmeet.hyperbackend.utils.FileUtils;
+import com.ashmeet.hyperlauncher.utils.FileUtils;
 import com.ashmeet.hyperbackend.value.ExtractSettings;
 
 import java.io.File;

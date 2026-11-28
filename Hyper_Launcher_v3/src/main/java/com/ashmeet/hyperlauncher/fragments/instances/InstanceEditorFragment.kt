@@ -19,7 +19,6 @@ import com.ashmeet.hyperbackend.game.renderer.RendererCache
 import com.ashmeet.hyperbackend.instances.Instance
 import com.ashmeet.hyperbackend.instances.InstanceIconProvider
 import com.ashmeet.hyperbackend.instances.Instances
-import com.ashmeet.hyperbackend.utils.CropperUtils
 import com.ashmeet.hyperlauncher.extra.ExtraConstants
 import com.ashmeet.hyperlauncher.extra.ExtraCore
 import com.ashmeet.hyperlauncher.fragments.dialog.DeleteConfirmDialogFragment
@@ -28,6 +27,7 @@ import com.ashmeet.hyperlauncher.runtime.Runtime
 import com.ashmeet.hyperlauncher.runtime.RuntimeUtils
 import com.ashmeet.hyperlauncher.screens.instances.InstanceEditorScreen
 import com.ashmeet.hyperlauncher.theme.PojavTheme
+import com.ashmeet.hyperlauncher.utils.CropperUtils
 import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperlauncher.utils.horizon.HorizonUtils
 import net.ashmeet.hyperlauncher.R
@@ -268,7 +268,8 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
     override fun getAspectRatio(): Float = 1f
     override fun getTargetMaxSide(): Int = mRecommendedIconSize
 
-    override fun onCropped(contentBitmap: Bitmap) {
+    override fun onCropped(contentBitmap: Bitmap?) {
+        if (contentBitmap == null) return
         mInstanceIcon = contentBitmap.toDrawable(resources)
         try {
             mInstance?.encodeNewIcon(contentBitmap)
@@ -278,8 +279,8 @@ class InstanceEditorFragment : Fragment(), CropperUtils.CropperReceiver {
         }
     }
 
-    override fun onFailed(exception: Exception) {
-        HyperUtils.showErrorRemote(exception)
+    override fun onFailed(exception: Exception?) {
+        if (exception != null) HyperUtils.showErrorRemote(exception)
     }
 
     companion object {

@@ -39,8 +39,8 @@ import com.ashmeet.hyperbackend.customcontrols.ControlData
 import com.ashmeet.hyperbackend.customcontrols.ControlJoystickData
 import com.ashmeet.hyperbackend.customcontrols.buttons.ControlDrawer
 import com.ashmeet.hyperbackend.customcontrols.buttons.ControlInterface
-import com.ashmeet.hyperbackend.utils.CropperUtils
-import com.ashmeet.hyperbackend.utils.KeycodeUtils
+import com.ashmeet.hyperlauncher.utils.CropperUtils
+import com.ashmeet.hyperlauncher.utils.KeycodeUtils
 import kotlin.math.abs
 
 class EditControlSideDialog : SideDialogView() {
@@ -224,7 +224,6 @@ private fun EditControlContent(
             )
         }
 
-        @OptIn(ExperimentalAnimationApi::class)
         AnimatedContent(
             targetState = selectedTab,
             transitionSpec = {
@@ -468,7 +467,8 @@ private fun EditControlContent(
                                                 button.controlView.height
                                             )
 
-                                            override fun onCropped(contentBitmap: Bitmap) {
+                                            override fun onCropped(contentBitmap: Bitmap?) {
+                                                if (contentBitmap == null) return
                                                 val storage = button.controlLayoutParent.bitmaps
                                                 properties.bitmapTag = storage.putBitmap(
                                                     contentBitmap,
@@ -477,8 +477,9 @@ private fun EditControlContent(
                                                 button.setBackground()
                                             }
 
-                                            override fun onFailed(e: Exception) =
-                                                HyperUtils.showError(context, e)
+                                            override fun onFailed(exception: Exception?) {
+                                                if (exception != null) HyperUtils.showError(context, exception)
+                                            }
                                         }
                                         context.startCropping(receiver)
                                     }

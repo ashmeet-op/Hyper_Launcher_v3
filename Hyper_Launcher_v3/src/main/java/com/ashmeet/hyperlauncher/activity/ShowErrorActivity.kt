@@ -8,7 +8,7 @@ import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperbackend.lifecycle.ContextExecutorTask
-import com.ashmeet.hyperbackend.utils.NotificationUtils
+import com.ashmeet.hyperlauncher.utils.NotificationUtils
 import java.io.Serializable
 
 class ShowErrorActivity : BaseActivity() {

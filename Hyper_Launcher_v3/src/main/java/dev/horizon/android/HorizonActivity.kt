@@ -1,5 +1,3 @@
-@file:Suppress("ConvertToExplicitBackingFields")
-
 package dev.horizon.android
 
 import android.app.NativeActivity
@@ -38,7 +36,9 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -72,7 +72,7 @@ import com.ashmeet.hyperbackend.game.platform.Platform
 import com.ashmeet.hyperbackend.game.platform.backend.HorizonBackend
 import com.ashmeet.hyperbackend.instances.Instances
 import com.ashmeet.hyperbackend.lifecycle.ContextExecutor
-import com.ashmeet.hyperbackend.utils.KeycodeUtils
+import com.ashmeet.hyperlauncher.utils.KeycodeUtils
 import com.ashmeet.hyperlauncher.fragments.dialog.EditControlSideDialog
 import com.ashmeet.hyperlauncher.fragments.dialog.QuickSettingSideDialog
 import com.ashmeet.hyperlauncher.fragments.dialog.SideDialogView
@@ -97,6 +97,8 @@ open class HorizonActivity : NativeActivity(),
     private val savedStateRegistryController = SavedStateRegistryController.create(this)
 
     private val lifecycleRegistry = LifecycleRegistry(this)
+
+    @Suppress("ConvertToExplicitBackingFields")
     override val lifecycle: Lifecycle
         get() = lifecycleRegistry
 
@@ -156,16 +158,36 @@ open class HorizonActivity : NativeActivity(),
         const val EXTRA_QUICK_PLAY_SERVER = "dev.horizon.android.extra.QUICK_PLAY_SERVER"
         const val EXTRA_HOST_CONTROLS = "dev.horizon.android.extra.HOST_CONTROLS"
         const val EXTRA_RENDERER = "dev.horizon.android.extra.RENDERER"
-        private const val ENV_HOME = "HORIZON_HOME"
-        private const val ENV_GAME_DIR = "HORIZON_GAME_DIR"
-        private const val ENV_SESSION = "HORIZON_SESSION"
-        private const val ENV_QUICK_PLAY_WORLD = "HORIZON_QUICK_PLAY_WORLD"
-        private const val ENV_QUICK_PLAY_SERVER = "HORIZON_QUICK_PLAY_SERVER"
-        private const val ENV_AUTOPLAY = "HORIZON_AUTOPLAY"
-        private const val ENV_HOST_CONTROLS = "HORIZON_HOST_CONTROLS"
-        private const val ENV_RENDERER = "HORIZON_RENDERER"
-        private const val ENV_LOCK_DIR = "HORIZON_LOCK_DIR"
+        const val EXTRA_VULKAN_DRIVER_NAME = "dev.horizon.android.extra.VULKAN_DRIVER_NAME"
+        const val EXTRA_VULKAN_DRIVER_DIR = "dev.horizon.android.extra.VULKAN_DRIVER_DIR"
+        const val EXTRA_VULKAN_DRIVER_LIBRARY = "dev.horizon.android.extra.VULKAN_DRIVER_LIBRARY"
+        const val EXTRA_VULKAN_DRIVER_TURNIP = "dev.horizon.android.extra.VULKAN_DRIVER_TURNIP"
+
+        const val EXTRA_ACCOUNT_NAME = "dev.horizon.android.extra.ACCOUNT_NAME"
+        const val EXTRA_ACCOUNT_UUID = "dev.horizon.android.extra.ACCOUNT_UUID"
+        const val EXTRA_ACCOUNT_TOKEN = "dev.horizon.android.extra.ACCOUNT_TOKEN"
+        const val EXTRA_ACCOUNT_TYPE = "dev.horizon.android.extra.ACCOUNT_TYPE"
+        const val EXTRA_SKIN_PATH = "dev.horizon.android.extra.SKIN_PATH"
+        const val EXTRA_CAPE_PATH = "dev.horizon.android.extra.CAPE_PATH"
+
+        private const val ENV_HOME = "HYPER_HORIZON_HOME"
+        private const val ENV_GAME_DIR = "HYPER_HORIZON_GAME_DIR"
+        private const val ENV_SESSION = "HYPER_HORIZON_SESSION"
+        private const val ENV_QUICK_PLAY_WORLD = "HYPER_HORIZON_QUICK_PLAY_WORLD"
+        private const val ENV_QUICK_PLAY_SERVER = "HYPER_HORIZON_QUICK_PLAY_SERVER"
+        private const val ENV_AUTOPLAY = "HYPER_HORIZON_AUTOPLAY"
+        private const val ENV_HOST_CONTROLS = "HYPER_HORIZON_HOST_CONTROLS"
+        private const val ENV_RENDERER = "HYPER_HORIZON_RENDERER"
+        private const val ENV_VULKAN_DRIVER = "HYPER_HORIZON_VULKAN_DRIVER"
+        private const val ENV_LOCK_DIR = "HYPER_HORIZON_LOCK_DIR"
+        private const val ENV_ACCOUNT_NAME = "HYPER_HORIZON_ACCOUNT_NAME"
+        private const val ENV_ACCOUNT_UUID = "HYPER_HORIZON_ACCOUNT_UUID"
+        private const val ENV_ACCOUNT_TOKEN = "HYPER_HORIZON_ACCOUNT_TOKEN"
+        private const val ENV_ACCOUNT_TYPE = "HYPER_HORIZON_ACCOUNT_TYPE"
+        private const val ENV_SKIN_PATH = "HYPER_HORIZON_SKIN_PATH"
+        private const val ENV_CAPE_PATH = "HYPER_HORIZON_CAPE_PATH"
         private const val ENV_TELEMETRY_URL = "HORIZON_TELEMETRY_URL"
+        private const val TAG = "HyperHorizon"
 
         @JvmField
         var touchCharInput: TouchCharInput? = null
@@ -213,6 +235,7 @@ open class HorizonActivity : NativeActivity(),
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        WindowCompat.enableEdgeToEdge(window)
         savedStateRegistryController.performRestore(savedInstanceState)
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
         super.onCreate(savedInstanceState)
@@ -249,7 +272,7 @@ open class HorizonActivity : NativeActivity(),
         controlLayout?.post(grabStateRunnable)
 
         Platform.setPlatformLibrary(HorizonBackend())
-        Platform.grabStateChanged(HorizonInput.isGrabbed)
+        Platform.grabStateChanged(true)
         mLastGrabState = HorizonInput.isGrabbed
         HorizonInput.setKeyRepeat(true)
         gyroControl = GyroControl(this)
@@ -276,6 +299,46 @@ open class HorizonActivity : NativeActivity(),
         }
     }
 
+    private fun prepareVulkanDriver(intent: Intent?): String? {
+        val name = extra(intent, EXTRA_VULKAN_DRIVER_NAME)
+        val dir = extra(intent, EXTRA_VULKAN_DRIVER_DIR)
+        val library = extra(intent, EXTRA_VULKAN_DRIVER_LIBRARY)
+        val turnip = intent?.getBooleanExtra(EXTRA_VULKAN_DRIVER_TURNIP, false) ?: false
+        val custom = name != null && dir != null && library != null
+                && java.io.File(library).isFile && java.io.File(dir).isDirectory
+        val libraryName = if (custom) java.io.File(library).name else null
+        val supportDir = applicationInfo?.nativeLibraryDir
+        setEnv(ENV_VULKAN_DRIVER, if (custom) "custom" else null)
+        setEnv("HYPER_USE_SYSTEM_VULKAN", if (custom) "0" else "1")
+        setEnv("HYPER_LOAD_CUSTOM_VULKAN", if (custom) "1" else null)
+        setEnv("DRIVER_PATH", if (custom) dir else null)
+        setEnv("HYPER_CUSTOM_VULKAN_DRIVER_DIR", if (custom) dir else null)
+        setEnv("HYPER_CUSTOM_VULKAN_SUPPORT_DIR", if (custom) supportDir else null)
+        setEnv("HYPER_CUSTOM_VULKAN_DRIVER", if (custom) library else null)
+        setEnv("HYPER_CUSTOM_VULKAN_DRIVER_NAME", libraryName)
+        setEnv("HYPER_TURNIP_DRIVER_DIR", if (custom && turnip) dir else null)
+        setEnv("HYPER_TURNIP_DRIVER_LIBRARY", if (custom && turnip) library else null)
+        setEnv("HYPER_LOAD_TURNIP", if (custom && turnip) "1" else null)
+        setEnv("HYPER_USE_CUSTOM_TURNIP", if (custom && turnip) "1" else null)
+        setEnv("HYPER_VULKAN_DRIVER_REPORT", if (custom) name else null)
+
+        val cache = cacheDir
+        setEnv("TMPDIR", cache?.absolutePath)
+
+        val aliasDir = if (custom && cache != null) java.io.File(cache, "horizon-vulkan-loader") else null
+        if (aliasDir != null) {
+            aliasDir.mkdirs()
+            val stale = java.io.File(aliasDir, "libvulkan.so")
+            if (stale.isFile && !stale.delete()) {
+                Log.w(TAG, "Could not delete the previous Vulkan loader alias $stale")
+            }
+        }
+        setEnv("HYPER_KOPPER_FORCE_NAMESPACE_VULKAN", if (aliasDir != null) "1" else null)
+        setEnv("HYPER_KOPPER_VULKAN_ALIAS_DIR", aliasDir?.absolutePath)
+        if (custom) Log.i(TAG, "Vulkan driver for Horizon: $name ($library)")
+        return if (custom) name else null
+    }
+
     private fun setupHorizonHandoffEnvironment() {
         val intent = intent
         var home = extra(intent, EXTRA_ENGINE_HOME)
@@ -294,6 +357,12 @@ open class HorizonActivity : NativeActivity(),
         setEnv(ENV_QUICK_PLAY_SERVER, extra(intent, EXTRA_QUICK_PLAY_SERVER))
         setEnv(ENV_AUTOPLAY, "1")
         setEnv(ENV_HOST_CONTROLS, if (hostControls) "1" else null)
+        setEnv(ENV_ACCOUNT_NAME, extra(intent, EXTRA_ACCOUNT_NAME))
+        setEnv(ENV_ACCOUNT_UUID, extra(intent, EXTRA_ACCOUNT_UUID))
+        setEnv(ENV_ACCOUNT_TOKEN, extra(intent, EXTRA_ACCOUNT_TOKEN))
+        setEnv(ENV_ACCOUNT_TYPE, extra(intent, EXTRA_ACCOUNT_TYPE))
+        setEnv(ENV_SKIN_PATH, extra(intent, EXTRA_SKIN_PATH))
+        setEnv(ENV_CAPE_PATH, extra(intent, EXTRA_CAPE_PATH))
         setEnv(ENV_TELEMETRY_URL, "off")
         setEnv("HORIZON_NO_HEARTBEAT", "1")
 
@@ -301,6 +370,7 @@ open class HorizonActivity : NativeActivity(),
         lockDir.mkdirs()
         setEnv(ENV_LOCK_DIR, lockDir.absolutePath)
         setEnv(ENV_RENDERER, extra(intent, EXTRA_RENDERER))
+        prepareVulkanDriver(intent)
     }
 
     @Keep
@@ -314,6 +384,7 @@ open class HorizonActivity : NativeActivity(),
     }
 
     protected fun initLayout() {
+
         controlLayout = ControlLayout(this).apply {
             id = R.id.main_control_layout
             clipChildren = false
@@ -1024,7 +1095,16 @@ open class HorizonActivity : NativeActivity(),
     }
 
     private fun hideSystemUI() {
-        HyperUtils.setInsetsMode(this, noSystemBars = true, ignoreNotch = true)
+        try {
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            val controller = WindowInsetsControllerCompat(window, window.decorView)
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+            controller.hide(WindowInsetsCompat.Type.navigationBars())
+        } catch (e: Throwable) {
+            Log.e("HorizonActivity", "Failed to hide system UI", e)
+            HyperUtils.setInsetsMode(this, noSystemBars = true, ignoreNotch = LauncherPreferences.PREF_IGNORE_NOTCH)
+        }
     }
 
     @Suppress("KotlinJniMissingFunction")

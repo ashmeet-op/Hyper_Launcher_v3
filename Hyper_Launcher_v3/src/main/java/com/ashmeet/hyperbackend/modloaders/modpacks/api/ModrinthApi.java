@@ -23,8 +23,8 @@ import com.ashmeet.hyperbackend.modloaders.modpacks.models.ModItem;
 import com.ashmeet.hyperbackend.modloaders.modpacks.models.ModrinthIndex;
 import com.ashmeet.hyperbackend.modloaders.modpacks.models.SearchFilters;
 import com.ashmeet.hyperbackend.modloaders.modpacks.models.SearchResult;
-import com.ashmeet.hyperbackend.utils.FileUtils;
-import com.ashmeet.hyperbackend.utils.ZipUtils;
+import com.ashmeet.hyperlauncher.utils.FileUtils;
+import com.ashmeet.hyperlauncher.utils.ZipUtils;
 
 import java.io.File;
 import java.io.IOException;

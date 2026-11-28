@@ -2,7 +2,7 @@ package com.ashmeet.hyperlauncher.runtime
 
 import android.system.Os
 import android.util.Log
-import com.ashmeet.hyperbackend.utils.MathUtils
+import com.ashmeet.hyperlauncher.utils.MathUtils
 import com.ashmeet.hyperlauncher.utils.jre.JavaRunner
 import com.ashmeet.hyperlauncher.tracker.TrackerLayout
 import com.ashmeet.hyperlauncher.utils.HyperUtils
@@ -262,7 +262,7 @@ object RuntimeUtils {
 
     @Throws(IOException::class)
     private fun uncompressTarXZ(tarFileInputStream: InputStream, dest: File) {
-        com.ashmeet.hyperbackend.utils.FileUtils.ensureDirectory(dest)
+        com.ashmeet.hyperlauncher.utils.FileUtils.ensureDirectory(dest)
 
         val buffer = ByteArray(8192)
         TarArchiveInputStream(XZCompressorInputStream(tarFileInputStream)).use { tarIn ->
@@ -273,7 +273,7 @@ object RuntimeUtils {
                 TrackerLayout.setTracker(TrackerLayout.UNPACK_RUNTIME, 100, R.string.global_unpacking, tarEntryName)
 
                 val destPath = File(dest, entry.name)
-                com.ashmeet.hyperbackend.utils.FileUtils.ensureParentDirectory(destPath)
+                com.ashmeet.hyperlauncher.utils.FileUtils.ensureParentDirectory(destPath)
                 if (entry.isSymbolicLink) {
                     try {
                         Os.symlink(entry.name, entry.linkName)
@@ -281,7 +281,7 @@ object RuntimeUtils {
                         Log.e("MultiRT", e.toString())
                     }
                 } else if (entry.isDirectory) {
-                    com.ashmeet.hyperbackend.utils.FileUtils.ensureDirectory(destPath)
+                    com.ashmeet.hyperlauncher.utils.FileUtils.ensureDirectory(destPath)
                 } else if (!destPath.exists() || destPath.length() != entry.size) {
                     FileOutputStream(destPath).use { os ->
                         IOUtils.copyLarge(tarIn, os, buffer)

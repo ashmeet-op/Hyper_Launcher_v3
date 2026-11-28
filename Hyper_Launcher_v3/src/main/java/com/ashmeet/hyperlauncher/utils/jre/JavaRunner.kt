@@ -1,13 +1,12 @@
 package com.ashmeet.hyperlauncher.utils.jre
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.system.ErrnoException
 import android.system.Os
 import android.util.Log
 import com.ashmeet.hyperbackend.awt.AWTView
-import com.ashmeet.hyperbackend.utils.JREUtils
+import com.ashmeet.hyperlauncher.utils.JREUtils
 import com.ashmeet.hyperlauncher.runtime.Runtime
 import com.ashmeet.hyperlauncher.runtime.RuntimeUtils
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences

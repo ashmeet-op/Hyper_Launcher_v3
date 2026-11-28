@@ -48,7 +48,7 @@ import com.ashmeet.hyperlauncher.utils.translation.translatedText
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperbackend.game.renderer.RendererCache
 import com.ashmeet.hyperbackend.instances.Instances
-import com.ashmeet.hyperbackend.utils.MCOptionUtils
+import com.ashmeet.hyperlauncher.utils.MCOptionUtils
 import com.ashmeet.hyperbackend.vulkan.DriverInstaller
 import com.ashmeet.hyperbackend.vulkan.DriverManager
 import com.ashmeet.hyperbackend.vulkan.ui.VulkanDriverDialog

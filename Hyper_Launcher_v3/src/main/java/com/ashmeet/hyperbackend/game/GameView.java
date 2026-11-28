@@ -2,7 +2,7 @@ package com.ashmeet.hyperbackend.game;
 
 import static com.ashmeet.hyperbackend.CallbackBridge.windowRate;
 import static com.ashmeet.hyperbackend.game.GameActivity.touchCharInput;
-import static com.ashmeet.hyperbackend.utils.MCOptionUtils.getMcScale;
+import static com.ashmeet.hyperlauncher.utils.MCOptionUtils.getMcScale;
 import static com.ashmeet.hyperbackend.CallbackBridge.sendMouseButton;
 import static com.ashmeet.hyperbackend.CallbackBridge.windowHeight;
 import static com.ashmeet.hyperbackend.CallbackBridge.windowWidth;
@@ -42,7 +42,7 @@ import com.ashmeet.hyperlauncher.recorder.SurfaceRecorderHook;
 import com.ashmeet.hyperbackend.render.SurfaceProvider;
 import com.ashmeet.hyperbackend.render.SurfaceViewSurfaceProvider;
 import com.ashmeet.hyperbackend.render.TextureViewSurfaceProvider;
-import com.ashmeet.hyperbackend.utils.MCOptionUtils;
+import com.ashmeet.hyperlauncher.utils.MCOptionUtils;
 
 
 import git.artdeell.mojoexec.MojoExec;

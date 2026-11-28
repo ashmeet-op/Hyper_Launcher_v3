@@ -2,17 +2,15 @@ package com.ashmeet.hyperlauncher.utils
 
 import android.content.res.AssetManager
 import android.util.Log
-import com.ashmeet.hyperlauncher.utils.Architecture.archAsString
-import com.ashmeet.hyperlauncher.tracker.TrackerLayout
-import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperbackend.JVersionList
 import com.ashmeet.hyperbackend.instances.Instances
-import com.ashmeet.hyperlauncher.runtime.RuntimeUtils
-import com.ashmeet.hyperlauncher.runtime.Runtime
 import com.ashmeet.hyperbackend.progresskeeper.DownloaderProgressWrapper
-import com.ashmeet.hyperbackend.utils.MathUtils
-import com.ashmeet.hyperbackend.utils.SignatureCheckUtil
+import com.ashmeet.hyperlauncher.runtime.Runtime
+import com.ashmeet.hyperlauncher.runtime.RuntimeUtils
+import com.ashmeet.hyperlauncher.tracker.TrackerLayout
+import com.ashmeet.hyperlauncher.utils.Architecture.archAsString
 import com.ashmeet.hyperlauncher.utils.jre.RuntimeSelectionException
+import net.ashmeet.hyperlauncher.R
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
@@ -70,7 +68,7 @@ object JavaRuntimeUtil {
                 runtimePath + component, output, downloadBuffer,
                 DownloaderProgressWrapper(progressString, TrackerLayout.UNPACK_RUNTIME)
             )
-            val signature = signatures[component]
+            val signature = signatures[component] ?: return false
             FileInputStream(output).use { fileInputStream ->
                 return signatureCheckUtil.verify(fileInputStream, signature)
             }
@@ -161,7 +159,7 @@ object JavaRuntimeUtil {
 
         val selectedRankedRuntime = MathUtils.objectMin(
             nearestInternalRuntime, nearestInstalledRuntime
-        ) { it?.rank ?: Int.MAX_VALUE }
+        ) { it.rank }
 
         if (selectedRankedRuntime == null) {
             throw RuntimeSelectionException(RuntimeSelectionException.RUNTIME_STATE_SELECTION_FAILED, gameRequiredVersion)

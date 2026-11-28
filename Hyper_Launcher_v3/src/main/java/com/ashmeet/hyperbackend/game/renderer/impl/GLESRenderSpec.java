@@ -7,7 +7,7 @@ import android.util.Log;
 import com.ashmeet.hyperbackend.game.renderer.RenderSpec;
 import com.ashmeet.hyperbackend.game.renderer.def.Renderers;
 import com.ashmeet.hyperbackend.game.renderer.extra.GLESProvider;
-import com.ashmeet.hyperbackend.utils.JREUtils;
+import com.ashmeet.hyperlauncher.utils.JREUtils;
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 import com.ashmeet.hyperlauncher.utils.HyperUtils;
 

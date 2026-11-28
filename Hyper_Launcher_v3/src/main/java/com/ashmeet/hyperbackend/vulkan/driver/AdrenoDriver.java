@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.ashmeet.hyperbackend.utils.JSONUtils;
+import com.ashmeet.hyperlauncher.utils.JSONUtils;
 import com.ashmeet.hyperbackend.vulkan.DriverManager;
 
 // AdrenoTools package driver

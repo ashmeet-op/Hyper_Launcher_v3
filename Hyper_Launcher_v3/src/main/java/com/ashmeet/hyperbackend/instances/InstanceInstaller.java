@@ -21,8 +21,8 @@ import com.ashmeet.hyperbackend.lifecycle.ContextExecutorTask;
 import com.ashmeet.hyperbackend.modloaders.OFDownloadPageScraper;
 import com.ashmeet.hyperbackend.progresskeeper.DownloaderProgressWrapper;
 import com.ashmeet.hyperlauncher.utils.DownloadUtils;
-import com.ashmeet.hyperbackend.utils.JSONUtils;
-import com.ashmeet.hyperbackend.utils.NotificationUtils;
+import com.ashmeet.hyperlauncher.utils.JSONUtils;
+import com.ashmeet.hyperlauncher.utils.NotificationUtils;
 
 import java.io.File;
 import java.io.IOException;

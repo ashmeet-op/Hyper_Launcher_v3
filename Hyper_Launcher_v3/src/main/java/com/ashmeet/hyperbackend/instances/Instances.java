@@ -4,8 +4,8 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreference
 import com.google.gson.JsonSyntaxException;
 
 import com.ashmeet.hyperlauncher.utils.HyperUtils;
-import com.ashmeet.hyperbackend.utils.FileUtils;
-import com.ashmeet.hyperbackend.utils.JSONUtils;
+import com.ashmeet.hyperlauncher.utils.FileUtils;
+import com.ashmeet.hyperlauncher.utils.JSONUtils;
 
 import java.io.File;
 import java.io.IOException;

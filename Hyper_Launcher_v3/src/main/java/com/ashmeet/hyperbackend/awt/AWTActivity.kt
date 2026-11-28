@@ -31,9 +31,9 @@ import com.ashmeet.hyperbackend.game.platform.Platform
 import com.ashmeet.hyperbackend.game.platform.backend.AWTBackend
 import com.ashmeet.hyperlauncher.runtime.RuntimeUtils
 import com.ashmeet.hyperlauncher.runtime.Runtime
-import com.ashmeet.hyperbackend.utils.JREUtils
-import com.ashmeet.hyperbackend.utils.MathUtils
-import com.ashmeet.hyperbackend.utils.SingleTapConfirm
+import com.ashmeet.hyperlauncher.utils.JREUtils
+import com.ashmeet.hyperlauncher.utils.MathUtils
+import com.ashmeet.hyperlauncher.utils.SingleTapConfirm
 import com.ashmeet.hyperlauncher.utils.jre.JavaRunner
 import org.apache.commons.io.IOUtils
 import java.io.File

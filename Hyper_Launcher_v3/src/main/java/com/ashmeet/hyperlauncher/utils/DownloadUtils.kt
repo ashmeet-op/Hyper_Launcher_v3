@@ -2,8 +2,6 @@ package com.ashmeet.hyperlauncher.utils
 
 import android.os.Build
 import android.util.Log
-import com.ashmeet.hyperbackend.utils.FileUtils
-import com.ashmeet.hyperbackend.utils.HashUtils
 import org.apache.commons.io.IOUtils
 import java.io.*
 import java.net.HttpURLConnection

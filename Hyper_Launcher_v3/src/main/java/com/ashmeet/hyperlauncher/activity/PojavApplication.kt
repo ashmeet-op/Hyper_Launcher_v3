@@ -16,8 +16,8 @@ import androidx.core.app.ActivityCompat
 import com.ashmeet.hyperbackend.lifecycle.ContextExecutor
 import com.ashmeet.hyperbackend.tasks.AsyncAssetManager
 import com.ashmeet.hyperbackend.tasks.HyperDownloader
-import com.ashmeet.hyperbackend.utils.FileUtils
-import com.ashmeet.hyperbackend.utils.LocaleUtils
+import com.ashmeet.hyperlauncher.utils.FileUtils
+import com.ashmeet.hyperlauncher.utils.LocaleUtils
 import com.ashmeet.hyperlauncher.plugin.PluginLoader
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.utils.Architecture

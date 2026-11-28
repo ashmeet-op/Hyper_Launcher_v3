@@ -14,7 +14,7 @@ import net.ashmeet.hyperlauncher.R;
 import com.ashmeet.hyperlauncher.utils.HyperUtils;
 import com.ashmeet.hyperbackend.progresskeeper.ProgressKeeper;
 import com.ashmeet.hyperbackend.tasks.HyperExtras;
-import com.ashmeet.hyperbackend.utils.NotificationUtils;
+import com.ashmeet.hyperlauncher.utils.NotificationUtils;
 
 import java.io.File;
 

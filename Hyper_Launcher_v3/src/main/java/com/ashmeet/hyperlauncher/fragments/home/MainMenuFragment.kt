@@ -25,7 +25,7 @@ import com.ashmeet.hyperlauncher.extra.ExtraConstants
 import com.ashmeet.hyperlauncher.extra.ExtraCore
 import com.ashmeet.hyperbackend.instances.Instances
 import com.ashmeet.hyperbackend.progresskeeper.ProgressKeeper
-import com.ashmeet.hyperbackend.utils.FileUtils
+import com.ashmeet.hyperlauncher.utils.FileUtils
 
 class MainMenuFragment : Fragment() {
 

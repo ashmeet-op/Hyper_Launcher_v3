@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import com.ashmeet.hyperlauncher.screens.settings.ExperimentalSettingsScreen
 import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
-import com.ashmeet.hyperbackend.utils.GLInfoUtils
+import com.ashmeet.hyperlauncher.utils.GLInfoUtils
 
 class LauncherPreferenceExperimentalFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -19,7 +19,7 @@ class LauncherPreferenceExperimentalFragment : Fragment(), SharedPreferences.OnS
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val hasFreedreno = GLInfoUtils.getGlInfo().isAdreno
+        val hasFreedreno = GLInfoUtils.getGlInfo().isAdreno()
         return ComposeView(requireContext()).apply {
             setContent {
                 PojavTheme {

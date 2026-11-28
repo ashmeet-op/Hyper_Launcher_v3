@@ -1,7 +1,7 @@
 package com.ashmeet.hyperbackend.downloader;
 
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
-import com.ashmeet.hyperbackend.utils.HashUtils;
+import com.ashmeet.hyperlauncher.utils.HashUtils;
 
 import java.io.File;
 import java.io.IOException;

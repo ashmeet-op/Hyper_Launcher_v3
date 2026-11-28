@@ -7,7 +7,7 @@ import android.view.MotionEvent;
 
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences;
 import com.ashmeet.hyperlauncher.utils.HyperUtils;
-import com.ashmeet.hyperbackend.utils.MathUtils;
+import com.ashmeet.hyperlauncher.utils.MathUtils;
 
 public class LeftClickGesture extends DistanceGesture {
     public static final int FINGER_STILL_THRESHOLD = (int) HyperUtils.dpToPx(9);

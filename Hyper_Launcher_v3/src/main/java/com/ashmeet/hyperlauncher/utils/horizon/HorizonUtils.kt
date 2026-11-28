@@ -193,6 +193,32 @@ object HorizonUtils {
         try {
             val intent = Intent(context, HorizonActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                try {
+                    val account = com.ashmeet.hyperbackend.authenticator.accounts.Accounts.getCurrent()
+                    if (account != null) {
+                        if (!account.username.isNullOrBlank()) {
+                            putExtra(HorizonActivity.EXTRA_ACCOUNT_NAME, account.username)
+                        }
+                        if (!account.profileId.isNullOrBlank()) {
+                            putExtra(HorizonActivity.EXTRA_ACCOUNT_UUID, account.profileId)
+                        }
+                        if (!account.accessToken.isNullOrBlank()) {
+                            putExtra(HorizonActivity.EXTRA_ACCOUNT_TOKEN, account.accessToken)
+                        }
+                        val type = if (account.isMicrosoft || account.authType == com.ashmeet.hyperbackend.authenticator.AuthType.MICROSOFT) "msa" else "legacy"
+                        putExtra(HorizonActivity.EXTRA_ACCOUNT_TYPE, type)
+
+                        account.skinPath?.takeIf { it.isNotBlank() && File(it).exists() }?.let { skin ->
+                            putExtra(HorizonActivity.EXTRA_SKIN_PATH, skin)
+                        }
+                        account.capePath?.takeIf { it.isNotBlank() && File(it).exists() }?.let { cape ->
+                            putExtra(HorizonActivity.EXTRA_CAPE_PATH, cape)
+                        }
+                    }
+                } catch (e: Throwable) {
+                    Log.w(TAG, "Failed to load current account for Horizon", e)
+                }
+
                 configureIntent?.invoke(this)
             }
             context.startActivity(intent)

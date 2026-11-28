@@ -13,8 +13,8 @@ import com.ashmeet.hyperlauncher.theme.PojavTheme
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
 import com.ashmeet.hyperlauncher.utils.HyperUtils
 import com.ashmeet.hyperbackend.instances.Instances
-import com.ashmeet.hyperbackend.utils.GpuUtils
-import com.ashmeet.hyperbackend.utils.MCOptionUtils
+import com.ashmeet.hyperlauncher.utils.GpuUtils
+import com.ashmeet.hyperlauncher.utils.MCOptionUtils
 import java.io.File
 
 class LauncherPreferenceVideoFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener {

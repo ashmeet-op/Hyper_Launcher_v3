@@ -9,7 +9,7 @@ import android.widget.TextView
 import com.ashmeet.hyperlauncher.utils.HyperUtils
 import net.ashmeet.hyperlauncher.R
 import com.ashmeet.hyperbackend.JVersionList
-import com.ashmeet.hyperbackend.utils.FilteredSubList
+import com.ashmeet.hyperlauncher.utils.FilteredSubList
 import java.io.File
 
 class VersionListAdapter(versionList: Array<JVersionList.Version>, private val hideCustomVersions: Boolean, ctx: Context) : BaseExpandableListAdapter() {

@@ -5,7 +5,7 @@ import android.util.Log;
 import com.google.gson.JsonParseException;
 
 import com.ashmeet.hyperlauncher.utils.HyperUtils;
-import com.ashmeet.hyperbackend.utils.FileUtils;
+import com.ashmeet.hyperlauncher.utils.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
