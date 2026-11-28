@@ -1,4 +1,4 @@
-package com.ashmeet.hyperlauncher.utils.plugins
+package com.ashmeet.hyperlauncher.plugin.library
 
 import android.content.Context
 import android.content.pm.PackageManager

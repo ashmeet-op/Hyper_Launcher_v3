@@ -40,17 +40,24 @@ public class GameCursorView extends View implements PlatformCursorImplementor {
 
     public GameCursorView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        customCursorPaint.setFilterBitmap(true);
+        customCursorPaint.setAntiAlias(true);
         PlatformCursor launcherCursor = null;
         try {
             launcherCursor = CursorUtils.loadStandardCursor(context, 0);
         } catch (Throwable ignored) {}
 
         if (launcherCursor != null && launcherCursor.bitmap != null && !launcherCursor.bitmap.isRecycled()) {
-            cursorDrawable = new BitmapDrawable(context.getResources(), launcherCursor.bitmap);
+            BitmapDrawable bd = new BitmapDrawable(context.getResources(), launcherCursor.bitmap);
+            bd.setFilterBitmap(true);
+            cursorDrawable = bd;
             cursorDrawable.setBounds(0, 0, launcherCursor.bitmap.getWidth(), launcherCursor.bitmap.getHeight());
         } else {
             cursorDrawable = ContextCompat.getDrawable(context, R.drawable.img_mouse_pointer_arrow);
             assert cursorDrawable != null;
+            if (cursorDrawable instanceof BitmapDrawable) {
+                cursorDrawable.setFilterBitmap(true);
+            }
             int size = (int) HyperUtils.dpToPx(24);
             cursorDrawable.setBounds(0, 0, size, (int) (size * ((float) cursorDrawable.getIntrinsicHeight() / cursorDrawable.getIntrinsicWidth())));
         }

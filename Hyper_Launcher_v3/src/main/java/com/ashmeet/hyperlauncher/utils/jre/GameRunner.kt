@@ -36,7 +36,7 @@ import com.ashmeet.hyperlauncher.utils.JREUtils
 import com.ashmeet.hyperlauncher.utils.JSONUtils
 import com.ashmeet.hyperlauncher.utils.MCOptionUtils
 import com.ashmeet.hyperlauncher.utils.OldVersionsUtils
-import com.ashmeet.hyperlauncher.utils.plugins.LibraryPlugin
+import com.ashmeet.hyperlauncher.plugin.library.LibraryPlugin
 import net.ashmeet.hyperlauncher.R
 import java.io.File
 import java.io.IOException

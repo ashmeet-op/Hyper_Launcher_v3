@@ -72,7 +72,6 @@ import com.ashmeet.hyperbackend.game.platform.Platform
 import com.ashmeet.hyperbackend.game.platform.backend.HorizonBackend
 import com.ashmeet.hyperbackend.instances.Instances
 import com.ashmeet.hyperbackend.lifecycle.ContextExecutor
-import com.ashmeet.hyperlauncher.utils.KeycodeUtils
 import com.ashmeet.hyperlauncher.fragments.dialog.EditControlSideDialog
 import com.ashmeet.hyperlauncher.fragments.dialog.QuickSettingSideDialog
 import com.ashmeet.hyperlauncher.fragments.dialog.SideDialogView
@@ -81,6 +80,7 @@ import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreference
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences.PREF_ENABLE_GYRO
 import com.ashmeet.hyperlauncher.utils.Architecture
 import com.ashmeet.hyperlauncher.utils.HyperUtils
+import com.ashmeet.hyperlauncher.utils.KeycodeUtils
 import com.ashmeet.hyperlauncher.utils.SideDialogUtils
 import com.ashmeet.hyperlauncher.utils.helper.LauncherComposeHelper
 import net.ashmeet.hyperlauncher.R
@@ -131,23 +131,9 @@ open class HorizonActivity : NativeActivity(),
     private var mLastGrabState = false
     private val grabStateRunnable = object : Runnable {
         override fun run() {
-            checkGrabState()
             weakCursor?.get()?.onCursorChanged()
             controlLayout?.postDelayed(this, 100)
         }
-    }
-
-    private fun checkGrabState(): Boolean {
-        try {
-            val grabbed = HorizonInput.isGrabbed
-            if (grabbed != mLastGrabState) {
-                mLastGrabState = grabbed
-                Platform.grabStateChanged(grabbed)
-            } else {
-                return false
-            }
-        } catch (_: Throwable) {}
-        return true
     }
 
     companion object {
@@ -272,13 +258,19 @@ open class HorizonActivity : NativeActivity(),
         controlLayout?.post(grabStateRunnable)
 
         Platform.setPlatformLibrary(HorizonBackend())
-        Platform.grabStateChanged(true)
         mLastGrabState = HorizonInput.isGrabbed
         HorizonInput.setKeyRepeat(true)
         gyroControl = GyroControl(this)
         ContextExecutor.setActivity(this)
 
         LauncherComposeHelper.setLoadingVisible(false)
+    }
+
+    @Keep
+    @Suppress("unused")
+    fun onGrabStateChanged(grabbing: Boolean) {
+        Platform.grabStateChanged(grabbing)
+        updateOverlayFocusableState()
     }
 
     private fun extra(intent: Intent?, key: String): String? {
@@ -552,6 +544,9 @@ open class HorizonActivity : NativeActivity(),
                 GameActivity.mImeHeight = 0
                 mImeHeight = 0
                 HorizonInput.setImeViewportBottomInset(0)
+                if (touchCharInput?.isEnabled == true) {
+                    touchCharInput?.disable()
+                }
             } else {
                 val imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
                 GameActivity.mImeHeight = imeHeight
@@ -941,7 +936,6 @@ open class HorizonActivity : NativeActivity(),
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-        checkGrabState()
         updateOverlayFocusableState()
         if (touchCharInput?.isEnabled == true) {
             return super.dispatchTouchEvent(ev)

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.MotionEvent
@@ -28,7 +29,10 @@ class HorizonCursorView @JvmOverloads constructor(
     defStyleRes: Int = 0
 ) : View(context, attrs, defStyleAttr, defStyleRes), PlatformCursorImplementor {
 
-    private val customCursorPaint = Paint()
+    private val customCursorPaint = Paint().apply {
+        isFilterBitmap = true
+        isAntiAlias = true
+    }
     private var defaultCursorDrawable: Drawable
     private var cursorDrawable: Drawable
     private var noDraw = false
@@ -40,6 +44,9 @@ class HorizonCursorView @JvmOverloads constructor(
         val drawable = ContextCompat.getDrawable(context, R.drawable.img_mouse_pointer_arrow)
         requireNotNull(drawable)
         defaultCursorDrawable = drawable
+        if (defaultCursorDrawable is BitmapDrawable) {
+            (defaultCursorDrawable as BitmapDrawable).isFilterBitmap = true
+        }
         val size = HyperUtils.dpToPx(24f).toInt()
         val height = if (defaultCursorDrawable.intrinsicWidth > 0) {
             (size * (defaultCursorDrawable.intrinsicHeight.toFloat() / defaultCursorDrawable.intrinsicWidth)).toInt()
@@ -53,10 +60,16 @@ class HorizonCursorView @JvmOverloads constructor(
 
         if (launcherCursor?.bitmap != null && !launcherCursor.bitmap.isRecycled) {
             defaultCursorDrawable = launcherCursor.bitmap.toDrawable(context.resources)
+            if (defaultCursorDrawable is BitmapDrawable) {
+                (defaultCursorDrawable as BitmapDrawable).isFilterBitmap = true
+            }
             defaultCursorDrawable.setBounds(0, 0, launcherCursor.bitmap.width, launcherCursor.bitmap.height)
         }
 
         cursorDrawable = defaultCursorDrawable
+        if (cursorDrawable is BitmapDrawable) {
+            (cursorDrawable as BitmapDrawable).isFilterBitmap = true
+        }
         mouseScale = LauncherPreferences.PREF_MOUSESCALE * 4f
     }
 
@@ -130,6 +143,9 @@ class HorizonCursorView @JvmOverloads constructor(
                     val stdCursor = CursorUtils.loadStandardCursor(context, shapeName)
                     if (stdCursor?.bitmap != null && !stdCursor.bitmap.isRecycled) {
                         cursorDrawable = stdCursor.bitmap.toDrawable(context.resources)
+                        if (cursorDrawable is BitmapDrawable) {
+                            (cursorDrawable as BitmapDrawable).isFilterBitmap = true
+                        }
                         cursorDrawable.setBounds(0, 0, stdCursor.bitmap.width, stdCursor.bitmap.height)
                         Platform.setCursor(stdCursor.bitmap, stdCursor.hotX, stdCursor.hotY)
                     } else {

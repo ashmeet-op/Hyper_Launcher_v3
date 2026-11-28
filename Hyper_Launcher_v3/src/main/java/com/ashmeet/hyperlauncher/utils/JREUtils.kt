@@ -8,7 +8,7 @@ import com.ashmeet.hyperbackend.Logger
 import com.ashmeet.hyperbackend.game.renderer.GameRenderer
 import com.ashmeet.hyperlauncher.plugin.ffmpeg.FFmpegPluginManager
 import com.ashmeet.hyperlauncher.screens.settings.preferences.LauncherPreferences
-import com.ashmeet.hyperlauncher.utils.plugins.LibraryPlugin
+import com.ashmeet.hyperlauncher.plugin.library.LibraryPlugin
 import git.artdeell.mojoexec.MojoExec
 import java.io.BufferedReader
 import java.io.File
