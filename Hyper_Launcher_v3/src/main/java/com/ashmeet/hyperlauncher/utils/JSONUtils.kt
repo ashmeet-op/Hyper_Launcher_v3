@@ -11,7 +11,7 @@ import java.io.InputStreamReader
 object JSONUtils {
 
     @JvmStatic
-    fun insertJSONValueList(args: MutableList<String>, keyValueMap: Map<String, String>): MutableList<String> {
+    fun insertJSONValueList(args: MutableList<String>, keyValueMap: Map<String, String?>): MutableList<String> {
         for (i in args.indices) {
             args[i] = insertSingleJSONValue(args[i], keyValueMap)
         }
@@ -19,10 +19,10 @@ object JSONUtils {
     }
 
     @JvmStatic
-    fun insertSingleJSONValue(value: String, keyValueMap: Map<String, String>): String {
+    fun insertSingleJSONValue(value: String, keyValueMap: Map<String, String?>): String {
         var valueInserted = value
         for ((key, value1) in keyValueMap) {
-            valueInserted = valueInserted.replace("\${$key}", value1)
+            valueInserted = valueInserted.replace($$"${$$key}", value1 ?: "")
         }
         return valueInserted
     }

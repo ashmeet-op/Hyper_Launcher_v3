@@ -27,11 +27,13 @@ public class MirrorTamperedException extends Exception implements ContextExecuto
 
     private void addButtons(@UnknownNullability MaterialAlertDialogBuilder builder) {
         builder.setPositiveButton(R.string.dl_switch_to_official_site,(d,w)->{
+            assert LauncherPreferences.DEFAULT_PREF != null;
             LauncherPreferences.DEFAULT_PREF.edit().putString("downloadSource", "default").apply();
             LauncherPreferences.PREF_DOWNLOAD_SOURCE = "default";
 
         });
         builder.setNegativeButton(R.string.dl_turn_off_manifest_checks,(d,w)->{
+            assert LauncherPreferences.DEFAULT_PREF != null;
             LauncherPreferences.DEFAULT_PREF.edit().putBoolean("verifyManifest", false).apply();
             LauncherPreferences.PREF_VERIFY_MANIFEST = false;
         });

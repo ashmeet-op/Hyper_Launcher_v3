@@ -529,11 +529,11 @@ object GameRunner {
             Log.e("CheckForProfileKey", "Failed to determine profile creation date, using \"mojang\"", e)
         }
 
-        val varArgMap = ArrayMap<String, String>()
+        val varArgMap = ArrayMap<String, String?>()
         varArgMap["auth_session"] = profile.accessToken
         varArgMap["auth_access_token"] = profile.accessToken
         varArgMap["auth_player_name"] = username
-        varArgMap["auth_uuid"] = profile.profileId.replace("-", "")
+        varArgMap["auth_uuid"] = profile.profileId?.replace("-", "")
         varArgMap["auth_xuid"] = profile.xuid
         varArgMap["assets_root"] = HyperUtils.ASSETS_PATH
         varArgMap["assets_index_name"] = versionInfo.assets
